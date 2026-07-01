@@ -11,6 +11,10 @@ Generation capacities and annual generation targets come from the CEA resource
 adequacy report. Hourly generation availability and several operational-cost
 and unit-commitment parameters remain explicit dummy assumptions.
 
+The repository's run notebook does not optimize all 8,760 hours. It extracts
+the 168-hour Monday-Sunday week containing the annual demand peak, solves that
+subset, and exports the solved network to `tamil_nadu_2025_26.nc`.
+
 Load the model with:
 
 ```python
@@ -18,6 +22,34 @@ import pypsa
 
 n = pypsa.Network("inputs/tamil_nadu_ra_2025_26")
 ```
+
+## Repository workflow and outputs
+
+Run the notebooks from the repository root in this order:
+
+1. `run_peakday_2025_26.ipynb` loads this CSV folder, finds the annual peak at
+   16:00 on 11 July 2025, copies the 168 snapshots from 7 July 00:00 through
+   13 July 23:00, solves the mixed-integer unit-commitment problem with HiGHS,
+   and exports `tamil_nadu_2025_26.nc`.
+2. `results_analysis.ipynb` loads the exported network and plots generation by
+   carrier, pumped-storage power and state of charge, and coal commitment.
+
+The committed NetCDF is a derived result rather than a second input dataset. It
+contains an optimal 168-hour solution with no unserved energy. The CSV files in
+the repository-level `results/` directory are legacy two-bus example outputs
+and are not generated or consumed by this Tamil Nadu workflow.
+
+Subsetting changes how some constraints should be interpreted:
+
+- Hydro and STOA/MTOA `e_sum_max` values remain full-year limits; the notebook
+  does not prorate them for the selected week.
+- Pumped-storage cyclic state of charge closes across the selected week, not
+  across FY 2025-26.
+- Commitment initial conditions apply at the start of 7 July without a
+  preceding rolling-horizon solve.
+
+The solved week is therefore a dispatch and unit-commitment demonstration, not
+a completed annual resource-adequacy or reliability assessment.
 
 ## Sources
 
@@ -27,11 +59,8 @@ Central Electricity Authority (CEA), Ministry of Power, Government of India,
 *Report on Resource Adequacy Plan (Generation) for Tamil Nadu (2025-26 to
 2035-36)*, April 2026.
 
-Local source used:
-
-```text
-C:\Users\b076218\Downloads\Tamil_Nadu_Resource_Adequacy_Report_2035_36_1.pdf
-```
+The report PDF is not committed to this repository. The two demand workbooks
+listed below are included at the repository root.
 
 Relevant report references:
 
@@ -46,10 +75,8 @@ Relevant report references:
 
 ### Demand workbooks
 
-```text
-Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx
-Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx
-```
+- [`Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx`](../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2025.xlsx)
+- [`Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx`](../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2026.xlsx)
 
 The worksheet is `Yearly Demand Profile`; the selected fields are `State`,
 `Date`, and `Hourly Demand Met (in MW)`.
@@ -217,10 +244,23 @@ capacity in Table 15. The model assumes:
 10. Generator efficiency defaults to 1 and standby/capital/fixed costs default
     to zero where absent; these are not validated assumptions.
 
-## Solver note
+## Solver and consistency notes
 
-The dataset passes PyPSA's network consistency check. A monolithic 8,760-hour
-mixed-integer solve can exceed the five-minute `pypsa-mcp` call-response limit.
-This is a tooling timeout, not a data-validation failure. Run the supplied local
-notebook with HiGHS for an unrestricted solve, or use rolling-horizon UC after
-choosing an appropriate horizon and overlap.
+The supplied notebook solves only the peak-demand week because a monolithic
+8,760-hour mixed-integer solve is substantially larger. Use a full-year or
+rolling-horizon formulation only after defining suitable boundary conditions,
+horizon length, overlap, and treatment of annual energy budgets.
+
+With PyPSA 1.2.4, the peak-week solve completes optimally with HiGHS 1.15.0 but
+emits non-blocking consistency warnings:
+
+- bus, generator, load, and storage carrier names are used without rows in a
+  `carriers.csv` component table;
+- `p_init=0` is ignored for committable generators whose
+  `down_time_before` already specifies their pre-horizon state; and
+- PyPSA warns that the default for `include_objective_constant` will change in
+  a future release.
+
+These warnings do not invalidate the committed solution, but the input schema
+and initial-condition convention should be cleaned up before treating the
+model as a production study.

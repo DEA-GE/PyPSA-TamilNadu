@@ -1,49 +1,79 @@
-# PyPSA two-bus example
+# PyPSA Tamil Nadu
 
-This example builds a 220 kV, two-bus network for all 24 hours of 1 January
-2025, checks it with a nonlinear AC power flow, and solves a linear optimal
-power flow with HiGHS.
+This repository contains a single-node PyPSA unit-commitment model for Tamil
+Nadu in financial year (FY) 2025-26. The input dataset spans all 8,760 hours
+from 1 April 2025 through 31 March 2026. The supplied solve notebook selects
+the Monday-Sunday week containing the annual demand peak and optimizes those
+168 hours with HiGHS.
 
-## Run
+The model is an exploratory resource-adequacy and dispatch dataset. Demand is
+workbook-sourced, while generation capacities and annual energy totals are
+based on the CEA Tamil Nadu resource-adequacy report. Renewable availability,
+operating costs, unit aggregation, and several commitment parameters are
+documented assumptions rather than validated operational data.
+
+## Repository contents
+
+| Path | Purpose |
+|---|---|
+| `inputs/tamil_nadu_ra_2025_26/` | Full-year PyPSA CSV-folder input dataset |
+| `inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.md` | Data provenance, field definitions, assumptions, and limitations |
+| `run_peakday_2025_26.ipynb` | Selects and optimizes the annual peak-demand week |
+| `tamil_nadu_2025_26.nc` | Committed, solved 168-hour network exported by the run notebook |
+| `results_analysis.ipynb` | Plots dispatch, storage operation, state of charge, and coal commitment |
+| `Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx` | Source demand workbook for April-December 2025 |
+| `Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx` | Source demand workbook for January-March 2026 |
+| `results/` | Legacy two-bus example CSV outputs; not produced by the current Tamil Nadu notebooks |
+
+## Environment
+
+There is currently no checked-in dependency lock file. The CSV export records
+PyPSA 1.2.4; the remaining Python dependencies are not pinned by the
+repository. A compatible environment can be created with:
 
 ```powershell
-python -m pip install -r requirements.txt
-python two_bus_model.py
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install pypsa==1.2.4 highspy pandas matplotlib jupyterlab
 ```
 
-The script prints a summary and writes hourly results to `results/power_flow.csv`
-and `results/optimization.csv`.
+## Run the model
 
-## Assumed transmission line
+Start Jupyter from the repository root:
 
-A transmission connection is necessary for bus 1 to supply bus 2. Since only
-the bus coordinates were specified, the model interprets their 100-unit spacing
-as 100 km and assumes:
+```powershell
+jupyter lab
+```
 
-- resistance: 0.1 ohm/km (10 ohm total)
-- reactance: 0.4 ohm/km (40 ohm total)
-- rating: 100 MVA
+Then run the notebooks in this order:
 
-PyPSA's current `Network.optimize` interface uses its Kirchhoff formulation:
-nodal power balance (KCL) and KVL constraints for independent network cycles.
-This two-bus network is radial, so it has no independent cycle and therefore no
-non-trivial cycle constraint.
+1. `run_peakday_2025_26.ipynb` loads the full-year CSV dataset, identifies the
+   annual peak at 16:00 on 11 July 2025, solves 7-13 July 2025, and overwrites
+   `tamil_nadu_2025_26.nc`.
+2. `results_analysis.ipynb` loads that NetCDF file and visualizes the solution.
 
-## Tamil Nadu 2035-36 UC model
+The committed NetCDF contains 168 snapshots and an optimal HiGHS solution. It
+has zero unserved energy and closes the single-node power balance to numerical
+precision. Re-running can produce solver warnings described in the data
+documentation.
 
-The external PyPSA CSV inputs are under
-`inputs/tamil_nadu_ra_2035_36`. Their provenance, dummy assumptions, data
-dictionary, and missing inputs are documented in
-`inputs/tamil_nadu_ra_2035_36/DATA_DOCUMENTATION.md`. A styled, browser-friendly
-version is available as
-`inputs/tamil_nadu_ra_2035_36/DATA_DOCUMENTATION.html`.
+To load either representation directly:
 
-## Tamil Nadu FY 2025-26 UC model
+```python
+import pypsa
 
-The full-year base-year inputs are under `inputs/tamil_nadu_ra_2025_26`. They
-combine April-December 2025 and January-March 2026 Tamil Nadu demand from the
-provided NITI Aayog ICED workbooks. See
-`inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.md` for data provenance,
-validation results, report assumptions, dummy inputs, and remaining gaps. A
-browser-friendly version is available at
-`inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.html`.
+full_year_inputs = pypsa.Network("inputs/tamil_nadu_ra_2025_26")
+solved_peak_week = pypsa.Network("tamil_nadu_2025_26.nc")
+```
+
+## Interpretation limits
+
+The peak-week notebook is not a full-year resource-adequacy study. In
+particular, annual hydro and market-import energy limits remain at their
+full-year values after the snapshot subset is taken, and pumped-storage state
+of charge is cyclic over the selected week. The model also omits reserves,
+forced outages, internal transmission constraints, and reliability metrics.
+
+See [the detailed data documentation](inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.md)
+before using the inputs or results. A standalone browser version is available
+at [DATA_DOCUMENTATION.html](inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.html).

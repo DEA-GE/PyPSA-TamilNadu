@@ -27,19 +27,46 @@ snapshots from 1 April 2025 00:00 through 31 March 2026 23:00.</p>
 Generation capacities and annual generation targets come from the CEA resource
 adequacy report. Hourly generation availability and several operational-cost
 and unit-commitment parameters remain explicit dummy assumptions.</p>
+<p>The repository's run notebook does not optimize all 8,760 hours. It extracts
+the 168-hour Monday-Sunday week containing the annual demand peak, solves that
+subset, and exports the solved network to <code>tamil_nadu_2025_26.nc</code>.</p>
 <p>Load the model with:</p>
 <pre><code class="language-python">import pypsa
 
 n = pypsa.Network(&quot;inputs/tamil_nadu_ra_2025_26&quot;)
 </code></pre>
+<h2 id="repository-workflow-and-outputs">Repository workflow and outputs</h2>
+<p>Run the notebooks from the repository root in this order:</p>
+<ol>
+<li><code>run_peakday_2025_26.ipynb</code> loads this CSV folder, finds the annual peak at
+   16:00 on 11 July 2025, copies the 168 snapshots from 7 July 00:00 through
+   13 July 23:00, solves the mixed-integer unit-commitment problem with HiGHS,
+   and exports <code>tamil_nadu_2025_26.nc</code>.</li>
+<li><code>results_analysis.ipynb</code> loads the exported network and plots generation by
+   carrier, pumped-storage power and state of charge, and coal commitment.</li>
+</ol>
+<p>The committed NetCDF is a derived result rather than a second input dataset. It
+contains an optimal 168-hour solution with no unserved energy. The CSV files in
+the repository-level <code>results/</code> directory are legacy two-bus example outputs
+and are not generated or consumed by this Tamil Nadu workflow.</p>
+<p>Subsetting changes how some constraints should be interpreted:</p>
+<ul>
+<li>Hydro and STOA/MTOA <code>e_sum_max</code> values remain full-year limits; the notebook
+  does not prorate them for the selected week.</li>
+<li>Pumped-storage cyclic state of charge closes across the selected week, not
+  across FY 2025-26.</li>
+<li>Commitment initial conditions apply at the start of 7 July without a
+  preceding rolling-horizon solve.</li>
+</ul>
+<p>The solved week is therefore a dispatch and unit-commitment demonstration, not
+a completed annual resource-adequacy or reliability assessment.</p>
 <h2 id="sources">Sources</h2>
 <h3 id="resource-adequacy-report">Resource adequacy report</h3>
 <p>Central Electricity Authority (CEA), Ministry of Power, Government of India,
 <em>Report on Resource Adequacy Plan (Generation) for Tamil Nadu (2025-26 to
 2035-36)</em>, April 2026.</p>
-<p>Local source used:</p>
-<pre><code class="language-text">C:\Users\b076218\Downloads\Tamil_Nadu_Resource_Adequacy_Report_2035_36_1.pdf
-</code></pre>
+<p>The report PDF is not committed to this repository. The two demand workbooks
+listed below are included at the repository root.</p>
 <p>Relevant report references:</p>
 <table>
 <thead>
@@ -76,9 +103,10 @@ n = pypsa.Network(&quot;inputs/tamil_nadu_ra_2025_26&quot;)
 </tbody>
 </table>
 <h3 id="demand-workbooks">Demand workbooks</h3>
-<pre><code class="language-text">Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx
-Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx
-</code></pre>
+<ul>
+<li><a href="../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2025.xlsx"><code>Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx</code></a></li>
+<li><a href="../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2026.xlsx"><code>Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx</code></a></li>
+</ul>
 <p>The worksheet is <code>Yearly Demand Profile</code>; the selected fields are <code>State</code>,
 <code>Date</code>, and <code>Hourly Demand Met (in MW)</code>.</p>
 <ul>
@@ -452,10 +480,22 @@ capacity in Table 15. The model assumes:</p>
 <li>Generator efficiency defaults to 1 and standby/capital/fixed costs default
     to zero where absent; these are not validated assumptions.</li>
 </ol>
-<h2 id="solver-note">Solver note</h2>
-<p>The dataset passes PyPSA's network consistency check. A monolithic 8,760-hour
-mixed-integer solve can exceed the five-minute <code>pypsa-mcp</code> call-response limit.
-This is a tooling timeout, not a data-validation failure. Run the supplied local
-notebook with HiGHS for an unrestricted solve, or use rolling-horizon UC after
-choosing an appropriate horizon and overlap.</p>
+<h2 id="solver-and-consistency-notes">Solver and consistency notes</h2>
+<p>The supplied notebook solves only the peak-demand week because a monolithic
+8,760-hour mixed-integer solve is substantially larger. Use a full-year or
+rolling-horizon formulation only after defining suitable boundary conditions,
+horizon length, overlap, and treatment of annual energy budgets.</p>
+<p>With PyPSA 1.2.4, the peak-week solve completes optimally with HiGHS 1.15.0 but
+emits non-blocking consistency warnings:</p>
+<ul>
+<li>bus, generator, load, and storage carrier names are used without rows in a
+  <code>carriers.csv</code> component table;</li>
+<li><code>p_init=0</code> is ignored for committable generators whose
+  <code>down_time_before</code> already specifies their pre-horizon state; and</li>
+<li>PyPSA warns that the default for <code>include_objective_constant</code> will change in
+  a future release.</li>
+</ul>
+<p>These warnings do not invalidate the committed solution, but the input schema
+and initial-condition convention should be cleaned up before treating the
+model as a production study.</p>
 </main></body></html>
