@@ -18,15 +18,19 @@ pre{padding:1rem 1.2rem;overflow-x:auto;background:#17212b;color:#f5f7f8;border-
 </style>
 </head>
 <body><main>
-<h1 id="tamil-nadu-fy-2025-26-unit-commitment-inputs">Tamil Nadu FY 2025-26 unit-commitment inputs</h1>
-<h2 id="status">Status</h2>
+<h1>Tamil Nadu FY 2025-26 unit-commitment inputs</h1>
+<h2>Status</h2>
 <p>This directory is a PyPSA CSV-folder dataset for a single-node, hourly unit
 commitment model of Tamil Nadu for FY 2025-26. It contains 8,760 hourly
 snapshots from 1 April 2025 00:00 through 31 March 2026 23:00.</p>
 <p>The demand series comes directly from the supplied NITI Aayog ICED workbooks.
-Generation capacities and annual generation targets come from the CEA resource
-adequacy report. Hourly generation availability and several operational-cost
-and unit-commitment parameters remain explicit dummy assumptions.</p>
+Generation technologies and capacities come from operational records in the
+supplied Tamil Nadu ICED plant workbook. Annual generation limits and technical
+assumptions remain based on the CEA resource-adequacy report. Hourly generation
+availability and several operational-cost and unit-commitment parameters remain
+explicit dummy assumptions. Each operational workbook row is a separate PyPSA
+component, but the term <code>record-level</code> is used because several workbook rows
+are district, technology, or fleet aggregates rather than physical units.</p>
 <p>The repository's run notebook does not optimize all 8,760 hours. It extracts
 the 168-hour Monday-Sunday week containing the annual demand peak, solves that
 subset, and exports the solved network to <code>tamil_nadu_2025_26.nc</code>.</p>
@@ -35,7 +39,7 @@ subset, and exports the solved network to <code>tamil_nadu_2025_26.nc</code>.</p
 
 n = pypsa.Network(&quot;inputs/tamil_nadu_ra_2025_26&quot;)
 </code></pre>
-<h2 id="repository-workflow-and-outputs">Repository workflow and outputs</h2>
+<h2>Repository workflow and outputs</h2>
 <p>Run the notebooks from the repository root in this order:</p>
 <ol>
 <li><code>run_peakday_2025_26.ipynb</code> loads this CSV folder, finds the annual peak at
@@ -60,8 +64,35 @@ and are not generated or consumed by this Tamil Nadu workflow.</p>
 </ul>
 <p>The solved week is therefore a dispatch and unit-commitment demonstration, not
 a completed annual resource-adequacy or reliability assessment.</p>
-<h2 id="sources">Sources</h2>
-<h3 id="resource-adequacy-report">Resource adequacy report</h3>
+<h2>Sources</h2>
+<h3>Tamil Nadu ICED plant workbook</h3>
+<p><code>additional_data/TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx</code>, worksheet
+<code>PlantInfo</code>, supplies the generation technologies and nameplate capacities.
+Only rows whose <code>Commissioning Group</code> is exactly <code>operational</code> are included.
+This selects 280 records with 47,767.1105 MW across eight source categories;
+pipeline, retired, and temporarily closed records are excluded. The extracted
+totals are recorded in <code>operational_technology_capacities.csv</code>.</p>
+<p>The workbook's 2,203.2 MW Hydro total includes the 400 MW Kadamparai pumped-
+storage plant. Its four 100 MW workbook rows become four storage units; the
+remaining 65 Hydro rows become generators. Solar records explicitly labelled
+rooftop or off-grid retain the DRE availability shape, while the other Solar
+records use the utility-solar shape.</p>
+<p>Twelve rows are exact duplicates of preceding operational rows. They are
+preserved because identical plant name, capacity, and commissioning date can
+describe distinct units. Physical-unit IDs use
+<code>plant_name__unit_NN</code>, with sequence numbers assigned deterministically within
+each normalised plant name. Fuel is stored only in the PyPSA <code>carrier</code>, not in
+the component ID. Excel row numbers remain in <code>component_metadata.csv</code> solely
+for source traceability.</p>
+<p>All Solar and Wind records, plus records explicitly labelled as others,
+district-unspecified, bunched, rooftop, or off-grid, use
+<code>plant_name__aggregate_NN</code>. This identifies 53 aggregate records; the remaining
+223 generator records and four storage records use <code>__unit_NN</code>. The workbook
+cannot support a more granular physical-unit representation for aggregates.</p>
+<p>Operational records labelled off-grid are also included because the requested
+filter is status-only. Connecting them to the single Tamil Nadu bus is a
+modelling assumption and may overstate grid-connected supply.</p>
+<h3>Resource adequacy report</h3>
 <p>Central Electricity Authority (CEA), Ministry of Power, Government of India,
 <em>Report on Resource Adequacy Plan (Generation) for Tamil Nadu (2025-26 to
 2035-36)</em>, April 2026.</p>
@@ -102,7 +133,7 @@ listed below are included at the repository root.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="demand-workbooks">Demand workbooks</h3>
+<h3>Demand workbooks</h3>
 <ul>
 <li><a href="../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2025.xlsx"><code>Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx</code></a></li>
 <li><a href="../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2026.xlsx"><code>Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx</code></a></li>
@@ -121,7 +152,7 @@ listed below are included at the repository root.</p>
 that some platform data may be derived or assumed. In this documentation,
 <code>workbook-sourced</code> means copied from the provided files; it does not make a
 stronger claim about measurement or validation quality.</p>
-<h2 id="demand-validation">Demand validation</h2>
+<h2>Demand validation</h2>
 <table>
 <thead>
 <tr>
@@ -160,7 +191,7 @@ stronger claim about measurement or validation quality.</p>
 </table>
 <p>The workbook peak occurs at 16:00 on 11 July 2025. The model uses the workbook
 series rather than scaling it to the higher CEA forecast.</p>
-<h2 id="capacity-represented">Capacity represented</h2>
+<h2>Capacity represented</h2>
 <table>
 <thead>
 <tr>
@@ -173,63 +204,57 @@ series rather than scaling it to the higher CEA forecast.</p>
 <tbody>
 <tr>
 <td>Coal</td>
-<td style="text-align: right;">12,808 MW</td>
-<td>12 equal commitment blocks</td>
-<td>Reported capacity; dummy aggregation</td>
+<td style="text-align: right;">15,032.5 MW</td>
+<td>49 record-level commitment generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
-<td>Gas</td>
-<td style="text-align: right;">408 MW</td>
-<td>2 equal commitment blocks</td>
-<td>Reported capacity; dummy aggregation</td>
+<td>Oil &amp; Gas</td>
+<td style="text-align: right;">844.58 MW</td>
+<td>14 record-level commitment generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
 <td>Nuclear</td>
-<td style="text-align: right;">1,448 MW</td>
-<td>One aggregate fixed-output generator</td>
-<td>Reported capacity; dummy aggregation</td>
+<td style="text-align: right;">2,440 MW</td>
+<td>4 record-level fixed-output generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
-<td>Biomass</td>
-<td style="text-align: right;">951 MW</td>
-<td>2 equal commitment blocks</td>
-<td>Reported capacity; dummy aggregation</td>
+<td>Bio Power</td>
+<td style="text-align: right;">1,055.12 MW</td>
+<td>57 record-level commitment generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
-<td>Hydro</td>
-<td style="text-align: right;">1,886 MW</td>
-<td>Aggregate energy-limited generator</td>
-<td>Reported capacity</td>
+<td>Hydro generation</td>
+<td style="text-align: right;">1,803.2 MW</td>
+<td>65 record-level energy-limited generators</td>
+<td>Operational ICED rows excluding Kadamparai PSP</td>
+</tr>
+<tr>
+<td>Hydro PSP</td>
+<td style="text-align: right;">400 MW</td>
+<td>Four 100 MW storage units</td>
+<td>Operational Kadamparai ICED rows; energy duration dummy</td>
+</tr>
+<tr>
+<td>Small-Hydro</td>
+<td style="text-align: right;">123.05 MW</td>
+<td>39 record-level variable generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
 <td>Wind</td>
-<td style="text-align: right;">9,631 MW</td>
-<td>Aggregate variable generator</td>
-<td>Reported capacity</td>
+<td style="text-align: right;">12,159.5305 MW</td>
+<td>21 record-level variable generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
-<td>Utility solar</td>
-<td style="text-align: right;">11,106 MW</td>
-<td>Aggregate variable generator</td>
-<td>Reported capacity</td>
-</tr>
-<tr>
-<td>Solar DRE/rooftop</td>
-<td style="text-align: right;">2,353 MW</td>
-<td>Aggregate variable generator</td>
-<td>Reported capacity</td>
-</tr>
-<tr>
-<td>Hydro DRE</td>
-<td style="text-align: right;">58 MW</td>
-<td>Aggregate variable generator</td>
-<td>Reported capacity</td>
-</tr>
-<tr>
-<td>PSP</td>
-<td style="text-align: right;">400 MW</td>
-<td>Aggregate storage unit</td>
-<td>Reported power; energy duration dummy</td>
+<td>Solar</td>
+<td style="text-align: right;">13,909.13 MW</td>
+<td>27 record-level variable generators</td>
+<td>Operational ICED rows</td>
 </tr>
 <tr>
 <td>STOA/MTOA</td>
@@ -245,27 +270,43 @@ series rather than scaling it to the higher CEA forecast.</p>
 </tr>
 </tbody>
 </table>
-<p>The report-based capacity sum, including PSP and STOA/MTOA but excluding the
-virtual unserved-energy generator, is 47,776 MW. No BESS is included because
-Table 15 reports zero storage capacity for FY 2025-26.</p>
-<h2 id="input-files">Input files</h2>
-<h3 id="networkcsv-crsjson-and-metajson"><code>network.csv</code>, <code>crs.json</code>, and <code>meta.json</code></h3>
+<p>The ICED operational generation capacity is 47,767.1105 MW, including the
+400 MW PSP once. STOA/MTOA and the virtual unserved-energy generator are model
+mechanisms outside that total. No BESS is included.</p>
+<h2>Input files</h2>
+<h3><code>network.csv</code>, <code>crs.json</code>, <code>meta.json</code>, and <code>carriers.csv</code></h3>
 <p>PyPSA export metadata. The model is a single, fixed investment period using
 EPSG:4326. <code>meta.json</code> is empty.</p>
-<h3 id="busescsv"><code>buses.csv</code></h3>
+<p><code>carriers.csv</code> defines the eight ICED technology carriers plus the AC bus,
+electricity demand, market-import, and unserved-energy carriers.</p>
+<h3><code>operational_technology_capacities.csv</code></h3>
+<p>Records the auditable operational record counts, source capacity totals, and
+their aggregate PyPSA representations. It is provenance metadata rather than a
+PyPSA component table.</p>
+<h3><code>component_metadata.csv</code></h3>
+<p>Maps all 280 operational records to their generated component ID and type,
+record kind, within-plant sequence, Excel row, source label, plant name,
+location, commissioning date, capacity, implementing agency, and exact-
+duplicate group size. This is provenance metadata rather than a PyPSA
+component table.</p>
+<h3><code>technology-p_max-pu.csv</code></h3>
+<p>Stores the five technology-level availability templates used by the rebuild
+script. PyPSA does not load this file directly. The script expands it into one
+column per applicable workbook record in <code>generators-p_max_pu.csv</code>.</p>
+<h3><code>buses.csv</code></h3>
 <p>The <code>Tamil_Nadu</code> bus implements the report's single-node assumption. The
 230 kV nominal voltage and coordinates 78.6569, 11.1271 are dummy display
 values; voltage does not affect this one-node dispatch model. Internal lines,
 links, and transformers are intentionally absent because the report assumes no
 internal transmission bottleneck.</p>
-<h3 id="snapshotscsv"><code>snapshots.csv</code></h3>
+<h3><code>snapshots.csv</code></h3>
 <p>Contains all 8,760 FY 2025-26 hours. Objective, generator, and storage weights
 are one for every hourly snapshot.</p>
-<h3 id="loadscsv-and-loads-p_setcsv"><code>loads.csv</code> and <code>loads-p_set.csv</code></h3>
+<h3><code>loads.csv</code> and <code>loads-p_set.csv</code></h3>
 <p><code>Tamil_Nadu_demand</code> is connected to the single bus. Every <code>p_set</code> value is a
 workbook-sourced hourly demand in MW assembled as described above.</p>
-<h3 id="generatorscsv"><code>generators.csv</code></h3>
-<h4 id="reported-or-report-derived-settings">Reported or report-derived settings</h4>
+<h3><code>generators.csv</code></h3>
+<h4>Reported or report-derived settings</h4>
 <table>
 <thead>
 <tr>
@@ -285,18 +326,18 @@ workbook-sourced hourly demand in MW assembled as described above.</p>
 <td>Report: 55% minimum, 85% availability, 1%/min ramp</td>
 </tr>
 <tr>
-<td>Gas</td>
+<td>Oil &amp; Gas</td>
 <td style="text-align: right;">0.40</td>
 <td style="text-align: right;">0.90</td>
 <td style="text-align: right;">1.00 p.u./h</td>
-<td>Report: 40% minimum, 90% availability, 5%/min ramp; hourly value capped at 1</td>
+<td>Retained Gas assumption: 40% minimum, 90% availability, 5%/min ramp; hourly value capped at 1</td>
 </tr>
 <tr>
-<td>Biomass</td>
+<td>Bio Power</td>
 <td style="text-align: right;">0.50</td>
 <td style="text-align: right;">0.60</td>
 <td style="text-align: right;">1.00 p.u./h</td>
-<td>Report: 50% minimum, 60% availability, 2%/min ramp; hourly value capped at 1</td>
+<td>Retained Biomass assumption: 50% minimum, 60% availability, 2%/min ramp; hourly value capped at 1</td>
 </tr>
 <tr>
 <td>Nuclear</td>
@@ -309,10 +350,11 @@ workbook-sourced hourly demand in MW assembled as described above.</p>
 </table>
 <p>Additional annual limits:</p>
 <ul>
-<li>Hydro <code>e_sum_max</code>: 5,528,000 MWh, from Figure 13.</li>
+<li>Hydro <code>e_sum_max</code>: 5,528,000 MWh, from Figure 13, allocated among the 65
+  conventional Hydro records in proportion to nameplate capacity.</li>
 <li>STOA/MTOA <code>e_sum_max</code>: 17,752,000 MWh, from Figure 13.</li>
 </ul>
-<h4 id="dummy-unit-commitment-settings">Dummy unit-commitment settings</h4>
+<h4>Dummy unit-commitment settings</h4>
 <table>
 <thead>
 <tr>
@@ -327,30 +369,33 @@ workbook-sourced hourly demand in MW assembled as described above.</p>
 <tr>
 <td>Coal</td>
 <td style="text-align: right;">8 h / 8 h</td>
-<td style="text-align: right;">INR 5,000,000</td>
-<td style="text-align: right;">INR 1,000,000</td>
+<td style="text-align: right;">INR 3,991.35/MW</td>
+<td style="text-align: right;">INR 798.27/MW</td>
 <td style="text-align: right;">0.55 p.u.</td>
 </tr>
 <tr>
-<td>Gas</td>
+<td>Oil &amp; Gas</td>
 <td style="text-align: right;">2 h / 2 h</td>
-<td style="text-align: right;">INR 500,000</td>
-<td style="text-align: right;">INR 100,000</td>
+<td style="text-align: right;">INR 1,184.49/MW</td>
+<td style="text-align: right;">INR 236.90/MW</td>
 <td style="text-align: right;">0.40 p.u.</td>
 </tr>
 <tr>
-<td>Biomass</td>
+<td>Bio Power</td>
 <td style="text-align: right;">4 h / 4 h</td>
-<td style="text-align: right;">INR 200,000</td>
-<td style="text-align: right;">INR 50,000</td>
+<td style="text-align: right;">INR 379.10/MW</td>
+<td style="text-align: right;">INR 94.78/MW</td>
 <td style="text-align: right;">0.50 p.u.</td>
 </tr>
 </tbody>
 </table>
-<p>All representative thermal blocks start offline (<code>p_init=0</code>) and are assumed to
-have been down for at least their minimum down time. Physical unit capacities,
-initial conditions, and UC parameters were not supplied.</p>
-<h4 id="dummy-operating-costs">Dummy operating costs</h4>
+<p>Start-up and shutdown costs are scaled by each record's capacity. The rates are
+derived from the previous aggregate-block assumptions, preserving the total
+cost if all capacity of a technology starts once. Every thermal record starts
+offline (<code>p_init=0</code>) and is assumed to have been down for at least its minimum
+down time. Actual initial conditions and unit-specific UC parameters were not
+supplied.</p>
+<h4>Dummy operating costs</h4>
 <table>
 <thead>
 <tr>
@@ -360,16 +405,16 @@ initial conditions, and UC parameters were not supplied.</p>
 </thead>
 <tbody>
 <tr>
-<td>Coal blocks</td>
-<td style="text-align: right;">2,950-3,225</td>
+<td>Coal records</td>
+<td style="text-align: right;">3,087.5</td>
 </tr>
 <tr>
-<td>Gas blocks</td>
-<td style="text-align: right;">6,000-6,050</td>
+<td>Oil &amp; Gas records</td>
+<td style="text-align: right;">6,025</td>
 </tr>
 <tr>
-<td>Biomass blocks</td>
-<td style="text-align: right;">4,500-4,525</td>
+<td>Bio Power records</td>
+<td style="text-align: right;">4,512.5</td>
 </tr>
 <tr>
 <td>Nuclear</td>
@@ -395,63 +440,56 @@ initial conditions, and UC parameters were not supplied.</p>
 </table>
 <p>The CEA report does not provide sufficient unit fuel prices, variable O&amp;M,
 no-load costs, or start costs to calculate these operational costs.</p>
-<h3 id="generators-p_max_pucsv"><code>generators-p_max_pu.csv</code></h3>
-<p>Hourly generation availability shapes are <strong>dummy</strong>. Their annual sums are
-normalised to the report's FY 2025-26 projected generation values:</p>
+<h3><code>generators-p_max_pu.csv</code></h3>
+<p>Hourly generation availability shapes are <strong>dummy</strong> shapes retained from the
+previous model. The ICED capacity update changes their available annual energy,
+so they are no longer normalised to the report's FY 2025-26 generation values:</p>
 <table>
 <thead>
 <tr>
-<th>Column</th>
+<th>Record source</th>
+<th style="text-align: right;">Output columns</th>
 <th style="text-align: right;">Capacity</th>
-<th style="text-align: right;">Available annual energy</th>
-<th style="text-align: right;">Implied CF</th>
-<th>Provenance</th>
+<th>Template</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>Wind</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">12,159.5305 MW</td>
 <td><code>wind_fleet</code></td>
-<td style="text-align: right;">9,631 MW</td>
-<td style="text-align: right;">13,544 GWh</td>
-<td style="text-align: right;">16.054%</td>
-<td>Annual energy reported; hourly shape dummy</td>
 </tr>
 <tr>
-<td><code>solar_utility</code></td>
-<td style="text-align: right;">11,106 MW</td>
-<td style="text-align: right;">18,844 GWh</td>
-<td style="text-align: right;">19.369%</td>
-<td>Annual energy reported; hourly shape dummy</td>
+<td>Solar</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">13,909.13 MW</td>
+<td><code>solar_utility</code> or <code>solar_DRE_rooftop</code> according to the record name</td>
 </tr>
 <tr>
-<td><code>solar_DRE_rooftop</code></td>
-<td style="text-align: right;">2,353 MW</td>
-<td style="text-align: right;">2,982 GWh</td>
-<td style="text-align: right;">14.467%</td>
-<td>Annual energy reported; hourly shape dummy</td>
+<td>Small-Hydro</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">123.05 MW</td>
+<td><code>small_hydro</code></td>
 </tr>
 <tr>
-<td><code>hydro_DRE</code></td>
-<td style="text-align: right;">58 MW</td>
-<td style="text-align: right;">86 GWh</td>
-<td style="text-align: right;">16.926%</td>
-<td>Annual energy reported; hourly shape dummy</td>
-</tr>
-<tr>
+<td>Conventional Hydro</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">1,803.2 MW</td>
 <td><code>hydro_reservoir</code></td>
-<td style="text-align: right;">1,886 MW</td>
-<td style="text-align: right;">Availability profile only</td>
-<td style="text-align: right;">n/a</td>
-<td>Hourly shape dummy; annual energy limited separately</td>
 </tr>
 </tbody>
 </table>
+<p>The resulting file has 152 component-specific columns. Records assigned to the
+same template have identical per-unit availability, so this conversion adds
+component identity but not unit-specific renewable or hydro behavior.</p>
 <p>The solar shape follows daylight and a dummy seasonal modifier; wind and hydro
 use deterministic dummy seasonal and intraday shapes. These profiles are not
 observations and must be replaced when actual generation data are supplied.</p>
-<h3 id="storage_unitscsv"><code>storage_units.csv</code></h3>
-<p>The report lists 400 MW PSP capacity but does not specify its existing energy
-capacity in Table 15. The model assumes:</p>
+<h3><code>storage_units.csv</code></h3>
+<p>The ICED workbook includes four operational 100 MW Kadamparai pumped-storage
+records but does not specify their energy capacity. Each becomes a separate
+storage unit. The model assumes:</p>
 <ul>
 <li>6 hours / 2,400 MWh energy capacity: dummy.</li>
 <li>80% round-trip efficiency: reported; split symmetrically into 89.443% charge
@@ -460,11 +498,12 @@ capacity in Table 15. The model assumes:</p>
 <li>Cyclic annual state of charge: modelling assumption.</li>
 <li>INR 10/MWh marginal discharge cost: dummy.</li>
 </ul>
-<h2 id="material-data-still-missing">Material data still missing</h2>
+<h2>Material data still missing</h2>
 <ol>
-<li>Actual hourly wind, utility solar, rooftop solar, hydro, and hydro DRE
+<li>Actual hourly wind, utility solar, rooftop solar, hydro, and small-hydro
    generation or availability profiles.</li>
-<li>Physical generating-unit list and actual unit capacities.</li>
+<li>Confirmation of which aggregate workbook records correspond to multiple
+   physical units, particularly the regional Solar, Wind, and Bio Power rows.</li>
 <li>Unit heat rates/efficiencies, fuel prices, variable O&amp;M, no-load costs,
    start/shut costs, minimum up/down times, and initial commitment states.</li>
 <li>Auxiliary consumption; report technology-level values are not yet applied.</li>
@@ -480,16 +519,15 @@ capacity in Table 15. The model assumes:</p>
 <li>Generator efficiency defaults to 1 and standby/capital/fixed costs default
     to zero where absent; these are not validated assumptions.</li>
 </ol>
-<h2 id="solver-and-consistency-notes">Solver and consistency notes</h2>
-<p>The supplied notebook solves only the peak-demand week because a monolithic
-8,760-hour mixed-integer solve is substantially larger. Use a full-year or
-rolling-horizon formulation only after defining suitable boundary conditions,
-horizon length, overlap, and treatment of annual energy budgets.</p>
+<h2>Solver and consistency notes</h2>
+<p>The supplied notebook solves only the peak-demand week. The record-level model
+has 120 committable thermal components, so a monolithic 8,760-hour mixed-integer
+solve is substantially larger. Use a full-year or rolling-horizon formulation
+only after defining suitable boundary conditions, horizon length, overlap, and
+treatment of annual energy budgets.</p>
 <p>With PyPSA 1.2.4, the peak-week solve completes optimally with HiGHS 1.15.0 but
 emits non-blocking consistency warnings:</p>
 <ul>
-<li>bus, generator, load, and storage carrier names are used without rows in a
-  <code>carriers.csv</code> component table;</li>
 <li><code>p_init=0</code> is ignored for committable generators whose
   <code>down_time_before</code> already specifies their pre-horizon state; and</li>
 <li>PyPSA warns that the default for <code>include_objective_constant</code> will change in
@@ -498,4 +536,5 @@ emits non-blocking consistency warnings:</p>
 <p>These warnings do not invalidate the committed solution, but the input schema
 and initial-condition convention should be cleaned up before treating the
 model as a production study.</p>
-</main></body></html>
+</main></body>
+</html>

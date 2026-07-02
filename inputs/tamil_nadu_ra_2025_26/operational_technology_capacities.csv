@@ -1,0 +1,9 @@
+source,operational_records,capacity_mw,model_representation
+Bio Power,57,1055.12,57 workbook-record generators
+Coal,49,15032.5,49 workbook-record generators
+Hydro,69,2203.2,65 generators plus four 100 MW pumped-storage units
+Nuclear,4,2440.0,4 workbook-record generators
+Oil & Gas,14,844.58,14 workbook-record generators
+Small-Hydro,39,123.05,39 workbook-record generators
+Solar,27,13909.13,27 workbook-record generators
+Wind,21,12159.5305,21 workbook-record generators

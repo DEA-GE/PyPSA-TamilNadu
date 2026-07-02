@@ -7,9 +7,12 @@ the Monday-Sunday week containing the annual demand peak and optimizes those
 168 hours with HiGHS.
 
 The model is an exploratory resource-adequacy and dispatch dataset. Demand is
-workbook-sourced, while generation capacities and annual energy totals are
-based on the CEA Tamil Nadu resource-adequacy report. Renewable availability,
-operating costs, unit aggregation, and several commitment parameters are
+workbook-sourced. Generation technologies and capacities use only operational
+records from the supplied Tamil Nadu ICED plant workbook; annual energy limits
+and technical assumptions remain based on the CEA Tamil Nadu resource-adequacy
+report. Every operational workbook row is represented separately, although
+some source rows are themselves district or fleet aggregates. Renewable
+availability, operating costs, and several commitment parameters are
 documented assumptions rather than validated operational data.
 
 ## Repository contents
@@ -17,6 +20,9 @@ documented assumptions rather than validated operational data.
 | Path | Purpose |
 |---|---|
 | `inputs/tamil_nadu_ra_2025_26/` | Full-year PyPSA CSV-folder input dataset |
+| `additional_data/TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx` | Unit-level source for operational technologies and capacities |
+| `scripts/build_unit_level_model.py` | Rebuilds record-level PyPSA components from the operational workbook rows |
+| `inputs/tamil_nadu_ra_2025_26/component_metadata.csv` | Links every modeled plant component to its source workbook row |
 | `inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.md` | Data provenance, field definitions, assumptions, and limitations |
 | `run_peakday_2025_26.ipynb` | Selects and optimizes the annual peak-demand week |
 | `tamil_nadu_2025_26.nc` | Committed, solved 168-hour network exported by the run notebook |
@@ -34,7 +40,7 @@ repository. A compatible environment can be created with:
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-python -m pip install pypsa==1.2.4 highspy pandas matplotlib jupyterlab
+python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab
 ```
 
 ## Run the model
@@ -51,6 +57,9 @@ Then run the notebooks in this order:
    annual peak at 16:00 on 11 July 2025, solves 7-13 July 2025, and overwrites
    `tamil_nadu_2025_26.nc`.
 2. `results_analysis.ipynb` loads that NetCDF file and visualizes the solution.
+
+To regenerate the plant components after changing the source workbook or
+technology assumptions, run `python scripts/build_unit_level_model.py` first.
 
 The committed NetCDF contains 168 snapshots and an optimal HiGHS solution. It
 has zero unserved energy and closes the single-node power balance to numerical

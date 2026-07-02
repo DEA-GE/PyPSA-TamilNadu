@@ -1,0 +1,291 @@
+component_type,component_id,excel_row,record_kind,unit_sequence,source,plant_name,state,district,commissioning_date,capacity_mw,implementing_agency,duplicate_group_size
+Generator,itpcl_or_cuddalore_tpp__unit_01,9,unit,1,Coal,ITPCL or Cuddalore TPP,Tamil Nadu,Cuddalore,2015-09-01,600.0,IL&FS Tamil Nadu Power Co. Ltd.,1
+Generator,itpcl_or_cuddalore_tpp__unit_02,10,unit,2,Coal,ITPCL or Cuddalore TPP,Tamil Nadu,Cuddalore,2016-04-01,600.0,IL&FS Tamil Nadu Power Co. Ltd.,1
+Generator,mettur_tps__unit_01,11,unit,1,Coal,Mettur TPS,Tamil Nadu,Salem,1987-01-07,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mettur_tps__unit_02,12,unit,2,Coal,Mettur TPS,Tamil Nadu,Salem,1987-01-12,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mettur_tps__unit_03,13,unit,3,Coal,Mettur TPS,Tamil Nadu,Salem,1989-03-22,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mettur_tps__unit_04,14,unit,4,Coal,Mettur TPS,Tamil Nadu,Salem,1990-03-27,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mettur_tps__unit_05,15,unit,5,Coal,Mettur TPS,Tamil Nadu,Salem,2012-10-11,600.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,muthiara_tpp__unit_01,16,unit,1,Coal,Muthiara TPP,Tamil Nadu,Thoothukudi,2014-12-02,600.0,Coastal Energen Pvt. Ltd. (CEPL),1
+Generator,muthiara_tpp__unit_02,17,unit,2,Coal,Muthiara TPP,Tamil Nadu,Thoothukudi,2016-01-02,600.0,Coastal Energen Pvt. Ltd. (CEPL),1
+Generator,neyveli_ext_tps_i__unit_01,18,unit,1,Coal,Neyveli (EXT) TPS I,Tamil Nadu,Cuddalore,2002-10-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_ext_tps_i__unit_02,19,unit,2,Coal,Neyveli (EXT) TPS I,Tamil Nadu,Cuddalore,2003-07-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_ext_tps_ii__unit_01,20,unit,1,Coal,Neyveli (EXT) TPS II,Tamil Nadu,Cuddalore,2012-02-04,250.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_ext_tps_ii__unit_02,21,unit,2,Coal,Neyveli (EXT) TPS II,Tamil Nadu,Cuddalore,2015-01-24,250.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_new_tpp_neyveli_extension__unit_01,22,unit,1,Coal,Neyveli (New) TPP /Neyveli Extension,Tamil Nadu,Cuddalore,2019-12-01,500.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_new_tpp_neyveli_extension__unit_02,23,unit,2,Coal,Neyveli (New) TPP /Neyveli Extension,Tamil Nadu,Cuddalore,2021-02-01,500.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_z__unit_01,24,unit,1,Coal,Neyveli TPS (Z),Tamil Nadu,Cuddalore,2002-10-01,250.0,ST-CMS Electric Company Pvt. Ltd.,1
+Generator,neyveli_tps_ii__unit_03,34,unit,3,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1988-01-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_02,35,unit,2,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1987-02-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_01,36,unit,1,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1986-03-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_04,37,unit,4,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1991-03-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_05,38,unit,5,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1991-12-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_06,39,unit,6,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1992-10-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,neyveli_tps_ii__unit_07,40,unit,7,Coal,Neyveli TPS II,Tamil Nadu,Cuddalore,1993-06-01,210.0,NLC India Limited (formerly Neyveli Lignite Corp. Ltd.),1
+Generator,north_chennai_tps__unit_01,41,unit,1,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,1994-10-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,north_chennai_tps__unit_02,42,unit,2,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,1995-03-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,north_chennai_tps__unit_03,43,unit,3,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,1996-02-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,north_chennai_tps__unit_05,44,unit,5,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,2013-09-13,600.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,north_chennai_tps__unit_04,45,unit,4,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,2013-03-09,600.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,north_chennai_tps__unit_06,46,unit,6,Coal,North Chennai TPS,Tamil Nadu,Thiruvallur,2026-01-24,800.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,opg_power_generation_private_ltd__unit_01,47,unit,1,Coal,OPG Power Generation Private Ltd.,Tamil Nadu,Thiruvallur,2024-01-01,77.0,OPG Power Ventures Plc,2
+Generator,opg_power_generation_private_ltd__unit_02,48,unit,2,Coal,OPG Power Generation Private Ltd.,Tamil Nadu,Thiruvallur,2024-01-01,77.0,OPG Power Ventures Plc,2
+Generator,opg_power_generation_private_ltd__unit_03,49,unit,3,Coal,OPG Power Generation Private Ltd.,Tamil Nadu,Thiruvallur,2024-01-01,80.0,OPG Power Ventures Plc,1
+Generator,opg_power_generation_private_ltd__unit_04,50,unit,4,Coal,OPG Power Generation Private Ltd.,Tamil Nadu,Thiruvallur,2024-01-01,180.0,OPG Power Ventures Plc,1
+Generator,tcp_limited__unit_01,51,unit,1,Coal,TCP Limited,Tamil Nadu,Thiruvallur,2024-12-23,63.5,TCP Limited,1
+Generator,tulsyan_nec_limited__unit_01,52,unit,1,Coal,Tulsyan NEC Limited,Tamil Nadu,Thiruvallur,2026-03-01,35.0,Tulsyan NEC Limited,2
+Generator,tulsyan_nec_limited__unit_02,53,unit,2,Coal,Tulsyan NEC Limited,Tamil Nadu,Thiruvallur,2026-03-01,35.0,Tulsyan NEC Limited,2
+Generator,tuticorin_p_tpp__unit_01,54,unit,1,Coal,Tuticorin (P) TPP,Tamil Nadu,Thoothukudi,2013-01-31,150.0,Ind Barath Power Infra Limited (IBPIL),1
+Generator,tuticorin_p_tpp__unit_02,55,unit,2,Coal,Tuticorin (P) TPP,Tamil Nadu,Thoothukudi,2013-12-30,150.0,Ind Barath Power Infra Limited (IBPIL),1
+Generator,tuticorin_joint_venture__unit_01,57,unit,1,Coal,Tuticorin Joint Venture,Tamil Nadu,Thoothukudi,2015-03-10,500.0,NTPL (Joint Venture -NLC and TANGEDCO),1
+Generator,tuticorin_joint_venture__unit_02,58,unit,2,Coal,Tuticorin Joint Venture,Tamil Nadu,Thoothukudi,2015-07-09,500.0,NTPL (Joint Venture -NLC and TANGEDCO),1
+Generator,tuticorin_tps__unit_01,59,unit,1,Coal,Tuticorin TPS,Tamil Nadu,Thoothukudi,1979-07-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tuticorin_tps__unit_02,60,unit,2,Coal,Tuticorin TPS,Tamil Nadu,Thoothukudi,1980-12-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tuticorin_tps__unit_03,61,unit,3,Coal,Tuticorin TPS,Tamil Nadu,Thoothukudi,1982-04-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tuticorin_tps__unit_05,62,unit,5,Coal,Tuticorin TPS,Tamil Nadu,Thoothukudi,1992-02-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tuticorin_tps__unit_04,63,unit,4,Coal,Tuticorin TPS,Tamil Nadu,Thoothukudi,1991-03-01,210.0,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tuticorin_thermal_power_plant__unit_01,64,unit,1,Coal,Tuticorin Thermal Power Plant,Tamil Nadu,Thoothukudi,2021-12-01,525.0,SEPC Power Pvt. Ltd.,1
+Generator,vallur_tpp__unit_01,67,unit,1,Coal,Vallur TPP,Tamil Nadu,Thiruvallur,2012-03-01,500.0,NTPC Tamil Nadu Energy Co. Ltd. (NTECL),1
+Generator,vallur_tpp__unit_02,68,unit,2,Coal,Vallur TPP,Tamil Nadu,Thiruvallur,2013-02-28,500.0,NTPC Tamil Nadu Energy Co. Ltd. (NTECL),1
+Generator,vallur_tpp__unit_03,69,unit,3,Coal,Vallur TPP,Tamil Nadu,Thiruvallur,2014-02-28,500.0,NTPC Tamil Nadu Energy Co. Ltd. (NTECL),1
+Generator,aliyar_hydroelectric_power_project__unit_01,70,unit,1,Hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,Coimbatore,1970-03-21,60.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_02,71,unit,2,Hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,Erode,2006-12-08,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_01,72,unit,1,Hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,Erode,2006-07-04,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_ii_hydroelectric_power_project__unit_01,73,unit,1,Hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,Erode,2013-08-27,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_ii_hydroelectric_power_project__unit_02,74,unit,2,Hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,Erode,2013-09-06,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_iii_hydroelectric_power_project__unit_01,75,unit,1,Hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,Erode,2012-06-28,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,bhavani_kattalai_barrage_iii_hydroelectric_power_project__unit_02,76,unit,2,Hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,Erode,2013-08-01,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+StorageUnit,kadmparai_power_house__unit_01,77,unit,1,Hydro,Kadmparai Power House,Tamil Nadu,Coimbatore,1987-10-17,100.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+StorageUnit,kadmparai_power_house__unit_02,78,unit,2,Hydro,Kadmparai Power House,Tamil Nadu,Coimbatore,1988-02-26,100.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+StorageUnit,kadmparai_power_house__unit_03,79,unit,3,Hydro,Kadmparai Power House,Tamil Nadu,Coimbatore,1988-04-12,100.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+StorageUnit,kadmparai_power_house__unit_04,80,unit,4,Hydro,Kadmparai Power House,Tamil Nadu,Coimbatore,1989-12-16,100.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kodayar_i_ii_power_house__unit_01,81,unit,1,Hydro,Kodayar I & II Power House,Tamil Nadu,Kanyakumari,1970-12-09,60.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kodayar_i_ii_power_house__unit_02,82,unit,2,Hydro,Kodayar I & II Power House,Tamil Nadu,Kanyakumari,1971-11-17,40.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_01,83,unit,1,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1960-07-08,20.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_02,84,unit,2,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1960-07-22,20.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_08,85,unit,8,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1964-04-01,20.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_03,86,unit,3,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1960-10-30,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_04,87,unit,4,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1961-01-10,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_05,88,unit,5,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1961-05-02,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_06,89,unit,6,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1961-06-16,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_07,90,unit,7,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1964-02-23,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_10,91,unit,10,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Coimbatore,1965-04-07,60.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_11,92,unit,11,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Coimbatore,1965-06-11,60.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_13,93,unit,13,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Coimbatore,1978-02-18,60.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_12,94,unit,12,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Coimbatore,1966-02-27,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_14,95,unit,14,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Coimbatore,1978-10-19,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_09,96,unit,9,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1964-10-30,20.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,kundah_i_to_v_hydroelectric_power_project__unit_15,97,unit,15,Hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,Nilgiris,1989-12-06,20.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_04,102,unit,4,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-08-12,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_03,103,unit,3,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-08-07,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_05,104,unit,5,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-08-26,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_02,105,unit,2,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-08-04,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_01,106,unit,1,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-01-04,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_06,107,unit,6,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-09-30,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_08,108,unit,8,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1989-09-18,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,lower_mettur_i_to_iv_hydroelectric_power_project__unit_07,109,unit,7,Hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,Salem,1988-12-28,15.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_dam_hydroelectric_power_project__unit_01,110,unit,1,Hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,Salem,1937-06-13,12.5,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_dam_hydroelectric_power_project__unit_02,111,unit,2,Hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,Salem,1937-08-21,12.5,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_dam_hydroelectric_power_project__unit_03,112,unit,3,Hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,Salem,1938-01-21,12.5,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_dam_hydroelectric_power_project__unit_04,113,unit,4,Hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,Salem,1946-10-20,12.5,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_tunnel__unit_01,114,unit,1,Hydro,Mettur Tunnel,Tamil Nadu,Salem,1965-08-16,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,mettur_tunnel__unit_02,115,unit,2,Hydro,Mettur Tunnel,Tamil Nadu,Salem,1966-07-21,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),2
+Generator,mettur_tunnel__unit_03,116,unit,3,Hydro,Mettur Tunnel,Tamil Nadu,Salem,1966-07-21,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),2
+Generator,mettur_tunnel__unit_04,117,unit,4,Hydro,Mettur Tunnel,Tamil Nadu,Salem,1966-07-31,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,moyar_power_house__unit_01,118,unit,1,Hydro,Moyar Power House,Tamil Nadu,Nilgiris,1952-04-10,14.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,moyar_power_house__unit_02,119,unit,2,Hydro,Moyar Power House,Tamil Nadu,Nilgiris,1952-09-19,14.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,moyar_power_house__unit_03,120,unit,3,Hydro,Moyar Power House,Tamil Nadu,Nilgiris,1953-01-06,12.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,papanasam_hydroelectric_power_project__unit_01,121,unit,1,Hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,Tirunelveli,1944-07-08,8.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,papanasam_hydroelectric_power_project__unit_02,122,unit,2,Hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,Tirunelveli,1944-12-12,8.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,papanasam_hydroelectric_power_project__unit_03,123,unit,3,Hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,Tirunelveli,1945-06-10,8.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,papanasam_hydroelectric_power_project__unit_04,124,unit,4,Hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,Tirunelveli,1951-07-08,8.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,parson_s_valley_hydroelectric_power_project__unit_01,125,unit,1,Hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,Nilgiris,2000-06-22,30.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,periyar_hydroelectric_power_project__unit_01,126,unit,1,Hydro,Periyar Hydroelectric Power Project,Tamil Nadu,Theni,1958-10-12,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,periyar_hydroelectric_power_project__unit_02,127,unit,2,Hydro,Periyar Hydroelectric Power Project,Tamil Nadu,Theni,1959-02-19,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,periyar_hydroelectric_power_project__unit_03,128,unit,3,Hydro,Periyar Hydroelectric Power Project,Tamil Nadu,Theni,1959-06-07,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,periyar_hydroelectric_power_project__unit_04,129,unit,4,Hydro,Periyar Hydroelectric Power Project,Tamil Nadu,Theni,1965-12-22,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_01,130,unit,1,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1932-06-09,7.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_02,131,unit,2,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1932-11-22,7.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_03,132,unit,3,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1933-09-05,7.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_04,133,unit,4,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1939-08-28,13.6,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_05,134,unit,5,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1954-05-30,13.6,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_hydroelectric_power_project__unit_06,135,unit,6,Hydro,Pykara Hydroelectric Power Project,Tamil Nadu,Nilgiris,1954-06-11,11.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,pykara_ultimate_hydroelectric_power_project__unit_01,136,unit,1,Hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,Nilgiris,2005-09-06,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),3
+Generator,pykara_ultimate_hydroelectric_power_project__unit_02,137,unit,2,Hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,Nilgiris,2005-09-06,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),3
+Generator,pykara_ultimate_hydroelectric_power_project__unit_03,138,unit,3,Hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,Nilgiris,2005-09-06,50.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),3
+Generator,sarkarpathy_hydroelectric_power_project__unit_01,139,unit,1,Hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,Coimbatore,1966-08-14,30.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,sholayar_i_power_house__unit_01,140,unit,1,Hydro,Sholayar I Power House,Tamil Nadu,Coimbatore,1971-04-22,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,sholayar_i_power_house__unit_02,141,unit,2,Hydro,Sholayar I Power House,Tamil Nadu,Coimbatore,1971-05-04,42.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,suruliyar_hydroelectric_power_project__unit_01,142,unit,1,Hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,Theni,1978-08-27,35.0,Tamil Nadu Generation & Distribution Co. Limited (TANGEDCO),1
+Generator,tamil_nadu_ariyalur__aggregate_01,151,aggregate,1,Wind,Tamil Nadu-Ariyalur,Tamil Nadu,Ariyalur,,22.0,,1
+Generator,tamil_nadu_chennai__aggregate_01,152,aggregate,1,Wind,Tamil Nadu-Chennai,Tamil Nadu,Chennai,,3.125,,1
+Generator,tamil_nadu_coimbatore__aggregate_01,153,aggregate,1,Wind,Tamil Nadu-Coimbatore,Tamil Nadu,Coimbatore,,2260.1875,,1
+Generator,tamil_nadu_dharmapuri__aggregate_01,154,aggregate,1,Wind,Tamil Nadu-Dharmapuri,Tamil Nadu,Dharmapuri,,196.0,,1
+Generator,tamil_nadu_dindigul__aggregate_01,155,aggregate,1,Wind,Tamil Nadu-Dindigul,Tamil Nadu,Dindigul,,635.2675,,1
+Generator,tamil_nadu_erode__aggregate_01,156,aggregate,1,Wind,Tamil Nadu-Erode,Tamil Nadu,Erode,,129.33,,1
+Generator,tamil_nadu_kancheepuram__aggregate_01,157,aggregate,1,Wind,Tamil Nadu-Kancheepuram,Tamil Nadu,Kancheepuram,,7.65,,1
+Generator,tamil_nadu_kanniyakumari__aggregate_01,158,aggregate,1,Wind,Tamil Nadu-Kanniyakumari,Tamil Nadu,Kanniyakumari,,349.125,,1
+Generator,tamil_nadu_karur__aggregate_01,159,aggregate,1,Wind,Tamil Nadu-Karur,Tamil Nadu,Karur,,589.1025000000009,,1
+Generator,tamil_nadu_n_a__aggregate_01,160,aggregate,1,Wind,Tamil Nadu-N.A.,Tamil Nadu,N.A.,,279.51,,1
+Generator,tamil_nadu_ramanathapuram__aggregate_01,161,aggregate,1,Wind,Tamil Nadu-Ramanathapuram,Tamil Nadu,Ramanathapuram,,17.4,,1
+Generator,tamil_nadu_salem__aggregate_01,162,aggregate,1,Wind,Tamil Nadu-Salem,Tamil Nadu,Salem,,3.4,,1
+Generator,tamil_nadu_thanjavur__aggregate_01,163,aggregate,1,Wind,Tamil Nadu-Thanjavur,Tamil Nadu,Thanjavur,,8.8,,1
+Generator,tamil_nadu_theni__aggregate_01,164,aggregate,1,Wind,Tamil Nadu-Theni,Tamil Nadu,Theni,,574.6,,1
+Generator,tamil_nadu_thiruvallur__aggregate_01,165,aggregate,1,Wind,Tamil Nadu-Thiruvallur,Tamil Nadu,Thiruvallur,,7.2,,1
+Generator,tamil_nadu_thoothukkudi__aggregate_01,166,aggregate,1,Wind,Tamil Nadu-Thoothukkudi,Tamil Nadu,Thoothukkudi,,2174.3775,,1
+Generator,tamil_nadu_tiruchirappalli__aggregate_01,167,aggregate,1,Wind,Tamil Nadu-Tiruchirappalli,Tamil Nadu,Tiruchirappalli,,6.4,,1
+Generator,tamil_nadu_tirunelveli__aggregate_01,168,aggregate,1,Wind,Tamil Nadu-Tirunelveli,Tamil Nadu,Tirunelveli,,3807.5405000000005,,1
+Generator,tamil_nadu_tiruppur__aggregate_01,169,aggregate,1,Wind,Tamil Nadu-Tiruppur,Tamil Nadu,Tiruppur,,786.8149999999999,,1
+Generator,tamil_nadu_tiruppur_karur__aggregate_01,170,aggregate,1,Wind,Tamil Nadu-Tiruppur & Karur,Tamil Nadu,Tiruppur & Karur,,300.0,,1
+Generator,tamil_nadu_viluppuram__aggregate_01,171,aggregate,1,Wind,Tamil Nadu-Viluppuram,Tamil Nadu,Viluppuram,,1.7,,1
+Generator,tamil_nadu_chennai_16__aggregate_01,173,aggregate,1,Solar,Tamil Nadu Chennai 16,Tamil Nadu,Chennai,,16.0,,1
+Generator,tamil_nadu_coimbatore_11_26__aggregate_01,174,aggregate,1,Solar,Tamil Nadu Coimbatore 11.26,Tamil Nadu,Coimbatore,,11.26,,1
+Generator,tamil_nadu_cuddalore_140__aggregate_01,175,aggregate,1,Solar,Tamil Nadu Cuddalore 140,Tamil Nadu,Cuddalore,,140.0,,1
+Generator,tamil_nadu_dindigul_109_46__aggregate_01,176,aggregate,1,Solar,Tamil Nadu Dindigul 109.46,Tamil Nadu,Dindigul,,109.46,,1
+Generator,tamil_nadu_erode_7__aggregate_01,177,aggregate,1,Solar,Tamil Nadu Erode  7,Tamil Nadu,Erode,,7.0,,1
+Generator,tamil_nadu_kanniyakumari_1__aggregate_01,178,aggregate,1,Solar,Tamil Nadu Kanniyakumari 1,Tamil Nadu,Kanniyakumari,,1.0,,1
+Generator,tamil_nadu_karur_156_49__aggregate_01,179,aggregate,1,Solar,Tamil Nadu Karur 156.49,Tamil Nadu,Karur,,156.49,,1
+Generator,tamil_nadu_krishnagiri_0_75__aggregate_01,180,aggregate,1,Solar,Tamil Nadu Krishnagiri 0.75,Tamil Nadu,Krishnagiri,,0.75,,1
+Generator,tamil_nadu_madurai_1__aggregate_01,181,aggregate,1,Solar,Tamil Nadu Madurai 1,Tamil Nadu,Madurai,,1.0,,1
+Generator,tamil_nadu_n_a_251__aggregate_01,182,aggregate,1,Solar,Tamil Nadu N.A. 251,Tamil Nadu,N.A.,,251.0,,1
+Generator,tamil_nadu_n_a_off_grid_75_91__aggregate_01,183,aggregate,1,Solar,Tamil Nadu N.A. Off -grid 75.91,Tamil Nadu,N.A.,,75.91,,1
+Generator,tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01,184,aggregate,1,Solar,Tamil Nadu N.A. Others (Districts not specified) 8930.85,Tamil Nadu,N.A.,,8930.85,,1
+Generator,tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01,185,aggregate,1,Solar,Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8,Tamil Nadu,N.A.,,1635.8,,1
+Generator,tamil_nadu_nagapattinam_5__aggregate_01,186,aggregate,1,Solar,Tamil Nadu Nagapattinam  5,Tamil Nadu,Nagapattinam,,5.0,,1
+Generator,tamil_nadu_perambalur_10__aggregate_01,187,aggregate,1,Solar,Tamil Nadu Perambalur 10,Tamil Nadu,Perambalur,,10.0,,1
+Generator,tamil_nadu_pudukkottai_20__aggregate_01,188,aggregate,1,Solar,Tamil Nadu Pudukkottai 20,Tamil Nadu,Pudukkottai,,20.0,,1
+Generator,tamil_nadu_ramanathapuram_245__aggregate_01,189,aggregate,1,Solar,Tamil Nadu Ramanathapuram 245,Tamil Nadu,Ramanathapuram,,245.0,,1
+Generator,tamil_nadu_ramanathapuram_kamuthi_solar_power_project_648__aggregate_01,190,aggregate,1,Solar,Tamil Nadu Ramanathapuram Kamuthi Solar Power Project 648,Tamil Nadu,Ramanathapuram,,648.0,,1
+Generator,tamil_nadu_sivaganga_16_55__aggregate_01,191,aggregate,1,Solar,Tamil Nadu Sivaganga 16.55,Tamil Nadu,Sivaganga,,16.55,,1
+Generator,tamil_nadu_thoothukkudi_28__aggregate_01,192,aggregate,1,Solar,Tamil Nadu Thoothukkudi 28,Tamil Nadu,Thoothukkudi,,28.0,,1
+Generator,tamil_nadu_tiruchirappalli_169__aggregate_01,193,aggregate,1,Solar,Tamil Nadu Tiruchirappalli 169,Tamil Nadu,Tiruchirappalli,,169.0,,1
+Generator,tamil_nadu_tirunelveli_309_36__aggregate_01,194,aggregate,1,Solar,Tamil Nadu Tirunelveli  309.36,Tamil Nadu,Tirunelveli,,309.36,,1
+Generator,tamil_nadu_tirunelveli_tuticorin_virudhunagar_and_ramanathapuram__aggregate_01,195,aggregate,1,Solar,"Tamil Nadu Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram 351",Tamil Nadu,"Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram",,351.0,,1
+Generator,tamil_nadu_tiruppur_49_3__aggregate_01,196,aggregate,1,Solar,Tamil Nadu Tiruppur 49.3,Tamil Nadu,Tiruppur,,49.3,,1
+Generator,tamil_nadu_tiruvannamalai_31__aggregate_01,197,aggregate,1,Solar,Tamil Nadu Tiruvannamalai 31,Tamil Nadu,Tiruvannamalai,,31.0,,1
+Generator,tamil_nadu_vellore_5__aggregate_01,198,aggregate,1,Solar,Tamil Nadu Vellore  5,Tamil Nadu,Vellore,,5.0,,1
+Generator,tamil_nadu_virudhunagar_685_4__aggregate_01,199,aggregate,1,Solar,Tamil Nadu Virudhunagar 685.4,Tamil Nadu,Virudhunagar,,685.4,,1
+Generator,basin_bridge_gas_turbine_power_station__unit_01,200,unit,1,Oil & Gas,Basin Bridge Gas Turbine Power Station,Tamil Nadu,Chennai,1996-02-12,30.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,basin_bridge_gas_turbine_power_station__unit_02,201,unit,2,Oil & Gas,Basin Bridge Gas Turbine Power Station,Tamil Nadu,Chennai,1996-02-25,30.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,basin_bridge_gas_turbine_power_station__unit_03,202,unit,3,Oil & Gas,Basin Bridge Gas Turbine Power Station,Tamil Nadu,Chennai,1996-03-26,30.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,basin_bridge_gas_turbine_power_station__unit_04,203,unit,4,Oil & Gas,Basin Bridge Gas Turbine Power Station,Tamil Nadu,Chennai,1996-03-31,30.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,kovilkalappal_thirumakotai_gas_combined_cycle_gas_turbine_power___unit_02,206,unit,2,Oil & Gas,Kovilkalappal (Thirumakotai) Gas Combined Cycle Gas Turbine Power Station,Tamil Nadu,Thiruvarur,2001-02-05,69.65,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,kovilkalappal_thirumakotai_gas_combined_cycle_gas_turbine_power___unit_01,207,unit,1,Oil & Gas,Kovilkalappal (Thirumakotai) Gas Combined Cycle Gas Turbine Power Station,Tamil Nadu,Thiruvarur,2001-02-05,38.23,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,kuttalam_gas_turbine_power_station__unit_01,208,unit,1,Oil & Gas,Kuttalam Gas Turbine Power Station,Tamil Nadu,Nagapattinam,2003-11-27,63.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,kuttalam_gas_turbine_power_station__unit_02,209,unit,2,Oil & Gas,Kuttalam Gas Turbine Power Station,Tamil Nadu,Nagapattinam,2004-03-24,37.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,pillaiperumalnallur_ppn_power_plant_phase_i__unit_02,210,unit,2,Oil & Gas,Pillaiperumalnallur (PPN) Power Plant Phase I,Tamil Nadu,Nagapattinam,2001-04-26,225.0,PPN Power Generating Co. Private Ltd.,1
+Generator,pillaiperumalnallur_ppn_power_plant_phase_i__unit_01,211,unit,1,Oil & Gas,Pillaiperumalnallur (PPN) Power Plant Phase I,Tamil Nadu,Nagapattinam,2001-04-26,105.5,PPN Power Generating Co. Private Ltd.,1
+Generator,valuthur_gas_turbine_power_station__unit_01,214,unit,1,Oil & Gas,Valuthur Gas Turbine Power Station,Tamil Nadu,Ramanathapuram,2002-12-24,60.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,valuthur_gas_turbine_power_station__unit_02,215,unit,2,Oil & Gas,Valuthur Gas Turbine Power Station,Tamil Nadu,Ramanathapuram,2003-03-13,34.0,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,valuthur_gas_turbine_power_station__unit_03,216,unit,3,Oil & Gas,Valuthur Gas Turbine Power Station,Tamil Nadu,Ramanathapuram,2008-05-06,59.8,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,valuthur_gas_turbine_power_station__unit_04,217,unit,4,Oil & Gas,Valuthur Gas Turbine Power Station,Tamil Nadu,Ramanathapuram,2008-08-31,32.4,Tamil Nadu Generation and Distribution Corp. Ltd.,1
+Generator,ambika_sugars_previously_m_s_srel_tamil_nadu_cuddalore_40__unit_01,218,unit,1,Bio Power,Ambika Sugars (Previously M/s. SREL) Tamil Nadu Cuddalore 40,Tamil Nadu,Cuddalore,N.A.,40.0,Ambika Sugars (Previously M/s. SREL),1
+Generator,arashi_hi_tech_bio_power_ltd_tamil_nadu_coimbatore_1_6__unit_01,219,unit,1,Bio Power,"Arashi Hi-Tech Bio-Power 
+Ltd. Tamil Nadu Coimbatore 1.6",Tamil Nadu,Coimbatore,N.A.,1.6,"Arashi Hi-Tech Bio-Power 
+Ltd.",1
+Generator,arunachala_sugars_ltd_tamil_nadu_tiruvannamalai_19__unit_01,220,unit,1,Bio Power,Arunachala Sugars Ltd. Tamil Nadu Tiruvannamalai 19,Tamil Nadu,Tiruvannamalai,N.A.,19.0,Arunachala Sugars Ltd.,1
+Generator,astro_energy_and_bio_systems_ltd_tamil_nadu_madurai_10__unit_01,221,unit,1,Bio Power,Astro Energy and Bio Systems Ltd. Tamil Nadu Madurai 10,Tamil Nadu,Madurai,N.A.,10.0,Astro Energy and Bio Systems Ltd.,1
+Generator,auro_energy_ltd_tamil_nadu_thanjavur_16__unit_01,222,unit,1,Bio Power,Auro Energy Ltd. Tamil Nadu Thanjavur 16,Tamil Nadu,Thanjavur,N.A.,16.0,Auro Energy Ltd.,1
+Generator,aurobindo_agro_energy_pvt_ltd_tamil_nadu_sivaganga_15__unit_01,223,unit,1,Bio Power,Aurobindo Agro Energy Pvt. Ltd. Tamil Nadu Sivaganga 15,Tamil Nadu,Sivaganga,N.A.,15.0,Aurobindo Agro Energy Pvt. Ltd.,1
+Generator,auromira_bio_power_india_p_ltd_tamil_nadu_tirunelveli_15__unit_01,224,unit,1,Bio Power,"Auromira Bio Power
+India (P) Ltd Tamil Nadu Tirunelveli 15",Tamil Nadu,Tirunelveli,N.A.,15.0,"Auromira Bio Power
+India (P) Ltd",1
+Generator,bannari_amman_sugars_ltd_tamil_nadu_erode_20__unit_01,225,unit,1,Bio Power,Bannari Amman Sugars Ltd. Tamil Nadu Erode 20,Tamil Nadu,Erode,N.A.,20.0,Bannari Amman Sugars Ltd.,1
+Generator,bannari_amman_sugars_and_chemicals_ltd_tamil_nadu_tiruvannamalai__unit_01,226,unit,1,Bio Power,Bannari Amman Sugars and Chemicals Ltd. Tamil Nadu Tiruvannamalai 28.8,Tamil Nadu,Tiruvannamalai,N.A.,28.8,Bannari Amman Sugars and Chemicals Ltd.,1
+Generator,c_m_d_a_koyambedu_veg_market_bio_metharation_plant_tamil_nadu_ch__unit_01,227,unit,1,Bio Power,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant Tamil Nadu Chennai 0.25",Tamil Nadu,Chennai,N.A.,0.25,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant",1
+Generator,cheyyar_co_op_sugar_mills_tamil_nadu_tiruvannamalai_7_5__unit_01,228,unit,1,Bio Power,Cheyyar Co.op Sugar Mills Tamil Nadu Tiruvannamalai 7.5,Tamil Nadu,Tiruvannamalai,N.A.,7.5,Cheyyar Co.op Sugar Mills,1
+Generator,chitra_bio_energy_ltd_tamil_nadu_pudukkottai_7_5__unit_01,229,unit,1,Bio Power,Chitra Bio Energy Ltd. Tamil Nadu Pudukkottai 7.5,Tamil Nadu,Pudukkottai,N.A.,7.5,Chitra Bio Energy Ltd.,1
+Generator,dhanalakshmi_srinivasan_sugars_pvt_ltd_tamil_nadu_perambalur_25__unit_01,230,unit,1,Bio Power,Dhanalakshmi Srinivasan Sugars Pvt Ltd. Tamil Nadu Perambalur 25,Tamil Nadu,Perambalur,N.A.,25.0,Dhanalakshmi Srinivasan Sugars Pvt Ltd.,1
+Generator,dharani_sugars_chemical_ltd_tamil_nadu_tiruvannamalai_15__unit_01,231,unit,1,Bio Power,Dharani Sugars & Chemical Ltd. Tamil Nadu Tiruvannamalai 15,Tamil Nadu,Tiruvannamalai,N.A.,15.0,Dharani Sugars & Chemical Ltd.,1
+Generator,dharani_sugars_chemical_ltd_tamil_nadu_viluppuram_22__unit_01,232,unit,1,Bio Power,Dharani Sugars & Chemical Ltd. Tamil Nadu Viluppuram 22,Tamil Nadu,Viluppuram,N.A.,22.0,Dharani Sugars & Chemical Ltd.,1
+Generator,eid_parry_india_ltd_tamil_nadu_cuddalore_24_5__unit_01,233,unit,1,Bio Power,EID Parry India Ltd. Tamil Nadu Cuddalore 24.5,Tamil Nadu,Cuddalore,N.A.,24.5,EID Parry India Ltd.,1
+Generator,eid_parry_india_ltd_tamil_nadu_karur_22__unit_01,234,unit,1,Bio Power,EID Parry India Ltd. Tamil Nadu Karur 22,Tamil Nadu,Karur,N.A.,22.0,EID Parry India Ltd.,1
+Generator,eid_parry_india_ltd_tamil_nadu_pudukkottai_18__unit_01,235,unit,1,Bio Power,EID Parry India Ltd. Tamil Nadu Pudukkottai 18,Tamil Nadu,Pudukkottai,N.A.,18.0,EID Parry India Ltd.,1
+Generator,eid_parry_india_ltd_tamil_nadu_tiruchirappalli_18__unit_01,236,unit,1,Bio Power,EID Parry India Ltd. Tamil Nadu Tiruchirappalli 18,Tamil Nadu,Tiruchirappalli,N.A.,18.0,EID Parry India Ltd.,1
+Generator,eta_power_gen_pvt_ltd_tamil_nadu_virudhunagar_10__unit_01,237,unit,1,Bio Power,ETA Power Gen.Pvt.Ltd. Tamil Nadu Virudhunagar 10,Tamil Nadu,Virudhunagar,N.A.,10.0,ETA Power Gen.Pvt.Ltd.,1
+Generator,empee_distilleries_pvt_ltd_tamil_nadu_pudukkottai_10__unit_01,238,unit,1,Bio Power,Empee Distilleries (Pvt) Ltd. Tamil Nadu Pudukkottai 10,Tamil Nadu,Pudukkottai,N.A.,10.0,Empee Distilleries (Pvt) Ltd.,1
+Generator,empee_sugars_chemicals_ltd_tamil_nadu_tirunelveli_50__unit_01,239,unit,1,Bio Power,Empee Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 50,Tamil Nadu,Tirunelveli,N.A.,50.0,Empee Sugars & Chemicals Ltd.,1
+Generator,g_k_bio_energy_pvt_ltd_tamil_nadu_erode_1_5__unit_01,240,unit,1,Bio Power,G.K. Bio Energy Pvt. Ltd. Tamil Nadu Erode 1.5,Tamil Nadu,Erode,N.A.,1.5,G.K. Bio Energy Pvt. Ltd.,1
+Generator,global_power_tech_equipments_pvt_ltd_tamil_nadu_tiruvannamalai_7__unit_01,241,unit,1,Bio Power,Global Power Tech. Equipments Pvt.Ltd. Tamil Nadu Tiruvannamalai 7.5,Tamil Nadu,Tiruvannamalai,N.A.,7.5,Global Power Tech. Equipments Pvt.Ltd.,1
+Generator,iot_mabagas_ltd_tamil_nadu_n_a_2__unit_01,242,unit,1,Bio Power,IOT Mabagas Ltd. Tamil Nadu N.A. 2,Tamil Nadu,N.A.,N.A.,2.0,IOT Mabagas Ltd.,1
+Generator,kothari_sugars_chemicals_ltd_tamil_nadu_perambalur_12__unit_01,243,unit,1,Bio Power,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 12,Tamil Nadu,Perambalur,N.A.,12.0,Kothari Sugars & Chemicals Ltd.,1
+Generator,kothari_sugars_chemicals_ltd_tamil_nadu_perambalur_22__unit_01,244,unit,1,Bio Power,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 22,Tamil Nadu,Perambalur,N.A.,22.0,Kothari Sugars & Chemicals Ltd.,1
+Generator,m_r_k_co_op_sugar_mills_tamil_nadu_cuddalore_7_5__unit_01,245,unit,1,Bio Power,M.R.K.Co.op Sugar Mills Tamil Nadu Cuddalore 7.5,Tamil Nadu,Cuddalore,N.A.,7.5,M.R.K.Co.op Sugar Mills,1
+Generator,madras_sugars_chemicals_ltd_tamil_nadu_tirunelveli_25__unit_01,246,unit,1,Bio Power,Madras Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 25,Tamil Nadu,Tirunelveli,N.A.,25.0,Madras Sugars & Chemicals Ltd.,1
+Generator,manali_petrochemicals_ltd_tamil_nadu_thiruvallur_4_7__unit_01,247,unit,1,Bio Power,Manali Petrochemicals Ltd. Tamil Nadu Thiruvallur 4.7,Tamil Nadu,Thiruvallur,N.A.,4.7,Manali Petrochemicals Ltd.,1
+Generator,mohan_breweries_distillaries_ltd_tamil_nadu_kancheepuram_18__unit_01,248,unit,1,Bio Power,Mohan Breweries & Distillaries Ltd Tamil Nadu Kancheepuram 18,Tamil Nadu,Kancheepuram,N.A.,18.0,Mohan Breweries & Distillaries Ltd,1
+Generator,orient_green_power_ltd_tamil_nadu_coimbatore_10__unit_01,249,unit,1,Bio Power,Orient Green Power Ltd. Tamil Nadu Coimbatore 10,Tamil Nadu,Coimbatore,N.A.,10.0,Orient Green Power Ltd.,1
+Generator,others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01,250,aggregate,1,Bio Power,Others (districts not specified) (Waste to Energy) Tamil Nadu N.A. 6.4,Tamil Nadu,N.A.,N.A.,6.4,Others (districts not specified) (Waste to Energy),1
+Generator,others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01,251,aggregate,1,Bio Power,Others (districts not specified) [Biomass & bagasse based cogen.] Tamil Nadu N.A. 138.2,Tamil Nadu,N.A.,N.A.,138.2,Others (districts not specified) [Biomass & bagasse based cogen.],1
+Generator,others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01,252,aggregate,1,Bio Power,Others (districts not specified) [Non-Bagasse based cogen.] Tamil Nadu N.A. 525,Tamil Nadu,N.A.,N.A.,52.05,Others (districts not specified) [Non-Bagasse based cogen.],1
+Generator,others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01,253,aggregate,1,Bio Power,Others (districts not specified) [Waste to Energy (Off-grid)] Tamil Nadu N.A. 27.57,Tamil Nadu,N.A.,N.A.,27.57,Others (districts not specified) [Waste to Energy (Off-grid)],1
+Generator,ponni_sugars_limited_tamil_nadu_erode_19__unit_01,254,unit,1,Bio Power,Ponni Sugars Limited Tamil Nadu Erode 19,Tamil Nadu,Erode,N.A.,19.0,Ponni Sugars Limited,1
+Generator,prathyusha_power_pvt_ltd_tamil_nadu_tirunelveli_10__unit_01,255,unit,1,Bio Power,Prathyusha Power Pvt. Ltd. Tamil Nadu Tirunelveli 10,Tamil Nadu,Tirunelveli,N.A.,10.0,Prathyusha Power Pvt. Ltd.,1
+Generator,rajashree_sugars_chemicals_ltd_tamil_nadu_theni_12__unit_01,256,unit,1,Bio Power,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Theni 12,Tamil Nadu,Theni,N.A.,12.0,Rajashree Sugars & Chemicals Ltd.,1
+Generator,rajashree_sugars_chemicals_ltd_tamil_nadu_viluppuram_20__unit_01,257,unit,1,Bio Power,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 20,Tamil Nadu,Viluppuram,N.A.,20.0,Rajashree Sugars & Chemicals Ltd.,1
+Generator,rajashree_sugars_chemicals_ltd_tamil_nadu_viluppuram_22__unit_01,258,unit,1,Bio Power,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 22,Tamil Nadu,Viluppuram,N.A.,22.0,Rajashree Sugars & Chemicals Ltd.,1
+Generator,rajkumar_impex_p_ltd_tamil_nadu_thoothukkudi_6__unit_01,259,unit,1,Bio Power,Rajkumar Impex(P) Ltd. Tamil Nadu Thoothukkudi 6,Tamil Nadu,Thoothukkudi,N.A.,6.0,Rajkumar Impex(P) Ltd.,1
+Generator,renuka_textiles_limited_tamil_nadu_theni_4_5__unit_01,260,unit,1,Bio Power,Renuka Textiles Limited Tamil Nadu Theni 4.5,Tamil Nadu,Theni,N.A.,4.5,Renuka Textiles Limited,1
+Generator,s_v_sugar_mills_ltd_tamil_nadu_kancheepuram_45__unit_01,261,unit,1,Bio Power,S.V Sugar Mills Ltd. Tamil Nadu Kancheepuram 45,Tamil Nadu,Kancheepuram,N.A.,45.0,S.V Sugar Mills Ltd.,1
+Generator,saastha_energy_p_ltd_tamil_nadu_n_a_2__unit_01,262,unit,1,Bio Power,Saastha Energy(P) Ltd Tamil Nadu N.A. 2,Tamil Nadu,N.A.,N.A.,2.0,Saastha Energy(P) Ltd,1
+Generator,sakti_sugars_ltd_tamil_nadu_erode_24_5__unit_01,263,unit,1,Bio Power,Sakti Sugars Ltd. Tamil Nadu Erode 24.5,Tamil Nadu,Erode,N.A.,24.5,Sakti Sugars Ltd.,1
+Generator,sakti_sugars_ltd_tamil_nadu_sivaganga_35__unit_01,264,unit,1,Bio Power,Sakti Sugars Ltd. Tamil Nadu Sivaganga 35,Tamil Nadu,Sivaganga,N.A.,35.0,Sakti Sugars Ltd.,1
+Generator,shakti_sugars_ltd_tamil_nadu_erode_32__unit_01,265,unit,1,Bio Power,Shakti Sugars Ltd. Tamil Nadu Erode 32,Tamil Nadu,Erode,N.A.,32.0,Shakti Sugars Ltd.,1
+Generator,shriraam_city_union_finance_ltd_tamil_nadu_thanjavur_7_5__unit_01,266,unit,1,Bio Power,Shriraam City Union Finance Ltd. Tamil Nadu Thanjavur 7.5,Tamil Nadu,Thanjavur,N.A.,7.5,Shriraam City Union Finance Ltd.,1
+Generator,shriram_investments_ltd_tamil_nadu_dindigul_7_5__unit_01,267,unit,1,Bio Power,Shriram Investments Ltd. Tamil Nadu Dindigul 7.5,Tamil Nadu,Dindigul,N.A.,7.5,Shriram Investments Ltd.,1
+Generator,sripathi_paper_board_p_ltd_tamil_nadu_virudhunagar_4_95_09_03_20__unit_01,268,unit,1,Bio Power,"Sripathi Paper & Board
+(P) Ltd Tamil Nadu Virudhunagar 4.95 09.03.2011",Tamil Nadu,Virudhunagar,2011-09-03,4.95,"Sripathi Paper & Board
+(P) Ltd",1
+Generator,subashri_bio_energy_p_ltd_tamil_nadu_namakkal_2_5__unit_01,269,unit,1,Bio Power,"Subashri Bio Energy (P)
+Ltd. Tamil Nadu Namakkal 2.5",Tamil Nadu,Namakkal,N.A.,2.5,"Subashri Bio Energy (P)
+Ltd.",1
+Generator,subramania_siva_co_op_sugar_mills_tamil_nadu_dharmapuri_5__unit_01,270,unit,1,Bio Power,Subramania Siva Co-op Sugar Mills Tamil Nadu Dharmapuri 5,Tamil Nadu,Dharmapuri,N.A.,5.0,Subramania Siva Co-op Sugar Mills,1
+Generator,synergy_sakthi_renewable_energy_ltd_tamil_nadu_dharmapuri_10__unit_01,271,unit,1,Bio Power,"Synergy Sakthi
+Renewable energy Ltd. Tamil Nadu Dharmapuri 10",Tamil Nadu,Dharmapuri,N.A.,10.0,"Synergy Sakthi
+Renewable energy Ltd.",1
+Generator,tcp_ltd_tamil_nadu_sivaganga_9__unit_01,272,unit,1,Bio Power,TCP Ltd. Tamil Nadu Sivaganga 9,Tamil Nadu,Sivaganga,N.A.,9.0,TCP Ltd.,1
+Generator,terra_energy_ltd_tamil_nadu_cuddalore_18_68__unit_01,273,unit,1,Bio Power,Terra Energy Ltd. Tamil Nadu Cuddalore 18.68,Tamil Nadu,Cuddalore,N.A.,18.68,Terra Energy Ltd.,1
+Generator,terra_energy_ltd_tamil_nadu_thanjavur_28_42__unit_01,274,unit,1,Bio Power,Terra Energy Ltd. Tamil Nadu Thanjavur 28.42,Tamil Nadu,Thanjavur,N.A.,28.42,Terra Energy Ltd.,1
+Generator,kudankulam_atomic_power_project__unit_01,276,unit,1,Nuclear,Kudankulam Atomic Power Project,Tamil Nadu,Tirunelveli,2014-12-31,1000.0,Nuclear Power Corporation of India,1
+Generator,kudankulam_atomic_power_project__unit_02,277,unit,2,Nuclear,Kudankulam Atomic Power Project,Tamil Nadu,Tirunelveli,2017-03-31,1000.0,Nuclear Power Corporation of India,1
+Generator,madras_atomic_power_station__unit_01,282,unit,1,Nuclear,Madras Atomic Power Station,Tamil Nadu,Kancheepuram,1984-01-27,220.0,Nuclear Power Corporation of India,1
+Generator,madras_atomic_power_station__unit_02,283,unit,2,Nuclear,Madras Atomic Power Station,Tamil Nadu,Kancheepuram,1986-03-21,220.0,Nuclear Power Corporation of India,1
+Generator,aliyar_mini_hydel_project__unit_01,284,unit,1,Small-Hydro,Aliyar Mini Hydel Project,Tamil Nadu,Coimbatore,2002-09-23,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,aliyar_mini_hydel_project__unit_02,285,unit,2,Small-Hydro,Aliyar Mini Hydel Project,Tamil Nadu,Coimbatore,2002-09-23,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,amaravathi_small_hydro_project__unit_01,286,unit,1,Small-Hydro,Amaravathi Small Hydro Project,Tamil Nadu,Coimbatore,2006-09-21,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,amaravathi_small_hydro_project__unit_02,287,unit,2,Small-Hydro,Amaravathi Small Hydro Project,Tamil Nadu,Coimbatore,2006-11-30,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,bhavani_barrage_i_small_hydro_electric_project__unit_01,288,unit,1,Small-Hydro,Bhavani Barrage I Small Hydro Electric Project,Tamil Nadu,Coimbatore,2009-07-01,5.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,bhavani_barrage_i_small_hydro_electric_project__unit_02,289,unit,2,Small-Hydro,Bhavani Barrage I Small Hydro Electric Project,Tamil Nadu,Coimbatore,2009-07-01,5.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,bhavani_barrage_ii_small_hydro_electric_project__unit_01,290,unit,1,Small-Hydro,Bhavani Barrage II Small Hydro Electric Project,Tamil Nadu,Coimbatore,N.A.,5.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,bhavani_barrage_ii_small_hydro_electric_project__unit_02,291,unit,2,Small-Hydro,Bhavani Barrage II Small Hydro Electric Project,Tamil Nadu,Coimbatore,N.A.,5.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,lower_bhavani_micro_hydel_project__unit_04,292,unit,4,Small-Hydro,Lower Bhavani Micro Hydel Project,Tamil Nadu,Erode,1990-05-26,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,lower_bhavani_micro_hydel_project__unit_03,293,unit,3,Small-Hydro,Lower Bhavani Micro Hydel Project,Tamil Nadu,Erode,1990-04-17,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,lower_bhavani_micro_hydel_project__unit_02,294,unit,2,Small-Hydro,Lower Bhavani Micro Hydel Project,Tamil Nadu,Erode,1990-04-11,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,lower_bhavani_micro_hydel_project__unit_01,295,unit,1,Small-Hydro,Lower Bhavani Micro Hydel Project,Tamil Nadu,Erode,1990-04-03,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,lower_bhavani_right_bank_canal_project__unit_01,296,unit,1,Small-Hydro,Lower Bhavani Right Bank Canal Project,Tamil Nadu,Erode,1998-02-10,4.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,lower_bhavani_right_bank_canal_project__unit_02,297,unit,2,Small-Hydro,Lower Bhavani Right Bank Canal Project,Tamil Nadu,Erode,1998-02-28,4.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,maravakandy_small_hydro_project__unit_01,298,unit,1,Small-Hydro,Maravakandy Small Hydro Project,Tamil Nadu,Nilgiris,1992-10-14,0.75,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mukurthy_small_hydro_project__unit_01,299,unit,1,Small-Hydro,Mukurthy Small Hydro Project,Tamil Nadu,Nilgiris,2001-06-27,0.35,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,mukurthy_small_hydro_project__unit_02,300,unit,2,Small-Hydro,Mukurthy Small Hydro Project,Tamil Nadu,Nilgiris,2003-01-01,0.35,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,periyar_vaigai_mini_i_hydro_project__unit_01,301,unit,1,Small-Hydro,Periyar Vaigai Mini I Hydro Project,Tamil Nadu,Kanniyakumari,2010-10-02,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,periyar_vaigai_mini_i_hydro_project__unit_02,302,unit,2,Small-Hydro,Periyar Vaigai Mini I Hydro Project,Tamil Nadu,Kanniyakumari,2011-01-21,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,periyar_vaigai_mini_ii_hydro_project__unit_01,303,unit,1,Small-Hydro,Periyar Vaigai Mini II Hydro Project,Tamil Nadu,Kanniyakumari,2011-01-21,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,periyar_vaigai_mini_ii_hydro_project__unit_02,304,unit,2,Small-Hydro,Periyar Vaigai Mini II Hydro Project,Tamil Nadu,Kanniyakumari,2012-01-30,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,periyar_vaigai_mini_iii_hydro_project__unit_01,305,unit,1,Small-Hydro,Periyar Vaigai Mini III Hydro Project,Tamil Nadu,Kanniyakumari,N.A.,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,periyar_vaigai_mini_iii_hydro_project__unit_02,306,unit,2,Small-Hydro,Periyar Vaigai Mini III Hydro Project,Tamil Nadu,Kanniyakumari,N.A.,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,periyar_vaigai_mini_iv_hydro_project__unit_01,307,unit,1,Small-Hydro,Periyar Vaigai Mini IV Hydro Project,Tamil Nadu,Kanniyakumari,N.A.,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,periyar_vaigai_mini_iv_hydro_project__unit_02,308,unit,2,Small-Hydro,Periyar Vaigai Mini IV Hydro Project,Tamil Nadu,Kanniyakumari,N.A.,1.25,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),2
+Generator,perunchani_small_hydro_project__unit_01,309,unit,1,Small-Hydro,Perunchani Small Hydro Project,Tamil Nadu,Kanniyakumari,2005-12-21,0.65,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,perunchani_small_hydro_project__unit_02,310,unit,2,Small-Hydro,Perunchani Small Hydro Project,Tamil Nadu,Kanniyakumari,2006-01-22,0.65,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,punachi_small_hydro_project__unit_01,311,unit,1,Small-Hydro,Punachi Small Hydro Project,Tamil Nadu,Coimbatore,1992-11-12,1.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,punachi_small_hydro_project__unit_02,312,unit,2,Small-Hydro,Punachi Small Hydro Project,Tamil Nadu,Coimbatore,1992-12-16,1.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,pykara_micro_power_house__unit_01,313,unit,1,Small-Hydro,Pykara Micro Power House,Tamil Nadu,Nilgiris,1989-10-09,2.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,sathanur_small_hydro_project__unit_01,314,unit,1,Small-Hydro,Sathanur Small Hydro Project,Tamil Nadu,Tiruvannamalai,1999-03-10,7.5,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,servalar_small_hydro_project__unit_01,315,unit,1,Small-Hydro,Servalar Small Hydro Project,Tamil Nadu,Tirunelveli,1986-03-23,20.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,sholayar_ii_power_house__unit_01,316,unit,1,Small-Hydro,Sholayar II Power House,Tamil Nadu,Coimbatore,1971-03-29,25.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,tamil_nadu_small_hydro_project_bunched__aggregate_01,317,aggregate,1,Small-Hydro,Tamil Nadu Small Hydro Project Bunched,Tamil Nadu,Location TBC,N.A.,0.35,,1
+Generator,thirumurthy_mini_hydel_project__unit_01,318,unit,1,Small-Hydro,Thirumurthy Mini Hydel Project,Tamil Nadu,Tiruppur,2000-03-20,0.65,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),3
+Generator,thirumurthy_mini_hydel_project__unit_02,319,unit,2,Small-Hydro,Thirumurthy Mini Hydel Project,Tamil Nadu,Tiruppur,2000-03-20,0.65,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),3
+Generator,thirumurthy_mini_hydel_project__unit_03,320,unit,3,Small-Hydro,Thirumurthy Mini Hydel Project,Tamil Nadu,Tiruppur,2000-03-20,0.65,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),3
+Generator,vaigai_hydro_power_project__unit_01,321,unit,1,Small-Hydro,Vaigai Hydro Power Project,Tamil Nadu,Kanniyakumari,1990-03-04,3.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
+Generator,vaigai_hydro_power_project__unit_02,322,unit,2,Small-Hydro,Vaigai Hydro Power Project,Tamil Nadu,Theni,1990-03-04,3.0,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),1
