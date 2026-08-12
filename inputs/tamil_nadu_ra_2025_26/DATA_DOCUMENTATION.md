@@ -112,15 +112,16 @@ Relevant report references:
 
 ### Demand workbooks
 
-- [`Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx`](../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2025.xlsx)
-- [`Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx`](../../Tamilnadu_Telangana_Yearly%20Demand%20Profile_2026.xlsx)
+- [`Tamilnadu_Yearly Demand Profile_2025.xlsx`](../../additional_data/Tamilnadu_Yearly%20Demand%20Profile_2025.xlsx)
+- [`Tamilnadu_Yearly Demand Profile_2026.xlsx`](../../additional_data/Tamilnadu_Yearly%20Demand%20Profile_2026.xlsx)
 
 The worksheet is `Yearly Demand Profile`; the selected fields are `State`,
 `Date`, and `Hourly Demand Met (in MW)`.
 
 - April-December 2025: 6,600 Tamil Nadu rows from the 2025 workbook.
 - January-March 2026: 2,160 Tamil Nadu rows from the 2026 workbook.
-- Telangana rows and workbook footer/disclaimer rows are excluded.
+- The cleaned workbooks contain Tamil Nadu data only; workbook
+  footer/disclaimer rows are excluded from the model input.
 - The assembled fiscal-year series has 8,760 unique timestamps, no duplicates,
   no missing hours, and no extra hours.
 - Values are used unchanged: no scaling, interpolation, or gap filling.

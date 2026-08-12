@@ -23,10 +23,11 @@ documented assumptions rather than validated operational data.
 | `inputs/tamil_nadu_ra_2025_26/` | Full-year PyPSA CSV-folder input dataset |
 | `inputs/tamil_nadu_ra_2025_26_15min/` | Full-year 15-minute alternative generated from the hourly model and quarter-hour demand |
 | `additional_data/TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx` | Unit-level source for operational technologies and capacities |
-| `additional_data/Tamilnadu_Telangana_Yearly Demand Profile_2025__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Equal-allocation quarter-hour demand source for April-December 2025 |
-| `additional_data/Tamilnadu_Telangana_Yearly Demand Profile_2026__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Equal-allocation quarter-hour demand source for January-March 2026 |
+| `additional_data/Tamilnadu_Yearly Demand Profile_2025__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Tamil Nadu-only equal-allocation quarter-hour demand source for April-December 2025 |
+| `additional_data/Tamilnadu_Yearly Demand Profile_2026__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Tamil Nadu-only equal-allocation quarter-hour demand source for January-March 2026 |
 | `scripts/build_unit_level_model.py` | Rebuilds record-level PyPSA components from the operational workbook rows |
 | `scripts/build_15min_model.py` | Rebuilds the 15-minute alternative and merges April-December 2025 with January-March 2026 demand |
+| `scripts/merge_fiscal_year_timeseries.py` | Merges two timestamped calendar-year CSV/Excel files into an automatically detected April-March fiscal year |
 | `inputs/tamil_nadu_ra_2025_26/component_metadata.csv` | Links every modeled plant component to its source workbook row |
 | `inputs/tamil_nadu_ra_2025_26/DATA_DOCUMENTATION.md` | Data provenance, field definitions, assumptions, and limitations |
 | `run_peakday_2025_26.ipynb` | Selects and optimizes the annual peak-demand week |
@@ -34,8 +35,8 @@ documented assumptions rather than validated operational data.
 | `tamil_nadu_2025_26.nc` | Committed, solved 168-hour network exported by the run notebook |
 | `tamil_nadu_2025_26_15min.nc` | Solved 672-snapshot 15-minute peak-week network |
 | `results_analysis.ipynb` | Analyzes 15-minute dispatch, storage, coal commitment, evening ramps, and unit ramp-limit utilization |
-| `additional_data/Tamilnadu_Telangana_Yearly Demand Profile_2025.xlsx` | Source demand workbook for April-December 2025 |
-| `additional_data/Tamilnadu_Telangana_Yearly Demand Profile_2026.xlsx` | Source demand workbook for January-March 2026 |
+| `additional_data/Tamilnadu_Yearly Demand Profile_2025.xlsx` | Tamil Nadu-only source demand workbook for April-December 2025 |
+| `additional_data/Tamilnadu_Yearly Demand Profile_2026.xlsx` | Tamil Nadu-only source demand workbook for January-March 2026 |
 | `results/` | Legacy two-bus example CSV outputs; not produced by the current Tamil Nadu notebooks |
 
 ## Environment
@@ -83,6 +84,19 @@ Then regenerate the 15-minute alternative with:
 ```powershell
 python scripts/build_15min_model.py
 ```
+
+To merge any two consecutive calendar-year time-series files without manually
+specifying their years or fiscal-year boundaries, run:
+
+```powershell
+python scripts/merge_fiscal_year_timeseries.py path\to\series_2025.csv path\to\series_2026.csv
+```
+
+Each input must contain a `timestamp` column and represent exactly one calendar
+year. Input order does not matter: the utility reads the years from the
+timestamps, keeps rows from 1 April of the earlier year through 31 March of the
+later year, and writes `FY2025-2026_timeseries.csv` beside the first input by
+default. Use `--output` only when a different destination is needed.
 
 The hourly NetCDF contains 168 snapshots and an optimal HiGHS solution. The
 15-minute NetCDF contains 672 snapshots. Both solved peak weeks have zero

@@ -26,9 +26,9 @@ DEMAND_POWER_SCALE = 4.0
 
 DEMAND_FILES = {
     2025: ADDITIONAL_DATA
-    / "Tamilnadu_Telangana_Yearly Demand Profile_2025__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv",
+    / "Tamilnadu_Yearly Demand Profile_2025__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv",
     2026: ADDITIONAL_DATA
-    / "Tamilnadu_Telangana_Yearly Demand Profile_2026__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv",
+    / "Tamilnadu_Yearly Demand Profile_2026__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv",
 }
 
 STATIC_FILES = (
