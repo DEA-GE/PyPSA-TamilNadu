@@ -1,0 +1,5 @@
+name,bus,p_nom,p_min_pu,p_max_pu,carrier,marginal_cost,cyclic_state_of_charge,max_hours,efficiency_store,efficiency_dispatch
+kadmparai_power_house__unit_01,Coimbatore,100.0,-0.95,0.95,hydro,10.0,True,6.0,0.8944271909999159,0.8944271909999159
+kadmparai_power_house__unit_02,Coimbatore,100.0,-0.95,0.95,hydro,10.0,True,6.0,0.8944271909999159,0.8944271909999159
+kadmparai_power_house__unit_03,Coimbatore,100.0,-0.95,0.95,hydro,10.0,True,6.0,0.8944271909999159,0.8944271909999159
+kadmparai_power_house__unit_04,Coimbatore,100.0,-0.95,0.95,hydro,10.0,True,6.0,0.8944271909999159,0.8944271909999159

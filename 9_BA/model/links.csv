@@ -1,0 +1,23 @@
+name,bus0,bus1,p_nom,p_min_pu,efficiency,carrier,marginal_cost
+chennai_north__chennai_south,Chennai North,Chennai South,3500.0,-1.0,1.0,AC,0.0
+chennai_north__vellore,Chennai North,Vellore,1000.0,-1.0,1.0,AC,0.0
+chennai_north__villupuram,Chennai North,Villupuram,2000.0,-1.0,1.0,AC,0.0
+chennai_north__trichy,Chennai North,Trichy,9000.0,-1.0,1.0,AC,0.0
+chennai_south__vellore,Chennai South,Vellore,1000.0,-1.0,1.0,AC,0.0
+chennai_south__villupuram,Chennai South,Villupuram,1000.0,-1.0,1.0,AC,0.0
+chennai_south__trichy,Chennai South,Trichy,1000.0,-1.0,1.0,AC,0.0
+vellore__villupuram,Vellore,Villupuram,3500.0,-1.0,1.0,AC,0.0
+vellore__erode,Vellore,Erode,6750.0,-1.0,1.0,AC,0.0
+vellore__coimbatore,Vellore,Coimbatore,2500.0,-1.0,1.0,AC,0.0
+vellore__tirunelveli,Vellore,Tirunelveli,2500.0,-1.0,1.0,AC,0.0
+villupuram__erode,Villupuram,Erode,1000.0,-1.0,1.0,AC,0.0
+villupuram__coimbatore,Villupuram,Coimbatore,1000.0,-1.0,1.0,AC,0.0
+villupuram__trichy,Villupuram,Trichy,15250.0,-1.0,1.0,AC,0.0
+villupuram__tirunelveli,Villupuram,Tirunelveli,1000.0,-1.0,1.0,AC,0.0
+erode__coimbatore,Erode,Coimbatore,5000.0,-1.0,1.0,AC,0.0
+erode__trichy,Erode,Trichy,8750.0,-1.0,1.0,AC,0.0
+erode__tirunelveli,Erode,Tirunelveli,1000.0,-1.0,1.0,AC,0.0
+coimbatore__trichy,Coimbatore,Trichy,9500.0,-1.0,1.0,AC,0.0
+coimbatore__tirunelveli,Coimbatore,Tirunelveli,1000.0,-1.0,1.0,AC,0.0
+trichy__madurai,Trichy,Madurai,7000.0,-1.0,1.0,AC,0.0
+madurai__tirunelveli,Madurai,Tirunelveli,14250.0,-1.0,1.0,AC,0.0

@@ -1,0 +1,48 @@
+bus,carrier,capacity_mw
+Chennai North,bio_power,5.735510944491474
+Chennai North,coal,4677.5
+Chennai North,oil_gas,120.0
+Chennai North,solar,340.29618734698226
+Chennai North,wind,10.325
+Chennai South,bio_power,72.99741202080058
+Chennai South,nuclear,440.0
+Chennai South,solar,222.4685521957774
+Chennai South,wind,7.65
+Coimbatore,bio_power,13.440793324464869
+Coimbatore,hydro,1408.2
+Coimbatore,small_hydro,58.9
+Coimbatore,solar,936.4329866620516
+Coimbatore,wind,3489.7159884536504
+Erode,bio_power,117.2895634296771
+Erode,coal,1440.0
+Erode,hydro,460.0
+Erode,small_hydro,16.0
+Erode,solar,383.3218896051532
+Erode,wind,132.73000000000002
+Madurai,bio_power,107.75808441165799
+Madurai,diesel,106.0
+Madurai,hydro,203.0
+Madurai,oil_gas,186.2
+Madurai,small_hydro,3.35
+Madurai,solar,4036.8245428613177
+Madurai,wind,1227.2675
+Tirunelveli,bio_power,115.14344418914015
+Tirunelveli,coal,4075.0
+Tirunelveli,hydro,132.0
+Tirunelveli,nuclear,2000.0
+Tirunelveli,small_hydro,37.3
+Tirunelveli,solar,6105.3057337527525
+Tirunelveli,wind,6457.782142270278
+Trichy,bio_power,249.002818236788
+Trichy,oil_gas,538.38
+Trichy,solar,1371.1932483482399
+Trichy,wind,776.3025000000009
+Vellore,bio_power,46.38033619542871
+Vellore,diesel,105.7
+Vellore,solar,167.8385029885426
+Vellore,wind,196.0
+Villupuram,bio_power,327.3720372475511
+Villupuram,coal,4840.0
+Villupuram,small_hydro,7.5
+Villupuram,solar,557.7783562371837
+Villupuram,wind,1.7168692760729778

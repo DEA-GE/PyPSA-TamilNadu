@@ -126,7 +126,7 @@ Generator,tamil_nadu_erode__aggregate_01,156,aggregate,1,Wind,Tamil Nadu-Erode,T
 Generator,tamil_nadu_kancheepuram__aggregate_01,157,aggregate,1,Wind,Tamil Nadu-Kancheepuram,Tamil Nadu,Kancheepuram,,7.65,,1
 Generator,tamil_nadu_kanniyakumari__aggregate_01,158,aggregate,1,Wind,Tamil Nadu-Kanniyakumari,Tamil Nadu,Kanniyakumari,,349.125,,1
 Generator,tamil_nadu_karur__aggregate_01,159,aggregate,1,Wind,Tamil Nadu-Karur,Tamil Nadu,Karur,,589.1025000000009,,1
-Generator,tamil_nadu_n_a__aggregate_01,160,aggregate,1,Wind,Tamil Nadu-N.A.,Tamil Nadu,N.A.,,279.51,,1
+Generator,tamil_nadu_n_a__aggregate_01,160,aggregate,1,Wind,Tamil Nadu-N.A.,Tamil Nadu,Statewide / multiple districts,,279.51,,1
 Generator,tamil_nadu_ramanathapuram__aggregate_01,161,aggregate,1,Wind,Tamil Nadu-Ramanathapuram,Tamil Nadu,Ramanathapuram,,17.4,,1
 Generator,tamil_nadu_salem__aggregate_01,162,aggregate,1,Wind,Tamil Nadu-Salem,Tamil Nadu,Salem,,3.4,,1
 Generator,tamil_nadu_thanjavur__aggregate_01,163,aggregate,1,Wind,Tamil Nadu-Thanjavur,Tamil Nadu,Thanjavur,,8.8,,1
@@ -147,10 +147,10 @@ Generator,tamil_nadu_kanniyakumari_1__aggregate_01,178,aggregate,1,Solar,Tamil N
 Generator,tamil_nadu_karur_156_49__aggregate_01,179,aggregate,1,Solar,Tamil Nadu Karur 156.49,Tamil Nadu,Karur,,156.49,,1
 Generator,tamil_nadu_krishnagiri_0_75__aggregate_01,180,aggregate,1,Solar,Tamil Nadu Krishnagiri 0.75,Tamil Nadu,Krishnagiri,,0.75,,1
 Generator,tamil_nadu_madurai_1__aggregate_01,181,aggregate,1,Solar,Tamil Nadu Madurai 1,Tamil Nadu,Madurai,,1.0,,1
-Generator,tamil_nadu_n_a_251__aggregate_01,182,aggregate,1,Solar,Tamil Nadu N.A. 251,Tamil Nadu,N.A.,,251.0,,1
-Generator,tamil_nadu_n_a_off_grid_75_91__aggregate_01,183,aggregate,1,Solar,Tamil Nadu N.A. Off -grid 75.91,Tamil Nadu,N.A.,,75.91,,1
-Generator,tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01,184,aggregate,1,Solar,Tamil Nadu N.A. Others (Districts not specified) 8930.85,Tamil Nadu,N.A.,,8930.85,,1
-Generator,tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01,185,aggregate,1,Solar,Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8,Tamil Nadu,N.A.,,1635.8,,1
+Generator,tamil_nadu_n_a_251__aggregate_01,182,aggregate,1,Solar,Tamil Nadu N.A. 251,Tamil Nadu,Statewide / multiple districts,,251.0,,1
+Generator,tamil_nadu_n_a_off_grid_75_91__aggregate_01,183,aggregate,1,Solar,Tamil Nadu N.A. Off -grid 75.91,Tamil Nadu,Statewide / multiple districts,,75.91,,1
+Generator,tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01,184,aggregate,1,Solar,Tamil Nadu N.A. Others (Districts not specified) 8930.85,Tamil Nadu,Statewide / multiple districts,,8930.85,,1
+Generator,tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01,185,aggregate,1,Solar,Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8,Tamil Nadu,Statewide / multiple districts,,1635.8,,1
 Generator,tamil_nadu_nagapattinam_5__aggregate_01,186,aggregate,1,Solar,Tamil Nadu Nagapattinam  5,Tamil Nadu,Nagapattinam,,5.0,,1
 Generator,tamil_nadu_perambalur_10__aggregate_01,187,aggregate,1,Solar,Tamil Nadu Perambalur 10,Tamil Nadu,Perambalur,,10.0,,1
 Generator,tamil_nadu_pudukkottai_20__aggregate_01,188,aggregate,1,Solar,Tamil Nadu Pudukkottai 20,Tamil Nadu,Pudukkottai,,20.0,,1
@@ -207,18 +207,18 @@ Generator,empee_distilleries_pvt_ltd_tamil_nadu_pudukkottai_10__unit_01,238,unit
 Generator,empee_sugars_chemicals_ltd_tamil_nadu_tirunelveli_50__unit_01,239,unit,1,Bio Power,Empee Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 50,Tamil Nadu,Tirunelveli,N.A.,50.0,Empee Sugars & Chemicals Ltd.,1
 Generator,g_k_bio_energy_pvt_ltd_tamil_nadu_erode_1_5__unit_01,240,unit,1,Bio Power,G.K. Bio Energy Pvt. Ltd. Tamil Nadu Erode 1.5,Tamil Nadu,Erode,N.A.,1.5,G.K. Bio Energy Pvt. Ltd.,1
 Generator,global_power_tech_equipments_pvt_ltd_tamil_nadu_tiruvannamalai_7__unit_01,241,unit,1,Bio Power,Global Power Tech. Equipments Pvt.Ltd. Tamil Nadu Tiruvannamalai 7.5,Tamil Nadu,Tiruvannamalai,N.A.,7.5,Global Power Tech. Equipments Pvt.Ltd.,1
-Generator,iot_mabagas_ltd_tamil_nadu_n_a_2__unit_01,242,unit,1,Bio Power,IOT Mabagas Ltd. Tamil Nadu N.A. 2,Tamil Nadu,N.A.,N.A.,2.0,IOT Mabagas Ltd.,1
-Generator,kothari_sugars_chemicals_ltd_tamil_nadu_perambalur_12__unit_01,243,unit,1,Bio Power,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 12,Tamil Nadu,Perambalur,N.A.,12.0,Kothari Sugars & Chemicals Ltd.,1
+Generator,iot_mabagas_ltd_tamil_nadu_n_a_2__unit_01,242,unit,1,Bio Power,IOT Mabagas Ltd. Tamil Nadu N.A. 2,Tamil Nadu,Namakkal,N.A.,2.0,IOT Mabagas Ltd.,1
+Generator,kothari_sugars_chemicals_ltd_kattur_lalgudi__unit_01,243,unit,1,Bio Power,"Kothari Sugars & Chemicals Ltd., Kattur/Lalgudi",Tamil Nadu,Tiruchirappalli,N.A.,12.0,Kothari Sugars & Chemicals Ltd.,1
 Generator,kothari_sugars_chemicals_ltd_tamil_nadu_perambalur_22__unit_01,244,unit,1,Bio Power,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 22,Tamil Nadu,Perambalur,N.A.,22.0,Kothari Sugars & Chemicals Ltd.,1
 Generator,m_r_k_co_op_sugar_mills_tamil_nadu_cuddalore_7_5__unit_01,245,unit,1,Bio Power,M.R.K.Co.op Sugar Mills Tamil Nadu Cuddalore 7.5,Tamil Nadu,Cuddalore,N.A.,7.5,M.R.K.Co.op Sugar Mills,1
-Generator,madras_sugars_chemicals_ltd_tamil_nadu_tirunelveli_25__unit_01,246,unit,1,Bio Power,Madras Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 25,Tamil Nadu,Tirunelveli,N.A.,25.0,Madras Sugars & Chemicals Ltd.,1
+Generator,madras_sugars_chemicals_ltd_vengur__unit_01,246,unit,1,Bio Power,"Madras Sugars & Chemicals Ltd., Vengur",Tamil Nadu,Viluppuram,N.A.,25.0,Madras Sugars & Chemicals Ltd.,1
 Generator,manali_petrochemicals_ltd_tamil_nadu_thiruvallur_4_7__unit_01,247,unit,1,Bio Power,Manali Petrochemicals Ltd. Tamil Nadu Thiruvallur 4.7,Tamil Nadu,Thiruvallur,N.A.,4.7,Manali Petrochemicals Ltd.,1
 Generator,mohan_breweries_distillaries_ltd_tamil_nadu_kancheepuram_18__unit_01,248,unit,1,Bio Power,Mohan Breweries & Distillaries Ltd Tamil Nadu Kancheepuram 18,Tamil Nadu,Kancheepuram,N.A.,18.0,Mohan Breweries & Distillaries Ltd,1
 Generator,orient_green_power_ltd_tamil_nadu_coimbatore_10__unit_01,249,unit,1,Bio Power,Orient Green Power Ltd. Tamil Nadu Coimbatore 10,Tamil Nadu,Coimbatore,N.A.,10.0,Orient Green Power Ltd.,1
-Generator,others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01,250,aggregate,1,Bio Power,Others (districts not specified) (Waste to Energy) Tamil Nadu N.A. 6.4,Tamil Nadu,N.A.,N.A.,6.4,Others (districts not specified) (Waste to Energy),1
-Generator,others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01,251,aggregate,1,Bio Power,Others (districts not specified) [Biomass & bagasse based cogen.] Tamil Nadu N.A. 138.2,Tamil Nadu,N.A.,N.A.,138.2,Others (districts not specified) [Biomass & bagasse based cogen.],1
-Generator,others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01,252,aggregate,1,Bio Power,Others (districts not specified) [Non-Bagasse based cogen.] Tamil Nadu N.A. 525,Tamil Nadu,N.A.,N.A.,52.05,Others (districts not specified) [Non-Bagasse based cogen.],1
-Generator,others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01,253,aggregate,1,Bio Power,Others (districts not specified) [Waste to Energy (Off-grid)] Tamil Nadu N.A. 27.57,Tamil Nadu,N.A.,N.A.,27.57,Others (districts not specified) [Waste to Energy (Off-grid)],1
+Generator,others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01,250,aggregate,1,Bio Power,Others (districts not specified) (Waste to Energy) Tamil Nadu N.A. 6.4,Tamil Nadu,Statewide / multiple districts,N.A.,6.4,Others (districts not specified) (Waste to Energy),1
+Generator,others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01,251,aggregate,1,Bio Power,Others (districts not specified) [Biomass & bagasse based cogen.] Tamil Nadu N.A. 138.2,Tamil Nadu,Statewide / multiple districts,N.A.,138.2,Others (districts not specified) [Biomass & bagasse based cogen.],1
+Generator,others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01,252,aggregate,1,Bio Power,Others (districts not specified) [Non-Bagasse based cogen.] Tamil Nadu N.A. 525,Tamil Nadu,Statewide / multiple districts,N.A.,52.05,Others (districts not specified) [Non-Bagasse based cogen.],1
+Generator,others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01,253,aggregate,1,Bio Power,Others (districts not specified) [Waste to Energy (Off-grid)] Tamil Nadu N.A. 27.57,Tamil Nadu,Statewide / multiple districts,N.A.,27.57,Others (districts not specified) [Waste to Energy (Off-grid)],1
 Generator,ponni_sugars_limited_tamil_nadu_erode_19__unit_01,254,unit,1,Bio Power,Ponni Sugars Limited Tamil Nadu Erode 19,Tamil Nadu,Erode,N.A.,19.0,Ponni Sugars Limited,1
 Generator,prathyusha_power_pvt_ltd_tamil_nadu_tirunelveli_10__unit_01,255,unit,1,Bio Power,Prathyusha Power Pvt. Ltd. Tamil Nadu Tirunelveli 10,Tamil Nadu,Tirunelveli,N.A.,10.0,Prathyusha Power Pvt. Ltd.,1
 Generator,rajashree_sugars_chemicals_ltd_tamil_nadu_theni_12__unit_01,256,unit,1,Bio Power,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Theni 12,Tamil Nadu,Theni,N.A.,12.0,Rajashree Sugars & Chemicals Ltd.,1
@@ -227,7 +227,7 @@ Generator,rajashree_sugars_chemicals_ltd_tamil_nadu_viluppuram_22__unit_01,258,u
 Generator,rajkumar_impex_p_ltd_tamil_nadu_thoothukkudi_6__unit_01,259,unit,1,Bio Power,Rajkumar Impex(P) Ltd. Tamil Nadu Thoothukkudi 6,Tamil Nadu,Thoothukkudi,N.A.,6.0,Rajkumar Impex(P) Ltd.,1
 Generator,renuka_textiles_limited_tamil_nadu_theni_4_5__unit_01,260,unit,1,Bio Power,Renuka Textiles Limited Tamil Nadu Theni 4.5,Tamil Nadu,Theni,N.A.,4.5,Renuka Textiles Limited,1
 Generator,s_v_sugar_mills_ltd_tamil_nadu_kancheepuram_45__unit_01,261,unit,1,Bio Power,S.V Sugar Mills Ltd. Tamil Nadu Kancheepuram 45,Tamil Nadu,Kancheepuram,N.A.,45.0,S.V Sugar Mills Ltd.,1
-Generator,saastha_energy_p_ltd_tamil_nadu_n_a_2__unit_01,262,unit,1,Bio Power,Saastha Energy(P) Ltd Tamil Nadu N.A. 2,Tamil Nadu,N.A.,N.A.,2.0,Saastha Energy(P) Ltd,1
+Generator,saastha_energy_p_ltd_tamil_nadu_n_a_2__unit_01,262,unit,1,Bio Power,Saastha Energy(P) Ltd Tamil Nadu N.A. 2,Tamil Nadu,Vellore,N.A.,2.0,Saastha Energy(P) Ltd,1
 Generator,sakti_sugars_ltd_tamil_nadu_erode_24_5__unit_01,263,unit,1,Bio Power,Sakti Sugars Ltd. Tamil Nadu Erode 24.5,Tamil Nadu,Erode,N.A.,24.5,Sakti Sugars Ltd.,1
 Generator,sakti_sugars_ltd_tamil_nadu_sivaganga_35__unit_01,264,unit,1,Bio Power,Sakti Sugars Ltd. Tamil Nadu Sivaganga 35,Tamil Nadu,Sivaganga,N.A.,35.0,Sakti Sugars Ltd.,1
 Generator,shakti_sugars_ltd_tamil_nadu_erode_32__unit_01,265,unit,1,Bio Power,Shakti Sugars Ltd. Tamil Nadu Erode 32,Tamil Nadu,Erode,N.A.,32.0,Shakti Sugars Ltd.,1

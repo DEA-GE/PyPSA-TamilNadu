@@ -1,0 +1,408 @@
+name,bus,p_nom,p_min_pu,p_max_pu,p_init,e_sum_max,carrier,marginal_cost,committable,start_up_cost,shut_down_cost,min_up_time,min_down_time,up_time_before,down_time_before,ramp_limit_up,ramp_limit_down,ramp_limit_start_up,ramp_limit_shut_down
+itpcl_or_cuddalore_tpp__unit_01,Villupuram,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+itpcl_or_cuddalore_tpp__unit_02,Villupuram,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+mettur_tps__unit_01,Erode,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+mettur_tps__unit_02,Erode,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+mettur_tps__unit_03,Erode,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+mettur_tps__unit_04,Erode,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+mettur_tps__unit_05,Erode,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+muthiara_tpp__unit_01,Tirunelveli,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+muthiara_tpp__unit_02,Tirunelveli,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_ext_tps_i__unit_01,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_ext_tps_i__unit_02,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_ext_tps_ii__unit_01,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,199567.60352569437,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_ext_tps_ii__unit_02,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,199567.60352569437,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_new_tpp_neyveli_extension__unit_01,Villupuram,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_new_tpp_neyveli_extension__unit_02,Villupuram,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_z__unit_01,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,199567.60352569437,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_03,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_02,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_01,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_04,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_05,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_06,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_07,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_01,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_02,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_03,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_05,Chennai North,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_04,Chennai North,600.0,0.55,0.85,0.0,inf,coal,3087.5,True,2394811.242308332,478962.24846166646,8,8,0,8,0.6,0.6,0.55,0.55
+north_chennai_tps__unit_06,Chennai North,800.0,0.55,0.85,0.0,inf,coal,3087.5,True,3193081.656411109,638616.331282222,8,8,0,8,0.6,0.6,0.55,0.55
+opg_power_generation_private_ltd__unit_01,Chennai North,77.0,0.55,0.85,0.0,inf,coal,3087.5,True,307334.1094295693,61466.82188591386,8,8,0,8,0.6,0.6,0.55,0.55
+opg_power_generation_private_ltd__unit_02,Chennai North,77.0,0.55,0.85,0.0,inf,coal,3087.5,True,307334.1094295693,61466.82188591386,8,8,0,8,0.6,0.6,0.55,0.55
+opg_power_generation_private_ltd__unit_03,Chennai North,80.0,0.55,0.85,0.0,inf,coal,3087.5,True,319308.1656411109,63861.6331282222,8,8,0,8,0.6,0.6,0.55,0.55
+opg_power_generation_private_ltd__unit_04,Chennai North,180.0,0.55,0.85,0.0,inf,coal,3087.5,True,718443.3726924997,143688.67453849994,8,8,0,8,0.6,0.6,0.55,0.55
+tcp_limited__unit_01,Chennai North,63.5,0.55,0.85,0.0,inf,coal,3087.5,True,253450.8564776318,50690.171295526365,8,8,0,8,0.6,0.6,0.55,0.55
+tulsyan_nec_limited__unit_01,Chennai North,35.0,0.55,0.85,0.0,inf,coal,3087.5,True,139697.32246798603,27939.46449359721,8,8,0,8,0.6,0.6,0.55,0.55
+tulsyan_nec_limited__unit_02,Chennai North,35.0,0.55,0.85,0.0,inf,coal,3087.5,True,139697.32246798603,27939.46449359721,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_p_tpp__unit_01,Tirunelveli,150.0,0.55,0.85,0.0,inf,coal,3087.5,True,598702.810577083,119740.5621154166,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_p_tpp__unit_02,Tirunelveli,150.0,0.55,0.85,0.0,inf,coal,3087.5,True,598702.810577083,119740.5621154166,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_joint_venture__unit_01,Tirunelveli,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_joint_venture__unit_02,Tirunelveli,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_tps__unit_01,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_tps__unit_02,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_tps__unit_03,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_tps__unit_05,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_tps__unit_04,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,167636.78696158325,8,8,0,8,0.6,0.6,0.55,0.55
+tuticorin_thermal_power_plant__unit_01,Tirunelveli,525.0,0.55,0.85,0.0,inf,coal,3087.5,True,2095459.8370197904,419091.9674039581,8,8,0,8,0.6,0.6,0.55,0.55
+vallur_tpp__unit_01,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+vallur_tpp__unit_02,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+vallur_tpp__unit_03,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,399135.2070513887,8,8,0,8,0.6,0.6,0.55,0.55
+aliyar_hydroelectric_power_project__unit_01,Coimbatore,60.0,0.0,1.0,,183939.6628216504,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_02,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_01,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_ii_hydroelectric_power_project__unit_01,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_ii_hydroelectric_power_project__unit_02,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_iii_hydroelectric_power_project__unit_01,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_kattalai_barrage_iii_hydroelectric_power_project__unit_02,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kodayar_i_ii_power_house__unit_01,Tirunelveli,60.0,0.0,1.0,,183939.6628216504,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kodayar_i_ii_power_house__unit_02,Tirunelveli,40.0,0.0,1.0,,122626.44188110028,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_01,Coimbatore,20.0,0.0,1.0,,61313.22094055013,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_02,Coimbatore,20.0,0.0,1.0,,61313.22094055013,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_08,Coimbatore,20.0,0.0,1.0,,61313.22094055013,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_03,Coimbatore,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_04,Coimbatore,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_05,Coimbatore,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_06,Coimbatore,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_07,Coimbatore,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_10,Coimbatore,60.0,0.0,1.0,,183939.6628216504,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_11,Coimbatore,60.0,0.0,1.0,,183939.6628216504,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_13,Coimbatore,60.0,0.0,1.0,,183939.6628216504,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_12,Coimbatore,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_14,Coimbatore,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_09,Coimbatore,20.0,0.0,1.0,,61313.22094055013,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+kundah_i_to_v_hydroelectric_power_project__unit_15,Coimbatore,20.0,0.0,1.0,,61313.22094055013,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_04,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_03,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_05,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_02,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_01,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_06,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_08,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+lower_mettur_i_to_iv_hydroelectric_power_project__unit_07,Erode,15.0,0.0,1.0,,45984.9157054126,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_dam_hydroelectric_power_project__unit_01,Erode,12.5,0.0,1.0,,38320.76308784384,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_dam_hydroelectric_power_project__unit_02,Erode,12.5,0.0,1.0,,38320.76308784384,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_dam_hydroelectric_power_project__unit_03,Erode,12.5,0.0,1.0,,38320.76308784384,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_dam_hydroelectric_power_project__unit_04,Erode,12.5,0.0,1.0,,38320.76308784384,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_tunnel__unit_01,Erode,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_tunnel__unit_02,Erode,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_tunnel__unit_03,Erode,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+mettur_tunnel__unit_04,Erode,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+moyar_power_house__unit_01,Coimbatore,14.0,0.0,1.0,,42919.25465838509,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+moyar_power_house__unit_02,Coimbatore,14.0,0.0,1.0,,42919.25465838509,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+moyar_power_house__unit_03,Coimbatore,12.0,0.0,1.0,,36787.93256433008,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+papanasam_hydroelectric_power_project__unit_01,Tirunelveli,8.0,0.0,1.0,,24525.28837622005,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+papanasam_hydroelectric_power_project__unit_02,Tirunelveli,8.0,0.0,1.0,,24525.28837622005,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+papanasam_hydroelectric_power_project__unit_03,Tirunelveli,8.0,0.0,1.0,,24525.28837622005,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+papanasam_hydroelectric_power_project__unit_04,Tirunelveli,8.0,0.0,1.0,,24525.28837622005,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+parson_s_valley_hydroelectric_power_project__unit_01,Coimbatore,30.0,0.0,1.0,,91969.8314108252,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_hydroelectric_power_project__unit_01,Madurai,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_hydroelectric_power_project__unit_02,Madurai,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_hydroelectric_power_project__unit_03,Madurai,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_hydroelectric_power_project__unit_04,Madurai,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_01,Coimbatore,7.0,0.0,1.0,,21459.627329192543,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_02,Coimbatore,7.0,0.0,1.0,,21459.627329192543,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_03,Coimbatore,7.0,0.0,1.0,,21459.627329192543,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_04,Coimbatore,13.6,0.0,1.0,,41692.99023957409,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_05,Coimbatore,13.6,0.0,1.0,,41692.99023957409,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_hydroelectric_power_project__unit_06,Coimbatore,11.0,0.0,1.0,,33722.27151730257,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_ultimate_hydroelectric_power_project__unit_01,Coimbatore,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_ultimate_hydroelectric_power_project__unit_02,Coimbatore,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_ultimate_hydroelectric_power_project__unit_03,Coimbatore,50.0,0.0,1.0,,153283.05235137534,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+sarkarpathy_hydroelectric_power_project__unit_01,Coimbatore,30.0,0.0,1.0,,91969.8314108252,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+sholayar_i_power_house__unit_01,Coimbatore,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+sholayar_i_power_house__unit_02,Coimbatore,42.0,0.0,1.0,,128757.76397515528,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+suruliyar_hydroelectric_power_project__unit_01,Madurai,35.0,0.0,1.0,,107298.13664596272,hydro,300.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_ariyalur__aggregate_01,Trichy,22.0,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_chennai__aggregate_01,Chennai North,3.125,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_coimbatore__aggregate_01,Coimbatore,2260.1875,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_dharmapuri__aggregate_01,Vellore,196.0,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_dindigul__aggregate_01,Madurai,635.2675,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_erode__aggregate_01,Erode,129.33,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_kancheepuram__aggregate_01,Chennai South,7.65,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_kanniyakumari__aggregate_01,Tirunelveli,349.125,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_karur__aggregate_01,Trichy,589.1025000000009,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a__aggregate_01__tirunelveli,Tirunelveli,84.4515695562766,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a__aggregate_01__coimbatore,Coimbatore,195.0471897426504,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a__aggregate_01__villupuram,Villupuram,0.011240701072977886,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_ramanathapuram__aggregate_01,Madurai,17.4,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_salem__aggregate_01,Erode,3.4,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_thanjavur__aggregate_01,Trichy,8.8,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_theni__aggregate_01,Madurai,574.6,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_thiruvallur__aggregate_01,Chennai North,7.2,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_thoothukkudi__aggregate_01,Tirunelveli,2174.3775,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruchirappalli__aggregate_01,Trichy,6.4,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tirunelveli__aggregate_01,Tirunelveli,3807.540500000001,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruppur__aggregate_01,Coimbatore,786.8149999999999,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruppur_karur__aggregate_01__trichy,Trichy,150.0,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruppur_karur__aggregate_01__coimbatore,Coimbatore,150.0,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_viluppuram__aggregate_01,Villupuram,1.7,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_chennai_16__aggregate_01,Chennai North,16.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_coimbatore_11_26__aggregate_01,Coimbatore,11.26,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_cuddalore_140__aggregate_01,Villupuram,140.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_dindigul_109_46__aggregate_01,Madurai,109.46,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_erode_7__aggregate_01,Erode,7.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_kanniyakumari_1__aggregate_01,Tirunelveli,1.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_karur_156_49__aggregate_01,Trichy,156.49,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_krishnagiri_0_75__aggregate_01,Vellore,0.75,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_madurai_1__aggregate_01,Madurai,1.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__trichy,Trichy,20.73444606013166,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__coimbatore,Coimbatore,15.461172648110656,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__villupuram,Villupuram,7.3136752058565175,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__vellore,Vellore,2.071007151153329,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__madurai,Madurai,74.88974712425288,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__erode,Erode,3.6333746801950775,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__chennai_south,Chennai South,0.8420573556941523,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__tirunelveli,Tirunelveli,124.45546346058464,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_251__aggregate_01__chennai_north,Chennai North,1.5990563140211116,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__trichy,Trichy,10.49002991442805,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__chennai_north,Chennai North,11.733996376897958,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__coimbatore,Coimbatore,13.242136080852381,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__villupuram,Villupuram,4.040403070102257,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__vellore,Vellore,3.759040473863609,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__madurai,Madurai,5.894139274902868,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__erode,Erode,10.672779896550901,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__chennai_south,Chennai South,8.471637785140514,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_off_grid_75_91__aggregate_01__tirunelveli,Tirunelveli,7.605837127261459,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__trichy,Trichy,737.7538948052861,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__coimbatore,Coimbatore,550.125154360076,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__villupuram,Villupuram,260.2284311243971,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__vellore,Vellore,73.68866221465223,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__madurai,Madurai,2664.657761373043,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__erode,Erode,129.27937953235144,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__chennai_south,Chennai South,29.961306514347093,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__tirunelveli,Tirunelveli,4428.25926632256,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01__chennai_north,Chennai North,56.89614375328863,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__trichy,Trichy,226.05178413939407,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__chennai_north,Chennai North,252.85826996877458,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__coimbatore,Coimbatore,285.3574786070126,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__villupuram,Villupuram,87.06746597382785,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__vellore,Vellore,81.00432626987343,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__madurai,Madurai,127.01400376611923,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__erode,Erode,229.9899006030558,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__chennai_south,Chennai South,182.55704240459562,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01__tirunelveli,Tirunelveli,163.8997282673468,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_nagapattinam_5__aggregate_01,Trichy,5.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_perambalur_10__aggregate_01,Trichy,10.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_pudukkottai_20__aggregate_01,Trichy,20.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_ramanathapuram_245__aggregate_01,Madurai,245.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_ramanathapuram_kamuthi_solar_power_project_648__aggregate_01,Madurai,648.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_sivaganga_16_55__aggregate_01,Madurai,16.55,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_thoothukkudi_28__aggregate_01,Tirunelveli,28.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruchirappalli_169__aggregate_01,Trichy,169.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tirunelveli_309_36__aggregate_01,Tirunelveli,309.36,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tirunelveli_tuticorin_virudhunagar_and_ramanathapuram__aggregate_01__madurai,Madurai,87.75,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tirunelveli_tuticorin_virudhunagar_and_ramanathapuram__aggregate_01__tirunelveli,Tirunelveli,263.25,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruppur_49_3__aggregate_01,Coimbatore,49.3,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_tiruvannamalai_31__aggregate_01,Villupuram,31.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_vellore_5__aggregate_01,Vellore,5.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_virudhunagar_685_4__aggregate_01,Tirunelveli,685.4,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+basin_bridge_gas_turbine_power_station__unit_01,Chennai North,30.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,35520.613796206395,7104.12275924128,2,2,0,2,1.0,1.0,0.4,0.4
+basin_bridge_gas_turbine_power_station__unit_02,Chennai North,30.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,35520.613796206395,7104.12275924128,2,2,0,2,1.0,1.0,0.4,0.4
+basin_bridge_gas_turbine_power_station__unit_03,Chennai North,30.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,35520.613796206395,7104.12275924128,2,2,0,2,1.0,1.0,0.4,0.4
+basin_bridge_gas_turbine_power_station__unit_04,Chennai North,30.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,35520.613796206395,7104.12275924128,2,2,0,2,1.0,1.0,0.4,0.4
+kovilkalappal_thirumakotai_gas_combined_cycle_gas_turbine_power___unit_02,Trichy,69.65,0.4,0.9,0.0,inf,oil_gas,6025.0,True,82467.02503019253,16493.405006038505,2,2,0,2,1.0,1.0,0.4,0.4
+kovilkalappal_thirumakotai_gas_combined_cycle_gas_turbine_power___unit_01,Trichy,38.23,0.4,0.9,0.0,inf,oil_gas,6025.0,True,45265.10218096568,9053.020436193136,2,2,0,2,1.0,1.0,0.4,0.4
+kuttalam_gas_turbine_power_station__unit_01,Trichy,63.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,74593.28897203344,14918.657794406688,2,2,0,2,1.0,1.0,0.4,0.4
+kuttalam_gas_turbine_power_station__unit_02,Trichy,37.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,43808.75701532122,8761.751403064245,2,2,0,2,1.0,1.0,0.4,0.4
+pillaiperumalnallur_ppn_power_plant_phase_i__unit_02,Trichy,225.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,266404.60347154795,53280.92069430959,2,2,0,2,1.0,1.0,0.4,0.4
+pillaiperumalnallur_ppn_power_plant_phase_i__unit_01,Trichy,105.5,0.4,0.9,0.0,inf,oil_gas,6025.0,True,124914.15851665915,24982.83170333183,2,2,0,2,1.0,1.0,0.4,0.4
+valuthur_gas_turbine_power_station__unit_01,Madurai,60.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,71041.22759241279,14208.24551848256,2,2,0,2,1.0,1.0,0.4,0.4
+valuthur_gas_turbine_power_station__unit_02,Madurai,34.0,0.4,0.9,0.0,inf,oil_gas,6025.0,True,40256.69563570058,8051.339127140116,2,2,0,2,1.0,1.0,0.4,0.4
+valuthur_gas_turbine_power_station__unit_03,Madurai,59.8,0.4,0.9,0.0,inf,oil_gas,6025.0,True,70804.42350043808,14160.884700087616,2,2,0,2,1.0,1.0,0.4,0.4
+valuthur_gas_turbine_power_station__unit_04,Madurai,32.4,0.4,0.9,0.0,inf,oil_gas,6025.0,True,38362.2628999029,7672.452579980581,2,2,0,2,1.0,1.0,0.4,0.4
+ambika_sugars_previously_m_s_srel_tamil_nadu_cuddalore_40__unit_01,Villupuram,40.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,15164.151944802488,3791.037986200622,4,4,0,4,1.0,1.0,0.5,0.5
+arashi_hi_tech_bio_power_ltd_tamil_nadu_coimbatore_1_6__unit_01,Coimbatore,1.6,0.5,0.6,0.0,inf,bio_power,4512.5,True,606.5660777920996,151.6415194480249,4,4,0,4,1.0,1.0,0.5,0.5
+arunachala_sugars_ltd_tamil_nadu_tiruvannamalai_19__unit_01,Villupuram,19.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,7202.9721737811815,1800.7430434452954,4,4,0,4,1.0,1.0,0.5,0.5
+astro_energy_and_bio_systems_ltd_tamil_nadu_madurai_10__unit_01,Madurai,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+auro_energy_ltd_tamil_nadu_thanjavur_16__unit_01,Trichy,16.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,6065.660777920995,1516.4151944802488,4,4,0,4,1.0,1.0,0.5,0.5
+aurobindo_agro_energy_pvt_ltd_tamil_nadu_sivaganga_15__unit_01,Madurai,15.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,5686.556979300933,1421.6392448252332,4,4,0,4,1.0,1.0,0.5,0.5
+auromira_bio_power_india_p_ltd_tamil_nadu_tirunelveli_15__unit_01,Tirunelveli,15.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,5686.556979300933,1421.6392448252332,4,4,0,4,1.0,1.0,0.5,0.5
+bannari_amman_sugars_ltd_tamil_nadu_erode_20__unit_01,Erode,20.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,7582.075972401244,1895.518993100311,4,4,0,4,1.0,1.0,0.5,0.5
+bannari_amman_sugars_and_chemicals_ltd_tamil_nadu_tiruvannamalai__unit_01,Villupuram,28.8,0.5,0.6,0.0,inf,bio_power,4512.5,True,10918.189400257792,2729.547350064448,4,4,0,4,1.0,1.0,0.5,0.5
+c_m_d_a_koyambedu_veg_market_bio_metharation_plant_tamil_nadu_ch__unit_01,Chennai North,0.25,0.5,0.6,0.0,inf,bio_power,4512.5,True,94.77594965501557,23.693987413753888,4,4,0,4,1.0,1.0,0.5,0.5
+cheyyar_co_op_sugar_mills_tamil_nadu_tiruvannamalai_7_5__unit_01,Villupuram,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+chitra_bio_energy_ltd_tamil_nadu_pudukkottai_7_5__unit_01,Trichy,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+dhanalakshmi_srinivasan_sugars_pvt_ltd_tamil_nadu_perambalur_25__unit_01,Trichy,25.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,9477.594965501556,2369.398741375389,4,4,0,4,1.0,1.0,0.5,0.5
+dharani_sugars_chemical_ltd_tamil_nadu_tiruvannamalai_15__unit_01,Villupuram,15.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,5686.556979300933,1421.6392448252332,4,4,0,4,1.0,1.0,0.5,0.5
+dharani_sugars_chemical_ltd_tamil_nadu_viluppuram_22__unit_01,Villupuram,22.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,8340.283569641368,2085.070892410342,4,4,0,4,1.0,1.0,0.5,0.5
+eid_parry_india_ltd_tamil_nadu_cuddalore_24_5__unit_01,Villupuram,24.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,9288.043066191523,2322.010766547881,4,4,0,4,1.0,1.0,0.5,0.5
+eid_parry_india_ltd_tamil_nadu_karur_22__unit_01,Trichy,22.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,8340.283569641368,2085.070892410342,4,4,0,4,1.0,1.0,0.5,0.5
+eid_parry_india_ltd_tamil_nadu_pudukkottai_18__unit_01,Trichy,18.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,6823.86837516112,1705.96709379028,4,4,0,4,1.0,1.0,0.5,0.5
+eid_parry_india_ltd_tamil_nadu_tiruchirappalli_18__unit_01,Trichy,18.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,6823.86837516112,1705.96709379028,4,4,0,4,1.0,1.0,0.5,0.5
+eta_power_gen_pvt_ltd_tamil_nadu_virudhunagar_10__unit_01,Tirunelveli,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+empee_distilleries_pvt_ltd_tamil_nadu_pudukkottai_10__unit_01,Trichy,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+empee_sugars_chemicals_ltd_tamil_nadu_tirunelveli_50__unit_01,Tirunelveli,50.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,18955.18993100311,4738.797482750778,4,4,0,4,1.0,1.0,0.5,0.5
+g_k_bio_energy_pvt_ltd_tamil_nadu_erode_1_5__unit_01,Erode,1.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,568.6556979300933,142.16392448252333,4,4,0,4,1.0,1.0,0.5,0.5
+global_power_tech_equipments_pvt_ltd_tamil_nadu_tiruvannamalai_7__unit_01,Villupuram,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+iot_mabagas_ltd_tamil_nadu_n_a_2__unit_01,Erode,2.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,758.2075972401244,189.5518993100311,4,4,0,4,1.0,1.0,0.5,0.5
+kothari_sugars_chemicals_ltd_kattur_lalgudi__unit_01,Trichy,12.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,4549.2455834407465,1137.3113958601866,4,4,0,4,1.0,1.0,0.5,0.5
+kothari_sugars_chemicals_ltd_tamil_nadu_perambalur_22__unit_01,Trichy,22.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,8340.283569641368,2085.070892410342,4,4,0,4,1.0,1.0,0.5,0.5
+m_r_k_co_op_sugar_mills_tamil_nadu_cuddalore_7_5__unit_01,Villupuram,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+madras_sugars_chemicals_ltd_vengur__unit_01,Villupuram,25.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,9477.594965501556,2369.398741375389,4,4,0,4,1.0,1.0,0.5,0.5
+manali_petrochemicals_ltd_tamil_nadu_thiruvallur_4_7__unit_01,Chennai North,4.7,0.5,0.6,0.0,inf,bio_power,4512.5,True,1781.7878535142925,445.4469633785731,4,4,0,4,1.0,1.0,0.5,0.5
+mohan_breweries_distillaries_ltd_tamil_nadu_kancheepuram_18__unit_01,Chennai South,18.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,6823.86837516112,1705.96709379028,4,4,0,4,1.0,1.0,0.5,0.5
+orient_green_power_ltd_tamil_nadu_coimbatore_10__unit_01,Coimbatore,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__chennai_north,Chennai North,0.03831176684000484,0.5,0.6,0.0,inf,bio_power,4512.5,True,14.524136340891971,3.6310340852229928,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__coimbatore,Coimbatore,0.08978111017051638,0.5,0.6,0.0,inf,bio_power,4512.5,True,34.036359909969065,8.509089977492266,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__villupuram,Villupuram,1.7993372838311765,0.5,0.6,0.0,inf,bio_power,4512.5,True,682.1355992991041,170.53389982477603,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__vellore,Vellore,0.1160962631515298,0.5,0.6,0.0,inf,bio_power,4512.5,True,44.0125343663393,11.003133591584826,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__madurai,Madurai,0.7197968315394848,0.5,0.6,0.0,inf,bio_power,4512.5,True,272.8777130713037,68.21942826782592,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__erode,Erode,0.770105212238481,0.5,0.6,0.0,inf,bio_power,4512.5,True,291.9498112967174,72.98745282417936,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__chennai_south,Chennai South,0.4876043052364252,0.5,0.6,0.0,inf,bio_power,4512.5,True,184.85264433862508,46.21316108465627,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__trichy,Trichy,1.4428443584472124,0.5,0.6,0.0,inf,bio_power,4512.5,True,546.9877771048649,136.74694427621623,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01__tirunelveli,Tirunelveli,0.9361228685451686,0.5,0.6,0.0,inf,bio_power,4512.5,True,354.88773544058256,88.72193386014564,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__chennai_north,Chennai North,0.27057685330753406,0.5,0.6,0.0,inf,bio_power,4512.5,True,102.57671290754952,25.644178226887373,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__coimbatore,Coimbatore,0.6340790905792717,0.5,0.6,0.0,inf,bio_power,4512.5,True,240.38179186415647,60.0954479660391,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__villupuram,Villupuram,45.707819567057676,0.5,0.6,0.0,inf,bio_power,4512.5,True,17328.008024511975,4332.002006127993,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__vellore,Vellore,27.819929858507678,0.5,0.6,0.0,inf,bio_power,4512.5,True,10546.641086703952,2636.6602716759876,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__madurai,Madurai,5.0835651227476095,0.5,0.6,0.0,inf,bio_power,4512.5,True,1927.198848566082,481.7997121415204,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__erode,Erode,5.43886806143427,0.5,0.6,0.0,inf,bio_power,4512.5,True,2061.8955422830663,515.4738855707664,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__chennai_south,Chennai South,3.443705405732252,0.5,0.6,0.0,inf,bio_power,4512.5,True,1305.5218006415394,326.3804501603848,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__trichy,Trichy,43.190088281533434,0.5,0.6,0.0,inf,bio_power,4512.5,True,16373.526530265162,4093.3816325662897,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01__tirunelveli,Tirunelveli,6.6113677591002515,0.5,0.6,0.0,inf,bio_power,4512.5,True,2506.394631549114,626.5986578872784,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__chennai_north,Chennai North,0.3115824162534768,0.5,0.6,0.0,inf,bio_power,4512.5,True,118.12207758491049,29.530519396227614,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__coimbatore,Coimbatore,0.7301729350586527,0.5,0.6,0.0,inf,bio_power,4512.5,True,276.81133333029527,69.2028333325738,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__villupuram,Villupuram,14.633672753658239,0.5,0.6,0.0,inf,bio_power,4512.5,True,5547.680928674745,1386.920232168686,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__vellore,Vellore,0.9441891401620508,0.5,0.6,0.0,inf,bio_power,4512.5,True,357.94568965124387,89.48642241281094,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__madurai,Madurai,5.853972669004715,0.5,0.6,0.0,inf,bio_power,4512.5,True,2219.263275837712,554.8158189594279,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__erode,Erode,6.263121296408271,0.5,0.6,0.0,inf,bio_power,4512.5,True,2374.3730746865845,593.593268671646,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__chennai_south,Chennai South,3.9655943886806138,0.5,0.6,0.0,inf,bio_power,4512.5,True,1503.3718965352243,375.842974133806,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__trichy,Trichy,11.734382633933969,0.5,0.6,0.0,inf,bio_power,4512.5,True,4448.549030985659,1112.1372577464144,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01__tirunelveli,Tirunelveli,7.613311766840003,0.5,0.6,0.0,inf,bio_power,4512.5,True,2886.235410887863,721.5588527219655,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__chennai_north,Chennai North,0.16503990809045832,0.5,0.6,0.0,inf,bio_power,4512.5,True,62.56725608099869,15.641814020249672,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__coimbatore,Coimbatore,0.3867601886564276,0.5,0.6,0.0,inf,bio_power,4512.5,True,146.6222566746636,36.6555641686659,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__villupuram,Villupuram,7.75120764300399,0.5,0.6,0.0,inf,bio_power,4512.5,True,2938.5122613556714,734.6280653389178,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__vellore,Vellore,0.5001209336074495,0.5,0.6,0.0,inf,bio_power,4512.5,True,189.597745699996,47.399436424999,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__madurai,Madurai,3.1007497883661865,0.5,0.6,0.0,inf,bio_power,4512.5,True,1175.5060233399754,293.87650583499385,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__erode,Erode,3.3174688595960817,0.5,0.6,0.0,inf,bio_power,4512.5,True,1257.6650464766403,314.4162616191601,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__chennai_south,Chennai South,2.100507921151288,0.5,0.6,0.0,inf,bio_power,4512.5,True,796.3105319399833,199.07763298499583,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__trichy,Trichy,6.215502962873382,0.5,0.6,0.0,inf,bio_power,4512.5,True,2356.320783559551,589.0801958898877,4,4,0,4,1.0,1.0,0.5,0.5
+others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01__tirunelveli,Tirunelveli,4.032641794654734,0.5,0.6,0.0,inf,bio_power,4512.5,True,1528.7898228276345,382.1974557069086,4,4,0,4,1.0,1.0,0.5,0.5
+ponni_sugars_limited_tamil_nadu_erode_19__unit_01,Erode,19.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,7202.9721737811815,1800.7430434452954,4,4,0,4,1.0,1.0,0.5,0.5
+prathyusha_power_pvt_ltd_tamil_nadu_tirunelveli_10__unit_01,Tirunelveli,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+rajashree_sugars_chemicals_ltd_tamil_nadu_theni_12__unit_01,Madurai,12.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,4549.2455834407465,1137.3113958601866,4,4,0,4,1.0,1.0,0.5,0.5
+rajashree_sugars_chemicals_ltd_tamil_nadu_viluppuram_20__unit_01,Villupuram,20.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,7582.075972401244,1895.518993100311,4,4,0,4,1.0,1.0,0.5,0.5
+rajashree_sugars_chemicals_ltd_tamil_nadu_viluppuram_22__unit_01,Villupuram,22.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,8340.283569641368,2085.070892410342,4,4,0,4,1.0,1.0,0.5,0.5
+rajkumar_impex_p_ltd_tamil_nadu_thoothukkudi_6__unit_01,Tirunelveli,6.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,2274.622791720373,568.6556979300933,4,4,0,4,1.0,1.0,0.5,0.5
+renuka_textiles_limited_tamil_nadu_theni_4_5__unit_01,Madurai,4.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,1705.96709379028,426.49177344757,4,4,0,4,1.0,1.0,0.5,0.5
+s_v_sugar_mills_ltd_tamil_nadu_kancheepuram_45__unit_01,Chennai South,45.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,17059.6709379028,4264.9177344757,4,4,0,4,1.0,1.0,0.5,0.5
+saastha_energy_p_ltd_tamil_nadu_n_a_2__unit_01,Vellore,2.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,758.2075972401244,189.5518993100311,4,4,0,4,1.0,1.0,0.5,0.5
+sakti_sugars_ltd_tamil_nadu_erode_24_5__unit_01,Erode,24.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,9288.043066191523,2322.010766547881,4,4,0,4,1.0,1.0,0.5,0.5
+sakti_sugars_ltd_tamil_nadu_sivaganga_35__unit_01,Madurai,35.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,13268.632951702177,3317.158237925544,4,4,0,4,1.0,1.0,0.5,0.5
+shakti_sugars_ltd_tamil_nadu_erode_32__unit_01,Erode,32.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,12131.32155584199,3032.8303889604977,4,4,0,4,1.0,1.0,0.5,0.5
+shriraam_city_union_finance_ltd_tamil_nadu_thanjavur_7_5__unit_01,Trichy,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+shriram_investments_ltd_tamil_nadu_dindigul_7_5__unit_01,Madurai,7.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,2843.2784896504663,710.8196224126166,4,4,0,4,1.0,1.0,0.5,0.5
+sripathi_paper_board_p_ltd_tamil_nadu_virudhunagar_4_95_09_03_20__unit_01,Tirunelveli,4.95,0.5,0.6,0.0,inf,bio_power,4512.5,True,1876.563803169308,469.140950792327,4,4,0,4,1.0,1.0,0.5,0.5
+subashri_bio_energy_p_ltd_tamil_nadu_namakkal_2_5__unit_01,Erode,2.5,0.5,0.6,0.0,inf,bio_power,4512.5,True,947.7594965501556,236.93987413753888,4,4,0,4,1.0,1.0,0.5,0.5
+subramania_siva_co_op_sugar_mills_tamil_nadu_dharmapuri_5__unit_01,Vellore,5.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,1895.518993100311,473.87974827507776,4,4,0,4,1.0,1.0,0.5,0.5
+synergy_sakthi_renewable_energy_ltd_tamil_nadu_dharmapuri_10__unit_01,Vellore,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,947.7594965501556,4,4,0,4,1.0,1.0,0.5,0.5
+tcp_ltd_tamil_nadu_sivaganga_9__unit_01,Madurai,9.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3411.93418758056,852.98354689514,4,4,0,4,1.0,1.0,0.5,0.5
+terra_energy_ltd_tamil_nadu_cuddalore_18_68__unit_01,Villupuram,18.68,0.5,0.6,0.0,inf,bio_power,4512.5,True,7081.658958222762,1770.4147395556904,4,4,0,4,1.0,1.0,0.5,0.5
+terra_energy_ltd_tamil_nadu_thanjavur_28_42__unit_01,Trichy,28.42,0.5,0.6,0.0,inf,bio_power,4512.5,True,10774.129956782168,2693.532489195542,4,4,0,4,1.0,1.0,0.5,0.5
+kudankulam_atomic_power_project__unit_01,Tirunelveli,1000.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+kudankulam_atomic_power_project__unit_02,Tirunelveli,1000.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+madras_atomic_power_station__unit_01,Chennai South,220.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+madras_atomic_power_station__unit_02,Chennai South,220.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+aliyar_mini_hydel_project__unit_01,Coimbatore,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+aliyar_mini_hydel_project__unit_02,Coimbatore,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+amaravathi_small_hydro_project__unit_01,Coimbatore,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+amaravathi_small_hydro_project__unit_02,Coimbatore,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_barrage_i_small_hydro_electric_project__unit_01,Coimbatore,5.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_barrage_i_small_hydro_electric_project__unit_02,Coimbatore,5.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_barrage_ii_small_hydro_electric_project__unit_01,Coimbatore,5.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+bhavani_barrage_ii_small_hydro_electric_project__unit_02,Coimbatore,5.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_micro_hydel_project__unit_04,Erode,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_micro_hydel_project__unit_03,Erode,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_micro_hydel_project__unit_02,Erode,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_micro_hydel_project__unit_01,Erode,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_right_bank_canal_project__unit_01,Erode,4.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+lower_bhavani_right_bank_canal_project__unit_02,Erode,4.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+maravakandy_small_hydro_project__unit_01,Coimbatore,0.75,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+mukurthy_small_hydro_project__unit_01,Coimbatore,0.35,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+mukurthy_small_hydro_project__unit_02,Coimbatore,0.35,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_i_hydro_project__unit_01,Tirunelveli,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_i_hydro_project__unit_02,Tirunelveli,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_ii_hydro_project__unit_01,Tirunelveli,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_ii_hydro_project__unit_02,Tirunelveli,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_iii_hydro_project__unit_01,Tirunelveli,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_iii_hydro_project__unit_02,Tirunelveli,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_iv_hydro_project__unit_01,Tirunelveli,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+periyar_vaigai_mini_iv_hydro_project__unit_02,Tirunelveli,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+perunchani_small_hydro_project__unit_01,Tirunelveli,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+perunchani_small_hydro_project__unit_02,Tirunelveli,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+punachi_small_hydro_project__unit_01,Coimbatore,1.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+punachi_small_hydro_project__unit_02,Coimbatore,1.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+pykara_micro_power_house__unit_01,Coimbatore,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+sathanur_small_hydro_project__unit_01,Villupuram,7.5,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+servalar_small_hydro_project__unit_01,Tirunelveli,20.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+sholayar_ii_power_house__unit_01,Coimbatore,25.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+tamil_nadu_small_hydro_project_bunched__aggregate_01,Madurai,0.35,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+thirumurthy_mini_hydel_project__unit_01,Coimbatore,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+thirumurthy_mini_hydel_project__unit_02,Coimbatore,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+thirumurthy_mini_hydel_project__unit_03,Coimbatore,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+vaigai_hydro_power_project__unit_01,Tirunelveli,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+vaigai_hydro_power_project__unit_02,Madurai,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__chennai_north,Chennai North,570.0335359463425,0.0,1.0,,1504271.641165374,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__chennai_south,Chennai South,713.4483336826662,0.0,1.0,,1882731.5028295957,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__coimbatore,Coimbatore,1032.1031230350034,0.0,1.0,,2723635.296583526,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__erode,Erode,875.9985328023475,0.0,1.0,,2311688.115699015,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__madurai,Madurai,659.2649339761058,0.0,1.0,,1739745.9652064561,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__tirunelveli,Tirunelveli,562.3793753929995,0.0,1.0,,1484072.9406832953,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__trichy,Trichy,813.9595472647244,0.0,1.0,,2147972.3328442676,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__vellore,Vellore,814.5638230978832,0.0,1.0,,2149566.967092853,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+STOA_MTOA_import__villupuram,Villupuram,685.2487948019283,0.0,1.0,,1808315.2378956194,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__chennai_north,Chennai North,8473.815013324549,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__chennai_south,Chennai South,10605.743030811152,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__coimbatore,Coimbatore,15342.69545168728,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__erode,Erode,13022.127736024195,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__madurai,Madurai,9800.281462406805,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__tirunelveli,Tirunelveli,8360.032338233974,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__trichy,Trichy,12099.889211605832,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__vellore,Vellore,12108.872054376143,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+unserved_energy__villupuram,Villupuram,10186.543701530078,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__diesel_samayanallur__unit_01,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_02,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_03,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_04,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_05,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_06,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samayanallur__unit_07,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,3585.890535617027,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_01,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_02,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_03,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_04,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_05,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_06,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__diesel_samalpatti__unit_07,Vellore,15.1,0.4,0.9,0.0,inf,diesel,6025.0,True,17878.70894409055,3575.7417888181108,2,2,0,2,1.0,1.0,0.4,0.4
+additional_2026_07__solar_swelect_tiruvannamalai,Villupuram,5.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_orient_tiruvannamalai,Villupuram,17.6,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_ariyalur,Trichy,0.41591556,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_coimbatore,Coimbatore,1.271805818,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_cuddalore,Villupuram,3.892912096,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_dharmapuri,Vellore,0.225063066,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_dindigul,Madurai,17.665932017,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_erode,Erode,1.075922331,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_kanchipuram,Chennai South,0.636508136,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_kanyakumari,Tirunelveli,0.021407529,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_karur,Trichy,9.870328894,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_krishnagiri,Vellore,0.157209025,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_madurai,Madurai,1.536830845,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_nagapattinam,Trichy,0.079592272,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_namakkal,Erode,1.670532562,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_perambalur,Trichy,0.812917826,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_pudukkottai,Trichy,0.220483241,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_ramanathapuram,Madurai,28.81367749,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_sivaganga,Madurai,2.637806403,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_theni,Madurai,5.954644568,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_thoothukudi,Tirunelveli,43.14300798,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_tiruchirappalli,Trichy,4.273855636,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_tirunelveli,Tirunelveli,30.460388786,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_tiruppur,Coimbatore,10.415239148,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_tiruvallur,Chennai North,1.208720934,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_tiruvannamalai,Villupuram,1.635468767,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_vellore,Vellore,1.183194788,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__solar_residual_virudhunagar,Tirunelveli,20.45063428,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__wind_residual_tirunelveli,Tirunelveli,42.287572714,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__wind_residual_tiruppur,Coimbatore,97.666298711,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,
+additional_2026_07__wind_residual_viluppuram,Villupuram,0.005628575,0.0,1.0,,inf,wind,0.0,False,0.0,0.0,0,0,1,0,,,,

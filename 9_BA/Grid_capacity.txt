@@ -1,0 +1,23 @@
+Balancing area 1	Balancing area 2	Approx. capacity
+Chennai North	Chennai South	3.5 GW
+Chennai North	Vellore	1.0 GW
+Chennai North	Villupuram	2.0 GW
+Chennai North	Trichy	9.0 GW
+Chennai South	Vellore	1.0 GW
+Chennai South	Villupuram	1.0 GW
+Chennai South	Trichy	1.0 GW
+Vellore	Villupuram	3.5 GW
+Vellore	Erode	6.5–7.0 GW
+Vellore	Coimbatore	2.5 GW
+Vellore	Tirunelveli	2.5 GW
+Villupuram	Erode	1.0 GW
+Villupuram	Coimbatore	1.0 GW
+Villupuram	Trichy	15.0–15.5 GW
+Villupuram	Tirunelveli	1.0 GW
+Erode	Coimbatore	5.0 GW
+Erode	Trichy	8.5–9.0 GW
+Erode	Tirunelveli	1.0 GW
+Coimbatore	Trichy	9.5 GW
+Coimbatore	Tirunelveli	1.0 GW
+Trichy	Madurai	7.0 GW
+Madurai	Tirunelveli	14.0–14.5 GW

@@ -1,0 +1,23 @@
+name,bus0,bus1,p_nom,source_capacity_text,capacity_method
+chennai_north__chennai_south,Chennai North,Chennai South,3500.0,3.5 GW,value
+chennai_north__vellore,Chennai North,Vellore,1000.0,1.0 GW,value
+chennai_north__villupuram,Chennai North,Villupuram,2000.0,2.0 GW,value
+chennai_north__trichy,Chennai North,Trichy,9000.0,9.0 GW,value
+chennai_south__vellore,Chennai South,Vellore,1000.0,1.0 GW,value
+chennai_south__villupuram,Chennai South,Villupuram,1000.0,1.0 GW,value
+chennai_south__trichy,Chennai South,Trichy,1000.0,1.0 GW,value
+vellore__villupuram,Vellore,Villupuram,3500.0,3.5 GW,value
+vellore__erode,Vellore,Erode,6750.0,6.5–7.0 GW,range midpoint
+vellore__coimbatore,Vellore,Coimbatore,2500.0,2.5 GW,value
+vellore__tirunelveli,Vellore,Tirunelveli,2500.0,2.5 GW,value
+villupuram__erode,Villupuram,Erode,1000.0,1.0 GW,value
+villupuram__coimbatore,Villupuram,Coimbatore,1000.0,1.0 GW,value
+villupuram__trichy,Villupuram,Trichy,15250.0,15.0–15.5 GW,range midpoint
+villupuram__tirunelveli,Villupuram,Tirunelveli,1000.0,1.0 GW,value
+erode__coimbatore,Erode,Coimbatore,5000.0,5.0 GW,value
+erode__trichy,Erode,Trichy,8750.0,8.5–9.0 GW,range midpoint
+erode__tirunelveli,Erode,Tirunelveli,1000.0,1.0 GW,value
+coimbatore__trichy,Coimbatore,Trichy,9500.0,9.5 GW,value
+coimbatore__tirunelveli,Coimbatore,Tirunelveli,1000.0,1.0 GW,value
+trichy__madurai,Trichy,Madurai,7000.0,7.0 GW,value
+madurai__tirunelveli,Madurai,Tirunelveli,14250.0,14.0–14.5 GW,range midpoint

@@ -1,0 +1,6 @@
+item,capacity_mw,treatment
+validated_workbook_baseline,47767.1105,modeled
+july_2026_capacity_overlay,563.9894999979999,modeled
+updated_pypsa_installed_capacity,48331.099999998005,modeled total
+cea_mnre_reporting_difference,49.31,excluded unassigned
+july_2026_comparison_total,48380.41,reconciled total

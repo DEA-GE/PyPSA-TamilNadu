@@ -22,10 +22,19 @@ documented assumptions rather than validated operational data.
 |---|---|
 | `inputs/tamil_nadu_ra_2025_26/` | Full-year PyPSA CSV-folder input dataset |
 | `inputs/tamil_nadu_ra_2025_26_15min/` | Full-year 15-minute alternative generated from the hourly model and quarter-hour demand |
-| `additional_data/TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx` | Unit-level source for operational technologies and capacities |
+| `9_BA/model/` | Independent full-year hourly nine-balancing-area PyPSA unit-commitment model |
+| `9_BA/renewable_profiles.csv` | Replaceable 8,760-hour solar and wind profile placeholders for every balancing area |
+| `9_BA/additional_capacity_2026_07.csv` | Auditable July-2026 district capacity overlay, including the excluded 49.31 MW reporting difference |
+| `9_BA/model/oil_gas_daily_energy_budget.csv` | Observed FY2025-26 oil-and-gas daily generation shares and equality targets |
+| `9_BA/9BA_run_peakday_2025_26.ipynb` | Solves the intact nine-area 168-hour annual peak-demand week |
+| `9_BA/9B_results_analysis_hourly.ipynb` | Analyzes nine-area dispatch, district capacity and shares, commitment, storage, transfers, congestion, renewables, and ramps |
+| `9_BA/tamil_nadu_9ba_2025_26.nc` | Solved nine-area hourly peak-week network |
+| `additional_data/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx` | Unit-level operational capacities plus Prayas- and OSM-validated district allocations, methods, provenance, and confidence |
 | `additional_data/Tamilnadu_Yearly Demand Profile_2025__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Tamil Nadu-only equal-allocation quarter-hour demand source for April-December 2025 |
 | `additional_data/Tamilnadu_Yearly Demand Profile_2026__Hourly_Demand_Met_in_MW__equal__hourly-to-15min.csv` | Tamil Nadu-only equal-allocation quarter-hour demand source for January-March 2026 |
 | `scripts/build_unit_level_model.py` | Rebuilds record-level PyPSA components from the operational workbook rows |
+| `scripts/build_9ba_model.py` | Rebuilds the nine-area model from the single-node inputs and spatial source files |
+| `scripts/run_9ba_weekly_days_2025_26.py` | Solves each week's highest-demand day independently and compares daily generation with the ICED observations |
 | `scripts/build_15min_model.py` | Rebuilds the 15-minute alternative and merges April-December 2025 with January-March 2026 demand |
 | `scripts/merge_fiscal_year_timeseries.py` | Merges two timestamped calendar-year CSV/Excel files into an automatically detected April-March fiscal year |
 | `inputs/tamil_nadu_ra_2025_26/component_metadata.csv` | Links every modeled plant component to its source workbook row |
@@ -65,6 +74,15 @@ Run `run_peakday_2025_26.ipynb` to load the full-year hourly CSV dataset,
 identify the annual peak at 16:00 on 11 July 2025, solve 7-13 July 2025, and
 overwrite `tamil_nadu_2025_26.nc`.
 
+### One day from every FY week (9BA)
+
+Run `python scripts/run_9ba_weekly_days_2025_26.py` to independently solve the
+highest-energy-demand day in each Monday-Sunday week. The partial weeks at the
+FY boundaries are included, producing 53 solved days. Results and comparisons
+with `additional_data/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`
+are written to `9_BA/weekly_day_results/`. No faults or forced outages are
+introduced.
+
 ### 15-minute peak week
 
 1. Run `python scripts/build_15min_model.py` to merge April-December 2025 with
@@ -84,6 +102,16 @@ Then regenerate the 15-minute alternative with:
 ```powershell
 python scripts/build_15min_model.py
 ```
+
+To rebuild the independent hourly nine-balancing-area model, run:
+
+```powershell
+python scripts/build_9ba_model.py
+```
+
+See [`9_BA/README.md`](9_BA/README.md) for its spatial allocation rules,
+transmission representation, renewable-profile replacement interface, and
+validation limits.
 
 To merge any two consecutive calendar-year time-series files without manually
 specifying their years or fiscal-year boundaries, run:
@@ -110,6 +138,7 @@ import pypsa
 
 full_year_inputs = pypsa.Network("inputs/tamil_nadu_ra_2025_26")
 full_year_15min_inputs = pypsa.Network("inputs/tamil_nadu_ra_2025_26_15min")
+nine_area_inputs = pypsa.Network("9_BA/model")
 solved_peak_week = pypsa.Network("tamil_nadu_2025_26.nc")
 solved_peak_week_15min = pypsa.Network("tamil_nadu_2025_26_15min.nc")
 ```

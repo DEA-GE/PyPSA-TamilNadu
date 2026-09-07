@@ -1,0 +1,2 @@
+source,fiscal_year,observed_generation_mu,annual_energy_target_mwh,constraint_name,constraint_sense
+TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx,FY2025-26,1241.45,1241450.0,observed_fy2025_26_oil_gas_generation_target,==
