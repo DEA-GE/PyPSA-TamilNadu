@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
+from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -226,6 +227,7 @@ def solve_day(
     solver: str,
     oil_gas_daily_target_mwh: float,
     oil_gas_annual_share: float,
+    mip_rel_gap: float | None = None,
 ) -> tuple[pypsa.Network, dict[str, object]]:
     end = day + pd.Timedelta(days=1)
     snapshots = annual_network.snapshots[
@@ -235,6 +237,7 @@ def solve_day(
         raise ValueError(f"Expected 24 snapshots for {day.date()}, found {len(snapshots)}")
 
     network = annual_network.copy(snapshots=snapshots)
+    prepare_nuclear_targets(network)
     if OIL_GAS_BUDGET_CONSTRAINT not in network.global_constraints.index:
         raise ValueError(
             f"The model is missing {OIL_GAS_BUDGET_CONSTRAINT!r}"
@@ -250,9 +253,13 @@ def solve_day(
     )
     network.generators.loc[initially_down, "p_init"] = np.nan
     started = time.perf_counter()
+    solver_options: dict[str, object] = {"log_to_console": False}
+    if mip_rel_gap is not None:
+        solver_options["mip_rel_gap"] = mip_rel_gap
     status, condition = network.optimize(
         solver_name=solver,
-        solver_options={"log_to_console": False},
+        extra_functionality=add_nuclear_targets,
+        solver_options=solver_options,
         include_objective_constant=False,
     )
     runtime_seconds = time.perf_counter() - started
@@ -260,6 +267,7 @@ def solve_day(
         raise RuntimeError(f"Optimization failed for {day.date()}: {status}, {condition}")
 
     energy = carrier_energy_mu(network)
+    nuclear_target_deviation_mwh = validate_nuclear_targets(network)
     link_loading = network.links_t.p0.abs().div(network.links.p_nom, axis=1)
     result = {
         "date": day,
@@ -269,6 +277,7 @@ def solve_day(
         "oil_gas_target_deviation_mwh": (
             1_000.0 * float(energy["oil_gas"]) - oil_gas_daily_target_mwh
         ),
+        "nuclear_target_deviation_mwh": nuclear_target_deviation_mwh,
         "objective": float(network.objective),
         "solver_status": status,
         "termination_condition": condition,

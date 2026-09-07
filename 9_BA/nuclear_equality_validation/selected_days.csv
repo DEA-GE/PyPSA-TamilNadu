@@ -1,0 +1,2 @@
+fiscal_week,week_start,week_end,selected_day,selection_rule,selected_demand_mwh
+1,2025-04-01,2025-04-06,2025-04-02,highest modeled daily demand in Monday-Sunday week,415251.88999999996

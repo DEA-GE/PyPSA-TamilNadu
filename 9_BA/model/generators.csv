@@ -300,10 +300,10 @@ synergy_sakthi_renewable_energy_ltd_tamil_nadu_dharmapuri_10__unit_01,Vellore,10
 tcp_ltd_tamil_nadu_sivaganga_9__unit_01,Madurai,9.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3411.93418758056,852.98354689514,4,4,0,4,1.0,1.0,0.5,0.5
 terra_energy_ltd_tamil_nadu_cuddalore_18_68__unit_01,Villupuram,18.68,0.5,0.6,0.0,inf,bio_power,4512.5,True,7081.658958222762,1770.4147395556904,4,4,0,4,1.0,1.0,0.5,0.5
 terra_energy_ltd_tamil_nadu_thanjavur_28_42__unit_01,Trichy,28.42,0.5,0.6,0.0,inf,bio_power,4512.5,True,10774.129956782168,2693.532489195542,4,4,0,4,1.0,1.0,0.5,0.5
-kudankulam_atomic_power_project__unit_01,Tirunelveli,1000.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
-kudankulam_atomic_power_project__unit_02,Tirunelveli,1000.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
-madras_atomic_power_station__unit_01,Chennai South,220.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
-madras_atomic_power_station__unit_02,Chennai South,220.0,0.6120077448977017,0.6120077448977017,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+kudankulam_atomic_power_project__unit_01,Tirunelveli,1000.0,0.0,1.0,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+kudankulam_atomic_power_project__unit_02,Tirunelveli,1000.0,0.0,1.0,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+madras_atomic_power_station__unit_01,Chennai South,220.0,0.0,1.0,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
+madras_atomic_power_station__unit_02,Chennai South,220.0,0.0,1.0,,inf,nuclear,800.0,False,0.0,0.0,0,0,1,0,,,,
 aliyar_mini_hydel_project__unit_01,Coimbatore,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
 aliyar_mini_hydel_project__unit_02,Coimbatore,1.25,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
 amaravathi_small_hydro_project__unit_01,Coimbatore,2.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,

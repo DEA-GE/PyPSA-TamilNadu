@@ -1,0 +1,15 @@
+{
+  "formulation": "continuous 168-hour unit-commitment solve",
+  "days_solved": 7,
+  "solver_status": "ok",
+  "solver_condition": "optimal",
+  "max_abs_gas_target_deviation_mwh": 1.3642420526593924e-12,
+  "max_abs_nuclear_target_deviation_mwh": 0.0,
+  "max_abs_nodal_residual_mw": 4.320099833421409e-12,
+  "max_link_loading_pct": 100.0,
+  "total_unserved_gwh": 0.0,
+  "wall_clock_seconds": 156.42448569997214,
+  "run_mode": "peak",
+  "start_date": "2025-07-07",
+  "end_date": "2025-07-13"
+}

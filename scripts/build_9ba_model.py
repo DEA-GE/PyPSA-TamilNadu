@@ -134,19 +134,19 @@ def read_demand_shares() -> pd.DataFrame:
     return result
 
 
-def read_oil_gas_energy_budget() -> pd.DataFrame:
-    """Create the FY oil-and-gas daily budget from the observed generation file."""
+def read_oil_gas_energy_budget(parameter="Oil & Gas") -> pd.DataFrame:
+    """Create a technology's FY daily budget from the observed generation file."""
     raw = pd.read_excel(
         OBSERVED_GENERATION_FILE,
         sheet_name="Electricity_Power_Generation_",
     )
     selected = raw.loc[
         raw["State"].eq("Tamil Nadu")
-        & raw["Parameter"].eq("Oil & Gas - Generation (in MU)")
+        & raw["Parameter"].eq(f"{parameter} - Generation (in MU)")
     ]
     if len(selected) != 1:
         raise ValueError(
-            "Expected exactly one Tamil Nadu Oil & Gas generation row in the "
+            f"Expected exactly one Tamil Nadu {parameter} generation row in the "
             "observed workbook"
         )
 
@@ -163,13 +163,13 @@ def read_oil_gas_energy_budget() -> pd.DataFrame:
     daily = pd.Series(values, name="observed_generation_mu").sort_index()
     daily.index.name = "date"
     if not daily.index.equals(expected_dates):
-        raise ValueError("Oil-and-gas observations do not cover every FY2025-26 day")
+        raise ValueError(f"{parameter} observations do not cover every FY2025-26 day")
     if daily.isna().any() or (daily < 0.0).any():
-        raise ValueError("Oil-and-gas observations must be non-negative and complete")
+        raise ValueError(f"{parameter} observations must be non-negative and complete")
 
     annual_mu = float(daily.sum())
     if annual_mu <= 0.0:
-        raise ValueError("Oil-and-gas annual generation must be positive")
+        raise ValueError(f"{parameter} annual generation must be positive")
     budget = daily.to_frame().reset_index()
     budget["annual_share"] = budget["observed_generation_mu"] / annual_mu
     budget["daily_energy_target_mwh"] = budget["observed_generation_mu"] * 1_000.0
@@ -724,6 +724,14 @@ def main() -> None:
     snapshots_table = pd.read_csv(BASE_MODEL / "snapshots.csv")
     snapshots = snapshots_table["snapshot"]
     oil_gas_budget = read_oil_gas_energy_budget()
+    nuclear_budget = read_oil_gas_energy_budget("Nuclear")
+    nuclear_mask = generators["carrier"].eq("nuclear")
+    nuclear_capacity = generators.loc[nuclear_mask, "p_nom"].sum()
+    if (nuclear_budget.daily_energy_target_mwh > nuclear_capacity * 24 + 1e-5).any():
+        raise ValueError("Observed nuclear daily energy exceeds installed capacity")
+    # Replace the inherited fixed 61.2% output with dispatch bounded by nameplate.
+    generators.loc[nuclear_mask, "p_min_pu"] = 0.0
+    generators.loc[nuclear_mask, "p_max_pu"] = 1.0
     oil_gas_annual_target_mwh = float(
         oil_gas_budget["daily_energy_target_mwh"].sum()
     )
@@ -748,6 +756,12 @@ def main() -> None:
     )
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    global_constraints.loc[len(global_constraints)] = {
+        "name": "observed_fy2025_26_nuclear_generation_target",
+        "type": "operational_limit", "carrier_attribute": "nuclear",
+        "sense": "==", "constant": nuclear_budget.daily_energy_target_mwh.sum(),
+    }
+    nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
     network = pd.read_csv(BASE_MODEL / "network.csv")
     network.loc[0, "name"] = (
         "Tamil Nadu FY 2025-26 nine-balancing-area hourly UC inputs "

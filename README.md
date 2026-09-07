@@ -35,6 +35,7 @@ documented assumptions rather than validated operational data.
 | `scripts/build_unit_level_model.py` | Rebuilds record-level PyPSA components from the operational workbook rows |
 | `scripts/build_9ba_model.py` | Rebuilds the nine-area model from the single-node inputs and spatial source files |
 | `scripts/run_9ba_weekly_days_2025_26.py` | Solves each week's highest-demand day independently and compares daily generation with the ICED observations |
+| `scripts/run_9ba_month.py` | Solves all 31 July 2025 days independently and produces monthly generation comparisons |
 | `scripts/build_15min_model.py` | Rebuilds the 15-minute alternative and merges April-December 2025 with January-March 2026 demand |
 | `scripts/merge_fiscal_year_timeseries.py` | Merges two timestamped calendar-year CSV/Excel files into an automatically detected April-March fiscal year |
 | `inputs/tamil_nadu_ra_2025_26/component_metadata.csv` | Links every modeled plant component to its source workbook row |

@@ -1,0 +1,11 @@
+{
+  "run_mode": "31 independent 24-hour unit-commitment solves",
+  "snapshots": 744,
+  "days": 31,
+  "runtime_seconds": 502.05834029999096,
+  "maximum_gas_daily_target_deviation_mwh": 3.637978807091713e-12,
+  "maximum_nuclear_daily_target_deviation_mwh": 0.0,
+  "maximum_nodal_residual_mw": 4.774847184307873e-12,
+  "maximum_corridor_loading_pct": 100.0,
+  "unserved_energy_mu": 0.0
+}

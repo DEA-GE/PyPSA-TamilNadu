@@ -23,9 +23,10 @@ The 9BA equivalents of the single-node hourly notebooks are kept in `9_BA/`:
 - `9BA_run_peakday_2025_26.ipynb` selects the Monday-Sunday week containing the
   annual statewide demand peak, runs HiGHS unit commitment, validates nodal
   balances and corridor limits, and writes
-  `tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses a 0.1%
-  relative MIP-gap tolerance; this keeps runtime proportionate to the input
-  data uncertainty while retaining a near-optimal commitment schedule.
+  `tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses a 1%
+  relative MIP-gap tolerance; this keeps runtime proportionate after adding
+  exact daily oil-and-gas energy targets, while remaining proportionate to the
+  input-data uncertainty and retaining a near-optimal commitment schedule.
 - `9B_results_analysis_hourly.ipynb` reads that solved network and analyzes
   system dispatch, storage, commitment, balancing-area supply and demand,
   net imports, corridor flow and congestion, installed district capacity in
@@ -64,6 +65,20 @@ status, condition = network.optimize(
 ```
 
 ## Model contents
+
+July 2025 can be evaluated with `python scripts/run_9ba_month.py`. The script
+solves all 31 complete days as independent 24-hour unit-commitment problems,
+covering all 744 July hours at a 1% MIP tolerance. It enforces each day's gas
+and nuclear equality targets and writes validation results, daily and monthly
+comparison tables, and a comparison plot under `monthly_results/2025_07/`.
+
+A continuous 744-hour formulation was also attempted, but its approximately
+370,000 binary variables produced no feasible integer schedule after about
+112 minutes. Its log is retained as `continuous_attempt_solver.log`. The daily
+formulation does not carry commitment or storage state between dates; each
+storage unit is cyclic within its day. It is suitable for monthly generation
+and renewable-profile comparison, rather than month-long chronological
+commitment or storage analysis.
 
 - Nine buses use the balancing-area names in `Balancing_areas.txt`.
 - The 22 grid corridors in `Grid_capacity.txt` are modeled as lossless,
@@ -157,6 +172,18 @@ applies all seven daily equality targets as well as their aggregate weekly
 target. The annual constraint and its 1,241,450 MWh constant are exported in
 `model/global_constraints.csv`; the source reconciliation is in
 `model/oil_gas_energy_budget_summary.csv`.
+
+## Nuclear energy targets
+
+Nuclear also uses an annual generation equality from the observed workbook,
+with exact daily targets enforced in the weekly-day runner and peak-week
+notebook. Targets are exported in `model/nuclear_daily_energy_budget.csv`.
+The inherited constant 61.2% nuclear output is replaced with a 0–100%
+nameplate dispatch range to permit those targets. Hourly output and plant
+allocation remain optimized; daily energy matching does not validate their
+hourly schedules. Gas and nuclear comparison errors are calibrated by design.
+Custom solve workflows must use `scripts/nuclear_energy_targets.py` to apply
+daily targets and adjust the annual equality for their selected dates.
 
 ## Renewable profile placeholders
 
