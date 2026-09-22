@@ -8,6 +8,14 @@ TARGET = "observed_fy2025_26_nuclear_generation_target"
 BUDGET = Path(__file__).resolve().parents[1] / "9_BA/model/nuclear_daily_energy_budget.csv"
 
 
+def generator_dimension(variable):
+    """Return the generator axis across PyPSA's old and new naming schemes."""
+    candidates = [dimension for dimension in variable.dims if dimension != "snapshot"]
+    if len(candidates) != 1:
+        raise ValueError(f"Cannot identify generator dimension from {variable.dims}")
+    return candidates[0]
+
+
 def add_nuclear_targets(network, snapshots):
     budget = pd.read_csv(BUDGET, parse_dates=["date"]).set_index("date")
     snapshots = pd.DatetimeIndex(snapshots)
@@ -17,7 +25,11 @@ def add_nuclear_targets(network, snapshots):
         if len(hours) != 24:
             raise ValueError("Nuclear daily targets require complete 24-hour days")
         weights = xr.DataArray(network.snapshot_weightings.generators.loc[hours], dims="snapshot", coords={"snapshot": hours})
-        expression = (network.model["Generator-p"].sel(name=units, snapshot=hours) * weights).sum()
+        dispatch = network.model["Generator-p"]
+        generator_dim = generator_dimension(dispatch)
+        expression = (
+            dispatch.sel({generator_dim: units, "snapshot": hours}) * weights
+        ).sum()
         network.model.add_constraints(expression, "==", float(budget.at[date, "daily_energy_target_mwh"]), name=f"NuclearDailyTarget-{date:%Y%m%d}")
 
 

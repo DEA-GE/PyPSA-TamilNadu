@@ -202,9 +202,14 @@ def carrier_energy_mu(network: pypsa.Network) -> pd.Series:
     for carrier in ["coal", "oil_gas", "nuclear", "solar", "wind"]:
         values[carrier] = float(by_carrier.get(carrier, 0.0))
     values["diesel"] = float(by_carrier.get("diesel", 0.0))
-    values["hydro"] = float(by_carrier.get("hydro", 0.0)) + float(
-        storage_by_carrier.get("hydro", 0.0)
+    values["hydro"] = (
+        float(by_carrier.get("hydro", 0.0))
+        + float(by_carrier.get("hydro_run_of_river", 0.0))
+        + float(storage_by_carrier.get("hydro", 0.0))
     )
+    hydro_links = network.links.index[network.links.carrier.eq("hydro_turbine")]
+    if len(hydro_links):
+        values["hydro"] += float((-network.links_t.p1[hydro_links]).mul(weights, axis=0).sum().sum() / 1_000.0)
     values["comparable_total"] = values[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum()

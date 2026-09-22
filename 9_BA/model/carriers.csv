@@ -12,3 +12,10 @@ oil_gas,oil gas
 bio_power,bio power
 hydro,hydro
 diesel,diesel
+hydro_pump,hydro pump
+hydro_run_of_river,hydro run of river
+hydro_turbine,hydro turbine
+water_energy,water energy
+water_inflow,water inflow
+water_spill,water spill
+water_transfer,water transfer

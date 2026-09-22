@@ -15,7 +15,8 @@ Coimbatore,solar,936.4329866620516
 Coimbatore,wind,3489.7159884536504
 Erode,bio_power,117.2895634296771
 Erode,coal,1440.0
-Erode,hydro,460.0
+Erode,hydro,250.0
+Erode,hydro_run_of_river,210.0
 Erode,small_hydro,16.0
 Erode,solar,383.3218896051532
 Erode,wind,132.73000000000002
@@ -28,9 +29,9 @@ Madurai,solar,4036.8245428613177
 Madurai,wind,1227.2675
 Tirunelveli,bio_power,115.14344418914015
 Tirunelveli,coal,4075.0
-Tirunelveli,hydro,132.0
+Tirunelveli,hydro,152.0
 Tirunelveli,nuclear,2000.0
-Tirunelveli,small_hydro,37.3
+Tirunelveli,small_hydro,17.3
 Tirunelveli,solar,6105.3057337527525
 Tirunelveli,wind,6457.782142270278
 Trichy,bio_power,249.002818236788

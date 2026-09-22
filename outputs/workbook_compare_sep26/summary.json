@@ -1,0 +1,80 @@
+{
+  "file_a": {
+    "path": "C:\\Users\\b076218\\Documents\\Filkassen\\DEA_GE_github\\PyPSA-TamilNadu\\additional_data\\TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx",
+    "sheets": {
+      "PlantInfo": {
+        "max_row": 322,
+        "max_column": 8,
+        "used_bounds": {
+          "min_row": 1,
+          "max_row": 322,
+          "min_col": 1,
+          "max_col": 8,
+          "non_empty": 2464
+        },
+        "headers": [
+          "Source",
+          "Commissioning Group",
+          "Name of Power Plant",
+          "State",
+          "District",
+          "Commissioning Date",
+          "Capacity (MW)",
+          "Implementing Agency"
+        ]
+      }
+    }
+  },
+  "file_b": {
+    "path": "C:\\Users\\b076218\\Documents\\Filkassen\\DEA_GE_github\\PyPSA-TamilNadu\\additional_data\\TamilNadu_plantCapacity_all_source_Sep26.xlsx.xlsx",
+    "sheets": {
+      "PlantInfo": {
+        "max_row": 323,
+        "max_column": 8,
+        "used_bounds": {
+          "min_row": 1,
+          "max_row": 323,
+          "min_col": 1,
+          "max_col": 8,
+          "non_empty": 2470
+        },
+        "headers": [
+          "Source",
+          "Commissioning Group",
+          "Name of Power Plant",
+          "State",
+          "District",
+          "Commissioning Date",
+          "Capacity (MW)",
+          "Implementing Agency"
+        ]
+      }
+    }
+  },
+  "sheets_only_in_file_a": [],
+  "sheets_only_in_file_b": [],
+  "common_sheets": [
+    "PlantInfo"
+  ],
+  "cell_diff_stats": {
+    "PlantInfo": {
+      "same": 1965,
+      "changed": 493,
+      "only_in_a": 5,
+      "only_in_b": 11
+    }
+  },
+  "row_key_columns": [
+    "Source",
+    "Commissioning Group",
+    "Name of Power Plant",
+    "State",
+    "District",
+    "Commissioning Date",
+    "Capacity (MW)",
+    "Implementing Agency"
+  ],
+  "rows_only_in_file_a": 18,
+  "rows_only_in_file_b": 19,
+  "total_cell_differences": 509
+}

@@ -1,0 +1,19 @@
+{
+  "formulation": "independent continuous selected weeks",
+  "weeks_solved": 1,
+  "days_retained": 7,
+  "warmup_days_per_week": 1,
+  "lookahead_days_per_week": 1,
+  "reservoir_initial_soc_fraction": 0.0,
+  "all_solver_statuses_ok": true,
+  "max_abs_gas_target_deviation_mwh": 9.094947017729282e-13,
+  "max_abs_nuclear_target_deviation_mwh": 0.0,
+  "max_abs_nodal_residual_mw": 1.8939405599383008e-11,
+  "max_link_loading_pct": 100.00000000000044,
+  "total_unserved_gwh": 0.0,
+  "solver_runtime_seconds_sum": 486.83775089999835,
+  "wall_clock_seconds": 494.30134210000324,
+  "run_mode": "selected_weeks",
+  "start_date": "2025-04-07",
+  "end_date": "2025-04-13"
+}

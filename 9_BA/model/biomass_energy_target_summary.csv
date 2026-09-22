@@ -1,0 +1,2 @@
+source,fiscal_year,cuf,installed_capacity_mw,annual_energy_target_mwh,constraint_name,constraint_sense
+CEA Resource Adequacy Study,FY2025-26,0.215,1055.1200000000001,1987213.0080000001,cea_resource_adequacy_biomass_generation_target,==

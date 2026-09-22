@@ -1,0 +1,11 @@
+,value
+peak_demand_mw,19987.329999999998
+peak_net_load_mw,17910.034099763718
+maximum_one_hour_net_load_increase_mw,4962.583317882239
+maximum_one_hour_net_load_decrease_mw,-3734.864807225118
+market_import_gwh,184.65240291016264
+unserved_energy_gwh,0.0
+hours_with_unserved_energy,0.0
+maximum_unserved_power_mw,0.0
+maximum_corridor_loading_pct,100.00000000000102
+hours_any_corridor_at_or_above_99pct,8760.0

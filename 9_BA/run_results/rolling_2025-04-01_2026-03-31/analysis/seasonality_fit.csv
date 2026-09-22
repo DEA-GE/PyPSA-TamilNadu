@@ -1,0 +1,3 @@
+,mean_bias_percentage_points,seasonal_amplitude_captured_pct,monthly_pattern_correlation,peak_month_matches,trough_month_matches,three_lowest_month_overlap
+wind_resource_vs_observed,-5.334861568819191,23.822032657713322,0.9672834725332443,True,False,1
+hydro_model_vs_observed,9.47793164640366,63.79564422362477,0.9195760309309835,True,False,2

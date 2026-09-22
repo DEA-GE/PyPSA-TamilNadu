@@ -1,0 +1,42 @@
+{
+  "file_a": {
+    "path": "C:\\Users\\b076218\\Documents\\Filkassen\\DEA_GE_github\\PyPSA-TamilNadu\\additional_data\\Capacity_Metatable_Data_Sept26.xlsx",
+    "sheets": {
+      "Capacity_Metatable_Data_Sheet": {
+        "max_row": 101,
+        "max_column": 4,
+        "used_bounds": {
+          "min_row": 1,
+          "max_row": 101,
+          "min_col": 1,
+          "max_col": 4,
+          "non_empty": 391
+        }
+      }
+    }
+  },
+  "file_b": {
+    "path": "C:\\Users\\b076218\\Documents\\Filkassen\\DEA_GE_github\\PyPSA-TamilNadu\\additional_data\\TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx",
+    "sheets": {
+      "PlantInfo": {
+        "max_row": 322,
+        "max_column": 8,
+        "used_bounds": {
+          "min_row": 1,
+          "max_row": 322,
+          "min_col": 1,
+          "max_col": 8,
+          "non_empty": 2464
+        }
+      }
+    }
+  },
+  "sheets_only_in_file_a": [
+    "Capacity_Metatable_Data_Sheet"
+  ],
+  "sheets_only_in_file_b": [
+    "PlantInfo"
+  ],
+  "common_sheets": [],
+  "common_sheet_stats": {}
+}

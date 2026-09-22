@@ -1,0 +1,13 @@
+{
+  "window": 50,
+  "solve_start": "2026-03-10 00:00:00",
+  "solve_end": "2026-03-17 23:00:00",
+  "commit_end": "2026-03-16 23:00:00",
+  "committed_snapshots": 168,
+  "lookahead_snapshots": 24,
+  "solver_status": "ok",
+  "termination_condition": "optimal",
+  "runtime_seconds": 334.57484760007355,
+  "max_nodal_residual_mw": 3.183231456205249e-12,
+  "max_corridor_loading_pct": 100.0
+}

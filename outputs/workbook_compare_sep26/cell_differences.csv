@@ -1,0 +1,530 @@
+sheet,cell,kind,file_a_value,file_b_value
+PlantInfo,F2,changed,2027-03-01,2027-06-01
+PlantInfo,F3,changed,2027-05-01,2027-08-01
+PlantInfo,F65,changed,2026-03-01,2026-06-01
+PlantInfo,F66,changed,2026-08-01,2026-12-01
+PlantInfo,G153,changed,2260.1875,2175.4
+PlantInfo,G155,changed,635.2675,318.085
+PlantInfo,G158,changed,349.125,349.375
+PlantInfo,G159,changed,589.1025000000009,549.595
+PlantInfo,G160,changed,279.51,256.375
+PlantInfo,G161,changed,17.4,34.03
+PlantInfo,C163,changed,Tamil Nadu-Thanjavur,Tamil Nadu-Tenkasi
+PlantInfo,E163,changed,Thanjavur,Tenkasi
+PlantInfo,G163,changed,8.8,22.88
+PlantInfo,C164,changed,Tamil Nadu-Theni,Tamil Nadu-Thanjavur
+PlantInfo,E164,changed,Theni,Thanjavur
+PlantInfo,G164,changed,574.6,8.8
+PlantInfo,C165,changed,Tamil Nadu-Thiruvallur,Tamil Nadu-Theni
+PlantInfo,E165,changed,Thiruvallur,Theni
+PlantInfo,G165,changed,7.2,574.6
+PlantInfo,C166,changed,Tamil Nadu-Thoothukkudi,Tamil Nadu-Thiruvallur
+PlantInfo,E166,changed,Thoothukkudi,Thiruvallur
+PlantInfo,G166,changed,2174.3775,7.2
+PlantInfo,C167,changed,Tamil Nadu-Tiruchirappalli,Tamil Nadu-Thoothukkudi
+PlantInfo,E167,changed,Tiruchirappalli,Thoothukkudi
+PlantInfo,G167,changed,6.4,2662.925
+PlantInfo,C168,changed,Tamil Nadu-Tirunelveli,Tamil Nadu-Tiruchirappalli
+PlantInfo,E168,changed,Tirunelveli,Tiruchirappalli
+PlantInfo,G168,changed,3807.5405000000005,16.9
+PlantInfo,C169,changed,Tamil Nadu-Tiruppur,Tamil Nadu-Tirunelveli
+PlantInfo,E169,changed,Tiruppur,Tirunelveli
+PlantInfo,G169,changed,786.8149999999999,3797.725
+PlantInfo,C170,changed,Tamil Nadu-Tiruppur & Karur,Tamil Nadu-Tiruppur
+PlantInfo,E170,changed,Tiruppur & Karur,Tiruppur
+PlantInfo,G170,changed,300,862.395
+PlantInfo,C171,changed,Tamil Nadu-Viluppuram,Tamil Nadu-Tiruppur & Karur
+PlantInfo,E171,changed,Viluppuram,Tiruppur & Karur
+PlantInfo,G171,changed,1.7,300
+PlantInfo,A172,changed,Solar,Wind
+PlantInfo,B172,changed,pipeline,operational
+PlantInfo,C172,changed,INGEL Tamil Nadu 200.0,Tamil Nadu-Viluppuram
+PlantInfo,E172,changed,Thoothukudi,Viluppuram
+PlantInfo,F172,only_in_a,2027-12-31,
+PlantInfo,G172,changed,200,1.7
+PlantInfo,H172,only_in_a,INGEL,
+PlantInfo,B173,changed,operational,pipeline
+PlantInfo,C173,changed,Tamil Nadu Chennai 16,INGEL Tamil Nadu 200.0
+PlantInfo,E173,changed,Chennai,Thoothukudi
+PlantInfo,F173,only_in_b,,2027-12-31
+PlantInfo,G173,changed,16,200
+PlantInfo,H173,only_in_b,,INGEL
+PlantInfo,C174,changed,Tamil Nadu Coimbatore 11.26,Tamil Nadu Chennai 16
+PlantInfo,E174,changed,Coimbatore,Chennai
+PlantInfo,G174,changed,11.26,16
+PlantInfo,C175,changed,Tamil Nadu Cuddalore 140,Tamil Nadu Coimbatore 11.26
+PlantInfo,E175,changed,Cuddalore,Coimbatore
+PlantInfo,G175,changed,140,11.26
+PlantInfo,C176,changed,Tamil Nadu Dindigul 109.46,Tamil Nadu Cuddalore 140
+PlantInfo,E176,changed,Dindigul,Cuddalore
+PlantInfo,G176,changed,109.46,140
+PlantInfo,C177,changed,Tamil Nadu Erode  7,Tamil Nadu Dindigul 109.46
+PlantInfo,E177,changed,Erode,Dindigul
+PlantInfo,G177,changed,7,109.46
+PlantInfo,C178,changed,Tamil Nadu Kanniyakumari 1,Tamil Nadu Erode  7
+PlantInfo,E178,changed,Kanniyakumari,Erode
+PlantInfo,G178,changed,1,7
+PlantInfo,C179,changed,Tamil Nadu Karur 156.49,Tamil Nadu Kanniyakumari 1
+PlantInfo,E179,changed,Karur,Kanniyakumari
+PlantInfo,G179,changed,156.49,1
+PlantInfo,C180,changed,Tamil Nadu Krishnagiri 0.75,Tamil Nadu Karur 156.49
+PlantInfo,E180,changed,Krishnagiri,Karur
+PlantInfo,G180,changed,0.75,156.49
+PlantInfo,C181,changed,Tamil Nadu Madurai 1,Tamil Nadu Krishnagiri 0.75
+PlantInfo,E181,changed,Madurai,Krishnagiri
+PlantInfo,G181,changed,1,0.75
+PlantInfo,C182,changed,Tamil Nadu N.A. 251,Tamil Nadu Madurai 1
+PlantInfo,E182,changed,N.A.,Madurai
+PlantInfo,G182,changed,251,1
+PlantInfo,C183,changed,Tamil Nadu N.A. Off -grid 75.91,Tamil Nadu N.A. 251
+PlantInfo,G183,changed,75.91,251
+PlantInfo,C184,changed,Tamil Nadu N.A. Others (Districts not specified) 8930.85,Tamil Nadu N.A. Off -grid 75.91
+PlantInfo,G184,changed,8930.85,75.91
+PlantInfo,C185,changed,Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8,Tamil Nadu N.A. Others (Districts not specified) 9143.18
+PlantInfo,G185,changed,1635.8,9143.18
+PlantInfo,C186,changed,Tamil Nadu Nagapattinam  5,Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8
+PlantInfo,E186,changed,Nagapattinam,N.A.
+PlantInfo,G186,changed,5,1635.8
+PlantInfo,C187,changed,Tamil Nadu Perambalur 10,Tamil Nadu Nagapattinam  5
+PlantInfo,E187,changed,Perambalur,Nagapattinam
+PlantInfo,G187,changed,10,5
+PlantInfo,C188,changed,Tamil Nadu Pudukkottai 20,Tamil Nadu Perambalur 10
+PlantInfo,E188,changed,Pudukkottai,Perambalur
+PlantInfo,G188,changed,20,10
+PlantInfo,C189,changed,Tamil Nadu Ramanathapuram 245,Tamil Nadu Pudukkottai 20
+PlantInfo,E189,changed,Ramanathapuram,Pudukkottai
+PlantInfo,G189,changed,245,20
+PlantInfo,C190,changed,Tamil Nadu Ramanathapuram Kamuthi Solar Power Project 648,Tamil Nadu Ramanathapuram 245
+PlantInfo,G190,changed,648,245
+PlantInfo,C191,changed,Tamil Nadu Sivaganga 16.55,Tamil Nadu Ramanathapuram Kamuthi Solar Power Project 648
+PlantInfo,E191,changed,Sivaganga,Ramanathapuram
+PlantInfo,G191,changed,16.55,648
+PlantInfo,C192,changed,Tamil Nadu Thoothukkudi 28,Tamil Nadu Sivaganga 16.55
+PlantInfo,E192,changed,Thoothukkudi,Sivaganga
+PlantInfo,G192,changed,28,16.55
+PlantInfo,C193,changed,Tamil Nadu Tiruchirappalli 169,Tamil Nadu Thoothukkudi 28
+PlantInfo,E193,changed,Tiruchirappalli,Thoothukkudi
+PlantInfo,G193,changed,169,28
+PlantInfo,C194,changed,Tamil Nadu Tirunelveli  309.36,Tamil Nadu Tiruchirappalli 169
+PlantInfo,E194,changed,Tirunelveli,Tiruchirappalli
+PlantInfo,G194,changed,309.36,169
+PlantInfo,C195,changed,"Tamil Nadu Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram 351",Tamil Nadu Tirunelveli  309.36
+PlantInfo,E195,changed,"Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram",Tirunelveli
+PlantInfo,G195,changed,351,309.36
+PlantInfo,C196,changed,Tamil Nadu Tiruppur 49.3,"Tamil Nadu Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram 351"
+PlantInfo,E196,changed,Tiruppur,"Tirunelveli, Tuticorin, Virudhunagar and Ramanathapuram"
+PlantInfo,G196,changed,49.3,351
+PlantInfo,C197,changed,Tamil Nadu Tiruvannamalai 31,Tamil Nadu Tiruppur 49.3
+PlantInfo,E197,changed,Tiruvannamalai,Tiruppur
+PlantInfo,G197,changed,31,49.3
+PlantInfo,C198,changed,Tamil Nadu Vellore  5,Tamil Nadu Tiruvannamalai 31
+PlantInfo,E198,changed,Vellore,Tiruvannamalai
+PlantInfo,G198,changed,5,31
+PlantInfo,C199,changed,Tamil Nadu Virudhunagar 685.4,Tamil Nadu Vellore  5
+PlantInfo,E199,changed,Virudhunagar,Vellore
+PlantInfo,G199,changed,685.4,5
+PlantInfo,A200,changed,Oil & Gas,Solar
+PlantInfo,C200,changed,Basin Bridge Gas Turbine Power Station,Tamil Nadu Virudhunagar 685.4
+PlantInfo,E200,changed,Chennai,Virudhunagar
+PlantInfo,F200,only_in_a,1996-02-12,
+PlantInfo,G200,changed,30,685.4
+PlantInfo,H200,only_in_a,Tamil Nadu Generation and Distribution Corp. Ltd.,
+PlantInfo,F201,changed,1996-02-25,1996-02-12
+PlantInfo,F202,changed,1996-03-26,1996-02-25
+PlantInfo,F203,changed,1996-03-31,1996-03-26
+PlantInfo,B204,changed,Temporarily Closed,operational
+PlantInfo,C204,changed,Karuppur Combined Cycle Power Plant,Basin Bridge Gas Turbine Power Station
+PlantInfo,E204,changed,Thanjavur,Chennai
+PlantInfo,F204,changed,2005-08-01,1996-03-31
+PlantInfo,G204,changed,70,30
+PlantInfo,H204,changed,Lanco Tanjore Power Co. Ltd.,Tamil Nadu Generation and Distribution Corp. Ltd.
+PlantInfo,G205,changed,49.8,70
+PlantInfo,B206,changed,operational,Temporarily Closed
+PlantInfo,C206,changed,Kovilkalappal (Thirumakotai) Gas Combined Cycle Gas Turbine Power Station,Karuppur Combined Cycle Power Plant
+PlantInfo,E206,changed,Thiruvarur,Thanjavur
+PlantInfo,F206,changed,2001-02-05,2005-08-01
+PlantInfo,G206,changed,69.65,49.8
+PlantInfo,H206,changed,Tamil Nadu Generation and Distribution Corp. Ltd.,Lanco Tanjore Power Co. Ltd.
+PlantInfo,G207,changed,38.23,69.65
+PlantInfo,C208,changed,Kuttalam Gas Turbine Power Station,Kovilkalappal (Thirumakotai) Gas Combined Cycle Gas Turbine Power Station
+PlantInfo,E208,changed,Nagapattinam,Thiruvarur
+PlantInfo,F208,changed,2003-11-27,2001-02-05
+PlantInfo,G208,changed,63,38.23
+PlantInfo,F209,changed,2004-03-24,2003-11-27
+PlantInfo,G209,changed,37,63
+PlantInfo,C210,changed,Pillaiperumalnallur (PPN) Power Plant Phase I,Kuttalam Gas Turbine Power Station
+PlantInfo,F210,changed,2001-04-26,2004-03-24
+PlantInfo,G210,changed,225,37
+PlantInfo,H210,changed,PPN Power Generating Co. Private Ltd.,Tamil Nadu Generation and Distribution Corp. Ltd.
+PlantInfo,G211,changed,105.5,225
+PlantInfo,B212,changed,Temporarily Closed,operational
+PlantInfo,C212,changed,Valantharavai Combined Cycle Gas Power Plant,Pillaiperumalnallur (PPN) Power Plant Phase I
+PlantInfo,E212,changed,Ramanathapuram,Nagapattinam
+PlantInfo,F212,changed,2005-10-29,2001-04-26
+PlantInfo,G212,changed,38,105.5
+PlantInfo,H212,changed,Pioneer Power Ltd.,PPN Power Generating Co. Private Ltd.
+PlantInfo,F213,changed,2006-05-01,2005-10-29
+PlantInfo,G213,changed,14.8,38
+PlantInfo,B214,changed,operational,Temporarily Closed
+PlantInfo,C214,changed,Valuthur Gas Turbine Power Station,Valantharavai Combined Cycle Gas Power Plant
+PlantInfo,F214,changed,2002-12-24,2006-05-01
+PlantInfo,G214,changed,60,14.8
+PlantInfo,H214,changed,Tamil Nadu Generation and Distribution Corp. Ltd.,Pioneer Power Ltd.
+PlantInfo,F215,changed,2003-03-13,2002-12-24
+PlantInfo,G215,changed,34,60
+PlantInfo,F216,changed,2008-05-06,2003-03-13
+PlantInfo,G216,changed,59.8,34
+PlantInfo,F217,changed,2008-08-31,2008-05-06
+PlantInfo,G217,changed,32.4,59.8
+PlantInfo,A218,changed,Bio Power,Oil & Gas
+PlantInfo,C218,changed,Ambika Sugars (Previously M/s. SREL) Tamil Nadu Cuddalore 40,Valuthur Gas Turbine Power Station
+PlantInfo,E218,changed,Cuddalore,Ramanathapuram
+PlantInfo,F218,changed,N.A.,2008-08-31
+PlantInfo,G218,changed,40,32.4
+PlantInfo,H218,changed,Ambika Sugars (Previously M/s. SREL),Tamil Nadu Generation and Distribution Corp. Ltd.
+PlantInfo,C219,changed,"Arashi Hi-Tech Bio-Power 
+Ltd. Tamil Nadu Coimbatore 1.6",Ambika Sugars (Previously M/s. SREL) Tamil Nadu Cuddalore 40
+PlantInfo,E219,changed,Coimbatore,Cuddalore
+PlantInfo,G219,changed,1.6,40
+PlantInfo,H219,changed,"Arashi Hi-Tech Bio-Power 
+Ltd.",Ambika Sugars (Previously M/s. SREL)
+PlantInfo,C220,changed,Arunachala Sugars Ltd. Tamil Nadu Tiruvannamalai 19,"Arashi Hi-Tech Bio-Power 
+Ltd. Tamil Nadu Coimbatore 1.6"
+PlantInfo,E220,changed,Tiruvannamalai,Coimbatore
+PlantInfo,G220,changed,19,1.6
+PlantInfo,H220,changed,Arunachala Sugars Ltd.,"Arashi Hi-Tech Bio-Power 
+Ltd."
+PlantInfo,C221,changed,Astro Energy and Bio Systems Ltd. Tamil Nadu Madurai 10,Arunachala Sugars Ltd. Tamil Nadu Tiruvannamalai 19
+PlantInfo,E221,changed,Madurai,Tiruvannamalai
+PlantInfo,G221,changed,10,19
+PlantInfo,H221,changed,Astro Energy and Bio Systems Ltd.,Arunachala Sugars Ltd.
+PlantInfo,C222,changed,Auro Energy Ltd. Tamil Nadu Thanjavur 16,Astro Energy and Bio Systems Ltd. Tamil Nadu Madurai 10
+PlantInfo,E222,changed,Thanjavur,Madurai
+PlantInfo,G222,changed,16,10
+PlantInfo,H222,changed,Auro Energy Ltd.,Astro Energy and Bio Systems Ltd.
+PlantInfo,C223,changed,Aurobindo Agro Energy Pvt. Ltd. Tamil Nadu Sivaganga 15,Auro Energy Ltd. Tamil Nadu Thanjavur 16
+PlantInfo,E223,changed,Sivaganga,Thanjavur
+PlantInfo,G223,changed,15,16
+PlantInfo,H223,changed,Aurobindo Agro Energy Pvt. Ltd.,Auro Energy Ltd.
+PlantInfo,C224,changed,"Auromira Bio Power
+India (P) Ltd Tamil Nadu Tirunelveli 15",Aurobindo Agro Energy Pvt. Ltd. Tamil Nadu Sivaganga 15
+PlantInfo,E224,changed,Tirunelveli,Sivaganga
+PlantInfo,H224,changed,"Auromira Bio Power
+India (P) Ltd",Aurobindo Agro Energy Pvt. Ltd.
+PlantInfo,C225,changed,Bannari Amman Sugars Ltd. Tamil Nadu Erode 20,"Auromira Bio Power
+India (P) Ltd Tamil Nadu Tirunelveli 15"
+PlantInfo,E225,changed,Erode,Tirunelveli
+PlantInfo,G225,changed,20,15
+PlantInfo,H225,changed,Bannari Amman Sugars Ltd.,"Auromira Bio Power
+India (P) Ltd"
+PlantInfo,C226,changed,Bannari Amman Sugars and Chemicals Ltd. Tamil Nadu Tiruvannamalai 28.8,Bannari Amman Sugars Ltd. Tamil Nadu Erode 20
+PlantInfo,E226,changed,Tiruvannamalai,Erode
+PlantInfo,G226,changed,28.8,20
+PlantInfo,H226,changed,Bannari Amman Sugars and Chemicals Ltd.,Bannari Amman Sugars Ltd.
+PlantInfo,C227,changed,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant Tamil Nadu Chennai 0.25",Bannari Amman Sugars and Chemicals Ltd. Tamil Nadu Tiruvannamalai 28.8
+PlantInfo,E227,changed,Chennai,Tiruvannamalai
+PlantInfo,G227,changed,0.25,28.8
+PlantInfo,H227,changed,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant",Bannari Amman Sugars and Chemicals Ltd.
+PlantInfo,C228,changed,Cheyyar Co.op Sugar Mills Tamil Nadu Tiruvannamalai 7.5,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant Tamil Nadu Chennai 0.25"
+PlantInfo,E228,changed,Tiruvannamalai,Chennai
+PlantInfo,G228,changed,7.5,0.25
+PlantInfo,H228,changed,Cheyyar Co.op Sugar Mills,"C.M.D.A., Koyambedu Veg. Market Bio-metharation plant"
+PlantInfo,C229,changed,Chitra Bio Energy Ltd. Tamil Nadu Pudukkottai 7.5,Cheyyar Co.op Sugar Mills Tamil Nadu Tiruvannamalai 7.5
+PlantInfo,E229,changed,Pudukkottai,Tiruvannamalai
+PlantInfo,H229,changed,Chitra Bio Energy Ltd.,Cheyyar Co.op Sugar Mills
+PlantInfo,C230,changed,Dhanalakshmi Srinivasan Sugars Pvt Ltd. Tamil Nadu Perambalur 25,Chitra Bio Energy Ltd. Tamil Nadu Pudukkottai 7.5
+PlantInfo,E230,changed,Perambalur,Pudukkottai
+PlantInfo,G230,changed,25,7.5
+PlantInfo,H230,changed,Dhanalakshmi Srinivasan Sugars Pvt Ltd.,Chitra Bio Energy Ltd.
+PlantInfo,C231,changed,Dharani Sugars & Chemical Ltd. Tamil Nadu Tiruvannamalai 15,Dhanalakshmi Srinivasan Sugars Pvt Ltd. Tamil Nadu Perambalur 25
+PlantInfo,E231,changed,Tiruvannamalai,Perambalur
+PlantInfo,G231,changed,15,25
+PlantInfo,H231,changed,Dharani Sugars & Chemical Ltd.,Dhanalakshmi Srinivasan Sugars Pvt Ltd.
+PlantInfo,C232,changed,Dharani Sugars & Chemical Ltd. Tamil Nadu Viluppuram 22,Dharani Sugars & Chemical Ltd. Tamil Nadu Tiruvannamalai 15
+PlantInfo,E232,changed,Viluppuram,Tiruvannamalai
+PlantInfo,G232,changed,22,15
+PlantInfo,C233,changed,EID Parry India Ltd. Tamil Nadu Cuddalore 24.5,Dharani Sugars & Chemical Ltd. Tamil Nadu Viluppuram 22
+PlantInfo,E233,changed,Cuddalore,Viluppuram
+PlantInfo,G233,changed,24.5,22
+PlantInfo,H233,changed,EID Parry India Ltd.,Dharani Sugars & Chemical Ltd.
+PlantInfo,C234,changed,EID Parry India Ltd. Tamil Nadu Karur 22,EID Parry India Ltd. Tamil Nadu Cuddalore 24.5
+PlantInfo,E234,changed,Karur,Cuddalore
+PlantInfo,G234,changed,22,24.5
+PlantInfo,C235,changed,EID Parry India Ltd. Tamil Nadu Pudukkottai 18,EID Parry India Ltd. Tamil Nadu Karur 22
+PlantInfo,E235,changed,Pudukkottai,Karur
+PlantInfo,G235,changed,18,22
+PlantInfo,C236,changed,EID Parry India Ltd. Tamil Nadu Tiruchirappalli 18,EID Parry India Ltd. Tamil Nadu Pudukkottai 18
+PlantInfo,E236,changed,Tiruchirappalli,Pudukkottai
+PlantInfo,C237,changed,ETA Power Gen.Pvt.Ltd. Tamil Nadu Virudhunagar 10,EID Parry India Ltd. Tamil Nadu Tiruchirappalli 18
+PlantInfo,E237,changed,Virudhunagar,Tiruchirappalli
+PlantInfo,G237,changed,10,18
+PlantInfo,H237,changed,ETA Power Gen.Pvt.Ltd.,EID Parry India Ltd.
+PlantInfo,C238,changed,Empee Distilleries (Pvt) Ltd. Tamil Nadu Pudukkottai 10,ETA Power Gen.Pvt.Ltd. Tamil Nadu Virudhunagar 10
+PlantInfo,E238,changed,Pudukkottai,Virudhunagar
+PlantInfo,H238,changed,Empee Distilleries (Pvt) Ltd.,ETA Power Gen.Pvt.Ltd.
+PlantInfo,C239,changed,Empee Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 50,Empee Distilleries (Pvt) Ltd. Tamil Nadu Pudukkottai 10
+PlantInfo,E239,changed,Tirunelveli,Pudukkottai
+PlantInfo,G239,changed,50,10
+PlantInfo,H239,changed,Empee Sugars & Chemicals Ltd.,Empee Distilleries (Pvt) Ltd.
+PlantInfo,C240,changed,G.K. Bio Energy Pvt. Ltd. Tamil Nadu Erode 1.5,Empee Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 50
+PlantInfo,E240,changed,Erode,Tirunelveli
+PlantInfo,G240,changed,1.5,50
+PlantInfo,H240,changed,G.K. Bio Energy Pvt. Ltd.,Empee Sugars & Chemicals Ltd.
+PlantInfo,C241,changed,Global Power Tech. Equipments Pvt.Ltd. Tamil Nadu Tiruvannamalai 7.5,G.K. Bio Energy Pvt. Ltd. Tamil Nadu Erode 1.5
+PlantInfo,E241,changed,Tiruvannamalai,Erode
+PlantInfo,G241,changed,7.5,1.5
+PlantInfo,H241,changed,Global Power Tech. Equipments Pvt.Ltd.,G.K. Bio Energy Pvt. Ltd.
+PlantInfo,C242,changed,IOT Mabagas Ltd. Tamil Nadu N.A. 2,Global Power Tech. Equipments Pvt.Ltd. Tamil Nadu Tiruvannamalai 7.5
+PlantInfo,E242,changed,N.A.,Tiruvannamalai
+PlantInfo,G242,changed,2,7.5
+PlantInfo,H242,changed,IOT Mabagas Ltd.,Global Power Tech. Equipments Pvt.Ltd.
+PlantInfo,C243,changed,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 12,IOT Mabagas Ltd. Tamil Nadu N.A. 2
+PlantInfo,E243,changed,Perambalur,N.A.
+PlantInfo,G243,changed,12,2
+PlantInfo,H243,changed,Kothari Sugars & Chemicals Ltd.,IOT Mabagas Ltd.
+PlantInfo,C244,changed,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 22,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 12
+PlantInfo,G244,changed,22,12
+PlantInfo,C245,changed,M.R.K.Co.op Sugar Mills Tamil Nadu Cuddalore 7.5,Kothari Sugars & Chemicals Ltd. Tamil Nadu Perambalur 22
+PlantInfo,E245,changed,Cuddalore,Perambalur
+PlantInfo,G245,changed,7.5,22
+PlantInfo,H245,changed,M.R.K.Co.op Sugar Mills,Kothari Sugars & Chemicals Ltd.
+PlantInfo,C246,changed,Madras Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 25,M.R.K.Co.op Sugar Mills Tamil Nadu Cuddalore 7.5
+PlantInfo,E246,changed,Tirunelveli,Cuddalore
+PlantInfo,G246,changed,25,7.5
+PlantInfo,H246,changed,Madras Sugars & Chemicals Ltd.,M.R.K.Co.op Sugar Mills
+PlantInfo,C247,changed,Manali Petrochemicals Ltd. Tamil Nadu Thiruvallur 4.7,Madras Sugars & Chemicals Ltd. Tamil Nadu Tirunelveli 25
+PlantInfo,E247,changed,Thiruvallur,Tirunelveli
+PlantInfo,G247,changed,4.7,25
+PlantInfo,H247,changed,Manali Petrochemicals Ltd.,Madras Sugars & Chemicals Ltd.
+PlantInfo,C248,changed,Mohan Breweries & Distillaries Ltd Tamil Nadu Kancheepuram 18,Manali Petrochemicals Ltd. Tamil Nadu Thiruvallur 4.7
+PlantInfo,E248,changed,Kancheepuram,Thiruvallur
+PlantInfo,G248,changed,18,4.7
+PlantInfo,H248,changed,Mohan Breweries & Distillaries Ltd,Manali Petrochemicals Ltd.
+PlantInfo,C249,changed,Orient Green Power Ltd. Tamil Nadu Coimbatore 10,Mohan Breweries & Distillaries Ltd Tamil Nadu Kancheepuram 18
+PlantInfo,E249,changed,Coimbatore,Kancheepuram
+PlantInfo,G249,changed,10,18
+PlantInfo,H249,changed,Orient Green Power Ltd.,Mohan Breweries & Distillaries Ltd
+PlantInfo,C250,changed,Others (districts not specified) (Waste to Energy) Tamil Nadu N.A. 6.4,Orient Green Power Ltd. Tamil Nadu Coimbatore 10
+PlantInfo,E250,changed,N.A.,Coimbatore
+PlantInfo,G250,changed,6.4,10
+PlantInfo,H250,changed,Others (districts not specified) (Waste to Energy),Orient Green Power Ltd.
+PlantInfo,C251,changed,Others (districts not specified) [Biomass & bagasse based cogen.] Tamil Nadu N.A. 138.2,Others (districts not specified) (Waste to Energy) Tamil Nadu N.A. 6.4
+PlantInfo,G251,changed,138.2,6.4
+PlantInfo,H251,changed,Others (districts not specified) [Biomass & bagasse based cogen.],Others (districts not specified) (Waste to Energy)
+PlantInfo,C252,changed,Others (districts not specified) [Non-Bagasse based cogen.] Tamil Nadu N.A. 525,Others (districts not specified) [Biomass & bagasse based cogen.] Tamil Nadu N.A. 138.2
+PlantInfo,G252,changed,52.05,138.2
+PlantInfo,H252,changed,Others (districts not specified) [Non-Bagasse based cogen.],Others (districts not specified) [Biomass & bagasse based cogen.]
+PlantInfo,C253,changed,Others (districts not specified) [Waste to Energy (Off-grid)] Tamil Nadu N.A. 27.57,Others (districts not specified) [Non-Bagasse based cogen.] Tamil Nadu N.A. 525
+PlantInfo,G253,changed,27.57,52.05
+PlantInfo,H253,changed,Others (districts not specified) [Waste to Energy (Off-grid)],Others (districts not specified) [Non-Bagasse based cogen.]
+PlantInfo,C254,changed,Ponni Sugars Limited Tamil Nadu Erode 19,Others (districts not specified) [Waste to Energy (Off-grid)] Tamil Nadu N.A. 27.57
+PlantInfo,E254,changed,Erode,N.A.
+PlantInfo,G254,changed,19,27.57
+PlantInfo,H254,changed,Ponni Sugars Limited,Others (districts not specified) [Waste to Energy (Off-grid)]
+PlantInfo,C255,changed,Prathyusha Power Pvt. Ltd. Tamil Nadu Tirunelveli 10,Ponni Sugars Limited Tamil Nadu Erode 19
+PlantInfo,E255,changed,Tirunelveli,Erode
+PlantInfo,G255,changed,10,19
+PlantInfo,H255,changed,Prathyusha Power Pvt. Ltd.,Ponni Sugars Limited
+PlantInfo,C256,changed,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Theni 12,Prathyusha Power Pvt. Ltd. Tamil Nadu Tirunelveli 10
+PlantInfo,E256,changed,Theni,Tirunelveli
+PlantInfo,G256,changed,12,10
+PlantInfo,H256,changed,Rajashree Sugars & Chemicals Ltd.,Prathyusha Power Pvt. Ltd.
+PlantInfo,C257,changed,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 20,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Theni 12
+PlantInfo,E257,changed,Viluppuram,Theni
+PlantInfo,G257,changed,20,12
+PlantInfo,C258,changed,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 22,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 20
+PlantInfo,G258,changed,22,20
+PlantInfo,C259,changed,Rajkumar Impex(P) Ltd. Tamil Nadu Thoothukkudi 6,Rajashree Sugars & Chemicals Ltd. Tamil Nadu Viluppuram 22
+PlantInfo,E259,changed,Thoothukkudi,Viluppuram
+PlantInfo,G259,changed,6,22
+PlantInfo,H259,changed,Rajkumar Impex(P) Ltd.,Rajashree Sugars & Chemicals Ltd.
+PlantInfo,C260,changed,Renuka Textiles Limited Tamil Nadu Theni 4.5,Rajkumar Impex(P) Ltd. Tamil Nadu Thoothukkudi 6
+PlantInfo,E260,changed,Theni,Thoothukkudi
+PlantInfo,G260,changed,4.5,6
+PlantInfo,H260,changed,Renuka Textiles Limited,Rajkumar Impex(P) Ltd.
+PlantInfo,C261,changed,S.V Sugar Mills Ltd. Tamil Nadu Kancheepuram 45,Renuka Textiles Limited Tamil Nadu Theni 4.5
+PlantInfo,E261,changed,Kancheepuram,Theni
+PlantInfo,G261,changed,45,4.5
+PlantInfo,H261,changed,S.V Sugar Mills Ltd.,Renuka Textiles Limited
+PlantInfo,C262,changed,Saastha Energy(P) Ltd Tamil Nadu N.A. 2,S.V Sugar Mills Ltd. Tamil Nadu Kancheepuram 45
+PlantInfo,E262,changed,N.A.,Kancheepuram
+PlantInfo,G262,changed,2,45
+PlantInfo,H262,changed,Saastha Energy(P) Ltd,S.V Sugar Mills Ltd.
+PlantInfo,C263,changed,Sakti Sugars Ltd. Tamil Nadu Erode 24.5,Saastha Energy(P) Ltd Tamil Nadu N.A. 2
+PlantInfo,E263,changed,Erode,N.A.
+PlantInfo,G263,changed,24.5,2
+PlantInfo,H263,changed,Sakti Sugars Ltd.,Saastha Energy(P) Ltd
+PlantInfo,C264,changed,Sakti Sugars Ltd. Tamil Nadu Sivaganga 35,Sakti Sugars Ltd. Tamil Nadu Erode 24.5
+PlantInfo,E264,changed,Sivaganga,Erode
+PlantInfo,G264,changed,35,24.5
+PlantInfo,C265,changed,Shakti Sugars Ltd. Tamil Nadu Erode 32,Sakti Sugars Ltd. Tamil Nadu Sivaganga 35
+PlantInfo,E265,changed,Erode,Sivaganga
+PlantInfo,G265,changed,32,35
+PlantInfo,H265,changed,Shakti Sugars Ltd.,Sakti Sugars Ltd.
+PlantInfo,C266,changed,Shriraam City Union Finance Ltd. Tamil Nadu Thanjavur 7.5,Shakti Sugars Ltd. Tamil Nadu Erode 32
+PlantInfo,E266,changed,Thanjavur,Erode
+PlantInfo,G266,changed,7.5,32
+PlantInfo,H266,changed,Shriraam City Union Finance Ltd.,Shakti Sugars Ltd.
+PlantInfo,C267,changed,Shriram Investments Ltd. Tamil Nadu Dindigul 7.5,Shriraam City Union Finance Ltd. Tamil Nadu Thanjavur 7.5
+PlantInfo,E267,changed,Dindigul,Thanjavur
+PlantInfo,H267,changed,Shriram Investments Ltd.,Shriraam City Union Finance Ltd.
+PlantInfo,C268,changed,"Sripathi Paper & Board
+(P) Ltd Tamil Nadu Virudhunagar 4.95 09.03.2011",Shriram Investments Ltd. Tamil Nadu Dindigul 7.5
+PlantInfo,E268,changed,Virudhunagar,Dindigul
+PlantInfo,F268,changed,2011-09-03,N.A.
+PlantInfo,G268,changed,4.95,7.5
+PlantInfo,H268,changed,"Sripathi Paper & Board
+(P) Ltd",Shriram Investments Ltd.
+PlantInfo,C269,changed,"Subashri Bio Energy (P)
+Ltd. Tamil Nadu Namakkal 2.5","Sripathi Paper & Board
+(P) Ltd Tamil Nadu Virudhunagar 4.95 09.03.2011"
+PlantInfo,E269,changed,Namakkal,Virudhunagar
+PlantInfo,F269,changed,N.A.,2011-09-03
+PlantInfo,G269,changed,2.5,4.95
+PlantInfo,H269,changed,"Subashri Bio Energy (P)
+Ltd.","Sripathi Paper & Board
+(P) Ltd"
+PlantInfo,C270,changed,Subramania Siva Co-op Sugar Mills Tamil Nadu Dharmapuri 5,"Subashri Bio Energy (P)
+Ltd. Tamil Nadu Namakkal 2.5"
+PlantInfo,E270,changed,Dharmapuri,Namakkal
+PlantInfo,G270,changed,5,2.5
+PlantInfo,H270,changed,Subramania Siva Co-op Sugar Mills,"Subashri Bio Energy (P)
+Ltd."
+PlantInfo,C271,changed,"Synergy Sakthi
+Renewable energy Ltd. Tamil Nadu Dharmapuri 10",Subramania Siva Co-op Sugar Mills Tamil Nadu Dharmapuri 5
+PlantInfo,G271,changed,10,5
+PlantInfo,H271,changed,"Synergy Sakthi
+Renewable energy Ltd.",Subramania Siva Co-op Sugar Mills
+PlantInfo,C272,changed,TCP Ltd. Tamil Nadu Sivaganga 9,"Synergy Sakthi
+Renewable energy Ltd. Tamil Nadu Dharmapuri 10"
+PlantInfo,E272,changed,Sivaganga,Dharmapuri
+PlantInfo,G272,changed,9,10
+PlantInfo,H272,changed,TCP Ltd.,"Synergy Sakthi
+Renewable energy Ltd."
+PlantInfo,C273,changed,Terra Energy Ltd. Tamil Nadu Cuddalore 18.68,TCP Ltd. Tamil Nadu Sivaganga 9
+PlantInfo,E273,changed,Cuddalore,Sivaganga
+PlantInfo,G273,changed,18.68,9
+PlantInfo,H273,changed,Terra Energy Ltd.,TCP Ltd.
+PlantInfo,C274,changed,Terra Energy Ltd. Tamil Nadu Thanjavur 28.42,Terra Energy Ltd. Tamil Nadu Cuddalore 18.68
+PlantInfo,E274,changed,Thanjavur,Cuddalore
+PlantInfo,G274,changed,28.42,18.68
+PlantInfo,A275,changed,Nuclear,Bio Power
+PlantInfo,B275,changed,pipeline,operational
+PlantInfo,C275,changed,BHAVINI PFBR Atomic Power Station,Terra Energy Ltd. Tamil Nadu Thanjavur 28.42
+PlantInfo,E275,changed,Kancheepuram,Thanjavur
+PlantInfo,F275,changed,2024-06-18,N.A.
+PlantInfo,G275,changed,500,28.42
+PlantInfo,H275,changed,Bharatiya Nabhikiya Vidyut Nigam Limited,Terra Energy Ltd.
+PlantInfo,B276,changed,operational,pipeline
+PlantInfo,C276,changed,Kudankulam Atomic Power Project,BHAVINI PFBR Atomic Power Station
+PlantInfo,E276,changed,Tirunelveli,Kancheepuram
+PlantInfo,F276,changed,2014-12-31,2024-08-21
+PlantInfo,G276,changed,1000,500
+PlantInfo,H276,changed,Nuclear Power Corporation of India,Bharatiya Nabhikiya Vidyut Nigam Limited
+PlantInfo,F277,changed,2017-03-31,2014-12-31
+PlantInfo,B278,changed,pipeline,operational
+PlantInfo,F278,changed,2025-06-18,2017-03-31
+PlantInfo,F279,changed,2025-06-18,2025-08-21
+PlantInfo,F280,changed,2027-06-18,2025-08-21
+PlantInfo,F281,changed,2027-06-18,2027-08-21
+PlantInfo,B282,changed,operational,pipeline
+PlantInfo,C282,changed,Madras Atomic Power Station,Kudankulam Atomic Power Project
+PlantInfo,E282,changed,Kancheepuram,Tirunelveli
+PlantInfo,F282,changed,1984-01-27,2027-08-21
+PlantInfo,G282,changed,220,1000
+PlantInfo,F283,changed,1986-03-21,1984-01-27
+PlantInfo,A284,changed,Small-Hydro,Nuclear
+PlantInfo,C284,changed,Aliyar Mini Hydel Project,Madras Atomic Power Station
+PlantInfo,E284,changed,Coimbatore,Kancheepuram
+PlantInfo,F284,changed,2002-09-23,1986-03-21
+PlantInfo,G284,changed,1.25,220
+PlantInfo,H284,changed,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),Nuclear Power Corporation of India
+PlantInfo,C286,changed,Amaravathi Small Hydro Project,Aliyar Mini Hydel Project
+PlantInfo,F286,changed,2006-09-21,2002-09-23
+PlantInfo,G286,changed,2,1.25
+PlantInfo,F287,changed,2006-11-30,2006-09-21
+PlantInfo,C288,changed,Bhavani Barrage I Small Hydro Electric Project,Amaravathi Small Hydro Project
+PlantInfo,F288,changed,2009-07-01,2006-11-30
+PlantInfo,G288,changed,5,2
+PlantInfo,C290,changed,Bhavani Barrage II Small Hydro Electric Project,Bhavani Barrage I Small Hydro Electric Project
+PlantInfo,F290,changed,N.A.,2009-07-01
+PlantInfo,C292,changed,Lower Bhavani Micro Hydel Project,Bhavani Barrage II Small Hydro Electric Project
+PlantInfo,E292,changed,Erode,Coimbatore
+PlantInfo,F292,changed,1990-05-26,N.A.
+PlantInfo,G292,changed,2,5
+PlantInfo,F293,changed,1990-04-17,1990-05-26
+PlantInfo,F294,changed,1990-04-11,1990-04-17
+PlantInfo,F295,changed,1990-04-03,1990-04-11
+PlantInfo,C296,changed,Lower Bhavani Right Bank Canal Project,Lower Bhavani Micro Hydel Project
+PlantInfo,F296,changed,1998-02-10,1990-04-03
+PlantInfo,G296,changed,4,2
+PlantInfo,F297,changed,1998-02-28,1998-02-10
+PlantInfo,C298,changed,Maravakandy Small Hydro Project,Lower Bhavani Right Bank Canal Project
+PlantInfo,E298,changed,Nilgiris,Erode
+PlantInfo,F298,changed,1992-10-14,1998-02-28
+PlantInfo,G298,changed,0.75,4
+PlantInfo,C299,changed,Mukurthy Small Hydro Project,Maravakandy Small Hydro Project
+PlantInfo,F299,changed,2001-06-27,1992-10-14
+PlantInfo,G299,changed,0.35,0.75
+PlantInfo,F300,changed,2003-01-01,2001-06-27
+PlantInfo,C301,changed,Periyar Vaigai Mini I Hydro Project,Mukurthy Small Hydro Project
+PlantInfo,E301,changed,Kanniyakumari,Nilgiris
+PlantInfo,F301,changed,2010-10-02,2003-01-01
+PlantInfo,G301,changed,2,0.35
+PlantInfo,F302,changed,2011-01-21,2010-10-02
+PlantInfo,C303,changed,Periyar Vaigai Mini II Hydro Project,Periyar Vaigai Mini I Hydro Project
+PlantInfo,G303,changed,1.25,2
+PlantInfo,F304,changed,2012-01-30,2011-01-21
+PlantInfo,C305,changed,Periyar Vaigai Mini III Hydro Project,Periyar Vaigai Mini II Hydro Project
+PlantInfo,F305,changed,N.A.,2012-01-30
+PlantInfo,G305,changed,2,1.25
+PlantInfo,C307,changed,Periyar Vaigai Mini IV Hydro Project,Periyar Vaigai Mini III Hydro Project
+PlantInfo,G307,changed,1.25,2
+PlantInfo,C309,changed,Perunchani Small Hydro Project,Periyar Vaigai Mini IV Hydro Project
+PlantInfo,F309,changed,2005-12-21,N.A.
+PlantInfo,G309,changed,0.65,1.25
+PlantInfo,F310,changed,2006-01-22,2005-12-21
+PlantInfo,C311,changed,Punachi Small Hydro Project,Perunchani Small Hydro Project
+PlantInfo,E311,changed,Coimbatore,Kanniyakumari
+PlantInfo,F311,changed,1992-11-12,2006-01-22
+PlantInfo,G311,changed,1,0.65
+PlantInfo,F312,changed,1992-12-16,1992-11-12
+PlantInfo,C313,changed,Pykara Micro Power House,Punachi Small Hydro Project
+PlantInfo,E313,changed,Nilgiris,Coimbatore
+PlantInfo,F313,changed,1989-10-09,1992-12-16
+PlantInfo,G313,changed,2,1
+PlantInfo,C314,changed,Sathanur Small Hydro Project,Pykara Micro Power House
+PlantInfo,E314,changed,Tiruvannamalai,Nilgiris
+PlantInfo,F314,changed,1999-03-10,1989-10-09
+PlantInfo,G314,changed,7.5,2
+PlantInfo,C315,changed,Servalar Small Hydro Project,Sathanur Small Hydro Project
+PlantInfo,E315,changed,Tirunelveli,Tiruvannamalai
+PlantInfo,F315,changed,1986-03-23,1999-03-10
+PlantInfo,G315,changed,20,7.5
+PlantInfo,C316,changed,Sholayar II Power House,Servalar Small Hydro Project
+PlantInfo,E316,changed,Coimbatore,Tirunelveli
+PlantInfo,F316,changed,1971-03-29,1986-03-23
+PlantInfo,G316,changed,25,20
+PlantInfo,C317,changed,Tamil Nadu Small Hydro Project Bunched,Sholayar II Power House
+PlantInfo,E317,changed,Location TBC,Coimbatore
+PlantInfo,F317,changed,N.A.,1971-03-29
+PlantInfo,G317,changed,0.35,25
+PlantInfo,H317,only_in_b,,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO)
+PlantInfo,C318,changed,Thirumurthy Mini Hydel Project,Tamil Nadu Small Hydro Project Bunched
+PlantInfo,E318,changed,Tiruppur,Location TBC
+PlantInfo,F318,changed,2000-03-20,N.A.
+PlantInfo,G318,changed,0.65,0.35
+PlantInfo,H318,only_in_a,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO),
+PlantInfo,C321,changed,Vaigai Hydro Power Project,Thirumurthy Mini Hydel Project
+PlantInfo,E321,changed,Kanniyakumari,Tiruppur
+PlantInfo,F321,changed,1990-03-04,2000-03-20
+PlantInfo,G321,changed,3,0.65
+PlantInfo,E322,changed,Theni,Kanniyakumari
+PlantInfo,A323,only_in_b,,Small-Hydro
+PlantInfo,B323,only_in_b,,operational
+PlantInfo,C323,only_in_b,,Vaigai Hydro Power Project
+PlantInfo,D323,only_in_b,,Tamil Nadu
+PlantInfo,E323,only_in_b,,Theni
+PlantInfo,F323,only_in_b,,1990-03-04
+PlantInfo,G323,only_in_b,,3
+PlantInfo,H323,only_in_b,,Tamil Nadu Generation and Distribution Corp. Ltd. (TANGEDCO)

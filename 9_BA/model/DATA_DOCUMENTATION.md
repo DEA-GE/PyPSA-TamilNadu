@@ -16,6 +16,50 @@ import pypsa
 network = pypsa.Network("9_BA/model")
 ```
 
+## Simplified notebook runner
+
+Use `9BA_run_model.ipynb` for routine runs. Its settings cell contains:
+
+```python
+RUN_MODE = "selected_weeks"
+REFERENCE_DATE = "2025-07-11" # ignored for peak, selected_weeks, and rolling
+WEEK_STARTS = ["2025-04-07", "2025-07-07", "2025-10-13", "2026-02-16"]
+WARMUP_DAYS = 1
+LOOKAHEAD_DAYS = 1
+RESERVOIR_INITIAL_SOC_FRACTION = 0.0
+SOLVER_NAME = "highs"
+MIP_REL_GAP = 0.01
+RESUME = True
+```
+
+Daily mode solves the selected 24 hours, monthly mode solves every day in the
+selected month as independent daily unit-commitment problems, and peak mode
+solves the continuous 168-hour week containing the annual demand peak. All
+modes enforce exact daily gas and nuclear energy targets and save tables,
+validation, a plot, and (for continuous/single-day runs) the solved network
+under `run_results/`. No mode introduces equipment faults or outages.
+
+### Selected-week seasonal tests
+
+`RUN_MODE = "selected_weeks"` solves every date in `WEEK_STARTS` as the first
+day of an independent seven-day test period. Each optimization also includes
+`WARMUP_DAYS` before the retained week and `LOOKAHEAD_DAYS` after it. Only the
+seven test days enter the reported comparison. The complete solved network,
+daily tables, validation, and plot for each week are written under
+`run_results/selected_weeks/week_YYYY-MM-DD/`; combined outputs and
+`selected_week_log.csv` are written one level above.
+With `RESUME = True`, a completed week is reused when its model version,
+solver, MIP gap, warm-up, look-ahead, and reservoir initial-SOC settings match
+the current run.
+
+Reservoir state does not transfer across gaps between selected weeks. Each
+independent solve instead uses the nearest available observed daily reservoir
+storage at the retained period's start and constrains the nearest observed
+storage at its end. The configured `RESERVOIR_INITIAL_SOC_FRACTION` is only a
+fallback for assets without an observed or explicitly documented proxy level.
+A full rolling run is still required when the study question needs endogenous
+chronological carry-over rather than observed boundary conditions.
+
 ## Peak-week run and analysis
 
 The 9BA equivalents of the single-node hourly notebooks are kept in `9_BA/`:
@@ -64,6 +108,27 @@ status, condition = network.optimize(
 )
 ```
 
+For a chronological full-year approximation, open `9BA_run_model.ipynb` and
+set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
+seven are accepted and exported, while the eighth supplies look-ahead and is
+re-optimized in the next window. Generator dispatch and consecutive on/off
+history, plus storage state of charge, are passed across weekly boundaries.
+Completed windows are checkpointed under
+`run_results/rolling_2025-04-01_2026-03-31/weekly_networks/`; keep
+`RESUME = True` to continue an interrupted run. The final one-day window has
+no look-ahead because it reaches the end of the available input horizon.
+
+After the rolling run is complete, open
+`9BA_results_analysis_rolling_year.ipynb` and run all cells. It checks the
+8,760-hour retained chronology and state handoffs, compares monthly and annual
+modeled generation with the observed FY2025-26 workbook, reports modeled and
+observed-implied full-load hours on a common capacity basis, tests wind-resource
+and hydro-utilization seasonality (including amplitude, timing, low-month
+overlap, and 30-day rolling profiles), and analyses unit commitment, storage,
+ramps, imports, unserved energy, and corridor loading.
+Tables and figures are saved under the rolling result folder's `analysis/`
+subdirectory.
+
 ## Model contents
 
 July 2025 can be evaluated with `python scripts/run_9ba_month.py`. The script
@@ -81,10 +146,11 @@ and renewable-profile comparison, rather than month-long chronological
 commitment or storage analysis.
 
 - Nine buses use the balancing-area names in `Balancing_areas.txt`.
-- The 22 grid corridors in `Grid_capacity.txt` are modeled as lossless,
-  bidirectional PyPSA `Link` components. A stated capacity range uses its
-  midpoint; the original text and conversion method are retained in
-  `model/transmission_capacity_metadata.csv`.
+- The 18 grid corridors in `Grid_capacity.txt` are modeled as lossless,
+  bidirectional PyPSA `Link` components. Each stated MW capacity has a fixed
+  50% availability factor, so the modeled bidirectional rating is 50% of the
+  stated value in every snapshot. Nominal and effective capacities are retained
+  in `model/transmission_capacity_metadata.csv`.
 - The model retains all 8,760 hourly snapshots from 1 April 2025 through
   31 March 2026.
 - Installed nameplate capacity is updated to the 31 July 2026 comparison
@@ -100,6 +166,22 @@ commitment or storage analysis.
   Vellore area. In the absence of plant-specific operating data, these units
   use the model's oil-and-gas commitment and cost assumptions while retaining
   a separate `diesel` carrier.
+- Conventional hydro is controlled through `hydro_asset_registry.csv` and the
+  explicit fleet reconciliation in `hydro_fleet_reconciliation.csv`. Simple
+  reservoir plants use non-pumping `StorageUnit`s. PAP, Kodayar, Kundah,
+  Pykara/Moyar and Papanasam/Servalar use `Store` water balances and
+  turbine/transfer `Link`s so that upstream discharge is routed downstream;
+  Kadamparai uses separate pumping and generation Links. Lower Mettur and
+  Bhavani Kattalai receive availability from their upstream observed releases.
+  The rolling runner transfers both `StorageUnit` and `Store` state between
+  consecutive chronological windows.
+- In the Papanasam--Servalar sub-cascade, the Agriculture SOC series applies
+  only to `Papanasam_reservoir`. A lossless configurable tunnel connects it to
+  the separate `Servalar_reservoir`; the official 20 MW Servalar turbine and a
+  direct Papanasam release both feed `Papanasam_lower_pondage`. The official
+  32 MW Papanasam powerhouse then discharges to the downstream-river sink, not
+  to Servalar. Lower pondage is weekly water-neutral and has no seasonal SOC
+  target.
 - No fault, contingency, forced-outage, or short-circuit representation is
   included.
 
@@ -184,6 +266,45 @@ allocation remain optimized; daily energy matching does not validate their
 hourly schedules. Gas and nuclear comparison errors are calibrated by design.
 Custom solve workflows must use `scripts/nuclear_energy_targets.py` to apply
 daily targets and adjust the annual equality for their selected dates.
+
+## Reservoir hydro and seasonal inflow
+
+`hydro_asset_registry.csv` classifies capacity-workbook units while
+`hydro_fleet_reconciliation.csv` records capacity discrepancies and source-only
+assets that must not be silently added. `model/hydro_reservoir_parameters.csv`
+contains the modelled reservoir/component, MW and MWh basis, fixed head,
+efficiency, SOC source, data quality, and stated proxy/assumption for every
+hydraulic component. `model/hydro_assumptions_report.csv` isolates all entries
+that are not high-quality observations.
+
+Electrical capacity and hydraulic storage are intentionally separate. Every
+hydro turbine Link and run-of-river generator takes `p_nom` from the official
+Tamil Nadu generation inventory; reservoir volume, head, and efficiency never
+rescale that MW value. Where a Store represents a group reservoir, it affects
+only water/SOC. The machine-readable proof is
+`model/hydro_capacity_validation.csv`: it lists every official capacity record,
+its model component and connected Store, the storage aggregation treatment, and
+the capacity check. Sholayar's 109 MW, Kundah's 585 MW, Pykara's 61.2 MW, and
+Moyar's 38 MW source-table values are flagged there as reference/system totals
+only, not model capacities.
+
+Natural inflow and observed storage use the validated daily Tamil Nadu
+Agriculture reservoir data. Volumes use `1 cusec-day = 0.0864 M.cft` and are
+converted to electricity-equivalent energy by
+`0.0771634 × volume_M.cft × head_m × efficiency`, with a configurable first-pass
+efficiency of 0.90 and documented fixed heads. No statewide hydro-generation
+profile is allocated as artificial reservoir inflow. Where an agriculture
+series does not correspond directly to a plant, the model either uses a
+labelled connected-reservoir filling proxy or neutral endogenous pondage; it
+does not copy absolute volume between reservoirs.
+
+`model/storage_units-inflow.csv` contains simple-reservoir hourly inflow and
+`model/hydro_reservoir_inflow.csv` provides its daily source audit. Inflows to
+cascade water buses are represented as `water_inflow` generators. Observed
+daily SOC targets are in `model/hydro_observed_soc.csv`. The selected-week
+runner applies these as independent start/end boundary conditions; the rolling
+runner carries state across contiguous windows. A full-year or long-horizon
+solve remains necessary to optimise seasonal water value endogenously.
 
 ## Renewable profile placeholders
 

@@ -1,0 +1,19 @@
+asset_id,match_regex,representation,data_status,max_hours,p_nom_source,notes
+mettur,^mettur_(dam|tunnel),reservoir,observed Agriculture storage/inflow/outflow,720,official_tamil_nadu_generation_inventory,Mettur Dam and Tunnel share Stanley reservoir; official units are deliberately aggregated.
+bhavani_kattalai,^bhavani_kattalai_,run_of_river,observed Bhavanisagar upstream-release availability,0,official_tamil_nadu_generation_inventory,Barrage cascade; no independent reservoir storage.
+lower_mettur,^lower_mettur_,run_of_river,observed Mettur upstream-release availability,0,official_tamil_nadu_generation_inventory,Cauvery barrage cascade; shared upstream release.
+bhavani_sagar,^bhavani_sagar_,reservoir,ready when official capacity record is in scope,720,official_tamil_nadu_generation_inventory,No capacity is invented from reservoir data.
+sholayar,^sholayar_,cascade_proxy,explicit PAP Store+Link; observed Sholayar storage/inflow,720,official_tamil_nadu_generation_inventory,Official 84 MW units retain individual Links; 109 MW is reference only.
+sarkarpathy,^sarkarpathy_,cascade_proxy,explicit PAP Store+Link; proxy Thunacadavu SOC,720,official_tamil_nadu_generation_inventory,Official capacity is separate from group PAP storage.
+aliyar,^aliyar_,cascade_proxy,explicit PAP Store+Link; proxy Upper Aliyar SOC,720,official_tamil_nadu_generation_inventory,Official capacity is separate from group PAP storage.
+kadamparai,^kadmparai_,pumped_storage,explicit Store plus individual generation Links and aggregate pump,0,official_tamil_nadu_generation_inventory,Four official 100 MW reversible units retained.
+kodayar,^kodayar_,cascade_proxy,explicit Kodayar I and II Stores and turbine Links,720,official_tamil_nadu_generation_inventory,60 MW and 40 MW official units are separate hydraulic stages.
+kundah,^kundah_,cascade_proxy,explicit aggregate water Stores plus individual official turbine Links,720,official_tamil_nadu_generation_inventory,Official 555 MW units retain individual Links; 585 MW is reference only.
+moyar,^moyar_,reservoir,explicit Pykara/Moyar cascade pondage plus individual Links,720,official_tamil_nadu_generation_inventory,Official 40 MW units retain individual Links; 38 MW is reference only.
+papanasam,^papanasam_,reservoir,explicit Papanasam/Servalar Stores plus individual Links,720,official_tamil_nadu_generation_inventory,Official 32 MW Papanasam powerhouse draws from the separate lower pondage.
+servalar,^servalar_small_hydro_project__,cascade_proxy,separate Servalar reservoir and official turbine Link,720,official_tamil_nadu_generation_inventory,Official 20 MW Servalar unit discharges to Papanasam lower pondage.
+parsons_valley,^parson_s_valley_,cascade_proxy,explicit downstream Kundah stage and individual Link,720,official_tamil_nadu_generation_inventory,Separate official powerhouse; not included in Kundah 555 MW.
+periyar,^periyar_,reservoir,observed Agriculture storage/inflow,720,official_tamil_nadu_generation_inventory,Official units deliberately aggregate to one reservoir StorageUnit.
+pykara,^pykara_hydroelectric_,cascade_proxy,explicit Pykara Store plus individual turbine Links,720,official_tamil_nadu_generation_inventory,Official 59.2 MW units retain individual Links; 61.2 MW is reference only.
+pykara_ultimate,^pykara_ultimate_,cascade_proxy,explicit Pykara/Moyar forebay and individual Links,720,official_tamil_nadu_generation_inventory,Separate official powerhouse.
+suruliyar,^suruliyar_,reservoir,storage/inflow series required,720,official_tamil_nadu_generation_inventory,Official units deliberately aggregate to one reservoir StorageUnit.
