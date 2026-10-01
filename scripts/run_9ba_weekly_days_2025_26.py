@@ -233,6 +233,7 @@ def solve_day(
     oil_gas_daily_target_mwh: float,
     oil_gas_annual_share: float,
     mip_rel_gap: float | None = None,
+    linearized_unit_commitment: bool = False,
 ) -> tuple[pypsa.Network, dict[str, object]]:
     end = day + pd.Timedelta(days=1)
     snapshots = annual_network.snapshots[
@@ -266,6 +267,7 @@ def solve_day(
         extra_functionality=add_nuclear_targets,
         solver_options=solver_options,
         include_objective_constant=False,
+        linearized_unit_commitment=linearized_unit_commitment,
     )
     runtime_seconds = time.perf_counter() - started
     if condition != "optimal":

@@ -25,12 +25,16 @@ from nuclear_energy_targets import (
 from run_9ba_weekly_days_2025_26 import OIL_GAS_BUDGET_CONSTRAINT
 
 BIOMASS_ENERGY_CONSTRAINT = "cea_resource_adequacy_biomass_generation_target"
-CHECKPOINT_MODEL_VERSION = "papanasam-servalar-topology-v2"
+# Increment when either the model inputs or rolling-solve acceptance policy changes.
+# This prevents resume from combining checkpoints made under different objectives
+# or solver-quality criteria.
+CHECKPOINT_MODEL_VERSION = "papanasam-servalar-topology-v3-spill-cost-time-limit"
 
 
 def _set_initial_state(
     network: pypsa.Network,
     previous: pypsa.Network | None,
+    unit_commitment: str = "full",
 ) -> None:
     """Set the state immediately before this window's first snapshot."""
     if previous is None:
@@ -42,27 +46,36 @@ def _set_initial_state(
         return
 
     committable = network.generators.index[network.generators.committable]
-    status = previous.generators_t.status.reindex(columns=committable)
-    last_status = status.iloc[-1].round().astype(int)
+    if len(committable):
+        status = previous.generators_t.status.reindex(columns=committable)
+        # PyPSA's rolling boundary uses an on/off state. Fractional statuses
+        # from the LP relaxation are mapped to the nearest boundary state.
+        last_status = status.iloc[-1].round().astype(int)
 
     # PyPSA needs the number of consecutive hours already on/off before the
     # first snapshot to enforce minimum up/down times across the boundary.
-    for generator in committable:
-        values = status[generator].round().astype(int).to_numpy()
-        final_value = int(values[-1])
-        run_length = 0
-        for value in values[::-1]:
-            if int(value) != final_value:
-                break
-            run_length += 1
-        network.generators.at[generator, "up_time_before"] = run_length if final_value else 0
-        network.generators.at[generator, "down_time_before"] = run_length if not final_value else 0
+        for generator in committable:
+            values = status[generator].round().astype(int).to_numpy()
+            final_value = int(values[-1])
+            run_length = 0
+            for value in values[::-1]:
+                if int(value) != final_value:
+                    break
+                run_length += 1
+            network.generators.at[generator, "up_time_before"] = run_length if final_value else 0
+            network.generators.at[generator, "down_time_before"] = run_length if not final_value else 0
 
     # p_init supplies the preceding dispatch for the first ramp constraint.
-    network.generators.loc[committable, "p_init"] = (
-        previous.generators_t.p.iloc[-1].reindex(committable).fillna(0.0)
-    )
-    network.generators.loc[committable[last_status.eq(0)], "p_init"] = np.nan
+        network.generators.loc[committable, "p_init"] = (
+            previous.generators_t.p.iloc[-1].reindex(committable).fillna(0.0)
+        )
+        network.generators.loc[committable[last_status.eq(0)], "p_init"] = np.nan
+    elif unit_commitment == "none":
+        # Preserve dispatch across windows for ramp-constrained generators.
+        network.generators.loc[:, "p_init"] = previous.generators_t.p.iloc[-1].reindex(
+            network.generators.index
+        ).fillna(0.0)
+        network.generators.loc[:, "up_time_before"] = 1
 
     if len(network.storage_units):
         network.storage_units.loc[:, "state_of_charge_initial"] = (
@@ -204,6 +217,9 @@ def run_rolling_year(
     *,
     solver_name: str,
     mip_rel_gap: float,
+    time_limit: float | None,
+    max_time_limit_mip_gap: float,
+    unit_commitment: str,
     output_dir: Path,
     resume: bool = True,
     commit_days: int = 7,
@@ -213,6 +229,10 @@ def run_rolling_year(
     """Solve the complete network horizon in chronological rolling windows."""
     if commit_days < 1 or lookahead_days < 1:
         raise ValueError("commit_days and lookahead_days must both be positive")
+    if time_limit is not None and time_limit <= 0:
+        raise ValueError("time_limit must be positive or None")
+    if not 0 <= max_time_limit_mip_gap <= 1:
+        raise ValueError("max_time_limit_mip_gap must be between 0 and 1")
     output_dir.mkdir(parents=True, exist_ok=True)
     chunks_dir = output_dir / "weekly_networks"
     chunks_dir.mkdir(exist_ok=True)
@@ -249,7 +269,8 @@ def run_rolling_year(
 
         if resume and checkpoint.exists() and daily_file.exists() and meta_file.exists():
             checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
-            if checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION:
+            if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
+                    and checkpoint_meta.get("unit_commitment", "full") == unit_commitment):
                 print(f"Loading completed window {number}/{len(starts)}: {start.date()}", flush=True)
                 previous = pypsa.Network(checkpoint)
                 daily_parts.append(pd.read_csv(daily_file, index_col="date", parse_dates=True))
@@ -273,7 +294,7 @@ def run_rolling_year(
         network.storage_units.loc[:, "cyclic_state_of_charge"] = False
         if len(network.stores):
             network.stores.loc[:, "e_cyclic"] = False
-        _set_initial_state(network, previous)
+        _set_initial_state(network, previous, unit_commitment)
         dates = active.normalize().unique()
         gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
         if gas_targets.isna().any():
@@ -289,9 +310,12 @@ def run_rolling_year(
             flush=True,
         )
         started = time.perf_counter()
+        solver_options = {"mip_rel_gap": mip_rel_gap, "log_to_console": False}
+        if time_limit is not None:
+            solver_options["time_limit"] = time_limit
         status, condition = network.optimize(
             solver_name=solver_name,
-            solver_options={"mip_rel_gap": mip_rel_gap, "log_to_console": False},
+            solver_options=solver_options,
             extra_functionality=lambda n, s: (
                 _add_daily_targets(n, s, gas_targets),
                 _add_committed_biomass_target(
@@ -299,12 +323,47 @@ def run_rolling_year(
                 ),
             ),
             include_objective_constant=False,
+            linearized_unit_commitment=unit_commitment == "relaxed",
         )
         runtime = time.perf_counter() - started
-        if status != "ok" or condition != "optimal":
+        report = getattr(getattr(network.model, "solver", None), "report", None)
+        reported_mip_gap = getattr(report, "mip_gap", None)
+        # Linopy normally exposes this via ``solver.report``. Query the native
+        # HiGHS model as a fallback, since a time-limited solve can leave the
+        # wrapper report empty in some PyPSA/Linopy combinations.
+        if reported_mip_gap is None:
+            solver_model = getattr(network.model, "solver_model", None)
+            try:
+                reported_mip_gap = solver_model.getInfo().mip_gap
+            except (AttributeError, RuntimeError):
+                pass
+        mip_gap = (
+            float(reported_mip_gap)
+            if reported_mip_gap is not None and np.isfinite(reported_mip_gap)
+            else None
+        )
+        accepted_time_limit = (
+            status == "ok"
+            and condition == "time_limit"
+            and mip_gap is not None
+            and mip_gap <= max_time_limit_mip_gap
+        )
+        accepted_solution = status == "ok" and (
+            condition == "optimal" or accepted_time_limit
+        )
+        if not accepted_solution:
             raise RuntimeError(
-                f"Window {number} failed: status={status}, condition={condition}. "
+                f"Window {number} failed: status={status}, condition={condition}, "
+                f"reported_mip_gap={reported_mip_gap}, accepted_mip_gap={mip_gap}. "
+                "Time-limited windows require a finite MIP gap "
+                f"no greater than {max_time_limit_mip_gap:.1%}. "
                 "Completed checkpoints can be resumed."
+            )
+        if accepted_time_limit:
+            print(
+                f"Accepting time-limited window {number}/{len(starts)} with "
+                f"MIP gap {mip_gap:.2%} (limit {max_time_limit_mip_gap:.2%}).",
+                flush=True,
             )
 
         # The checkpoint contains only accepted hours. It is also the complete
@@ -324,6 +383,7 @@ def run_rolling_year(
         )
         row = {
             "model_version": CHECKPOINT_MODEL_VERSION,
+            "unit_commitment": unit_commitment,
             "window": number,
             "solve_start": str(active[0]),
             "solve_end": str(active[-1]),
@@ -332,6 +392,10 @@ def run_rolling_year(
             "lookahead_snapshots": len(active) - len(committed),
             "solver_status": str(status),
             "termination_condition": str(condition),
+            "accepted_solution": accepted_solution,
+            "mip_gap": mip_gap,
+            "time_limit_seconds": time_limit,
+            "max_time_limit_mip_gap": max_time_limit_mip_gap,
             "runtime_seconds": runtime,
             "max_nodal_residual_mw": residual,
             "max_corridor_loading_pct": loading,
@@ -350,6 +414,7 @@ def run_rolling_year(
     completed_snapshots = int(window_log["committed_snapshots"].sum()) if len(window_log) else 0
     validation = {
         "model_version": CHECKPOINT_MODEL_VERSION,
+        "unit_commitment": unit_commitment,
         "formulation": f"rolling {commit_days}-day commitment with {lookahead_days}-day look-ahead",
         "snapshots_solved_and_retained": completed_snapshots,
         "full_horizon_snapshots": len(snapshots),
@@ -357,8 +422,10 @@ def run_rolling_year(
         "windows_planned": len(starts),
         "complete": completed_snapshots == len(snapshots),
         "all_solver_statuses_ok": bool(
-            len(window_log) and window_log["termination_condition"].eq("optimal").all()
+            len(window_log) and window_log["accepted_solution"].all()
         ),
+        "time_limit_seconds": time_limit,
+        "max_time_limit_mip_gap": max_time_limit_mip_gap,
         "total_unserved_gwh": float(modeled.get("unserved_energy", pd.Series(dtype=float)).sum()),
         "solver_runtime_seconds_sum": float(window_log.get("runtime_seconds", pd.Series(dtype=float)).sum()),
         "wall_clock_seconds_this_session": float(time.perf_counter() - run_started),

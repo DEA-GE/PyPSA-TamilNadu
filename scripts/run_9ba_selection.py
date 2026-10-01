@@ -41,6 +41,7 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 # It is not expanded into a synthetic daily series.
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
+UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
 
 # Importing the full-year network from the CSV folder is needlessly repeated
 # when users adjust settings and re-run the notebook in the same kernel.  Keep
@@ -96,6 +97,24 @@ def _normalise_mode(run_mode: str) -> str:
             "RUN_MODE must be 'daily', 'monthly', 'peak', 'selected_weeks', or 'rolling'."
         )
     return mode
+
+
+def _configure_unit_commitment(network: pypsa.Network, mode: str) -> None:
+    """Choose binary commitment, its LP relaxation, or economic dispatch."""
+    if mode not in UNIT_COMMITMENT_MODES:
+        raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    if mode != "none":
+        return
+    units = network.generators.index[network.generators.committable]
+    if not len(units):
+        return
+    # Dispatchable units may be off without a binary status variable. Remove
+    # their minimum stable output in both static and time-varying bounds.
+    network.generators.loc[units, "committable"] = False
+    network.generators.loc[units, "p_min_pu"] = 0.0
+    if not network.generators_t.p_min_pu.empty:
+        columns = network.generators_t.p_min_pu.columns.intersection(units)
+        network.generators_t.p_min_pu.loc[:, columns] = 0.0
 
 
 def _ensure_available(dates: pd.DatetimeIndex, available: pd.DatetimeIndex) -> None:
@@ -288,6 +307,7 @@ def _solve_independent_days(
     oil_gas_budget: pd.DataFrame,
     solver_name: str,
     mip_rel_gap: float,
+    unit_commitment: str,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network | None]:
     rows: list[dict] = []
     conditions: list[str] = []
@@ -303,6 +323,7 @@ def _solve_independent_days(
             float(oil_gas_budget.at[date, "daily_energy_target_mwh"]),
             float(oil_gas_budget.at[date, "annual_share"]),
             mip_rel_gap=mip_rel_gap,
+            linearized_unit_commitment=unit_commitment == "relaxed",
         )
         rows.append(result)
         conditions.append(str(result["termination_condition"]))
@@ -331,6 +352,7 @@ def _solve_peak_week(
     oil_gas_budget: pd.DataFrame,
     solver_name: str,
     mip_rel_gap: float,
+    unit_commitment: str,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network]:
     snapshots = base_network.snapshots[base_network.snapshots.normalize().isin(dates)]
     network = base_network.copy(snapshots=snapshots)
@@ -369,6 +391,7 @@ def _solve_peak_week(
         solver_options={"mip_rel_gap": mip_rel_gap},
         extra_functionality=extra_functionality,
         include_objective_constant=False,
+        linearized_unit_commitment=unit_commitment == "relaxed",
     )
     runtime = time.perf_counter() - started
     if status != "ok":
@@ -406,6 +429,7 @@ def _solve_selected_weeks(
     full_horizon_weight: float,
     solver_name: str,
     mip_rel_gap: float,
+    unit_commitment: str,
     output_dir: Path,
     warmup_days: int,
     lookahead_days: int,
@@ -457,6 +481,7 @@ def _solve_selected_weeks(
                 and saved_validation.get("warmup_days") == warmup_days
                 and saved_validation.get("lookahead_days") == lookahead_days
                 and saved_validation.get("solver_name") == solver_name
+                and saved_validation.get("unit_commitment") == unit_commitment
                 and np.isclose(saved_validation.get("mip_rel_gap", np.nan), mip_rel_gap)
                 and np.isclose(
                     saved_validation.get("reservoir_initial_soc_fraction", np.nan),
@@ -755,6 +780,7 @@ def _solve_selected_weeks(
             solver_options={"mip_rel_gap": mip_rel_gap, "log_to_console": False},
             extra_functionality=extra_functionality,
             include_objective_constant=False,
+            linearized_unit_commitment=unit_commitment == "relaxed",
         )
         runtime = time.perf_counter() - started
         if status != "ok" or condition != "optimal":
@@ -839,6 +865,7 @@ def _solve_selected_weeks(
             "biomass_generation_mwh": biomass_generation_mwh,
             "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
             "solver_name": solver_name,
+            "unit_commitment": unit_commitment,
             "mip_rel_gap": mip_rel_gap,
             "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
             "soc_boundary_tolerance_pu": soc_boundary_tolerance_pu,
@@ -1019,6 +1046,9 @@ def run_selection(
     soc_boundary_tolerance_pu: float = DEFAULT_SOC_BOUNDARY_TOLERANCE_PU,
     solver_name: str = "highs",
     mip_rel_gap: float = 0.01,
+    unit_commitment: str = "full",
+    rolling_time_limit: float | None = 1800,
+    rolling_max_time_limit_mip_gap: float = 0.05,
     network_path: str | Path = DEFAULT_NETWORK,
     results_root: str | Path = DEFAULT_RESULTS_ROOT,
     resume: bool = True,
@@ -1032,11 +1062,15 @@ def run_selection(
     independent daily solves. ``rolling`` solves the full year in seven-day steps.
     """
     mode = _normalise_mode(run_mode)
+    unit_commitment = str(unit_commitment).strip().lower()
+    if unit_commitment not in UNIT_COMMITMENT_MODES:
+        raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
     network_path = Path(network_path)
     results_root = Path(results_root)
     print(f"Loading {network_path} ...", flush=True)
     load_started = time.perf_counter()
     base_network, from_cache = _load_base_network(network_path)
+    _configure_unit_commitment(base_network, unit_commitment)
     load_source = "cached copy" if from_cache else "disk"
     print(
         f"Loaded network from {load_source} in {time.perf_counter() - load_started:.2f} s.",
@@ -1066,6 +1100,9 @@ def run_selection(
         selected_starts = pd.DatetimeIndex([])
         dates, label = _dates_for_mode(mode, reference_date, total_load)
 
+    if unit_commitment != "full":
+        label = f"{label}_{unit_commitment}_uc"
+
     observed = read_observed_generation()
     oil_gas_budget = read_oil_gas_budget(observed)
     missing_observed = dates.difference(observed.index)
@@ -1080,6 +1117,9 @@ def run_selection(
             oil_gas_budget,
             solver_name=solver_name,
             mip_rel_gap=mip_rel_gap,
+            time_limit=rolling_time_limit,
+            max_time_limit_mip_gap=rolling_max_time_limit_mip_gap,
+            unit_commitment=unit_commitment,
             output_dir=output_dir,
             resume=resume,
             max_windows=max_windows,
@@ -1098,6 +1138,7 @@ def run_selection(
             full_horizon_weight,
             solver_name,
             mip_rel_gap,
+            unit_commitment,
             output_dir,
             warmup_days,
             lookahead_days,
@@ -1107,12 +1148,16 @@ def run_selection(
         )
     elif mode == "peak":
         modeled, validation, solved_network = _solve_peak_week(
-            base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap
+            base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap,
+            unit_commitment,
         )
     else:
         modeled, validation, solved_network = _solve_independent_days(
-            base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap
+            base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap,
+            unit_commitment,
         )
+
+    validation["unit_commitment"] = unit_commitment
 
     summary, comparison, plot_path, solved_network_path = _write_outputs(
         mode, dates, modeled, observed, validation, output_dir, solved_network
