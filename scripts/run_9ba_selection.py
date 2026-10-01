@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -42,6 +43,7 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
+RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
 # Importing the full-year network from the CSV folder is needlessly repeated
 # when users adjust settings and re-run the notebook in the same kernel.  Keep
@@ -115,6 +117,17 @@ def _configure_unit_commitment(network: pypsa.Network, mode: str) -> None:
     if not network.generators_t.p_min_pu.empty:
         columns = network.generators_t.p_min_pu.columns.intersection(units)
         network.generators_t.p_min_pu.loc[:, columns] = 0.0
+
+
+def _validate_run_name(run_name: str) -> str:
+    """Keep run names portable and confined to a single output subdirectory."""
+    value = str(run_name).strip()
+    if not RUN_NAME_PATTERN.fullmatch(value) or value in {".", ".."}:
+        raise ValueError(
+            "run_name must be 1-80 characters, start with a letter or number, "
+            "and contain only letters, numbers, dots, underscores, or hyphens."
+        )
+    return value
 
 
 def _ensure_available(dates: pd.DatetimeIndex, available: pd.DatetimeIndex) -> None:
@@ -1047,6 +1060,7 @@ def run_selection(
     solver_name: str = "highs",
     mip_rel_gap: float = 0.01,
     unit_commitment: str = "full",
+    run_name: str = "baseline",
     rolling_time_limit: float | None = 1800,
     rolling_max_time_limit_mip_gap: float = 0.05,
     network_path: str | Path = DEFAULT_NETWORK,
@@ -1065,6 +1079,7 @@ def run_selection(
     unit_commitment = str(unit_commitment).strip().lower()
     if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    run_name = _validate_run_name(run_name)
     network_path = Path(network_path)
     results_root = Path(results_root)
     print(f"Loading {network_path} ...", flush=True)
@@ -1109,7 +1124,7 @@ def run_selection(
     if len(missing_observed):
         raise ValueError(f"Observed generation is missing {len(missing_observed)} requested day(s).")
 
-    output_dir = results_root / label
+    output_dir = results_root / label / run_name
     if mode == "rolling":
         modeled, validation, solved_network = run_rolling_year(
             base_network,
@@ -1158,6 +1173,7 @@ def run_selection(
         )
 
     validation["unit_commitment"] = unit_commitment
+    validation["run_name"] = run_name
 
     summary, comparison, plot_path, solved_network_path = _write_outputs(
         mode, dates, modeled, observed, validation, output_dir, solved_network
@@ -1167,6 +1183,7 @@ def run_selection(
         "mode": mode,
         "dates": dates,
         "output_dir": output_dir,
+        "run_name": run_name,
         "summary": summary,
         "comparison": comparison,
         "validation": validation,

@@ -1,0 +1,19 @@
+{
+  "model_version": "papanasam-servalar-topology-v3-spill-cost-time-limit",
+  "unit_commitment": "none",
+  "window": 34,
+  "solve_start": "2025-11-18 00:00:00",
+  "solve_end": "2025-11-25 23:00:00",
+  "commit_end": "2025-11-24 23:00:00",
+  "committed_snapshots": 168,
+  "lookahead_snapshots": 24,
+  "solver_status": "ok",
+  "termination_condition": "optimal",
+  "accepted_solution": true,
+  "mip_gap": null,
+  "time_limit_seconds": 1800,
+  "max_time_limit_mip_gap": 0.05,
+  "runtime_seconds": 12.556651499995496,
+  "max_nodal_residual_mw": 9.094947017729282e-12,
+  "max_corridor_loading_pct": 100.0
+}
