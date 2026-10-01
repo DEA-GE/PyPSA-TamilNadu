@@ -66,6 +66,10 @@ AGRICULTURE_RESERVOIR_DATA = ROOT / "tn_reservoir_data" / "tn_reservoir_daily_FY
 HYDRO_DEFAULT_EFFICIENCY = 0.90
 HYDRO_DEFAULT_HEAD_M = 100.0
 MCFT_M_HEAD_TO_MWH = 0.0771634
+# Small positive tie-breaker that prefers useful turbine discharge over
+# non-generating reservoir release whenever the electrical system can accept it.
+# Spill remains available when required by observed SOC boundaries or hydraulics.
+WATER_SPILL_MARGINAL_COST = 0.01  # currency units per MWh of released water
 # Small operating-cost tie-breaker so solar is curtailed before zero-cost wind
 # when both are otherwise equally useful to the dispatch.
 SOLAR_CURTAILMENT_PREFERENCE_COST = 1.0  # currency units per MWh
@@ -898,7 +902,8 @@ def build_hydraulic_cascades(
             "name": f"{asset_id}_observed_release",
             "bus0": reservoir, "bus1": downstream,
             "p_nom": release_capacity, "p_min_pu": 0.0,
-            "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": 0.0,
+            "efficiency": 1.0, "carrier": "water_spill",
+            "marginal_cost": WATER_SPILL_MARGINAL_COST,
         })
 
     # PAP: separate Parambikulam/Thunacadavu, Sholayar and Upper Aliyar Stores.
@@ -924,13 +929,13 @@ def build_hydraulic_cascades(
     links.extend([
         {"name": "pap_parambikulam_observed_release", "bus0": para, "bus1": pap_sink,
          "p_nom": PAP_OBSERVED_RELEASE_CAPACITY_MW, "p_min_pu": 0.0,
-         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": 0.0},
+         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST},
         {"name": "pap_sholayar_observed_release", "bus0": shol, "bus1": pap_sink,
          "p_nom": PAP_OBSERVED_RELEASE_CAPACITY_MW, "p_min_pu": 0.0,
-         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": 0.0},
+         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST},
         {"name": "pap_lower_aliyar_outflow", "bus0": lower, "bus1": pap_sink,
          "p_nom": PAP_OBSERVED_RELEASE_CAPACITY_MW, "p_min_pu": 0.0,
-         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": 0.0},
+         "efficiency": 1.0, "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST},
     ])
     add_asset_turbines("sarkarpathy", thun, "Coimbatore", lower, "group-aggregated PAP storage", "pap_sarkarpathy_turbine")
     add_asset_turbines("sholayar", shol, "Coimbatore", lower, "individual Sholayar Store", "pap_sholayar_turbine")
@@ -1044,7 +1049,7 @@ def build_hydraulic_cascades(
                 "p_min_pu": 0.0,
                 "efficiency": 1.0,
                 "carrier": "water_spill",
-                "marginal_cost": 0.0,
+                "marginal_cost": WATER_SPILL_MARGINAL_COST,
             },
         ]
     )
