@@ -310,7 +310,18 @@ def run_rolling_year(
             flush=True,
         )
         started = time.perf_counter()
-        solver_options = {"mip_rel_gap": mip_rel_gap, "log_to_console": False}
+        # The relaxed-UC case is an LP. HiGHS uses serial dual simplex unless
+        # its parallel variant is explicitly enabled. Eight threads is a
+        # practical upper limit for this memory-bound solve on the 16-logical-
+        # CPU workstation, while rolling windows remain chronological.
+        solver_options = {
+            "mip_rel_gap": mip_rel_gap,
+            "log_to_console": False,
+            "threads": 8,
+            "parallel": "on",
+            "simplex_strategy": 3,
+            "simplex_max_concurrency": 8,
+        }
         if time_limit is not None:
             solver_options["time_limit"] = time_limit
         status, condition = network.optimize(
