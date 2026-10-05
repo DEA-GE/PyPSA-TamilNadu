@@ -53,6 +53,14 @@ RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 _NETWORK_CACHE: dict[Path, tuple[tuple[tuple[str, int, int], ...], pypsa.Network]] = {}
 
 
+def _solver_options(unit_commitment: str, mip_rel_gap: float) -> dict[str, object]:
+    """Return only controls that apply to the selected problem class."""
+    options: dict[str, object] = {"log_to_console": False}
+    if unit_commitment == "full":
+        options["mip_rel_gap"] = mip_rel_gap
+    return options
+
+
 def _network_signature(network_path: Path) -> tuple[tuple[str, int, int], ...]:
     """Return a cheap content-change signature for a network file or folder."""
     if network_path.is_dir():
@@ -105,9 +113,17 @@ def _configure_unit_commitment(network: pypsa.Network, mode: str) -> None:
     """Choose binary commitment, its LP relaxation, or economic dispatch."""
     if mode not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    units = network.generators.index[network.generators.committable]
+    if mode == "relaxed":
+        # PyPSA can add the Hua et al. tightening constraints only when both
+        # transition costs are equal. Keep the original start-up assumption
+        # and use it for shut-downs as well.
+        network.generators.loc[units, "shut_down_cost"] = network.generators.loc[
+            units, "start_up_cost"
+        ]
+        return
     if mode != "none":
         return
-    units = network.generators.index[network.generators.committable]
     if not len(units):
         return
     # Dispatchable units may be off without a binary status variable. Remove
@@ -335,7 +351,7 @@ def _solve_independent_days(
             solver_name,
             float(oil_gas_budget.at[date, "daily_energy_target_mwh"]),
             float(oil_gas_budget.at[date, "annual_share"]),
-            mip_rel_gap=mip_rel_gap,
+            mip_rel_gap=mip_rel_gap if unit_commitment == "full" else None,
             linearized_unit_commitment=unit_commitment == "relaxed",
         )
         rows.append(result)
@@ -401,7 +417,7 @@ def _solve_peak_week(
     started = time.perf_counter()
     status, condition = network.optimize(
         solver_name=solver_name,
-        solver_options={"mip_rel_gap": mip_rel_gap},
+        solver_options=_solver_options(unit_commitment, mip_rel_gap),
         extra_functionality=extra_functionality,
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
@@ -495,7 +511,10 @@ def _solve_selected_weeks(
                 and saved_validation.get("lookahead_days") == lookahead_days
                 and saved_validation.get("solver_name") == solver_name
                 and saved_validation.get("unit_commitment") == unit_commitment
-                and np.isclose(saved_validation.get("mip_rel_gap", np.nan), mip_rel_gap)
+                and (
+                    unit_commitment != "full"
+                    or np.isclose(saved_validation.get("mip_rel_gap", np.nan), mip_rel_gap)
+                )
                 and np.isclose(
                     saved_validation.get("reservoir_initial_soc_fraction", np.nan),
                     reservoir_initial_soc_fraction,
@@ -790,7 +809,7 @@ def _solve_selected_weeks(
         started = time.perf_counter()
         status, condition = network.optimize(
             solver_name=solver_name,
-            solver_options={"mip_rel_gap": mip_rel_gap, "log_to_console": False},
+            solver_options=_solver_options(unit_commitment, mip_rel_gap),
             extra_functionality=extra_functionality,
             include_objective_constant=False,
             linearized_unit_commitment=unit_commitment == "relaxed",
@@ -879,7 +898,7 @@ def _solve_selected_weeks(
             "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
             "solver_name": solver_name,
             "unit_commitment": unit_commitment,
-            "mip_rel_gap": mip_rel_gap,
+            "mip_rel_gap": mip_rel_gap if unit_commitment == "full" else None,
             "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
             "soc_boundary_tolerance_pu": soc_boundary_tolerance_pu,
             "observed_hydro_initial_soc_components": int(len(observed_initial)),

@@ -113,6 +113,11 @@ set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
 seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
 history, plus storage state of charge, are passed across weekly boundaries.
+Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
+The relaxed runner carries fractional status, dispatch, and recent fractional
+start/shut-down history across weekly boundaries. Equal start-up and shut-down
+costs activate PyPSA's additional tightening constraints, and MIP-only solver
+settings are omitted.
 Completed windows are checkpointed under
 `run_results/rolling_2025-04-01_2026-03-31/weekly_networks/`; keep
 `RESUME = True` to continue an interrupted run. The final one-day window has

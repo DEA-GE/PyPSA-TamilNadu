@@ -28,7 +28,7 @@ BIOMASS_ENERGY_CONSTRAINT = "cea_resource_adequacy_biomass_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "papanasam-servalar-topology-v3-spill-cost-time-limit"
+CHECKPOINT_MODEL_VERSION = "relaxed-uc-fractional-boundary-v1"
 
 
 def _set_initial_state(
@@ -46,10 +46,15 @@ def _set_initial_state(
         return
 
     committable = network.generators.index[network.generators.committable]
-    if len(committable):
+    if unit_commitment == "relaxed" and len(committable):
+        # PyPSA's static pre-horizon fields describe an integer on/off state.
+        # The relaxed boundary is imposed directly on the Linopy model below,
+        # so disable those binary-history assumptions here.
+        network.generators.loc[committable, "up_time_before"] = 0
+        network.generators.loc[committable, "down_time_before"] = 0
+        network.generators.loc[committable, "p_init"] = np.nan
+    elif len(committable):
         status = previous.generators_t.status.reindex(columns=committable)
-        # PyPSA's rolling boundary uses an on/off state. Fractional statuses
-        # from the LP relaxation are mapped to the nearest boundary state.
         last_status = status.iloc[-1].round().astype(int)
 
     # PyPSA needs the number of consecutive hours already on/off before the
@@ -91,6 +96,188 @@ def _set_initial_state(
             previous.stores_t.e.iloc[-1].reindex(network.stores.index).fillna(0.0)
         )
         network.stores.loc[:, "e_cyclic"] = False
+
+
+def _disable_first_snapshot_constraints(
+    network: pypsa.Network,
+    names: list[str],
+    snapshot: pd.Timestamp,
+    generators: pd.Index,
+) -> None:
+    """Mask native constraints whose pre-horizon state is necessarily binary."""
+    for name in names:
+        if name not in network.model.constraints:
+            continue
+        labels = network.model.constraints[name].labels
+        labels.loc[{"snapshot": snapshot, "name": generators}] = -1
+
+
+def _add_relaxed_boundary_constraints(
+    network: pypsa.Network,
+    previous: pypsa.Network | None,
+) -> None:
+    """Carry fractional commitment, transitions, and ramps between windows."""
+    if previous is None:
+        return
+    generators = network.generators.index[network.generators.committable]
+    if not len(generators):
+        return
+
+    first = pd.Timestamp(network.snapshots[0])
+    model = network.model
+    _disable_first_snapshot_constraints(
+        network,
+        [
+            "Generator-com-transition-start-up",
+            "Generator-com-transition-shut-down",
+            "Generator-p-ramp_limit_up",
+            "Generator-p-ramp_limit_down",
+        ],
+        first,
+        generators,
+    )
+
+    status = model["Generator-status"].sel(name=generators)
+    start_up = model["Generator-start_up"].sel(name=generators)
+    shut_down = model["Generator-shut_down"].sel(name=generators)
+    dispatch = model["Generator-p"].sel(name=generators)
+    status_now = status.sel(snapshot=first)
+    start_up_now = start_up.sel(snapshot=first)
+    shut_down_now = shut_down.sel(snapshot=first)
+    dispatch_now = dispatch.sel(snapshot=first)
+
+    def as_array(values: pd.Series) -> xr.DataArray:
+        values = values.reindex(generators).astype(float)
+        return xr.DataArray(values.to_numpy(), dims="name", coords={"name": generators})
+
+    status_before = as_array(
+        previous.generators_t.status.iloc[-1].clip(lower=0.0, upper=1.0)
+    )
+    dispatch_before = as_array(previous.generators_t.p.iloc[-1])
+    nominal = as_array(network.generators.loc[generators, "p_nom"])
+    lower_pu = as_array(
+        network.get_switchable_as_dense("Generator", "p_min_pu")
+        .loc[first, generators]
+    )
+    upper_pu = as_array(
+        network.get_switchable_as_dense("Generator", "p_max_pu")
+        .loc[first, generators]
+    )
+    lower = nominal * lower_pu
+    upper = nominal * upper_pu
+    ramp_up = nominal * as_array(
+        network.generators.loc[generators, "ramp_limit_up"].fillna(1.0)
+    )
+    ramp_down = nominal * as_array(
+        network.generators.loc[generators, "ramp_limit_down"].fillna(1.0)
+    )
+    ramp_start = nominal * as_array(
+        network.generators.loc[generators, "ramp_limit_start_up"].fillna(1.0)
+    )
+    ramp_shut = nominal * as_array(
+        network.generators.loc[generators, "ramp_limit_shut_down"].fillna(1.0)
+    )
+
+    model.add_constraints(
+        start_up_now >= status_now - status_before,
+        name="Generator-relaxed-boundary-start-up",
+    )
+    model.add_constraints(
+        shut_down_now >= status_before - status_now,
+        name="Generator-relaxed-boundary-shut-down",
+    )
+    model.add_constraints(
+        dispatch_now - dispatch_before
+        <= ramp_up * status_before + ramp_start * (status_now - status_before),
+        name="Generator-relaxed-boundary-ramp-up",
+    )
+    model.add_constraints(
+        dispatch_now - dispatch_before
+        >= -ramp_down * status_now - ramp_shut * (status_before - status_now),
+        name="Generator-relaxed-boundary-ramp-down",
+    )
+
+    # PyPSA's tightened Hua relaxation starts at the second snapshot. Add the
+    # same four inequalities across the rolling boundary.
+    model.add_constraints(
+        dispatch_before
+        - ramp_shut * status_before
+        - (upper - ramp_shut) * (status_now - start_up_now)
+        <= 0,
+        name="Generator-relaxed-boundary-p-before",
+    )
+    model.add_constraints(
+        dispatch_now
+        - upper * status_now
+        + (upper - ramp_start) * start_up_now
+        <= 0,
+        name="Generator-relaxed-boundary-p-current",
+    )
+    model.add_constraints(
+        dispatch_now
+        - dispatch_before
+        - (lower + ramp_up) * status_now
+        + lower * status_before
+        + (lower + ramp_up - ramp_start) * start_up_now
+        <= 0,
+        name="Generator-relaxed-boundary-partly-start-up",
+    )
+    model.add_constraints(
+        dispatch_before
+        - dispatch_now
+        - ramp_shut * status_before
+        + (ramp_shut - ramp_down) * status_now
+        - (lower + ramp_down - ramp_shut) * start_up_now
+        <= 0,
+        name="Generator-relaxed-boundary-partly-shut-down",
+    )
+
+    # Complete minimum up/down rolling sums with fractional transitions from
+    # the preceding retained window. Native within-window constraints remain.
+    prior_start_up = previous.generators_t.start_up.reindex(columns=generators)
+    prior_shut_down = previous.generators_t.shut_down.reindex(columns=generators)
+    snapshots = pd.DatetimeIndex(network.snapshots)
+    min_up_times = network.generators.loc[generators, "min_up_time"].astype(int)
+    for duration in sorted(min_up_times.unique()):
+        if duration <= 1:
+            continue
+        units = min_up_times.index[min_up_times.eq(duration)]
+        for position in range(min(duration - 1, len(snapshots))):
+            missing = duration - position - 1
+            prior = prior_start_up.loc[:, units].iloc[-missing:].sum()
+            prior_array = xr.DataArray(
+                prior.to_numpy(), dims="name", coords={"name": units}
+            )
+            current = start_up.sel(
+                snapshot=snapshots[: position + 1], name=units
+            ).sum("snapshot")
+            model.add_constraints(
+                current + prior_array
+                <= status.sel(snapshot=snapshots[position], name=units),
+                name=f"Generator-relaxed-boundary-up-time-{duration}h-{position}",
+            )
+
+    min_down_times = network.generators.loc[generators, "min_down_time"].astype(int)
+    for duration in sorted(min_down_times.unique()):
+        if duration <= 1:
+            continue
+        units = min_down_times.index[min_down_times.eq(duration)]
+        for position in range(min(duration - 1, len(snapshots))):
+            missing = duration - position - 1
+            prior = prior_shut_down.loc[:, units].iloc[-missing:].sum()
+            prior_array = xr.DataArray(
+                prior.to_numpy(), dims="name", coords={"name": units}
+            )
+            current = shut_down.sel(
+                snapshot=snapshots[: position + 1], name=units
+            ).sum("snapshot")
+            model.add_constraints(
+                status.sel(snapshot=snapshots[position], name=units)
+                + current
+                + prior_array
+                <= 1,
+                name=f"Generator-relaxed-boundary-down-time-{duration}h-{position}",
+            )
 
 
 def _prepare_topology_for_pandas3(network: pypsa.Network) -> None:
@@ -310,18 +497,20 @@ def run_rolling_year(
             flush=True,
         )
         started = time.perf_counter()
-        # The relaxed-UC case is an LP. HiGHS uses serial dual simplex unless
-        # its parallel variant is explicitly enabled. Eight threads is a
-        # practical upper limit for this memory-bound solve on the 16-logical-
-        # CPU workstation, while rolling windows remain chronological.
-        solver_options = {
-            "mip_rel_gap": mip_rel_gap,
-            "log_to_console": False,
-            "threads": 8,
-            "parallel": "on",
-            "simplex_strategy": 3,
-            "simplex_max_concurrency": 8,
-        }
+        solver_options: dict[str, object] = {"log_to_console": False}
+        if unit_commitment == "full":
+            solver_options["mip_rel_gap"] = mip_rel_gap
+        else:
+            # The relaxed and no-UC formulations are LPs. Enable the parallel
+            # dual-simplex implementation without passing MIP-only controls.
+            solver_options.update(
+                {
+                    "threads": 8,
+                    "parallel": "on",
+                    "simplex_strategy": 3,
+                    "simplex_max_concurrency": 8,
+                }
+            )
         if time_limit is not None:
             solver_options["time_limit"] = time_limit
         status, condition = network.optimize(
@@ -332,6 +521,9 @@ def run_rolling_year(
                 _add_committed_biomass_target(
                     n, committed, biomass_annual_target_mwh, full_horizon_weight
                 ),
+                _add_relaxed_boundary_constraints(n, previous)
+                if unit_commitment == "relaxed"
+                else None,
             ),
             include_objective_constant=False,
             linearized_unit_commitment=unit_commitment == "relaxed",
@@ -342,7 +534,7 @@ def run_rolling_year(
         # Linopy normally exposes this via ``solver.report``. Query the native
         # HiGHS model as a fallback, since a time-limited solve can leave the
         # wrapper report empty in some PyPSA/Linopy combinations.
-        if reported_mip_gap is None:
+        if unit_commitment == "full" and reported_mip_gap is None:
             solver_model = getattr(network.model, "solver_model", None)
             try:
                 reported_mip_gap = solver_model.getInfo().mip_gap
@@ -350,11 +542,14 @@ def run_rolling_year(
                 pass
         mip_gap = (
             float(reported_mip_gap)
-            if reported_mip_gap is not None and np.isfinite(reported_mip_gap)
+            if unit_commitment == "full"
+            and reported_mip_gap is not None
+            and np.isfinite(reported_mip_gap)
             else None
         )
         accepted_time_limit = (
-            status == "ok"
+            unit_commitment == "full"
+            and status == "ok"
             and condition == "time_limit"
             and mip_gap is not None
             and mip_gap <= max_time_limit_mip_gap
@@ -366,8 +561,9 @@ def run_rolling_year(
             raise RuntimeError(
                 f"Window {number} failed: status={status}, condition={condition}, "
                 f"reported_mip_gap={reported_mip_gap}, accepted_mip_gap={mip_gap}. "
-                "Time-limited windows require a finite MIP gap "
-                f"no greater than {max_time_limit_mip_gap:.1%}. "
+                "Time-limited integer windows require a finite MIP gap "
+                f"no greater than {max_time_limit_mip_gap:.1%}; LP windows "
+                "must reach optimality. "
                 "Completed checkpoints can be resumed."
             )
         if accepted_time_limit:
@@ -406,7 +602,9 @@ def run_rolling_year(
             "accepted_solution": accepted_solution,
             "mip_gap": mip_gap,
             "time_limit_seconds": time_limit,
-            "max_time_limit_mip_gap": max_time_limit_mip_gap,
+            "max_time_limit_mip_gap": (
+                max_time_limit_mip_gap if unit_commitment == "full" else None
+            ),
             "runtime_seconds": runtime,
             "max_nodal_residual_mw": residual,
             "max_corridor_loading_pct": loading,
@@ -436,7 +634,9 @@ def run_rolling_year(
             len(window_log) and window_log["accepted_solution"].all()
         ),
         "time_limit_seconds": time_limit,
-        "max_time_limit_mip_gap": max_time_limit_mip_gap,
+        "max_time_limit_mip_gap": (
+            max_time_limit_mip_gap if unit_commitment == "full" else None
+        ),
         "total_unserved_gwh": float(modeled.get("unserved_energy", pd.Series(dtype=float)).sum()),
         "solver_runtime_seconds_sum": float(window_log.get("runtime_seconds", pd.Series(dtype=float)).sum()),
         "wall_clock_seconds_this_session": float(time.perf_counter() - run_started),
