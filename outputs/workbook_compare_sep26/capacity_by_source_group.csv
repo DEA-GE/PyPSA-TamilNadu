@@ -1,0 +1,16 @@
+Source,Commissioning Group,file_a_count,file_a_mw,file_b_count,file_b_mw,mw_diff_b_minus_a,count_diff_b_minus_a
+Bio Power,operational,57,1055.12,57,1055.12,0.0,0
+Coal,operational,49,15032.5,49,15032.5,0.0,0
+Coal,pipeline,5,3300.0,5,3300.0,0.0,0
+Coal,retired,14,1050.0,14,1050.0,0.0,0
+Hydro,operational,69,2203.2,69,2203.2,0.0,0
+Hydro,pipeline,4,500.0,4,500.0,0.0,0
+Nuclear,operational,4,2440.0,4,2440.0,0.0,0
+Nuclear,pipeline,5,4500.0,5,4500.0,0.0,0
+Oil & Gas,Temporarily Closed,4,172.6,4,172.6,0.0,0
+Oil & Gas,operational,14,844.58,14,844.58,0.0,0
+Small-Hydro,operational,39,123.05,39,123.05,0.0,0
+Solar,operational,27,13909.130000000001,27,14121.460000000001,212.32999999999993,0
+Solar,pipeline,1,200.0,1,200.0,0.0,0
+Wind,operational,21,12159.530500000003,22,12299.49,139.9594999999972,1
+Wind,pipeline,8,973.5,8,973.5,0.0,0

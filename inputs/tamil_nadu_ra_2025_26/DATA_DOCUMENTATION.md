@@ -59,7 +59,7 @@ a completed annual resource-adequacy or reliability assessment.
 
 ### Tamil Nadu ICED plant workbook
 
-`additional_data/TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx`, worksheet
+`additional_data/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx`, worksheet
 `PlantInfo`, supplies the generation technologies and nameplate capacities.
 Only rows whose `Commissioning Group` is exactly `operational` are included.
 This selects 280 records with 47,767.1105 MW across eight source categories;

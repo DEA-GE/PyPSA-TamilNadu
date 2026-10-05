@@ -1,0 +1,6 @@
+metric,wind,hydro
+monthly_pattern_correlation,0.8921060445167975,0.7547958500867048
+three_lowest_months_modeled,"Apr-2025, Feb-2026, Oct-2025","Feb-2026, Jan-2026, Mar-2026"
+three_lowest_months_observed,"Apr-2025, Mar-2026, Nov-2025","Apr-2025, Feb-2026, Mar-2026"
+low_month_overlap_count,1,2
+mean_absolute_monthly_error_gwh,690.903398476486,295.8452981416137

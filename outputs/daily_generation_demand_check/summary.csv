@@ -1,0 +1,2 @@
+start_date,end_date,days,total_generation_gwh,total_demand_gwh,total_generation_minus_demand_gwh,overall_difference_pct,daily_generation_below_demand_days,daily_generation_above_demand_days,daily_abs_difference_within_10pct_days,mean_absolute_daily_difference_pct,max_generation_deficit_gwh,max_generation_surplus_gwh
+2025-04-01,2026-03-31,365,125386.3400,131383.3999,-5997.0599,-4.5645,225,140,161,12.6254,-157.3528,114.3890

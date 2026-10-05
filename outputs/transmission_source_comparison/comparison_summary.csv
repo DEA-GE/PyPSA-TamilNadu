@@ -1,0 +1,10 @@
+metric,value
+source_workbook_rows,2241.0
+tantransco_rows,154.0
+rows_with_one_matched_area,47.0
+rows_with_two_area_names_anywhere,5.0
+rows_with_unambiguous_interarea_endpoints,3.0
+source_rows_with_capacity,0.0
+current_model_corridors,22.0
+current_model_total_capacity_mw,98500.0
+current_corridors_with_literal_source_evidence,3.0

@@ -1,0 +1,10 @@
+name,bus,carrier
+chennai_north_demand,Chennai North,electricity
+chennai_south_demand,Chennai South,electricity
+coimbatore_demand,Coimbatore,electricity
+erode_demand,Erode,electricity
+madurai_demand,Madurai,electricity
+tirunelveli_demand,Tirunelveli,electricity
+trichy_demand,Trichy,electricity
+vellore_demand,Vellore,electricity
+villupuram_demand,Villupuram,electricity

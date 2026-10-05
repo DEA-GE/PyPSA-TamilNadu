@@ -12,7 +12,11 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_DIR = ROOT / "inputs" / "tamil_nadu_ra_2025_26"
-WORKBOOK = ROOT / "additional_data" / "TamilNadu_ICED_all_source_1782910007272.xlsx.xlsx"
+WORKBOOK = (
+    ROOT
+    / "additional_data"
+    / "TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx"
+)
 PROFILE_TEMPLATE = INPUT_DIR / "technology-p_max-pu.csv"
 
 BUS = "Tamil_Nadu"
@@ -212,6 +216,8 @@ def serialise_date(value: object) -> str:
 
 def main() -> None:
     plants = pd.read_excel(WORKBOOK, sheet_name="PlantInfo")
+    if "District" not in plants.columns and "District (cleaned)" in plants.columns:
+        plants = plants.rename(columns={"District (cleaned)": "District"})
     operational = plants.loc[plants["Commissioning Group"].eq("operational")].copy()
     operational["excel_row"] = operational.index + 2
     operational["plant_slug"] = operational["Name of Power Plant"].map(slugify).str[:64]

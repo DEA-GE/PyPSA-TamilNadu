@@ -1,0 +1,15 @@
+{
+  "formulation": "rolling 7-day commitment with 1-day look-ahead",
+  "snapshots_solved_and_retained": 8760,
+  "full_horizon_snapshots": 8760,
+  "windows_completed": 53,
+  "windows_planned": 53,
+  "complete": true,
+  "all_solver_statuses_ok": true,
+  "total_unserved_gwh": 0.0,
+  "solver_runtime_seconds_sum": 39392.99225370004,
+  "wall_clock_seconds_this_session": 39612.66659389995,
+  "run_mode": "rolling",
+  "start_date": "2025-04-01",
+  "end_date": "2026-03-31"
+}

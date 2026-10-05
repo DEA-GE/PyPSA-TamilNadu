@@ -1,0 +1,15 @@
+{
+  "formulation": "independent 24-hour unit-commitment solves",
+  "days_solved": 1,
+  "all_solver_statuses_ok": true,
+  "max_abs_gas_target_deviation_mwh": 1.8189894035458565e-12,
+  "max_abs_nuclear_target_deviation_mwh": 0.0,
+  "max_abs_nodal_residual_mw": 2.7284841053187847e-12,
+  "max_link_loading_pct": 100.0,
+  "total_unserved_gwh": 0.0,
+  "solver_runtime_seconds_sum": 10.143482099985704,
+  "wall_clock_seconds": 11.240358199982438,
+  "run_mode": "daily",
+  "start_date": "2025-07-11",
+  "end_date": "2025-07-11"
+}

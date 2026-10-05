@@ -1,0 +1,19 @@
+Source,Commissioning Group,Name of Power Plant,State,District,Commissioning Date,Capacity (MW),Implementing Agency
+Coal,pipeline,Ennore SEZ Expansion SCTPP,Tamil Nadu,Tiruvallur,2027-03-01,660,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO)
+Coal,pipeline,Ennore SEZ Expansion SCTPP,Tamil Nadu,Tiruvallur,2027-05-01,660,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO)
+Coal,pipeline,Udangudi Power Station,Tamil Nadu,Thoothukudi,2026-03-01,660,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO)
+Coal,pipeline,Udangudi Power Station,Tamil Nadu,Thoothukudi,2026-08-01,660,Tamil Nadu Generation & Distribution Corp. Ltd. (TANGEDCO)
+Nuclear,pipeline,BHAVINI PFBR Atomic Power Station,Tamil Nadu,Kancheepuram,2024-06-18,500,Bharatiya Nabhikiya Vidyut Nigam Limited
+Nuclear,pipeline,Kudankulam Atomic Power Project,Tamil Nadu,Tirunelveli,2025-06-18,1000,Nuclear Power Corporation of India
+Nuclear,pipeline,Kudankulam Atomic Power Project,Tamil Nadu,Tirunelveli,2027-06-18,1000,Nuclear Power Corporation of India
+Solar,operational,Tamil Nadu N.A. Others (Districts not specified) 8930.85,Tamil Nadu,N.A.,,8930.85,
+Wind,operational,Tamil Nadu-Coimbatore,Tamil Nadu,Coimbatore,,2260.1875,
+Wind,operational,Tamil Nadu-Dindigul,Tamil Nadu,Dindigul,,635.2675,
+Wind,operational,Tamil Nadu-Kanniyakumari,Tamil Nadu,Kanniyakumari,,349.125,
+Wind,operational,Tamil Nadu-Karur,Tamil Nadu,Karur,,589.1025000000009,
+Wind,operational,Tamil Nadu-N.A.,Tamil Nadu,N.A.,,279.51,
+Wind,operational,Tamil Nadu-Ramanathapuram,Tamil Nadu,Ramanathapuram,,17.4,
+Wind,operational,Tamil Nadu-Thoothukkudi,Tamil Nadu,Thoothukkudi,,2174.3775,
+Wind,operational,Tamil Nadu-Tiruchirappalli,Tamil Nadu,Tiruchirappalli,,6.4,
+Wind,operational,Tamil Nadu-Tirunelveli,Tamil Nadu,Tirunelveli,,3807.5405000000005,
+Wind,operational,Tamil Nadu-Tiruppur,Tamil Nadu,Tiruppur,,786.8149999999999,

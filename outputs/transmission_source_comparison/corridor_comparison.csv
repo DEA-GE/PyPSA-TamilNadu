@@ -1,0 +1,23 @@
+corridor,bus0,bus1,current_model_capacity_mw,source_capacity_text,capacity_method,workbook_records,workbook_total_length_ckm,workbook_line_names,source_capacity_mw,capacity_difference_mw,comparison_status
+Chennai North | Chennai South,Chennai North,Chennai South,3500.0,3.5 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Chennai North | Vellore,Chennai North,Vellore,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Chennai North | Villupuram,Chennai North,Villupuram,2000.0,2.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Chennai North | Trichy,Chennai North,Trichy,9000.0,9.0 GW,value,1,548.0,North Chennai PS - Ariyalur,,,Topology evidence found; capacity not comparable
+Chennai South | Vellore,Chennai South,Vellore,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Chennai South | Villupuram,Chennai South,Villupuram,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Chennai South | Trichy,Chennai South,Trichy,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Vellore | Villupuram,Vellore,Villupuram,3500.0,3.5 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Erode | Vellore,Vellore,Erode,6750.0,6.5–7.0 GW,range midpoint,0,0.0,,,,No district-explicit source record; capacity not comparable
+Coimbatore | Vellore,Vellore,Coimbatore,2500.0,2.5 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Tirunelveli | Vellore,Vellore,Tirunelveli,2500.0,2.5 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Erode | Villupuram,Villupuram,Erode,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Coimbatore | Villupuram,Villupuram,Coimbatore,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Trichy | Villupuram,Villupuram,Trichy,15250.0,15.0–15.5 GW,range midpoint,0,0.0,,,,No district-explicit source record; capacity not comparable
+Tirunelveli | Villupuram,Villupuram,Tirunelveli,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Coimbatore | Erode,Erode,Coimbatore,5000.0,5.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Erode | Trichy,Erode,Trichy,8750.0,8.5–9.0 GW,range midpoint,1,406.0,Nagapattinam PS - Salem (PNMTL-TBCB),,,Topology evidence found; capacity not comparable
+Erode | Tirunelveli,Erode,Tirunelveli,1000.0,1.0 GW,value,1,731.0,Tuticorin Pooling Station - Salem Pooling Station,,,Topology evidence found; capacity not comparable
+Coimbatore | Trichy,Coimbatore,Trichy,9500.0,9.5 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Coimbatore | Tirunelveli,Coimbatore,Tirunelveli,1000.0,1.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Madurai | Trichy,Trichy,Madurai,7000.0,7.0 GW,value,0,0.0,,,,No district-explicit source record; capacity not comparable
+Madurai | Tirunelveli,Madurai,Tirunelveli,14250.0,14.0–14.5 GW,range midpoint,0,0.0,,,,No district-explicit source record; capacity not comparable

@@ -1,0 +1,9 @@
+model_plant,model_mw,source_plant,source_mw,proposed_treatment,reason
+Sholayar I Power House,84,Sholayar I-II,109,official inventory authoritative; 109 MW is reference only,The 109 MW figure is a grouped system/source-table total and is not assigned to the Sholayar I turbine.
+Kundah I to V Hydroelectric Power Project,555,Kundah I-VI,585,official inventory authoritative; 585 MW is reference only,The 585 MW figure is a grouped system/source-table total and does not block physical cascade implementation.
+Pykara Hydroelectric Power Project,59.2,Pykara + Micro,61.2,official inventory authoritative; 61.2 MW is reference only,The 61.2 MW figure includes a grouped/micro reference and is not assigned to the Pykara turbine.
+Moyar Power House,40,Moyar,38,official inventory authoritative; 38 MW is reference only,The 38 MW figure is a source-table reference and is not assigned to Moyar turbine capacity.
+Not in current source fleet,0,Bhavanisagar / Lower Bhavani,16,not modelled: no distinct in-scope official inventory component,Methodology lists the plant but the authoritative inventory has no corresponding model component.
+Not in current source fleet,0,Amaravathi,4,not modelled: no distinct in-scope official inventory component,Methodology lists the plant but the authoritative inventory has no corresponding model component.
+Not in current source fleet,0,Vaigai,6,not modelled: no distinct in-scope official inventory component,Methodology lists the plant but the authoritative inventory has no corresponding model component.
+Servalar Small Hydro Project,20,Servalar,20,official inventory authoritative; separate turbine Link,The official 20 MW Small-Hydro record is represented hydraulically between Servalar reservoir and Papanasam lower pondage.

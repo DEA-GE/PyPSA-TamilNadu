@@ -1,0 +1,19 @@
+Balancing area 1	Balancing area 2	Stated capacity (MW)
+Vellore	Villupuram	24137
+Madurai	Tirunelveli	22522
+Trichy	Villupuram	20232
+Chennai North	Chennai South	16691
+Coimbatore	Tirunelveli	14599
+Madurai	Trichy	14434
+Erode	Vellore	13104
+Chennai North	Vellore	12445
+Tirunelveli	Vellore	11024
+Chennai North	Villupuram	11024
+Coimbatore	Erode	10904
+Coimbatore	Vellore	10725
+Chennai South	Villupuram	9954
+Coimbatore	Madurai	6223
+Coimbatore	Trichy	5541
+Erode	Villupuram	4558
+Chennai South	Vellore	4312
+Erode	Trichy	2335

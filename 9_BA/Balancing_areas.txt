@@ -1,0 +1,40 @@
+| District        | 9-grid balancing area | Renewable resource region | Historical region |
+| --------------- | --------------------- | ------------------------- | ----------------- |
+| Chennai         | Chennai North         | Chennai                   | Tondai Nadu       |
+| Tiruvallur      | Chennai North         | Tiruvallur                | Tondai Nadu       |
+| Chengalpattu    | Chennai South         | Kancheepuram*             | Tondai Nadu       |
+| Kancheepuram    | Chennai South         | Kancheepuram              | Tondai Nadu       |
+| Ranipet         | Vellore               | Vellore*                  | Tondai Nadu       |
+| Vellore         | Vellore               | Vellore                   | Tondai Nadu       |
+| Tirupathur      | Vellore               | Vellore*                  | Tondai Nadu       |
+| Tiruvannamalai  | Villupuram            | Tiruvannamalai            | Tondai Nadu       |
+| Viluppuram      | Villupuram            | Viluppuram                | Nadu Nadu         |
+| Kallakurichi    | Villupuram            | Viluppuram*               | Nadu Nadu         |
+| Cuddalore       | Villupuram            | Cuddalore                 | Nadu Nadu         |
+| Ariyalur        | Trichy                | Ariyalur                  | Chola Nadu        |
+| Perambalur      | Trichy                | Perambalur                | Chola Nadu        |
+| Tiruchirappalli | Trichy                | Tiruchirappalli           | Chola Nadu        |
+| Thanjavur       | Trichy                | Thanjavur                 | Chola Nadu        |
+| Thiruvarur      | Trichy                | Thiruvarur                | Chola Nadu        |
+| Mayiladuthurai  | Trichy                | Nagapattinam*             | Chola Nadu        |
+| Nagapattinam    | Trichy                | Nagapattinam              | Chola Nadu        |
+| Pudukkottai     | Trichy                | Pudukkottai               | Chola Nadu        |
+| Krishnagiri     | Vellore               | Krishnagiri               | Kongu Nadu        |
+| Dharmapuri      | Vellore               | Dharmapuri                | Kongu Nadu        |
+| Salem           | Erode                 | Salem                     | Kongu Nadu        |
+| Namakkal        | Erode                 | Namakkal                  | Kongu Nadu        |
+| Erode           | Erode                 | Erode                     | Kongu Nadu        |
+| The Nilgiris    | Coimbatore            | The Nilgiris              | Kongu Nadu        |
+| Coimbatore      | Coimbatore            | Coimbatore                | Kongu Nadu        |
+| Tiruppur        | Coimbatore            | Tiruppur                  | Kongu Nadu        |
+| Karur           | Trichy                | Karur                     | Kongu Nadu        |
+| Dindigul        | Madurai               | Dindigul                  | Kongu Nadu        |
+| Theni           | Madurai               | Theni                     | Pandya Nadu       |
+| Madurai         | Madurai               | Madurai                   | Pandya Nadu       |
+| Sivagangai      | Madurai               | Sivagangai                | Pandya Nadu       |
+| Ramanathapuram  | Madurai               | Ramanathapuram            | Pandya Nadu       |
+| Virudhunagar    | Tirunelveli           | Virudhunagar              | Pandya Nadu       |
+| Tenkasi         | Tirunelveli           | Tirunelveli*              | Pandya Nadu       |
+| Tirunelveli     | Tirunelveli           | Tirunelveli               | Pandya Nadu       |
+| Thoothukudi     | Tirunelveli           | Thoothukudi               | Pandya Nadu       |
+| Kanniyakumari   | Tirunelveli           | Kanniyakumari             | Pandya Nadu       |

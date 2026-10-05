@@ -1,0 +1,14 @@
+{
+  "model_version": "papanasam-servalar-topology-v2",
+  "window": 40,
+  "solve_start": "2025-12-30 00:00:00",
+  "solve_end": "2026-01-06 23:00:00",
+  "commit_end": "2026-01-05 23:00:00",
+  "committed_snapshots": 168,
+  "lookahead_snapshots": 24,
+  "solver_status": "ok",
+  "termination_condition": "optimal",
+  "runtime_seconds": 1719.888566499998,
+  "max_nodal_residual_mw": 2.3215340760884828e-10,
+  "max_corridor_loading_pct": 100.0
+}

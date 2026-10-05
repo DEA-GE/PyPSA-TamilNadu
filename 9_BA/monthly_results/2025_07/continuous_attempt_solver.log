@@ -1,0 +1,50 @@
+Running HiGHS 1.15.0 (git hash: 8396001): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+MIP linopy-problem-mxqmvtap has 1777222 rows; 698616 cols; 4875856 nonzeros; 370512 integer variables (370512 binary)
+Coefficient ranges:
+  Matrix  [2e-02, 7e+02]
+  Cost    [4e+00, 3e+06]
+  Bound   [1e+00, 1e+00]
+  RHS     [8e-04, 3e+06]
+WARNING: Problem has some excessively large costs
+WARNING: Problem has some excessively large row bounds
+WARNING:    Consider scaling the    bounds by 1e-1, or setting the user_bound_scale option to -2
+Presolving model
+996938 rows, 665548 cols, 4006718 nonzeros 5s
+996105 rows, 543361 cols, 3867492 nonzeros 64s
+Presolve reductions: rows 996105(-781117); columns 543361(-155255); nonzeros 3867492(-1008364) 
+
+Solving MIP model with:
+   996105 rows
+   543361 cols (370180 binary, 0 integer, 0 implied int., 173181 continuous, 0 domain fixed)
+   3867492 nonzeros
+   Thread count 8 (of 16 threads). Using 1 max workers. Parallel search off
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   0               inf                  inf        0      0      0         0   112.5s
+         0       0         0   0.00%   21325794362.76  inf                  inf        0      0      4    408191  2684.1s
+         0       0         0   0.00%   21325898275.48  inf                  inf     4794    551      8    411791  2801.3s
+         0       0         0   0.00%   21325951815.48  inf                  inf     7227    660     11    412701  2860.7s
+         0       0         0   0.00%   21326001279.72  inf                  inf     8084   1765     15    440229  3430.4s
+         0       0         0   0.00%   21326004173.81  inf                  inf    10489   2437     18    452993  3688.9s
+         0       0         0   0.00%   21326009053.73  inf                  inf    12487   2833    416    463560  4489.8s
+         0       0         0   0.00%   21326009937.43  inf                  inf    14398   3165    420    469532  4589.6s
+         0       0         0   0.00%   21326009937.43  inf                  inf    10649   3400    423    473111  4644.2s
+         0       0         0   0.00%   21326009937.43  inf                  inf    12043   3557    426    476896  4708.5s
+         0       0         0   0.00%   21326009937.43  inf                  inf    13344   3712    429    481224  4788.8s
+         0       0         0   0.00%   21326009937.43  inf                  inf    14461   3826    433    484587  4820.9s
+         0       0         0   0.00%   21326009937.43  inf                  inf    11023   4493    436    496295  5049.0s
+         0       0         0   0.00%   21326009969.55  inf                  inf    13071   5189    439    512675  5283.9s
+         0       0         0   0.00%   21326010346.02  inf                  inf    15004   5802    442    527895  5520.9s
+         0       0         0   0.00%   21326010346.02  inf                  inf    17016   6421    445    570127  6018.6s
+         0       0         0   0.00%   21326010346.02  inf                  inf    16343   5913    448    590600  6284.9s
+         0       0         0   0.00%   21326010346.02  inf                  inf    13314   6398    451    602778  6392.8s
+         0       0         0   0.00%   21326010346.02  inf                  inf    15316   6891    454    615061  6522.5s
+         0       0         0   0.00%   21326010346.02  inf                  inf    17012   7342    457    635403  6738.7s

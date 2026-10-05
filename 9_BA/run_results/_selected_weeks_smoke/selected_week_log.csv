@@ -1,0 +1,2 @@
+model_version,formulation,solver_status,solver_condition,week_start,week_end,warmup_days,lookahead_days,reservoir_initial_soc_fraction,max_abs_gas_target_deviation_mwh,max_abs_nuclear_target_deviation_mwh,max_abs_nodal_residual_mw,max_link_loading_pct,total_unserved_gwh,solver_runtime_seconds,run_mode,start_date,end_date
+reservoir-hydro-v1,continuous selected week with warm-up and look-ahead,ok,optimal,2025-07-07,2025-07-13,0,0,0.0,9.094947017729282e-13,0.0,6.366462912410498e-12,100.0,0.0,8.08632150000085,selected_week,2025-07-07,2025-07-13

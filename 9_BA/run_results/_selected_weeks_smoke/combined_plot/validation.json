@@ -1,0 +1,6 @@
+{
+  "smoke_test": true,
+  "run_mode": "selected_weeks",
+  "start_date": "2025-04-07",
+  "end_date": "2026-02-22"
+}
