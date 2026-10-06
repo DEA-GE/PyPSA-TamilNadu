@@ -17,6 +17,8 @@ import pandas as pd
 import pypsa
 import xarray as xr
 
+from highs_solver_options import highs_solver_options
+
 from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
@@ -406,6 +408,7 @@ def run_rolling_year(
     mip_rel_gap: float,
     time_limit: float | None,
     max_time_limit_mip_gap: float,
+    solver_threads: int,
     unit_commitment: str,
     output_dir: Path,
     resume: bool = True,
@@ -497,20 +500,9 @@ def run_rolling_year(
             flush=True,
         )
         started = time.perf_counter()
-        solver_options: dict[str, object] = {"log_to_console": False}
-        if unit_commitment == "full":
-            solver_options["mip_rel_gap"] = mip_rel_gap
-        else:
-            # The relaxed and no-UC formulations are LPs. Enable the parallel
-            # dual-simplex implementation without passing MIP-only controls.
-            solver_options.update(
-                {
-                    "threads": 8,
-                    "parallel": "on",
-                    "simplex_strategy": 3,
-                    "simplex_max_concurrency": 8,
-                }
-            )
+        solver_options = highs_solver_options(
+            unit_commitment, mip_rel_gap, solver_threads
+        )
         if time_limit is not None:
             solver_options["time_limit"] = time_limit
         status, condition = network.optimize(
@@ -605,6 +597,7 @@ def run_rolling_year(
             "max_time_limit_mip_gap": (
                 max_time_limit_mip_gap if unit_commitment == "full" else None
             ),
+            "solver_threads": solver_threads,
             "runtime_seconds": runtime,
             "max_nodal_residual_mw": residual,
             "max_corridor_loading_pct": loading,
@@ -637,6 +630,7 @@ def run_rolling_year(
         "max_time_limit_mip_gap": (
             max_time_limit_mip_gap if unit_commitment == "full" else None
         ),
+        "solver_threads": solver_threads,
         "total_unserved_gwh": float(modeled.get("unserved_energy", pd.Series(dtype=float)).sum()),
         "solver_runtime_seconds_sum": float(window_log.get("runtime_seconds", pd.Series(dtype=float)).sum()),
         "wall_clock_seconds_this_session": float(time.perf_counter() - run_started),
