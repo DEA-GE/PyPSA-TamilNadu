@@ -1,8 +1,7 @@
-"""Build the nine-balancing-area hourly PyPSA unit-commitment model.
+"""Build the repository's nine-balancing-area PyPSA model.
 
-The script treats files in ``9_BA`` as data sources only.  It starts from the
-existing single-node CSV-folder model, spatially allocates its components, and
-writes an independent model to ``9_BA/model``.
+The script combines the build-stage template with the spatial model inputs and
+writes the finished PyPSA CSV folder to ``model/``.
 """
 
 from __future__ import annotations
@@ -17,9 +16,9 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_MODEL = ROOT / "inputs" / "tamil_nadu_ra_2025_26"
-SOURCE_DIR = ROOT / "9_BA"
-OUTPUT_DIR = SOURCE_DIR / "model"
+BASE_MODEL = ROOT / "data" / "build_template"
+SOURCE_DIR = ROOT / "data" / "model_inputs"
+OUTPUT_DIR = ROOT / "model"
 AREA_FILE = SOURCE_DIR / "Balancing_areas.txt"
 GRID_FILE = SOURCE_DIR / "Grid_capacity.txt"
 GRID_AVAILABILITY_FACTOR = 0.50
@@ -28,12 +27,14 @@ PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
-    / "additional_data"
+    / "data"
+    / "source"
     / "TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx"
 )
 CAPACITY_WORKBOOK = (
     ROOT
-    / "additional_data"
+    / "data"
+    / "source"
     / "TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx"
 )
 
@@ -62,7 +63,9 @@ CEA_BIOMASS_CUF = 0.215
 RESERVOIR_MAX_HOURS = 720.0
 HYDRO_ASSET_REGISTRY = SOURCE_DIR / "hydro_asset_registry.csv"
 HYDRO_RECONCILIATION = SOURCE_DIR / "hydro_fleet_reconciliation.csv"
-AGRICULTURE_RESERVOIR_DATA = ROOT / "tn_reservoir_data" / "tn_reservoir_daily_FY2025_26.csv"
+AGRICULTURE_RESERVOIR_DATA = (
+    ROOT / "data" / "reservoirs" / "tn_reservoir_daily_FY2025_26.csv"
+)
 HYDRO_DEFAULT_EFFICIENCY = 0.90
 HYDRO_DEFAULT_HEAD_M = 100.0
 MCFT_M_HEAD_TO_MWH = 0.0771634
@@ -1890,13 +1893,13 @@ def main() -> None:
             ignore_index=True,
         )
     carriers.to_csv(OUTPUT_DIR / "carriers.csv", index=False)
-    for filename in ["crs.json", "technology-p_max-pu.csv"]:
-        shutil.copy2(BASE_MODEL / filename, OUTPUT_DIR / filename)
-    shutil.copy2(PROFILE_INPUT, OUTPUT_DIR / "renewable_profiles.csv")
-    shutil.copy2(SOURCE_DIR / "README.md", OUTPUT_DIR / "DATA_DOCUMENTATION.md")
+    shutil.copy2(BASE_MODEL / "crs.json", OUTPUT_DIR / "crs.json")
 
     committable = generators.loc[generators["committable"].astype(bool)]
-    print(f"Wrote nine buses and {len(grid)} bidirectional transmission corridors")
+    print(
+        f"Wrote nine electrical buses and {len(grid)} bidirectional "
+        "transmission corridors; hydraulic water buses are included separately"
+    )
     print(f"Wrote {len(loads)} hourly loads over {len(snapshots)} snapshots")
     print(f"Wrote {len(generators)} generators, including {len(committable)} committable records")
     print(f"Wrote {len(storage)} storage units")

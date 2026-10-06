@@ -30,13 +30,14 @@ from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets,
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_DIR = ROOT / "9_BA" / "model"
+MODEL_DIR = ROOT / "model"
 OBSERVED_FILE = (
     ROOT
-    / "additional_data"
+    / "data"
+    / "source"
     / "TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx"
 )
-DEFAULT_OUTPUT_DIR = ROOT / "9_BA" / "weekly_day_results"
+DEFAULT_OUTPUT_DIR = ROOT / "results" / "weekly_days"
 OIL_GAS_BUDGET_FILE = MODEL_DIR / "oil_gas_daily_energy_budget.csv"
 OIL_GAS_BUDGET_CONSTRAINT = "observed_fy2025_26_oil_gas_generation_target"
 FY_START = pd.Timestamp("2025-04-01")
@@ -400,7 +401,13 @@ def main() -> None:
     observed = read_observed_generation()
     oil_gas_budget = read_oil_gas_budget(observed)
     annual_network = pypsa.Network(MODEL_DIR)
-    if len(annual_network.buses) != 9 or len(annual_network.links) != 22:
+    electrical_buses = annual_network.buses.index[
+        annual_network.buses.carrier.eq("AC")
+    ]
+    transmission_links = annual_network.links.index[
+        annual_network.links.carrier.eq("AC")
+    ]
+    if len(electrical_buses) != 9 or len(transmission_links) != 18:
         raise ValueError("The input is not the expected intact 9BA network")
     if not annual_network.generators.committable.any():
         raise ValueError("The 9BA model contains no unit commitment")

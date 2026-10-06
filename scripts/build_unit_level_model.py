@@ -11,10 +11,12 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INPUT_DIR = ROOT / "inputs" / "tamil_nadu_ra_2025_26"
+INPUT_DIR = ROOT / "data" / "build_template"
+DIAGNOSTICS_DIR = ROOT / "results" / "diagnostics"
 WORKBOOK = (
     ROOT
-    / "additional_data"
+    / "data"
+    / "source"
     / "TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx"
 )
 PROFILE_TEMPLATE = INPUT_DIR / "technology-p_max-pu.csv"
@@ -361,8 +363,9 @@ def main() -> None:
         "Wind": "21 workbook-record generators",
     }
     source_summary["model_representation"] = pd.Series(representations)
+    DIAGNOSTICS_DIR.mkdir(parents=True, exist_ok=True)
     source_summary.reset_index().rename(columns={"Source": "source"}).to_csv(
-        INPUT_DIR / "operational_technology_capacities.csv", index=False
+        DIAGNOSTICS_DIR / "operational_technology_capacities.csv", index=False
     )
 
     modeled = generators.loc[

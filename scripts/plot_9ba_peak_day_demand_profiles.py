@@ -8,8 +8,8 @@ import pypsa
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_DIR = ROOT / "9_BA" / "model"
-OUTPUT_DIR = ROOT / "9_BA" / "demand_profile_analysis"
+MODEL_DIR = ROOT / "model"
+OUTPUT_DIR = ROOT / "results" / "demand_profile_analysis"
 
 
 def main() -> None:
