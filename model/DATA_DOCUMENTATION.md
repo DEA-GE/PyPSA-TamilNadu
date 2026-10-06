@@ -1,9 +1,8 @@
 # Tamil Nadu nine-balancing-area model
 
-This repository contains the hourly, nine-balancing-area PyPSA
-unit-commitment model for Tamil Nadu. It is the repository's only supported
-model. The ready-to-load PyPSA CSV folder is `model/`; rebuild it from the
-repository root with:
+This folder contains an independent hourly, nine-node extension of the
+single-node FY2025-26 model. The model itself is the PyPSA CSV folder in
+`model/`; rebuild it from the repository root with:
 
 ```powershell
 python scripts/build_9ba_model.py
@@ -17,30 +16,9 @@ import pypsa
 network = pypsa.Network("model")
 ```
 
-## Repository layout
-
-| Path | Purpose |
-|---|---|
-| `model/` | Ready-to-load 8,760-hour PyPSA CSV network |
-| `data/model_inputs/` | Spatial mappings, grid capacities, hydro registries, demand allocation, and renewable-profile inputs |
-| `data/build_template/` | Build-stage statewide time series and component tables; not a supported standalone model |
-| `data/source/` | Source workbooks and supporting datasets |
-| `data/reservoirs/` | Validated reservoir observations used by the hydro model |
-| `scripts/` | Build, run, validation, analysis, and data-collection utilities |
-| `notebooks/` | Interactive run and analysis workflows |
-| `results/` | Local generated outputs; ignored by Git except for its README |
-
-Create a compatible environment with:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab
-```
-
 ## Simplified notebook runner
 
-Use `notebooks/9BA_run_model.ipynb` for routine runs. Its settings cell contains:
+Use `9BA_run_model.ipynb` for routine runs. Its settings cell contains:
 
 ```python
 RUN_MODE = "selected_weeks"
@@ -50,8 +28,6 @@ WARMUP_DAYS = 1
 LOOKAHEAD_DAYS = 1
 RESERVOIR_INITIAL_SOC_FRACTION = 0.0
 SOLVER_NAME = "highs"
-SOLVER_THREADS = 8
-PARALLEL_WORKERS = 1
 MIP_REL_GAP = 0.01
 RESUME = True
 ```
@@ -62,15 +38,6 @@ solves the continuous 168-hour week containing the annual demand peak. All
 modes enforce exact daily gas and nuclear energy targets and save tables,
 validation, a plot, and (for continuous/single-day runs) the solved network
 under `results/run_results/`. No mode introduces equipment faults or outages.
-
-`SOLVER_THREADS` explicitly controls HiGHS parallelism and must be between 1
-and 8. Full unit commitment uses parallel MIP tree search; relaxed and no-UC
-runs use parallel PAMI dual simplex when more than one thread is selected.
-For rolling and peak runs, keep `PARALLEL_WORKERS = 1` because each
-optimization already uses `SOLVER_THREADS`. Daily, monthly, and selected-week
-modes can instead solve independent periods concurrently. The product of both
-settings may not exceed the logical CPUs visible to Python, preventing nested
-solver oversubscription.
 
 ### Selected-week seasonal tests
 
@@ -95,23 +62,23 @@ chronological carry-over rather than observed boundary conditions.
 
 ## Peak-week run and analysis
 
-The peak-week notebooks are kept in `notebooks/`:
+The 9BA notebooks are kept in `notebooks/`:
 
-- `notebooks/9BA_run_peakday_2025_26.ipynb` selects the Monday-Sunday week containing the
+- `9BA_run_peakday_2025_26.ipynb` selects the Monday-Sunday week containing the
   annual statewide demand peak, runs HiGHS unit commitment, validates nodal
   balances and corridor limits, and writes
-  `results/tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses a 1%
+  `tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses a 1%
   relative MIP-gap tolerance; this keeps runtime proportionate after adding
   exact daily oil-and-gas energy targets, while remaining proportionate to the
   input-data uncertainty and retaining a near-optimal commitment schedule.
-- `notebooks/9B_results_analysis_hourly.ipynb` reads that solved network and analyzes
+- `9B_results_analysis_hourly.ipynb` reads that solved network and analyzes
   system dispatch, storage, commitment, balancing-area supply and demand,
   net imports, corridor flow and congestion, installed district capacity in
   absolute MW and as a statewide share, area renewable generation, and hourly
   ramp adequacy.
 
-Run the peak-week notebook before the analysis notebook. Start Jupyter from
-the repository root so both notebooks resolve the same paths. Neither
+Run the peak-week notebook before the analysis notebook. Both are written to
+work when Jupyter starts in the repository root. Neither
 notebook creates equipment faults, forced outages, or contingency scenarios.
 
 For a wider seasonal check, run:
@@ -141,8 +108,7 @@ status, condition = network.optimize(
 )
 ```
 
-For a chronological full-year approximation, open
-`notebooks/9BA_run_model.ipynb` and
+For a chronological full-year approximation, open `9BA_run_model.ipynb` and
 set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
 seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
@@ -150,15 +116,15 @@ history, plus storage state of charge, are passed across weekly boundaries.
 Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
 The relaxed runner carries fractional status, dispatch, and recent fractional
 start/shut-down history across weekly boundaries. Equal start-up and shut-down
-costs activate PyPSA's additional tightening constraints. HiGHS uses explicit
-parallel solver settings appropriate to the selected LP or MIP formulation.
+costs activate PyPSA's additional tightening constraints, and MIP-only solver
+settings are omitted.
 Completed windows are checkpointed under
 `results/run_results/rolling_2025-04-01_2026-03-31/weekly_networks/`; keep
 `RESUME = True` to continue an interrupted run. The final one-day window has
 no look-ahead because it reaches the end of the available input horizon.
 
 After the rolling run is complete, open
-`notebooks/9BA_results_analysis_rolling_year.ipynb` and run all cells. It checks the
+`9BA_results_analysis_rolling_year.ipynb` and run all cells. It checks the
 8,760-hour retained chronology and state handoffs, compares monthly and annual
 modeled generation with the observed FY2025-26 workbook, reports modeled and
 observed-implied full-load hours on a common capacity basis, tests wind-resource
@@ -178,17 +144,14 @@ comparison tables, and a comparison plot under `results/monthly/2025_07/`.
 
 A continuous 744-hour formulation was also attempted, but its approximately
 370,000 binary variables produced no feasible integer schedule after about
-112 minutes. Solver logs and all other run products are local generated
-artifacts and are not tracked. The daily
+112 minutes. Its log is retained as `continuous_attempt_solver.log`. The daily
 formulation does not carry commitment or storage state between dates; each
 storage unit is cyclic within its day. It is suitable for monthly generation
 and renewable-profile comparison, rather than month-long chronological
 commitment or storage analysis.
 
-- Nine electrical buses use the balancing-area names in
-  `data/model_inputs/Balancing_areas.txt`; additional water-energy buses model
-  reservoir and cascade hydraulics.
-- The 18 grid corridors in `data/model_inputs/Grid_capacity.txt` are modeled as lossless,
+- Nine buses use the balancing-area names in `Balancing_areas.txt`.
+- The 18 grid corridors in `Grid_capacity.txt` are modeled as lossless,
   bidirectional PyPSA `Link` components. Each stated MW capacity has a fixed
   50% availability factor, so the modeled bidirectional rating is 50% of the
   stated value in every snapshot. Nominal and effective capacities are retained
@@ -196,21 +159,20 @@ commitment or storage analysis.
 - The model retains all 8,760 hourly snapshots from 1 April 2025 through
   31 March 2026.
 - Installed nameplate capacity is updated to the 31 July 2026 comparison
-  vintage through `data/model_inputs/additional_capacity_2026_07.csv`. Demand
-  and renewable profiles remain FY2025-26, so this is a capacity-vintage
-  overlay rather than a historical FY2025-26 fleet snapshot.
-- Coal, oil and gas, and bio-power generators retain the statewide build
-  template's commitment flags, start/shut-down costs, minimum up/down times,
-  and ramp limits. Some geographically unspecified aggregate bio-power records are
+  vintage through `additional_capacity_2026_07.csv`. Demand and renewable
+  profiles remain FY2025-26, so this is a capacity-vintage overlay rather than
+  a historical FY2025-26 fleet snapshot.
+- Coal, oil and gas, and bio-power generators retain the single-node model's
+  commitment flags, start/shut-down costs, minimum up/down times, and ramp
+  limits. Some geographically unspecified aggregate bio-power records are
   split across areas, so each allocated part is independently committable.
 - The 211.70 MW diesel overlay is represented as fourteen committable units:
   seven at Samayanallur in the Madurai area and seven at Samalpatti in the
   Vellore area. In the absence of plant-specific operating data, these units
   use the model's oil-and-gas commitment and cost assumptions while retaining
   a separate `diesel` carrier.
-- Conventional hydro is controlled through
-  `data/model_inputs/hydro_asset_registry.csv` and the explicit fleet
-  reconciliation in `data/model_inputs/hydro_fleet_reconciliation.csv`. Simple
+- Conventional hydro is controlled through `hydro_asset_registry.csv` and the
+  explicit fleet reconciliation in `hydro_fleet_reconciliation.csv`. Simple
   reservoir plants use non-pumping `StorageUnit`s. PAP, Kodayar, Kundah,
   Pykara/Moyar and Papanasam/Servalar use `Store` water balances and
   turbine/transfer `Link`s so that upstream discharge is routed downstream;
@@ -237,7 +199,7 @@ Allocation` sheet supplies the complete district allocation, provenance,
 method, and confidence fields.
 
 Every operational `PlantInfo` row reconciles to one or more allocation rows
-before districts are mapped through `data/model_inputs/Balancing_areas.txt`. Spelling variants
+before districts are mapped through `Balancing_areas.txt`. Spelling variants
 are normalized (for example, `Kanchipuram` to `Kancheepuram`, `Kanyakumari` to
 `Kanniyakumari`, and `Nilgiris` to `The Nilgiris`). District allocations that
 belong to the same balancing area are recombined before a PyPSA component is
@@ -270,11 +232,11 @@ every rebuild.
 
 The balancing-area workbook provides annual-energy and peak shares, but not
 hourly area profiles. Each area therefore uses an affine transformation of the
-statewide hourly demand shape. This construction simultaneously:
+single-node hourly demand shape. This construction simultaneously:
 
 1. matches the workbook's relative annual-energy share;
 2. matches its relative peak share; and
-3. preserves total Tamil Nadu demand at every hour.
+3. preserves the single-node Tamil Nadu demand at every hour.
 
 The model consequently retains the original 131.3834 TWh realized demand and
 19,987.33 MW state peak rather than rescaling to the workbook's 149.063 TWh and
@@ -312,8 +274,8 @@ daily targets and adjust the annual equality for their selected dates.
 
 ## Reservoir hydro and seasonal inflow
 
-`data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while
-`data/model_inputs/hydro_fleet_reconciliation.csv` records capacity discrepancies and source-only
+`hydro_asset_registry.csv` classifies capacity-workbook units while
+`hydro_fleet_reconciliation.csv` records capacity discrepancies and source-only
 assets that must not be silently added. `model/hydro_reservoir_parameters.csv`
 contains the modelled reservoir/component, MW and MWh basis, fixed head,
 efficiency, SOC source, data quality, and stated proxy/assumption for every
@@ -351,37 +313,22 @@ solve remains necessary to optimise seasonal water value endogenously.
 
 ## Renewable profile placeholders
 
-`data/model_inputs/renewable_profiles.csv` has one `solar` and one `wind`
-capacity-factor column for every balancing area, indexed by the 8,760 model timestamps. Until spatial
+`renewable_profiles.csv` has one `solar` and one `wind` capacity-factor column
+for every balancing area, indexed by the 8,760 model timestamps. Until spatial
 profiles are supplied, all areas use the same statewide shapes:
 
 - wind copies the existing `wind_fleet` profile;
 - solar uses the capacity-weighted blend of the existing utility-scale and
   rooftop/off-grid solar profiles.
 
-This choice preserves the build template's aggregate renewable availability
+This choice preserves the single-node model's aggregate renewable availability
 while exposing the required 18-column replacement interface. To install the
-future hourly profiles, replace the values in
-`data/model_inputs/renewable_profiles.csv` without
+future hourly profiles, replace the values in `renewable_profiles.csv` without
 changing `snapshot` or the column names, keep all capacity factors within
 0-1, and rerun the build script. The builder validates timestamps, columns,
 missing values, and bounds before writing `model/generators-p_max_pu.csv`.
-Delete `data/model_inputs/renewable_profiles.csv` before rebuilding if the
-placeholders need to be regenerated from updated statewide profiles.
-
-## Generated files and Git
-
-Everything written under `results/` is reproducible output and is ignored by
-Git: solved NetCDF networks, rolling checkpoints, CSV summaries, validation
-JSON, plots, solver logs, and infeasibility files. Notebook cell outputs are
-also cleared before commit. Keep durable, shareable study outputs in a release
-or an external data archive rather than force-adding them to the repository.
-
-Solar generators carry a small 1 currency-unit/MWh marginal-cost tie-breaker;
-wind remains at zero marginal cost. When otherwise equivalent renewable
-output must be curtailed, this makes the optimizer prefer curtailing solar.
-Other system constraints can still determine dispatch when the resources are
-not interchangeable.
+Delete `renewable_profiles.csv` before rebuilding if the placeholders need to
+be regenerated from updated single-node profiles.
 
 ## Important limitations
 

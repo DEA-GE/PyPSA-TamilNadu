@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
+from highs_solver_options import highs_solver_options
 from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
 
 
@@ -76,6 +77,12 @@ PLOT_LABELS = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--solver", default="highs", help="PyPSA solver name")
+    parser.add_argument(
+        "--solver-threads",
+        type=int,
+        default=8,
+        help="HiGHS threads per solve (1-8; default: 8)",
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -235,6 +242,8 @@ def solve_day(
     oil_gas_annual_share: float,
     mip_rel_gap: float | None = None,
     linearized_unit_commitment: bool = False,
+    solver_threads: int = 8,
+    unit_commitment: str = "full",
 ) -> tuple[pypsa.Network, dict[str, object]]:
     end = day + pd.Timedelta(days=1)
     snapshots = annual_network.snapshots[
@@ -260,9 +269,9 @@ def solve_day(
     )
     network.generators.loc[initially_down, "p_init"] = np.nan
     started = time.perf_counter()
-    solver_options: dict[str, object] = {"log_to_console": False}
-    if mip_rel_gap is not None:
-        solver_options["mip_rel_gap"] = mip_rel_gap
+    solver_options = highs_solver_options(
+        unit_commitment, mip_rel_gap, solver_threads
+    )
     status, condition = network.optimize(
         solver_name=solver,
         extra_functionality=add_nuclear_targets,
@@ -438,6 +447,7 @@ def main() -> None:
                 oil_gas_budget.at[day, "daily_energy_target_mwh"]
             ),
             oil_gas_annual_share=float(oil_gas_budget.at[day, "annual_share"]),
+            solver_threads=args.solver_threads,
         )
         result["fiscal_week"] = fiscal_week
         results.append(result)
