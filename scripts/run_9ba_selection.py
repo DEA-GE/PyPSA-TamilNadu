@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import get_context
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -12,6 +15,8 @@ import numpy as np
 import pandas as pd
 import pypsa
 import xarray as xr
+
+from highs_solver_options import highs_solver_options
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
@@ -51,6 +56,125 @@ RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 # every run changes constraints and time-series data.  The signature means an
 # edited input file is picked up without requiring a kernel restart.
 _NETWORK_CACHE: dict[Path, tuple[tuple[tuple[str, int, int], ...], pypsa.Network]] = {}
+_DAY_WORKER_NETWORK: pypsa.Network | None = None
+_SELECTED_WEEK_WORKER_CONTEXT: tuple | None = None
+
+
+def _initialise_day_worker(base_network: pypsa.Network) -> None:
+    """Install one annual network copy in each independent-solve process."""
+    global _DAY_WORKER_NETWORK
+    _DAY_WORKER_NETWORK = base_network
+
+
+def _solve_day_worker(task: tuple) -> dict[str, object]:
+    """Solve one independent day inside a process-pool worker."""
+    if _DAY_WORKER_NETWORK is None:
+        raise RuntimeError("Independent-day worker was not initialized")
+    (
+        date,
+        solver_name,
+        oil_gas_target,
+        oil_gas_share,
+        mip_rel_gap,
+        linearized_unit_commitment,
+        solver_threads,
+        unit_commitment,
+    ) = task
+    _, result = solve_day(
+        _DAY_WORKER_NETWORK,
+        date,
+        solver_name,
+        oil_gas_target,
+        oil_gas_share,
+        mip_rel_gap=mip_rel_gap,
+        linearized_unit_commitment=linearized_unit_commitment,
+        solver_threads=solver_threads,
+        unit_commitment=unit_commitment,
+    )
+    return result
+
+
+def _initialise_selected_week_worker(context: tuple) -> None:
+    """Install immutable selected-week inputs in each worker process."""
+    global _SELECTED_WEEK_WORKER_CONTEXT
+    _SELECTED_WEEK_WORKER_CONTEXT = context
+
+
+def _solve_selected_week_worker(start: pd.Timestamp) -> pd.DataFrame:
+    """Solve and persist one independent selected week."""
+    if _SELECTED_WEEK_WORKER_CONTEXT is None:
+        raise RuntimeError("Selected-week worker was not initialized")
+    (
+        base_network,
+        observed,
+        oil_gas_budget,
+        biomass_annual_target_mwh,
+        full_horizon_weight,
+        solver_name,
+        mip_rel_gap,
+        solver_threads,
+        unit_commitment,
+        output_dir,
+        warmup_days,
+        lookahead_days,
+        reservoir_initial_soc_fraction,
+        soc_boundary_tolerance_pu,
+        resume,
+    ) = _SELECTED_WEEK_WORKER_CONTEXT
+    modeled, _, _ = _solve_selected_weeks(
+        base_network,
+        pd.DatetimeIndex([start]),
+        observed,
+        oil_gas_budget,
+        biomass_annual_target_mwh,
+        full_horizon_weight,
+        solver_name,
+        mip_rel_gap,
+        solver_threads,
+        unit_commitment,
+        output_dir,
+        warmup_days,
+        lookahead_days,
+        reservoir_initial_soc_fraction,
+        soc_boundary_tolerance_pu,
+        resume,
+        parallel_workers=1,
+        write_progress_log=False,
+    )
+    return modeled
+
+
+def _selected_week_validation(
+    week_rows: list[dict[str, object]],
+    warmup_days: int,
+    lookahead_days: int,
+    reservoir_initial_soc_fraction: float,
+    wall_clock_seconds: float,
+    parallel_workers: int,
+) -> dict[str, object]:
+    """Aggregate per-week validation records."""
+    week_log = pd.DataFrame(week_rows)
+    return {
+        "formulation": "independent continuous selected weeks",
+        "weeks_solved": int(len(week_rows)),
+        "days_retained": int(7 * len(week_rows)),
+        "warmup_days_per_week": warmup_days,
+        "lookahead_days_per_week": lookahead_days,
+        "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
+        "parallel_workers": parallel_workers,
+        "all_solver_statuses_ok": bool(week_log["solver_condition"].eq("optimal").all()),
+        "max_abs_gas_target_deviation_mwh": float(
+            week_log["max_abs_gas_target_deviation_mwh"].max()
+        ),
+        "max_abs_nuclear_target_deviation_mwh": float(
+            week_log["max_abs_nuclear_target_deviation_mwh"].max()
+        ),
+        "max_abs_nodal_residual_mw": float(week_log["max_abs_nodal_residual_mw"].max()),
+        "max_link_loading_pct": float(week_log["max_link_loading_pct"].max()),
+        "total_unserved_gwh": float(week_log["total_unserved_gwh"].sum()),
+        "solver_runtime_seconds_sum": float(week_log["solver_runtime_seconds"].sum()),
+        "wall_clock_seconds": wall_clock_seconds,
+    }
 
 
 def _network_signature(network_path: Path) -> tuple[tuple[str, int, int], ...]:
@@ -105,9 +229,17 @@ def _configure_unit_commitment(network: pypsa.Network, mode: str) -> None:
     """Choose binary commitment, its LP relaxation, or economic dispatch."""
     if mode not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    units = network.generators.index[network.generators.committable]
+    if mode == "relaxed":
+        # PyPSA can add the Hua et al. tightening constraints only when both
+        # transition costs are equal. Keep the original start-up assumption
+        # and use it for shut-downs as well.
+        network.generators.loc[units, "shut_down_cost"] = network.generators.loc[
+            units, "start_up_cost"
+        ]
+        return
     if mode != "none":
         return
-    units = network.generators.index[network.generators.committable]
     if not len(units):
         return
     # Dispatchable units may be off without a binary status variable. Remove
@@ -320,26 +452,65 @@ def _solve_independent_days(
     oil_gas_budget: pd.DataFrame,
     solver_name: str,
     mip_rel_gap: float,
+    solver_threads: int,
     unit_commitment: str,
+    parallel_workers: int,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network | None]:
     rows: list[dict] = []
     conditions: list[str] = []
     last_network: pypsa.Network | None = None
     started = time.perf_counter()
 
-    for position, date in enumerate(dates, start=1):
-        print(f"Solving {date.date()} ({position}/{len(dates)}) ...", flush=True)
-        last_network, result = solve_day(
-            base_network,
+    tasks = [
+        (
             date,
             solver_name,
             float(oil_gas_budget.at[date, "daily_energy_target_mwh"]),
             float(oil_gas_budget.at[date, "annual_share"]),
-            mip_rel_gap=mip_rel_gap,
-            linearized_unit_commitment=unit_commitment == "relaxed",
+            mip_rel_gap if unit_commitment == "full" else None,
+            unit_commitment == "relaxed",
+            solver_threads,
+            unit_commitment,
         )
-        rows.append(result)
-        conditions.append(str(result["termination_condition"]))
+        for date in dates
+    ]
+    effective_workers = min(parallel_workers, len(tasks))
+    logical_cpus = os.cpu_count() or 1
+    if effective_workers * solver_threads > logical_cpus:
+        raise ValueError(
+            f"active workers * solver_threads must not exceed the {logical_cpus} "
+            "logical CPUs visible to Python"
+        )
+    if effective_workers > 1:
+        print(
+            f"Solving {len(tasks)} independent days with {effective_workers} "
+            f"processes x {solver_threads} HiGHS thread(s) ...",
+            flush=True,
+        )
+        with ProcessPoolExecutor(
+            max_workers=effective_workers,
+            mp_context=get_context("spawn"),
+            initializer=_initialise_day_worker,
+            initargs=(base_network,),
+        ) as executor:
+            rows.extend(executor.map(_solve_day_worker, tasks))
+    else:
+        for position, task in enumerate(tasks, start=1):
+            date = task[0]
+            print(f"Solving {date.date()} ({position}/{len(dates)}) ...", flush=True)
+            last_network, result = solve_day(
+                base_network,
+                date,
+                solver_name,
+                task[2],
+                task[3],
+                mip_rel_gap=task[4],
+                linearized_unit_commitment=task[5],
+                solver_threads=solver_threads,
+                unit_commitment=unit_commitment,
+            )
+            rows.append(result)
+    conditions.extend(str(result["termination_condition"]) for result in rows)
 
     modeled = pd.DataFrame(rows).set_index("date")
     modeled.index = pd.to_datetime(modeled.index)
@@ -354,6 +525,8 @@ def _solve_independent_days(
         "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
         "solver_runtime_seconds_sum": float(modeled["runtime_seconds"].sum()),
         "wall_clock_seconds": float(time.perf_counter() - started),
+        "parallel_workers": effective_workers,
+        "solver_threads_per_worker": solver_threads,
     }
     return modeled, validation, last_network if len(dates) == 1 else None
 
@@ -365,6 +538,7 @@ def _solve_peak_week(
     oil_gas_budget: pd.DataFrame,
     solver_name: str,
     mip_rel_gap: float,
+    solver_threads: int,
     unit_commitment: str,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network]:
     snapshots = base_network.snapshots[base_network.snapshots.normalize().isin(dates)]
@@ -401,7 +575,9 @@ def _solve_peak_week(
     started = time.perf_counter()
     status, condition = network.optimize(
         solver_name=solver_name,
-        solver_options={"mip_rel_gap": mip_rel_gap},
+        solver_options=highs_solver_options(
+            unit_commitment, mip_rel_gap, solver_threads
+        ),
         extra_functionality=extra_functionality,
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
@@ -442,6 +618,7 @@ def _solve_selected_weeks(
     full_horizon_weight: float,
     solver_name: str,
     mip_rel_gap: float,
+    solver_threads: int,
     unit_commitment: str,
     output_dir: Path,
     warmup_days: int,
@@ -449,6 +626,8 @@ def _solve_selected_weeks(
     reservoir_initial_soc_fraction: float,
     soc_boundary_tolerance_pu: float,
     resume: bool,
+    parallel_workers: int = 1,
+    write_progress_log: bool = True,
 ) -> tuple[pd.DataFrame, dict, None]:
     """Solve independent continuous weeks with warm-up and look-ahead days."""
     if not 0.0 <= reservoir_initial_soc_fraction <= 1.0:
@@ -467,6 +646,57 @@ def _solve_selected_weeks(
     ]
     output_dir.mkdir(parents=True, exist_ok=True)
     run_started = time.perf_counter()
+
+    effective_workers = min(parallel_workers, len(starts))
+    logical_cpus = os.cpu_count() or 1
+    if effective_workers * solver_threads > logical_cpus:
+        raise ValueError(
+            f"active workers * solver_threads must not exceed the {logical_cpus} "
+            "logical CPUs visible to Python"
+        )
+    if effective_workers > 1:
+        print(
+            f"Solving {len(starts)} independent weeks with {effective_workers} "
+            f"processes x {solver_threads} HiGHS thread(s) ...",
+            flush=True,
+        )
+        context = (
+            base_network,
+            observed,
+            oil_gas_budget,
+            biomass_annual_target_mwh,
+            full_horizon_weight,
+            solver_name,
+            mip_rel_gap,
+            solver_threads,
+            unit_commitment,
+            output_dir,
+            warmup_days,
+            lookahead_days,
+            reservoir_initial_soc_fraction,
+            soc_boundary_tolerance_pu,
+            resume,
+        )
+        with ProcessPoolExecutor(
+            max_workers=effective_workers,
+            mp_context=get_context("spawn"),
+            initializer=_initialise_selected_week_worker,
+            initargs=(context,),
+        ) as executor:
+            modeled_parts.extend(executor.map(_solve_selected_week_worker, starts))
+        for start in starts:
+            validation_file = output_dir / f"week_{start:%Y-%m-%d}" / "validation.json"
+            week_rows.append(json.loads(validation_file.read_text(encoding="utf-8")))
+        pd.DataFrame(week_rows).to_csv(output_dir / "selected_week_log.csv", index=False)
+        validation = _selected_week_validation(
+            week_rows,
+            warmup_days,
+            lookahead_days,
+            reservoir_initial_soc_fraction,
+            time.perf_counter() - run_started,
+            effective_workers,
+        )
+        return pd.concat(modeled_parts).sort_index(), validation, None
 
     for position, start in enumerate(starts, start=1):
         retained_dates = pd.date_range(start, periods=7, freq="D")
@@ -495,7 +725,10 @@ def _solve_selected_weeks(
                 and saved_validation.get("lookahead_days") == lookahead_days
                 and saved_validation.get("solver_name") == solver_name
                 and saved_validation.get("unit_commitment") == unit_commitment
-                and np.isclose(saved_validation.get("mip_rel_gap", np.nan), mip_rel_gap)
+                and (
+                    unit_commitment != "full"
+                    or np.isclose(saved_validation.get("mip_rel_gap", np.nan), mip_rel_gap)
+                )
                 and np.isclose(
                     saved_validation.get("reservoir_initial_soc_fraction", np.nan),
                     reservoir_initial_soc_fraction,
@@ -519,9 +752,10 @@ def _solve_selected_weeks(
                 modeled = modeled.reindex(retained_dates)
                 modeled_parts.append(modeled)
                 week_rows.append(saved_validation)
-                pd.DataFrame(week_rows).to_csv(
-                    output_dir / "selected_week_log.csv", index=False
-                )
+                if write_progress_log:
+                    pd.DataFrame(week_rows).to_csv(
+                        output_dir / "selected_week_log.csv", index=False
+                    )
                 continue
             print(
                 f"Re-solving stale selected week {position}/{len(starts)}: {start.date()}",
@@ -790,7 +1024,9 @@ def _solve_selected_weeks(
         started = time.perf_counter()
         status, condition = network.optimize(
             solver_name=solver_name,
-            solver_options={"mip_rel_gap": mip_rel_gap, "log_to_console": False},
+            solver_options=highs_solver_options(
+                unit_commitment, mip_rel_gap, solver_threads
+            ),
             extra_functionality=extra_functionality,
             include_objective_constant=False,
             linearized_unit_commitment=unit_commitment == "relaxed",
@@ -878,8 +1114,9 @@ def _solve_selected_weeks(
             "biomass_generation_mwh": biomass_generation_mwh,
             "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
             "solver_name": solver_name,
+            "solver_threads": solver_threads,
             "unit_commitment": unit_commitment,
-            "mip_rel_gap": mip_rel_gap,
+            "mip_rel_gap": mip_rel_gap if unit_commitment == "full" else None,
             "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
             "soc_boundary_tolerance_pu": soc_boundary_tolerance_pu,
             "observed_hydro_initial_soc_components": int(len(observed_initial)),
@@ -920,29 +1157,17 @@ def _solve_selected_weeks(
             network,
         )
         week_rows.append(week_validation)
-        pd.DataFrame(week_rows).to_csv(output_dir / "selected_week_log.csv", index=False)
+        if write_progress_log:
+            pd.DataFrame(week_rows).to_csv(output_dir / "selected_week_log.csv", index=False)
 
-    week_log = pd.DataFrame(week_rows)
-    validation = {
-        "formulation": "independent continuous selected weeks",
-        "weeks_solved": int(len(week_rows)),
-        "days_retained": int(7 * len(week_rows)),
-        "warmup_days_per_week": warmup_days,
-        "lookahead_days_per_week": lookahead_days,
-        "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
-        "all_solver_statuses_ok": bool(week_log["solver_condition"].eq("optimal").all()),
-        "max_abs_gas_target_deviation_mwh": float(
-            week_log["max_abs_gas_target_deviation_mwh"].max()
-        ),
-        "max_abs_nuclear_target_deviation_mwh": float(
-            week_log["max_abs_nuclear_target_deviation_mwh"].max()
-        ),
-        "max_abs_nodal_residual_mw": float(week_log["max_abs_nodal_residual_mw"].max()),
-        "max_link_loading_pct": float(week_log["max_link_loading_pct"].max()),
-        "total_unserved_gwh": float(week_log["total_unserved_gwh"].sum()),
-        "solver_runtime_seconds_sum": float(week_log["solver_runtime_seconds"].sum()),
-        "wall_clock_seconds": float(time.perf_counter() - run_started),
-    }
+    validation = _selected_week_validation(
+        week_rows,
+        warmup_days,
+        lookahead_days,
+        reservoir_initial_soc_fraction,
+        time.perf_counter() - run_started,
+        1,
+    )
     return pd.concat(modeled_parts).sort_index(), validation, None
 
 
@@ -1059,6 +1284,8 @@ def run_selection(
     soc_boundary_tolerance_pu: float = DEFAULT_SOC_BOUNDARY_TOLERANCE_PU,
     solver_name: str = "highs",
     mip_rel_gap: float = 0.01,
+    solver_threads: int = 8,
+    parallel_workers: int = 1,
     unit_commitment: str = "full",
     run_name: str = "baseline",
     rolling_time_limit: float | None = 1800,
@@ -1079,6 +1306,14 @@ def run_selection(
     unit_commitment = str(unit_commitment).strip().lower()
     if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    # Validate early, before loading the relatively large annual network.
+    highs_solver_options(unit_commitment, mip_rel_gap, solver_threads)
+    if (
+        isinstance(parallel_workers, bool)
+        or not isinstance(parallel_workers, int)
+        or parallel_workers < 1
+    ):
+        raise ValueError("parallel_workers must be a positive integer")
     run_name = _validate_run_name(run_name)
     network_path = Path(network_path)
     results_root = Path(results_root)
@@ -1134,6 +1369,7 @@ def run_selection(
             mip_rel_gap=mip_rel_gap,
             time_limit=rolling_time_limit,
             max_time_limit_mip_gap=rolling_max_time_limit_mip_gap,
+            solver_threads=solver_threads,
             unit_commitment=unit_commitment,
             output_dir=output_dir,
             resume=resume,
@@ -1153,6 +1389,7 @@ def run_selection(
             full_horizon_weight,
             solver_name,
             mip_rel_gap,
+            solver_threads,
             unit_commitment,
             output_dir,
             warmup_days,
@@ -1160,20 +1397,26 @@ def run_selection(
             reservoir_initial_soc_fraction,
             soc_boundary_tolerance_pu,
             resume,
+            parallel_workers,
         )
     elif mode == "peak":
         modeled, validation, solved_network = _solve_peak_week(
             base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap,
+            solver_threads,
             unit_commitment,
         )
     else:
         modeled, validation, solved_network = _solve_independent_days(
             base_network, dates, observed, oil_gas_budget, solver_name, mip_rel_gap,
+            solver_threads,
             unit_commitment,
+            parallel_workers,
         )
 
     validation["unit_commitment"] = unit_commitment
     validation["run_name"] = run_name
+    validation["solver_threads"] = solver_threads
+    validation.setdefault("parallel_workers", 1)
 
     summary, comparison, plot_path, solved_network_path = _write_outputs(
         mode, dates, modeled, observed, validation, output_dir, solved_network

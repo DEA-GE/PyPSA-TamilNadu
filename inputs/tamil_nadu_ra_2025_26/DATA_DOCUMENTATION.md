@@ -232,13 +232,13 @@ Additional annual limits:
 
 | Technology | Minimum up/down | Start-up cost | Shut-down cost | Start/shut ramp |
 |---|---:|---:|---:|---:|
-| Coal | 8 h / 8 h | INR 3,991.35/MW | INR 798.27/MW | 0.55 p.u. |
-| Oil & Gas | 2 h / 2 h | INR 1,184.49/MW | INR 236.90/MW | 0.40 p.u. |
-| Bio Power | 4 h / 4 h | INR 379.10/MW | INR 94.78/MW | 0.50 p.u. |
+| Coal | 8 h / 8 h | INR 3,991.35/MW | INR 3,991.35/MW | 0.55 p.u. |
+| Oil & Gas | 2 h / 2 h | INR 1,184.49/MW | INR 1,184.49/MW | 0.40 p.u. |
+| Bio Power | 4 h / 4 h | INR 379.10/MW | INR 379.10/MW | 0.50 p.u. |
 
-Start-up and shutdown costs are scaled by each record's capacity. The rates are
-derived from the previous aggregate-block assumptions, preserving the total
-cost if all capacity of a technology starts once. Every thermal record starts
+Start-up and shutdown costs are scaled by each record's capacity. Both use the
+previous start-up-cost assumption so PyPSA can apply its tightened linearized
+unit-commitment constraints. Every thermal record starts
 offline (`p_init=0`) and is assumed to have been down for at least its minimum
 down time. Actual initial conditions and unit-specific UC parameters were not
 supplied.

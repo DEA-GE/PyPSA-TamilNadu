@@ -28,6 +28,8 @@ WARMUP_DAYS = 1
 LOOKAHEAD_DAYS = 1
 RESERVOIR_INITIAL_SOC_FRACTION = 0.0
 SOLVER_NAME = "highs"
+SOLVER_THREADS = 8
+PARALLEL_WORKERS = 1
 MIP_REL_GAP = 0.01
 RESUME = True
 ```
@@ -38,6 +40,16 @@ solves the continuous 168-hour week containing the annual demand peak. All
 modes enforce exact daily gas and nuclear energy targets and save tables,
 validation, a plot, and (for continuous/single-day runs) the solved network
 under `run_results/`. No mode introduces equipment faults or outages.
+
+`SOLVER_THREADS` explicitly controls HiGHS parallelism and must be between 1
+and 8. Full unit commitment uses parallel MIP tree search; relaxed and no-UC
+runs use parallel PAMI dual simplex when more than one thread is selected.
+For rolling and peak runs, keep `PARALLEL_WORKERS = 1` because each
+optimization already uses `SOLVER_THREADS`. Daily, monthly, and selected-week
+modes can instead solve independent periods concurrently; for example, use
+`PARALLEL_WORKERS = 8` with `SOLVER_THREADS = 1` on a 16-logical-CPU machine.
+The product of these settings may not exceed the logical CPUs visible to
+Python, preventing nested solver oversubscription.
 
 ### Selected-week seasonal tests
 
@@ -113,6 +125,11 @@ set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
 seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
 history, plus storage state of charge, are passed across weekly boundaries.
+Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
+The relaxed runner carries fractional status, dispatch, and recent fractional
+start/shut-down history across weekly boundaries. Equal start-up and shut-down
+costs activate PyPSA's additional tightening constraints. HiGHS uses explicit
+parallel solver settings appropriate to the selected LP or MIP formulation.
 Completed windows are checkpointed under
 `run_results/rolling_2025-04-01_2026-03-31/weekly_networks/`; keep
 `RESUME = True` to continue an interrupted run. The final one-day window has

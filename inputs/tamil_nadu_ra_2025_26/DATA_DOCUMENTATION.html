@@ -371,28 +371,28 @@ workbook-sourced hourly demand in MW assembled as described above.</p>
 <td>Coal</td>
 <td style="text-align: right;">8 h / 8 h</td>
 <td style="text-align: right;">INR 3,991.35/MW</td>
-<td style="text-align: right;">INR 798.27/MW</td>
+<td style="text-align: right;">INR 3,991.35/MW</td>
 <td style="text-align: right;">0.55 p.u.</td>
 </tr>
 <tr>
 <td>Oil &amp; Gas</td>
 <td style="text-align: right;">2 h / 2 h</td>
 <td style="text-align: right;">INR 1,184.49/MW</td>
-<td style="text-align: right;">INR 236.90/MW</td>
+<td style="text-align: right;">INR 1,184.49/MW</td>
 <td style="text-align: right;">0.40 p.u.</td>
 </tr>
 <tr>
 <td>Bio Power</td>
 <td style="text-align: right;">4 h / 4 h</td>
 <td style="text-align: right;">INR 379.10/MW</td>
-<td style="text-align: right;">INR 94.78/MW</td>
+<td style="text-align: right;">INR 379.10/MW</td>
 <td style="text-align: right;">0.50 p.u.</td>
 </tr>
 </tbody>
 </table>
-<p>Start-up and shutdown costs are scaled by each record's capacity. The rates are
-derived from the previous aggregate-block assumptions, preserving the total
-cost if all capacity of a technology starts once. Every thermal record starts
+<p>Start-up and shutdown costs are scaled by each record's capacity. Both use the
+previous start-up-cost assumption so PyPSA can apply its tightened linearized
+unit-commitment constraints. Every thermal record starts
 offline (<code>p_init=0</code>) and is assumed to have been down for at least its minimum
 down time. Actual initial conditions and unit-specific UC parameters were not
 supplied.</p>
