@@ -23,10 +23,10 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "additional_data" / "Grid" / "Transmission_Lines_1788874302675.xlsx"
-AREA_FILE = ROOT / "9_BA" / "Balancing_areas.txt"
-CURRENT_GRID = ROOT / "9_BA" / "model" / "transmission_capacity_metadata.csv"
-OUTPUT_DIR = ROOT / "outputs" / "transmission_source_comparison"
+SOURCE = ROOT / "data" / "source" / "Grid" / "Transmission_Lines_1788874302675.xlsx"
+AREA_FILE = ROOT / "data" / "model_inputs" / "Balancing_areas.txt"
+CURRENT_GRID = ROOT / "model" / "transmission_capacity_metadata.csv"
+OUTPUT_DIR = ROOT / "results" / "diagnostics" / "transmission_source_comparison"
 
 DISTRICT_ALIASES = {
     "Tiruvallur": ["Thiruvallur"],
@@ -198,7 +198,7 @@ structured voltage or conductor rating.
 ## Interpretation
 
 The current 22 corridor ratings are independent assumptions read from
-`9_BA/Grid_capacity.txt`; they are not recoverable or validated by the supplied
+`data/model_inputs/Grid_capacity.txt`; they are not recoverable or validated by the supplied
 workbook. Line length is not capacity. To finish the PyPSA-style aggregation,
 add a structured table with source substation, destination substation, endpoint
 districts (or coordinates), voltage, number of circuits/conductors, and a thermal

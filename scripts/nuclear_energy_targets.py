@@ -5,7 +5,7 @@ import pandas as pd
 import xarray as xr
 
 TARGET = "observed_fy2025_26_nuclear_generation_target"
-BUDGET = Path(__file__).resolve().parents[1] / "9_BA/model/nuclear_daily_energy_budget.csv"
+BUDGET = Path(__file__).resolve().parents[1] / "model" / "nuclear_daily_energy_budget.csv"
 
 
 def generator_dimension(variable):

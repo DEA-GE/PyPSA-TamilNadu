@@ -1,4 +1,23 @@
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
 *.nc
 .tmp/
+.vscode/
+
+# Generated optimization and analysis artifacts. Keep only the explanation
+# file so clones receive the expected output-directory convention.
+results/*
+!results/README.md
+
+# Solver scratch files should never be committed, even if a custom output
+# path is used outside results/.
+*.log
+*.lp
+*.mps
+*.sol
+*.ilp
+

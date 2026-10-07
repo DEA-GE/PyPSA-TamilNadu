@@ -27,7 +27,7 @@ from run_9ba_weekly_days_2025_26 import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = ROOT / "9_BA" / "monthly_results" / "2025_07"
+OUTPUT_DIR = ROOT / "results" / "monthly" / "2025_07"
 MONTH_START = pd.Timestamp("2025-07-01")
 MONTH_END = pd.Timestamp("2025-07-31")
 

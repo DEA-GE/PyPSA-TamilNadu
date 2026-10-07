@@ -40,7 +40,7 @@ from run_9ba_rolling import (
 
 
 DEFAULT_NETWORK = MODEL_DIR
-DEFAULT_RESULTS_ROOT = MODEL_DIR.parent / "run_results"
+DEFAULT_RESULTS_ROOT = MODEL_DIR.parent / "results" / "run_results"
 HYDRO_OBSERVED_SOC_FILE = MODEL_DIR / "hydro_observed_soc.csv"
 HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 # Optional input, deliberately monthly: date, pypsa_component, stored_energy_mwh.
