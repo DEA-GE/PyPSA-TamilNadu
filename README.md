@@ -104,7 +104,8 @@ The peak-week notebooks are kept in `notebooks/`:
   relative MIP-gap tolerance; this keeps runtime proportionate after adding
   exact daily oil-and-gas energy targets, while remaining proportionate to the
   input-data uncertainty and retaining a near-optimal commitment schedule.
-- `notebooks/9B_results_analysis_hourly.ipynb` reads that solved network and analyzes
+- `notebooks/analyze_peak_week.ipynb` reads that solved network through the
+  shared result-analysis package and analyzes
   system dispatch, storage, commitment, balancing-area supply and demand,
   net imports, corridor flow and congestion, installed district capacity in
   absolute MW and as a statewide share, area renewable generation, and hourly
@@ -158,15 +159,22 @@ Completed windows are checkpointed under
 no look-ahead because it reaches the end of the available input horizon.
 
 After the rolling run is complete, open
-`notebooks/9BA_results_analysis_rolling_year.ipynb` and run all cells. It checks the
+`notebooks/analyze_rolling_year.ipynb` and run all cells. It checks the
 8,760-hour retained chronology and state handoffs, compares monthly and annual
-modeled generation with the observed FY2025-26 workbook, reports modeled and
-observed-implied full-load hours on a common capacity basis, tests wind-resource
-and hydro-utilization seasonality (including amplitude, timing, low-month
-overlap, and 30-day rolling profiles), and analyses unit commitment, storage,
-ramps, imports, unserved energy, and corridor loading.
-Tables and figures are saved under the rolling result folder's `analysis/`
-subdirectory.
+modeled generation with the observed FY2025-26 workbook, reports full-load
+hours, and analyses resource seasonality, unit commitment, storage, ramps,
+imports, unserved energy, and corridor loading. The peak-week and rolling-year
+notebooks use the same calculations, carrier taxonomy, plot styling, and output
+schema from `scripts/results_analysis/`.
+
+Tables and figures are saved under each run's `analysis/tables/` and
+`analysis/figures/` directories. `analysis_manifest.json` records the source
+networks, horizon, unit-commitment formulation, schema version, and Git commit.
+The same analysis can be run without Jupyter:
+
+```powershell
+python scripts/analyze_results.py results/run_results/peak_2025-07-07
+```
 
 ## Model contents
 
