@@ -16,7 +16,7 @@ import pandas as pd
 import pypsa
 import xarray as xr
 
-from highs_solver_options import highs_solver_options
+from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
@@ -573,6 +573,7 @@ def _solve_peak_week(
 
     print(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...", flush=True)
     started = time.perf_counter()
+    reset_highs_global_scheduler()
     status, condition = network.optimize(
         solver_name=solver_name,
         solver_options=highs_solver_options(
@@ -1022,6 +1023,7 @@ def _solve_selected_weeks(
             flush=True,
         )
         started = time.perf_counter()
+        reset_highs_global_scheduler()
         status, condition = network.optimize(
             solver_name=solver_name,
             solver_options=highs_solver_options(
@@ -1285,6 +1287,7 @@ def run_selection(
     solver_name: str = "highs",
     mip_rel_gap: float = 0.01,
     solver_threads: int = 8,
+    simplex_strategy: int | None = None,
     parallel_workers: int = 1,
     unit_commitment: str = "full",
     run_name: str = "baseline",
@@ -1307,7 +1310,9 @@ def run_selection(
     if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
     # Validate early, before loading the relatively large annual network.
-    highs_solver_options(unit_commitment, mip_rel_gap, solver_threads)
+    highs_solver_options(unit_commitment, mip_rel_gap, solver_threads, simplex_strategy)
+    if simplex_strategy is not None and mode != "rolling":
+        raise ValueError("simplex_strategy override is supported for rolling runs only")
     if (
         isinstance(parallel_workers, bool)
         or not isinstance(parallel_workers, int)
@@ -1370,6 +1375,7 @@ def run_selection(
             time_limit=rolling_time_limit,
             max_time_limit_mip_gap=rolling_max_time_limit_mip_gap,
             solver_threads=solver_threads,
+            simplex_strategy=simplex_strategy,
             unit_commitment=unit_commitment,
             output_dir=output_dir,
             resume=resume,
@@ -1416,6 +1422,7 @@ def run_selection(
     validation["unit_commitment"] = unit_commitment
     validation["run_name"] = run_name
     validation["solver_threads"] = solver_threads
+    validation["simplex_strategy"] = simplex_strategy
     validation.setdefault("parallel_workers", 1)
 
     summary, comparison, plot_path, solved_network_path = _write_outputs(

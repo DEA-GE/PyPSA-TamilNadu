@@ -40,7 +40,7 @@ If `python` is not on your path, use the Python executable from your environment
    ```powershell
    python -m venv .venv
    .venv\Scripts\Activate.ps1
-   python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab xarray
+   python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab xarray psutil
    ```
 
    If you also regenerate upstream data, install the packages for those
@@ -146,6 +146,16 @@ and rolling runs save retained checkpoints. Output goes under
 date or period and has a `_relaxed_uc` or `_none_uc` suffix when applicable.
 The notebook prints the exact path after each run. No mode introduces equipment
 faults or outages.
+
+For rolling runs, `window_log.partial.csv` is updated after each completed
+window and `window_log.csv` is written at the end. Each row includes wall time
+for model construction and solving, process CPU seconds, average CPU cores used
+(CPU seconds divided by wall seconds), and sampled peak process memory and
+thread count. Peak values are sampled every 0.5 seconds, so short spikes may
+be missed. The thread count covers the whole Python process and may include
+library threads in addition to HiGHS threads. The same metrics are stored in
+each window's checkpoint JSON. Resumed checkpoints created before these
+metrics were added will have empty values for the new columns.
 
 ### Selected-week seasonal tests
 
