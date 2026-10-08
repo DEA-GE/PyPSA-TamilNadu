@@ -9,15 +9,17 @@ forward.
 from __future__ import annotations
 
 import json
+import threading
 import time
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import psutil
 import pypsa
 import xarray as xr
 
-from highs_solver_options import highs_solver_options
+from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
@@ -31,6 +33,52 @@ BIOMASS_ENERGY_CONSTRAINT = "cea_resource_adequacy_biomass_generation_target"
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
 CHECKPOINT_MODEL_VERSION = "relaxed-uc-fractional-boundary-v1"
+
+
+class _SolveResourceMonitor:
+    """Sample this process while PyPSA builds and solves one window."""
+
+    def __init__(self, interval_seconds: float = 0.5) -> None:
+        self.process = psutil.Process()
+        self.interval_seconds = interval_seconds
+        self.stop = threading.Event()
+        self.thread: threading.Thread | None = None
+        self.peak_rss_bytes = 0
+        self.peak_threads = 0
+        self.cpu_start = 0.0
+        self.cpu_seconds = 0.0
+
+    def _sample(self) -> None:
+        try:
+            self.peak_rss_bytes = max(
+                self.peak_rss_bytes, self.process.memory_info().rss
+            )
+            # Exclude the monitor thread itself from the observed count.
+            self.peak_threads = max(
+                self.peak_threads, self.process.num_threads() - 1
+            )
+        except psutil.Error:
+            pass
+
+    def _run(self) -> None:
+        while not self.stop.wait(self.interval_seconds):
+            self._sample()
+
+    def __enter__(self) -> "_SolveResourceMonitor":
+        cpu = self.process.cpu_times()
+        self.cpu_start = cpu.user + cpu.system
+        self._sample()
+        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread.start()
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self.stop.set()
+        if self.thread is not None:
+            self.thread.join()
+        self._sample()
+        cpu = self.process.cpu_times()
+        self.cpu_seconds = cpu.user + cpu.system - self.cpu_start
 
 
 def _set_initial_state(
@@ -111,7 +159,10 @@ def _disable_first_snapshot_constraints(
         if name not in network.model.constraints:
             continue
         labels = network.model.constraints[name].labels
-        labels.loc[{"snapshot": snapshot, "name": generators}] = -1
+        generator_dim = generator_dimension(labels)
+        constrained = generators.intersection(labels.indexes[generator_dim])
+        if len(constrained):
+            labels.loc[{"snapshot": snapshot, generator_dim: constrained}] = -1
 
 
 def _add_relaxed_boundary_constraints(
@@ -139,10 +190,17 @@ def _add_relaxed_boundary_constraints(
         generators,
     )
 
-    status = model["Generator-status"].sel(name=generators)
-    start_up = model["Generator-start_up"].sel(name=generators)
-    shut_down = model["Generator-shut_down"].sel(name=generators)
-    dispatch = model["Generator-p"].sel(name=generators)
+    def select_generators(variable):
+        generator_dim = generator_dimension(variable)
+        selected = variable.sel({generator_dim: generators})
+        if generator_dim != "name":
+            selected = selected.rename({generator_dim: "name"})
+        return selected
+
+    status = select_generators(model["Generator-status"])
+    start_up = select_generators(model["Generator-start_up"])
+    shut_down = select_generators(model["Generator-shut_down"])
+    dispatch = select_generators(model["Generator-p"])
     status_now = status.sel(snapshot=first)
     start_up_now = start_up.sel(snapshot=first)
     shut_down_now = shut_down.sel(snapshot=first)
@@ -150,7 +208,9 @@ def _add_relaxed_boundary_constraints(
 
     def as_array(values: pd.Series) -> xr.DataArray:
         values = values.reindex(generators).astype(float)
-        return xr.DataArray(values.to_numpy(), dims="name", coords={"name": generators})
+        return xr.DataArray(
+            values.to_numpy(), dims="name", coords={"name": generators.to_numpy()}
+        )
 
     status_before = as_array(
         previous.generators_t.status.iloc[-1].clip(lower=0.0, upper=1.0)
@@ -185,27 +245,25 @@ def _add_relaxed_boundary_constraints(
         name="Generator-relaxed-boundary-start-up",
     )
     model.add_constraints(
-        shut_down_now >= status_before - status_now,
+        shut_down_now + status_now >= status_before,
         name="Generator-relaxed-boundary-shut-down",
     )
     model.add_constraints(
-        dispatch_now - dispatch_before
-        <= ramp_up * status_before + ramp_start * (status_now - status_before),
+        dispatch_now - ramp_start * status_now - dispatch_before
+        <= (ramp_up - ramp_start) * status_before,
         name="Generator-relaxed-boundary-ramp-up",
     )
     model.add_constraints(
-        dispatch_now - dispatch_before
-        >= -ramp_down * status_now - ramp_shut * (status_before - status_now),
+        dispatch_now + (ramp_down - ramp_shut) * status_now
+        >= dispatch_before - ramp_shut * status_before,
         name="Generator-relaxed-boundary-ramp-down",
     )
 
     # PyPSA's tightened Hua relaxation starts at the second snapshot. Add the
     # same four inequalities across the rolling boundary.
     model.add_constraints(
-        dispatch_before
-        - ramp_shut * status_before
-        - (upper - ramp_shut) * (status_now - start_up_now)
-        <= 0,
+        (upper - ramp_shut) * (status_now - start_up_now)
+        >= dispatch_before - ramp_shut * status_before,
         name="Generator-relaxed-boundary-p-before",
     )
     model.add_constraints(
@@ -225,12 +283,10 @@ def _add_relaxed_boundary_constraints(
         name="Generator-relaxed-boundary-partly-start-up",
     )
     model.add_constraints(
-        dispatch_before
-        - dispatch_now
-        - ramp_shut * status_before
-        + (ramp_shut - ramp_down) * status_now
-        - (lower + ramp_down - ramp_shut) * start_up_now
-        <= 0,
+        dispatch_now
+        - (ramp_shut - ramp_down) * status_now
+        + (lower + ramp_down - ramp_shut) * start_up_now
+        >= dispatch_before - ramp_shut * status_before,
         name="Generator-relaxed-boundary-partly-shut-down",
     )
 
@@ -248,7 +304,7 @@ def _add_relaxed_boundary_constraints(
             missing = duration - position - 1
             prior = prior_start_up.loc[:, units].iloc[-missing:].sum()
             prior_array = xr.DataArray(
-                prior.to_numpy(), dims="name", coords={"name": units}
+                prior.to_numpy(), dims="name", coords={"name": units.to_numpy()}
             )
             current = start_up.sel(
                 snapshot=snapshots[: position + 1], name=units
@@ -268,7 +324,7 @@ def _add_relaxed_boundary_constraints(
             missing = duration - position - 1
             prior = prior_shut_down.loc[:, units].iloc[-missing:].sum()
             prior_array = xr.DataArray(
-                prior.to_numpy(), dims="name", coords={"name": units}
+                prior.to_numpy(), dims="name", coords={"name": units.to_numpy()}
             )
             current = shut_down.sel(
                 snapshot=snapshots[: position + 1], name=units
@@ -409,6 +465,7 @@ def run_rolling_year(
     time_limit: float | None,
     max_time_limit_mip_gap: float,
     solver_threads: int,
+    simplex_strategy: int | None = None,
     unit_commitment: str,
     output_dir: Path,
     resume: bool = True,
@@ -499,28 +556,30 @@ def run_rolling_year(
             f"{len(active) - len(committed)} look-ahead hours)",
             flush=True,
         )
-        started = time.perf_counter()
         solver_options = highs_solver_options(
-            unit_commitment, mip_rel_gap, solver_threads
+            unit_commitment, mip_rel_gap, solver_threads, simplex_strategy
         )
         if time_limit is not None:
             solver_options["time_limit"] = time_limit
-        status, condition = network.optimize(
-            solver_name=solver_name,
-            solver_options=solver_options,
-            extra_functionality=lambda n, s: (
-                _add_daily_targets(n, s, gas_targets),
-                _add_committed_biomass_target(
-                    n, committed, biomass_annual_target_mwh, full_horizon_weight
+        reset_highs_global_scheduler()
+        with _SolveResourceMonitor() as resources:
+            started = time.perf_counter()
+            status, condition = network.optimize(
+                solver_name=solver_name,
+                solver_options=solver_options,
+                extra_functionality=lambda n, s: (
+                    _add_daily_targets(n, s, gas_targets),
+                    _add_committed_biomass_target(
+                        n, committed, biomass_annual_target_mwh, full_horizon_weight
+                    ),
+                    _add_relaxed_boundary_constraints(n, previous)
+                    if unit_commitment == "relaxed"
+                    else None,
                 ),
-                _add_relaxed_boundary_constraints(n, previous)
-                if unit_commitment == "relaxed"
-                else None,
-            ),
-            include_objective_constant=False,
-            linearized_unit_commitment=unit_commitment == "relaxed",
-        )
-        runtime = time.perf_counter() - started
+                include_objective_constant=False,
+                linearized_unit_commitment=unit_commitment == "relaxed",
+            )
+            runtime = time.perf_counter() - started
         report = getattr(getattr(network.model, "solver", None), "report", None)
         reported_mip_gap = getattr(report, "mip_gap", None)
         # Linopy normally exposes this via ``solver.report``. Query the native
@@ -550,8 +609,26 @@ def run_rolling_year(
             condition == "optimal" or accepted_time_limit
         )
         if not accepted_solution:
+            solver_model = getattr(network.model, "solver_model", None)
+            native_status = None
+            native_info = None
+            if solver_model is not None:
+                try:
+                    native_status = solver_model.modelStatusToString(
+                        solver_model.getModelStatus()
+                    )
+                    info = solver_model.getInfo()
+                    native_info = {
+                        "primal_solution_status": str(info.primal_solution_status),
+                        "dual_solution_status": str(info.dual_solution_status),
+                        "simplex_iteration_count": info.simplex_iteration_count,
+                        "ipm_iteration_count": info.ipm_iteration_count,
+                    }
+                except (AttributeError, RuntimeError):
+                    pass
             raise RuntimeError(
                 f"Window {number} failed: status={status}, condition={condition}, "
+                f"HiGHS status={native_status}, HiGHS info={native_info}, "
                 f"reported_mip_gap={reported_mip_gap}, accepted_mip_gap={mip_gap}. "
                 "Time-limited integer windows require a finite MIP gap "
                 f"no greater than {max_time_limit_mip_gap:.1%}; LP windows "
@@ -598,7 +675,12 @@ def run_rolling_year(
                 max_time_limit_mip_gap if unit_commitment == "full" else None
             ),
             "solver_threads": solver_threads,
+            "simplex_strategy": solver_options.get("simplex_strategy"),
             "runtime_seconds": runtime,
+            "process_cpu_seconds": resources.cpu_seconds,
+            "average_cpu_cores": resources.cpu_seconds / runtime if runtime > 0 else None,
+            "peak_process_rss_mb_sampled": resources.peak_rss_bytes / 1_000_000,
+            "peak_process_threads_sampled": resources.peak_threads,
             "max_nodal_residual_mw": residual,
             "max_corridor_loading_pct": loading,
         }
@@ -610,6 +692,15 @@ def run_rolling_year(
 
         pd.concat(daily_parts).sort_index().to_csv(output_dir / "modeled_daily_generation.partial.csv")
         pd.DataFrame(window_rows).to_csv(output_dir / "window_log.partial.csv", index=False)
+        print(
+            f"Window {number}/{len(starts)}: {runtime:.1f} s wall, "
+            f"{resources.cpu_seconds:.1f} s CPU "
+            f"({resources.cpu_seconds / runtime:.2f} cores average), "
+            f"{resources.peak_rss_bytes / 1_000_000:.0f} MB peak RSS, "
+            f"{resources.peak_threads} peak process threads. "
+            f"Metrics: {output_dir / 'window_log.partial.csv'}",
+            flush=True,
+        )
 
     modeled = pd.concat(daily_parts).sort_index() if daily_parts else pd.DataFrame()
     window_log = pd.DataFrame(window_rows)
@@ -631,6 +722,7 @@ def run_rolling_year(
             max_time_limit_mip_gap if unit_commitment == "full" else None
         ),
         "solver_threads": solver_threads,
+        "simplex_strategy": simplex_strategy,
         "total_unserved_gwh": float(modeled.get("unserved_energy", pd.Series(dtype=float)).sum()),
         "solver_runtime_seconds_sum": float(window_log.get("runtime_seconds", pd.Series(dtype=float)).sum()),
         "wall_clock_seconds_this_session": float(time.perf_counter() - run_started),

@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
-from highs_solver_options import highs_solver_options
+from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
 
 
@@ -272,6 +272,7 @@ def solve_day(
     solver_options = highs_solver_options(
         unit_commitment, mip_rel_gap, solver_threads
     )
+    reset_highs_global_scheduler()
     status, condition = network.optimize(
         solver_name=solver,
         extra_functionality=add_nuclear_targets,
