@@ -21,3 +21,5 @@ results/*
 *.sol
 *.ilp
 
+# Generated model profiles
+/model/TamilNadu9BAs_profiles_2025_2026/

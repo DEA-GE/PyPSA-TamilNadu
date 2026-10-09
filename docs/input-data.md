@@ -69,27 +69,29 @@ each area's technology profile to its corresponding wind or solar generators
 and writes component-level availability to `model/generators-p_max_pu.csv`.
 The builder checks timestamps, required columns, missing values, and bounds.
 
-The accompanying source workbook is
-`data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx`. Its `Wind` and
-`Solar` sheets each contain `timestamp` plus nine area columns, with names
-such as `Chennai North0 0`. Both sheets have 8,760 rows. Their timestamps run
-from 2025-04-01 05:00 through 2026-04-01 04:00. In the prepared CSV, workbook
-hours 2026-04-01 00:00-04:00 occupy model hours 2025-04-01 00:00-04:00;
-the other 8,755 hours retain matching timestamps. All 18 prepared columns
-match the workbook values under that alignment. Regenerate or verify the
-prepared CSV from the workbook with:
+The active profiles come from the area-specific wind and solar CSVs under
+`model/TamilNadu9BAs_profiles_2025_2026/2025/` and `2026/`. The 2025 files
+cover the full calendar year; the 2026 files cover January through April.
+The FY2025-26 series uses 2025-04-01 through 2026-03-31 and is shifted five
+hours later to match the model's hourly convention. The final five FY hours
+wrap to the beginning. The constructed table is
+`model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv`.
+To activate the corrected FY table and rebuild the generator profiles, run:
 
 ```powershell
-python scripts/prepare_renewable_profiles.py --check
-python scripts/prepare_renewable_profiles.py
+Copy-Item model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv data/model_inputs/renewable_profiles.csv
 python scripts/build_9ba_model.py
+python scripts/construct_and_compare_re_profiles_fy2025_26.py
 ```
 
-`--check` compares all timestamps and capacity factors with the existing CSV
-without writing. The second command replaces the prepared CSV; the third
-rebuilds `model/`. The conversion validates sheet columns, hourly timestamps,
-missing values, and the 0–1 capacity-factor range before applying the
-five-hour boundary wrap. Use `--output PATH` to write or check a different CSV.
+The construction script checks that the corrected series agree with the active
+input and all renewable generators. The previous model input is archived at
+`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv`. The
+comparison notebook at `notebooks/compare_external_re_profiles_FY2025_26.ipynb`
+uses that archive as its baseline. The older workbook
+`data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx` is retained for
+comparison; `scripts/prepare_renewable_profiles.py` now checks or regenerates
+the archived baseline by default, leaving the active input unchanged.
 
 If `renewable_profiles.csv` is absent, the builder generates a **fallback**:
 the same statewide wind shape in all areas and one capacity-weighted solar

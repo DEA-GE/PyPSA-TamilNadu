@@ -444,13 +444,15 @@ solve remains necessary to optimise seasonal water value endogenously.
 
 `data/model_inputs/renewable_profiles.csv` contains 8,760 hourly rows and
 separate wind and solar capacity factors for each of the nine balancing areas.
-The current area profiles correspond to the `Wind` and `Solar` sheets in
-`data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx`. See the
-[Input data guide](docs/input-data.md#wind-and-solar-availability) for the
-column layout and the source workbook's five-hour boundary wrap. Regenerate or
-check the prepared CSV with `scripts/prepare_renewable_profiles.py` before
-rebuilding the model. The builder uses statewide template shapes as a fallback
-only if the prepared CSV is absent.
+The active profiles were assembled from the area-specific 2025 and 2026 CSVs
+under `model/TamilNadu9BAs_profiles_2025_2026/`, restricted to FY2025-26,
+then shifted five hours later with a fiscal-year boundary wrap. The previous
+model profiles are archived in
+`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for the
+[comparison notebook](notebooks/compare_external_re_profiles_FY2025_26.ipynb).
+See the [Input data guide](docs/input-data.md#wind-and-solar-availability)
+for the source and validation details. The builder uses statewide template
+shapes as a fallback only if the active CSV is absent.
 
 ## Generated files and Git
 
