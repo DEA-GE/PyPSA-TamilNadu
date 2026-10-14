@@ -1,0 +1,11 @@
+carrier,generation_gwh,period_start,period_end,source
+coal,1280668.84,2025-04-01,2026-03-31,Tamil Nadu Outlook
+oil_gas,26461.77,2025-04-01,2026-03-31,Tamil Nadu Outlook
+nuclear,55190.52,2025-04-01,2026-03-31,Tamil Nadu Outlook
+hydro,167203.78,2025-04-01,2026-03-31,Tamil Nadu Outlook
+solar,174756.51,2025-04-01,2026-03-31,Tamil Nadu Outlook
+wind,106699.80,2025-04-01,2026-03-31,Tamil Nadu Outlook
+small_hydro,12014.12,2025-04-01,2026-03-31,Tamil Nadu Outlook
+bio_power,17114.85,2025-04-01,2026-03-31,Tamil Nadu Outlook
+other_res,29128.97,2025-04-01,2026-03-31,Tamil Nadu Outlook
+comparable_total,1840110.19,2025-04-01,2026-03-31,Tamil Nadu Outlook

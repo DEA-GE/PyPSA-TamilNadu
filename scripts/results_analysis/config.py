@@ -57,6 +57,13 @@ DISPATCHABLE_CARRIERS = (
 def canonical_carrier(value: str) -> str:
     """Map component-specific carrier labels to the reporting taxonomy."""
     carrier = str(value)
-    if carrier in {"hydro_turbine", "pumped_hydro", "reservoir_hydro"}:
+    if carrier in {
+        "hydro_turbine",
+        "hydro_run_of_river",
+        "pumped_hydro",
+        "reservoir_hydro",
+    }:
         return "hydro"
+    if carrier == "market_import":
+        return "imports"
     return carrier

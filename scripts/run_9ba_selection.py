@@ -17,6 +17,8 @@ import pypsa
 import xarray as xr
 
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
+from bio_power_targets import bio_power_energy_target_mwh
+from small_hydro_targets import small_hydro_energy_target_mwh
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
@@ -28,6 +30,8 @@ from run_9ba_weekly_days_2025_26 import (
     MODEL_DIR,
     OIL_GAS_BUDGET_CONSTRAINT,
     PLOT_LABELS,
+    SUMMARY_CATEGORIES,
+    read_observed_annual_generation,
     read_observed_generation,
     read_oil_gas_budget,
     solve_day,
@@ -35,6 +39,7 @@ from run_9ba_weekly_days_2025_26 import (
 from run_9ba_rolling import (
     BIOMASS_ENERGY_CONSTRAINT,
     CHECKPOINT_MODEL_VERSION,
+    SMALL_HYDRO_ENERGY_CONSTRAINT,
     run_rolling_year,
 )
 
@@ -47,6 +52,12 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 # It is not expanded into a synthetic daily series.
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
+OUTLOOK_CAPACITY_FILE = (
+    MODEL_DIR.parent
+    / "data"
+    / "model_inputs"
+    / "tamil_nadu_outlook_installed_capacity.json"
+)
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
 RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
@@ -58,6 +69,56 @@ RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 _NETWORK_CACHE: dict[Path, tuple[tuple[tuple[str, int, int], ...], pypsa.Network]] = {}
 _DAY_WORKER_NETWORK: pypsa.Network | None = None
 _SELECTED_WEEK_WORKER_CONTEXT: tuple | None = None
+
+
+def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
+    """Compare modeled nameplate capacity with Tamil Nadu Outlook categories."""
+    payload = json.loads(OUTLOOK_CAPACITY_FILE.read_text(encoding="utf-8"))
+    historical = pd.DataFrame(payload["categories"]).set_index("carrier")
+    if historical.index.duplicated().any():
+        raise ValueError("Tamil Nadu Outlook capacity categories must be unique")
+    if not np.isclose(historical.installed_capacity_mw.sum(), 43853.21, atol=1e-6):
+        raise ValueError("Tamil Nadu Outlook installed capacities do not reconcile")
+    if not np.isclose(historical.share_pct.sum(), 100.0, atol=0.02):
+        raise ValueError("Tamil Nadu Outlook capacity shares do not reconcile")
+
+    carrier = network.generators.carrier.astype(str).replace(
+        {"hydro_run_of_river": "hydro", "market_import": "imports"}
+    )
+    modeled = network.generators.p_nom.groupby(carrier).sum()
+    if len(network.storage_units):
+        storage_carrier = network.storage_units.carrier.astype(str).replace(
+            {"pumped_hydro": "hydro", "reservoir_hydro": "hydro"}
+        )
+        modeled = modeled.add(
+            network.storage_units.p_nom.groupby(storage_carrier).sum(), fill_value=0.0
+        )
+    hydro_turbines = network.links.loc[
+        network.links.carrier.astype(str).eq("hydro_turbine")
+    ]
+    if len(hydro_turbines):
+        modeled.loc["hydro"] = modeled.get("hydro", 0.0) + (
+            hydro_turbines.p_nom * hydro_turbines.efficiency.fillna(1.0)
+        ).sum()
+
+    result = historical.rename(
+        columns={
+            "installed_capacity_mw": "historical_capacity_mw",
+            "share_pct": "historical_share_pct",
+        }
+    )
+    result.insert(0, "modeled_capacity_mw", modeled.reindex(result.index))
+    reference_total = result.modeled_capacity_mw.sum()
+    result["modeled_share_pct"] = 100.0 * result.modeled_capacity_mw / reference_total
+    result["difference_mw"] = (
+        result.modeled_capacity_mw - result.historical_capacity_mw
+    )
+    result["difference_pct"] = (
+        100.0 * result.difference_mw / result.historical_capacity_mw
+    )
+    result["historical_source"] = str(payload["source"])
+    result.index.name = "carrier"
+    return result
 
 
 def _initialise_day_worker(base_network: pypsa.Network) -> None:
@@ -168,6 +229,12 @@ def _selected_week_validation(
         ),
         "max_abs_nuclear_target_deviation_mwh": float(
             week_log["max_abs_nuclear_target_deviation_mwh"].max()
+        ),
+        "max_abs_bio_power_target_deviation_mwh": float(
+            week_log["biomass_target_error_mwh"].abs().max()
+        ),
+        "max_abs_small_hydro_target_deviation_mwh": float(
+            week_log["small_hydro_target_error_mwh"].abs().max()
         ),
         "max_abs_nodal_residual_mw": float(week_log["max_abs_nodal_residual_mw"].max()),
         "max_link_loading_pct": float(week_log["max_link_loading_pct"].max()),
@@ -429,10 +496,9 @@ def _carrier_energy_by_day(network: pypsa.Network) -> pd.DataFrame:
         link_daily = (-network.links_t.p1[hydro_links]).mul(weights, axis=0).sum(axis=1)
         link_daily = link_daily.groupby(link_daily.index.normalize()).sum() / 1_000.0
         output["hydro"] = output["hydro"].add(link_daily, fill_value=0.0)
-    output["other_res"] = sum(
-        (daily.get(carrier, pd.Series(0.0, index=daily.index)) for carrier in ["bio_power", "small_hydro"]),
-        start=pd.Series(0.0, index=daily.index),
-    )
+    output["bio_power"] = daily.get("bio_power", pd.Series(0.0, index=daily.index))
+    output["small_hydro"] = daily.get("small_hydro", pd.Series(0.0, index=daily.index))
+    output["other_res"] = output["bio_power"] + output["small_hydro"]
     output["market_import"] = daily.get("market_import", pd.Series(0.0, index=daily.index))
     output["unserved_energy"] = daily.get("unserved_energy", pd.Series(0.0, index=daily.index))
     output["system_plant_generation"] = output[
@@ -638,6 +704,13 @@ def _solve_selected_weeks(
     if biomass_annual_target_mwh <= 0.0 or full_horizon_weight <= 0.0:
         raise ValueError("Selected-week biomass target requires a positive annual target and horizon weight.")
 
+    small_hydro_units = base_network.generators.index[
+        base_network.generators.carrier.eq("small_hydro")
+    ]
+    if not len(small_hydro_units):
+        raise ValueError("Selected-week small-hydro targets require small_hydro generators.")
+    base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+
     modeled_parts: list[pd.DataFrame] = []
     week_rows: list[dict[str, object]] = []
     observed_soc = _hydro_soc_targets()
@@ -704,14 +777,13 @@ def _solve_selected_weeks(
         retained_base_snapshots = base_network.snapshots[
             base_network.snapshots.normalize().isin(retained_dates)
         ]
-        expected_biomass_target_mwh = (
-            biomass_annual_target_mwh
-            * float(
-                base_network.snapshot_weightings.generators.reindex(
-                    retained_base_snapshots
-                ).sum()
-            )
-            / full_horizon_weight
+        expected_biomass_target_mwh = bio_power_energy_target_mwh(
+            retained_base_snapshots,
+            base_network.snapshot_weightings.generators,
+        )
+        expected_small_hydro_target_mwh = small_hydro_energy_target_mwh(
+            retained_base_snapshots,
+            base_network.snapshot_weightings.generators,
         )
         week_dir = output_dir / f"week_{start:%Y-%m-%d}"
         week_dir.mkdir(parents=True, exist_ok=True)
@@ -741,6 +813,10 @@ def _solve_selected_weeks(
                 and np.isclose(
                     saved_validation.get("biomass_target_mwh", np.nan),
                     expected_biomass_target_mwh,
+                )
+                and np.isclose(
+                    saved_validation.get("small_hydro_target_mwh", np.nan),
+                    expected_small_hydro_target_mwh,
                 )
             )
             if compatible:
@@ -886,13 +962,13 @@ def _solve_selected_weeks(
         retained_snapshots = network.snapshots[
             network.snapshots.normalize().isin(retained_dates)
         ]
-        retained_weights = network.snapshot_weightings.generators.reindex(
-            retained_snapshots
+        biomass_target_mwh = bio_power_energy_target_mwh(
+            retained_snapshots,
+            network.snapshot_weightings.generators,
         )
-        biomass_target_mwh = (
-            biomass_annual_target_mwh
-            * float(retained_weights.sum())
-            / full_horizon_weight
+        small_hydro_target_mwh = small_hydro_energy_target_mwh(
+            retained_snapshots,
+            network.snapshot_weightings.generators,
         )
 
         def extra_functionality(
@@ -919,6 +995,14 @@ def _solve_selected_weeks(
             active_network.model.add_constraints(
                 (biomass_dispatch * biomass_weights).sum() == biomass_target_mwh,
                 name=f"SelectedWeekBiomassEnergyTarget-{retained_dates[0]:%Y%m%d}",
+            )
+            small_hydro_dispatch = dispatch.sel(
+                {generator_dim: small_hydro_units, "snapshot": retained_snapshots}
+            )
+            active_network.model.add_constraints(
+                (small_hydro_dispatch * biomass_weights).sum()
+                == small_hydro_target_mwh,
+                name=f"SelectedWeekSmallHydroEnergyTarget-{retained_dates[0]:%Y%m%d}",
             )
             for date, target in gas_targets.items():
                 day_snapshots = active_snapshots[active_snapshots.normalize() == date]
@@ -1063,7 +1147,13 @@ def _solve_selected_weeks(
         ).abs().max()
         biomass_generation_mwh = float(
             network.generators_t.p.loc[retained_snapshots, biomass_units]
-            .mul(retained_weights, axis=0)
+            .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
+            .sum()
+            .sum()
+        )
+        small_hydro_generation_mwh = float(
+            network.generators_t.p.loc[retained_snapshots, small_hydro_units]
+            .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
             .sum()
             .sum()
         )
@@ -1115,6 +1205,11 @@ def _solve_selected_weeks(
             "biomass_target_mwh": biomass_target_mwh,
             "biomass_generation_mwh": biomass_generation_mwh,
             "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
+            "small_hydro_target_mwh": small_hydro_target_mwh,
+            "small_hydro_generation_mwh": small_hydro_generation_mwh,
+            "small_hydro_target_error_mwh": (
+                small_hydro_generation_mwh - small_hydro_target_mwh
+            ),
             "solver_name": solver_name,
             "solver_threads": solver_threads,
             "unit_commitment": unit_commitment,
@@ -1178,6 +1273,7 @@ def _write_outputs(
     dates: pd.DatetimeIndex,
     modeled: pd.DataFrame,
     observed: pd.DataFrame,
+    observed_annual: pd.DataFrame,
     validation: dict,
     output_dir: Path,
     solved_network: pypsa.Network | None,
@@ -1190,8 +1286,11 @@ def _write_outputs(
     modeled_period.to_csv(output_dir / "modeled_daily_generation.csv")
     observed_period.to_csv(output_dir / "observed_daily_generation.csv")
 
+    annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
+    annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
+    uses_outlook_annual = dates.equals(pd.date_range(annual_start, annual_end, freq="D"))
+
     comparison_rows = []
-    summary_rows = []
     for carrier in COMPARISON_CATEGORIES:
         modeled_values = modeled_period[carrier]
         observed_values = observed_period[carrier]
@@ -1208,17 +1307,34 @@ def _write_outputs(
                     "difference_pct": pct.loc[date],
                 }
             )
-        modeled_total = float(modeled_values.sum())
-        observed_total = float(observed_values.sum())
+    summary_rows = []
+    for carrier in SUMMARY_CATEGORIES:
+        modeled_total = float(modeled_period[carrier].sum())
+        if uses_outlook_annual and carrier in observed_annual.index:
+            observed_total = float(observed_annual.at[carrier, "generation_gwh"])
+            observed_source = str(observed_annual.at[carrier, "source"])
+            observed_period_label = f"{annual_start.date()} to {annual_end.date()}"
+        elif carrier in observed_period and observed_period[carrier].notna().any():
+            observed_total = float(observed_period[carrier].sum())
+            observed_source = "daily historical generation"
+            observed_period_label = f"{dates[0].date()} to {dates[-1].date()}"
+        else:
+            observed_total = np.nan
+            observed_source = "not available"
+            observed_period_label = ""
         summary_rows.append(
             {
                 "carrier": carrier,
                 "modeled_gwh": modeled_total,
                 "observed_gwh": observed_total,
+                "observed_source": observed_source,
+                "observed_period": observed_period_label,
                 "difference_gwh": modeled_total - observed_total,
-                "difference_pct": 100.0 * (modeled_total - observed_total) / observed_total
-                if observed_total
-                else np.nan,
+                "difference_pct": (
+                    100.0 * (modeled_total - observed_total) / observed_total
+                    if pd.notna(observed_total) and observed_total
+                    else np.nan
+                ),
             }
         )
     comparison = pd.DataFrame(comparison_rows)
@@ -1286,9 +1402,9 @@ def run_selection(
     soc_boundary_tolerance_pu: float = DEFAULT_SOC_BOUNDARY_TOLERANCE_PU,
     solver_name: str = "highs",
     mip_rel_gap: float = 0.01,
-    solver_threads: int = 8,
+    solver_threads: int | str | None = "Default",
     simplex_strategy: int | None = None,
-    parallel_workers: int = 1,
+    parallel_workers: int | str = "Default",
     unit_commitment: str = "full",
     run_name: str = "baseline",
     rolling_time_limit: float | None = 1800,
@@ -1309,6 +1425,16 @@ def run_selection(
     unit_commitment = str(unit_commitment).strip().lower()
     if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    if isinstance(solver_threads, str):
+        if solver_threads.strip().casefold() != "default":
+            raise ValueError("solver_threads must be 'Default' or an integer from 1 to 8")
+        solver_threads = None
+    if solver_threads is None:
+        solver_threads = 8 if unit_commitment in {"full", "relaxed"} else 3
+    if isinstance(parallel_workers, str):
+        if parallel_workers.strip().casefold() != "default":
+            raise ValueError("parallel_workers must be 'Default' or a positive integer")
+        parallel_workers = 2
     # Validate early, before loading the relatively large annual network.
     highs_solver_options(unit_commitment, mip_rel_gap, solver_threads, simplex_strategy)
     if simplex_strategy is not None and mode != "rolling":
@@ -1344,6 +1470,8 @@ def run_selection(
     # retained-week proportional target inside each independent optimization.
     if mode != "rolling" and BIOMASS_ENERGY_CONSTRAINT in base_network.global_constraints.index:
         base_network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
+    if mode != "rolling" and SMALL_HYDRO_ENERGY_CONSTRAINT in base_network.global_constraints.index:
+        base_network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
     total_load = base_network.loads_t.p_set.sum(axis=1)
     available = pd.DatetimeIndex(total_load.index).normalize().unique().sort_values()
     if mode == "selected_weeks":
@@ -1359,12 +1487,16 @@ def run_selection(
         label = f"{label}_{unit_commitment}_uc"
 
     observed = read_observed_generation()
+    observed_annual = read_observed_annual_generation()
     oil_gas_budget = read_oil_gas_budget(observed)
     missing_observed = dates.difference(observed.index)
     if len(missing_observed):
         raise ValueError(f"Observed generation is missing {len(missing_observed)} requested day(s).")
 
     output_dir = results_root / label / run_name
+    capacity_comparison = _installed_capacity_comparison(base_network)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
     if mode == "rolling":
         modeled, validation, solved_network = run_rolling_year(
             base_network,
@@ -1426,7 +1558,14 @@ def run_selection(
     validation.setdefault("parallel_workers", 1)
 
     summary, comparison, plot_path, solved_network_path = _write_outputs(
-        mode, dates, modeled, observed, validation, output_dir, solved_network
+        mode,
+        dates,
+        modeled,
+        observed,
+        observed_annual,
+        validation,
+        output_dir,
+        solved_network,
     )
     print(f"Finished. Results: {output_dir}", flush=True)
     return {
@@ -1435,6 +1574,7 @@ def run_selection(
         "output_dir": output_dir,
         "run_name": run_name,
         "summary": summary,
+        "capacity_comparison": capacity_comparison,
         "comparison": comparison,
         "validation": validation,
         "plot_path": plot_path,

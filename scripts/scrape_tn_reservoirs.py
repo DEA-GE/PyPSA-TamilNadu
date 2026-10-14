@@ -6,9 +6,8 @@ Source pattern:
 
 Key safeguards:
 - Verifies the DATE printed on the returned page equals the requested date.
-- Rejects silent fallback pages that return a current/repeated snapshot with HTTP 200.
-- Runs a secondary repeated-snapshot QA check across multiple reservoirs.
-- Keeps rejected dates out of model-ready outputs and writes them to QA CSVs.
+- Detects complete multi-reservoir payloads repeated across implausibly distant dates.
+- Interpolates every time-varying measurement in repeated payloads and records provenance.
 - Adds CWC live-capacity calibration fields for overlapping reservoirs.
 
 Dependencies:
@@ -57,38 +56,19 @@ CWC_NONLIVE_OFFSET_BCM = {
     "Aliyar": 0.014416,
 }
 
-SNAPSHOT_ANCHOR_RESERVOIRS = (
-    "METTUR",
-    "BHAVANISAGAR",
-    "Vaigai",
-    "Sholayar",
-    "Parambikulam",
-    "Aliyar",
-)
-SNAPSHOT_FIELDS = (
+# These are observations that may change from one report date to the next.
+# Full depth and capacity are physical parameters and intentionally remain
+# untouched when a bad daily payload is repaired.
+TIME_VARYING_FIELDS = (
     "current_level_ft",
     "current_storage_mcft",
     "current_inflow_cusec",
     "current_outflow_cusec",
+    "last_year_level_ft",
+    "last_year_storage_mcft",
 )
-
-
-# Known bad fallback snapshot observed when historical requests silently return
-# the same current-page operating values. Only this exact multi-reservoir
-# combination is rejected by the secondary QA check.
-#
-# Format for each reservoir:
-#   current_level_ft, current_storage_mcft,
-#   current_inflow_cusec, current_outflow_cusec
-KNOWN_FALLBACK_SNAPSHOT = {
-    "METTUR": (88.21, 50630.0, 8618.0, 12403.0),
-    "BHAVANISAGAR": (53.02, 5198.0, 276.0, 155.0),
-    "Vaigai": (40.22, 966.0, 260.0, 86.0),
-    "Sholayar": (79.57, 1575.0, 391.0, 926.0),
-    "Parambikulam": (52.20, 9133.0, 988.0, 20.0),
-    "Aliyar": (66.55, 812.0, 275.0, 450.0),
-}
-
+MIN_REPEATED_SNAPSHOT_DATES = 5
+MIN_REPEATED_SNAPSHOT_SPAN_DAYS = 14
 
 class HistoricalPageFallbackError(RuntimeError):
     pass
@@ -328,87 +308,224 @@ def add_derived_fields(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def repair_known_storage_outliers(df: pd.DataFrame) -> pd.DataFrame:
+    """Repair isolated, documented source errors before deriving storage fields.
+
+    The Parambikulam observation for 2026-02-19 reports 1,250 MCft, while the
+    immediately adjacent daily observations are 12,603 and 12,429 MCft.  The
+    source value is a misplaced-comma error; correct it by multiplying by ten
+    and retain explicit provenance in the output.
+    """
+    out = df.copy()
+    mask = out["reservoir"].eq("Parambikulam") & out["date"].eq("2026-02-19")
+    if not mask.any():
+        return out
+
+    out.loc[mask, "current_storage_mcft"] = 12500.0
+    out.loc[mask, "quality_flag"] = "corrected_storage_decimal"
+    out.loc[mask, "date_validation"] = "verified_date_corrected_storage"
+    out.loc[mask, "interpolation_method"] = "multiply_by_10"
+    out.loc[mask, "interpolation_previous_date"] = ""
+    out.loc[mask, "interpolation_next_date"] = ""
+    out.loc[mask, "interpolated_fields"] = "current_storage_mcft"
+    return out
+
+
 def date_snapshot_signature(day_df: pd.DataFrame) -> str | None:
-    sub = day_df[day_df["reservoir"].isin(SNAPSHOT_ANCHOR_RESERVOIRS)].copy()
-    if sub["reservoir"].nunique() < 5:
+    """Return an exact fingerprint of one complete daily source payload."""
+    required = {"reservoir", *TIME_VARYING_FIELDS}
+    if not required.issubset(day_df.columns):
         return None
-    sub = sub.set_index("reservoir")
+    if day_df.empty or day_df["reservoir"].duplicated().any():
+        return None
+
+    rows = day_df.sort_values("reservoir")
     tokens = []
-    for reservoir in SNAPSHOT_ANCHOR_RESERVOIRS:
-        if reservoir not in sub.index:
-            tokens.append(f"{reservoir}:MISSING")
-            continue
-        row = sub.loc[reservoir]
-        if isinstance(row, pd.DataFrame):
-            row = row.iloc[0]
-        vals = []
-        for field in SNAPSHOT_FIELDS:
-            val = row.get(field, np.nan)
-            vals.append("NA" if pd.isna(val) else f"{float(val):.6f}")
-        tokens.append(f"{reservoir}:" + "|".join(vals))
+    for row in rows[["reservoir", *TIME_VARYING_FIELDS]].itertuples(
+        index=False, name=None
+    ):
+        values = [str(row[0])]
+        for value in row[1:]:
+            values.append("NA" if pd.isna(value) else float(value).hex())
+        tokens.append("|".join(values))
     return hashlib.sha256("||".join(tokens).encode()).hexdigest()
 
 
-def matches_known_fallback_snapshot(
-    day_df: pd.DataFrame,
-    atol: float = 1e-9,
-) -> bool:
+def detect_repeated_snapshot_dates(
+    df: pd.DataFrame,
+    min_occurrences: int = MIN_REPEATED_SNAPSHOT_DATES,
+    min_span_days: int = MIN_REPEATED_SNAPSHOT_SPAN_DAYS,
+) -> pd.DataFrame:
+    """Find implausibly repeated complete multi-reservoir source payloads.
+
+    A single reservoir can legitimately report the same value on many dates.
+    This check therefore compares the complete set of time-varying fields for
+    every reservoir on a date, and only flags signatures repeated many times
+    across a sufficiently long period.
     """
-    Return True only when all six anchor reservoirs match the known bad
-    fallback snapshot across level, storage, inflow and outflow.
+    if min_occurrences < 2:
+        raise ValueError("min_occurrences must be at least 2.")
+    if min_span_days < 1:
+        raise ValueError("min_span_days must be positive.")
 
-    This deliberately does NOT reject other repeated states. A reservoir, or
-    even several reservoirs, may legitimately revisit the same level/storage.
-    """
-    sub = day_df[
-        day_df["reservoir"].isin(KNOWN_FALLBACK_SNAPSHOT)
-    ].copy()
+    working = df.copy()
+    working["_date"] = pd.to_datetime(working["date"], errors="raise").dt.normalize()
+    date_counts = working.groupby("_date")["reservoir"].nunique()
+    if date_counts.empty:
+        return pd.DataFrame(
+            columns=[
+                "date", "snapshot_signature", "repeat_count", "span_days",
+                "reservoir_count", "reason",
+            ]
+        )
 
-    if sub["reservoir"].nunique() != len(KNOWN_FALLBACK_SNAPSHOT):
-        return False
+    # The modal count represents a complete report even if a few scraped pages
+    # were incomplete. In the FY2025-26 source this is 19 reservoirs.
+    complete_count = int(date_counts.mode().iloc[0])
+    signatures = []
+    for date, day_df in working.groupby("_date", sort=True):
+        signature = (
+            date_snapshot_signature(day_df)
+            if day_df["reservoir"].nunique() == complete_count
+            else None
+        )
+        signatures.append({"_date": date, "snapshot_signature": signature})
 
-    sub = sub.set_index("reservoir")
-
-    for reservoir, expected_values in KNOWN_FALLBACK_SNAPSHOT.items():
-        row = sub.loc[reservoir]
-        if isinstance(row, pd.DataFrame):
-            row = row.iloc[0]
-
-        for field, expected in zip(SNAPSHOT_FIELDS, expected_values):
-            actual = row.get(field, np.nan)
-
-            if pd.isna(actual):
-                return False
-
-            if not np.isclose(
-                float(actual),
-                float(expected),
-                rtol=0.0,
-                atol=atol,
-            ):
-                return False
-
-    return True
-
-
-def detect_known_fallback_dates(df: pd.DataFrame) -> pd.DataFrame:
-    """Flag only dates containing the known erroneous fallback snapshot."""
+    signature_table = pd.DataFrame(signatures).dropna(subset=["snapshot_signature"])
     suspicious = []
-
-    for date, day_df in df.groupby("date", sort=True):
-        if matches_known_fallback_snapshot(day_df):
+    for signature, group in signature_table.groupby("snapshot_signature", sort=False):
+        repeat_count = len(group)
+        span_days = int((group["_date"].max() - group["_date"].min()).days)
+        if repeat_count < min_occurrences or span_days < min_span_days:
+            continue
+        reason = (
+            "Identical complete multi-reservoir payload across all time-varying "
+            f"fields repeated {repeat_count} times over {span_days} days."
+        )
+        for date in group["_date"].sort_values():
             suspicious.append(
                 {
-                    "date": pd.Timestamp(date).date().isoformat(),
-                    "reason": (
-                        "Exact match to known Tamil Nadu Agriculture fallback "
-                        "snapshot across six reservoirs and four operational "
-                        "fields per reservoir."
-                    ),
+                    "date": date.date().isoformat(),
+                    "snapshot_signature": signature,
+                    "repeat_count": repeat_count,
+                    "span_days": span_days,
+                    "reservoir_count": complete_count,
+                    "reason": reason,
                 }
             )
+    return pd.DataFrame(
+        suspicious,
+        columns=[
+            "date", "snapshot_signature", "repeat_count", "span_days",
+            "reservoir_count", "reason",
+        ],
+    )
 
-    return pd.DataFrame(suspicious)
+
+def _trusted_neighbour_dates(
+    dates: pd.Series,
+    suspicious: pd.Series,
+) -> tuple[pd.Series, pd.Series]:
+    """Return nearest trustworthy date before and after every row."""
+    trusted_dates = dates.where(~suspicious)
+    previous = trusted_dates.ffill().where(suspicious)
+    following = trusted_dates.bfill().where(suspicious)
+    return previous, following
+
+
+def interpolate_repeated_snapshots(
+    df: pd.DataFrame,
+    suspicious_dates,
+) -> pd.DataFrame:
+    """Repair suspect payloads for every time-varying field by reservoir.
+
+    Interior gaps use calendar-time linear interpolation. At a dataset edge,
+    where interpolation cannot be bracketed, the closest trustworthy value is
+    used. Values are constrained to basic physical bounds after interpolation.
+    """
+    missing = {"date", "reservoir", *TIME_VARYING_FIELDS} - set(df.columns)
+    if missing:
+        raise ValueError(f"Cannot interpolate; required columns missing: {sorted(missing)}")
+    if df.duplicated(["date", "reservoir"]).any():
+        raise ValueError("Cannot interpolate duplicate date/reservoir rows.")
+
+    out = df.copy()
+    out["_date"] = pd.to_datetime(out["date"], errors="raise").dt.normalize()
+    suspect_date_index = pd.DatetimeIndex(pd.to_datetime(list(suspicious_dates))).normalize()
+    out["_suspect"] = out["_date"].isin(suspect_date_index)
+
+    out["quality_flag"] = "verified"
+    out["model_ready"] = True
+    out["interpolation_method"] = ""
+    out["interpolation_previous_date"] = ""
+    out["interpolation_next_date"] = ""
+    out["interpolated_fields"] = ""
+
+    if not out["_suspect"].any():
+        return out.drop(columns=["_date", "_suspect"])
+
+    for _, indices in out.groupby("reservoir", sort=False).groups.items():
+        group = out.loc[indices].sort_values("_date")
+        group_index = group.index
+        suspect = group["_suspect"]
+        previous, following = _trusted_neighbour_dates(group["_date"], suspect)
+
+        for field in TIME_VARYING_FIELDS:
+            values = pd.Series(
+                pd.to_numeric(group[field], errors="coerce").to_numpy(),
+                index=pd.DatetimeIndex(group["_date"]),
+                dtype=float,
+            )
+            values.loc[suspect.to_numpy()] = np.nan
+            repaired = values.interpolate(method="time", limit_area="inside")
+            repaired = repaired.ffill().bfill()
+            out.loc[group_index[suspect], field] = repaired.loc[
+                suspect.to_numpy()
+            ].to_numpy()
+
+        interior = suspect & previous.notna() & following.notna()
+        boundary = suspect & ~interior
+        out.loc[group_index[interior], "interpolation_method"] = "linear_time"
+        out.loc[group_index[boundary], "interpolation_method"] = "nearest_boundary"
+        out.loc[group_index[suspect], "interpolation_previous_date"] = (
+            previous.loc[suspect].dt.strftime("%Y-%m-%d").fillna("").to_numpy()
+        )
+        out.loc[group_index[suspect], "interpolation_next_date"] = (
+            following.loc[suspect].dt.strftime("%Y-%m-%d").fillna("").to_numpy()
+        )
+
+    suspect_rows = out["_suspect"]
+    lower_bounded = [
+        "current_level_ft", "current_storage_mcft", "current_inflow_cusec",
+        "current_outflow_cusec", "last_year_level_ft", "last_year_storage_mcft",
+    ]
+    for field in lower_bounded:
+        out.loc[suspect_rows, field] = out.loc[suspect_rows, field].clip(lower=0.0)
+    if "full_depth_ft" in out:
+        for field in ("current_level_ft", "last_year_level_ft"):
+            values = out.loc[suspect_rows, field]
+            upper = out.loc[suspect_rows, "full_depth_ft"]
+            out.loc[suspect_rows, field] = values.where(
+                upper.isna(), np.minimum(values, upper)
+            )
+    if "full_capacity_mcft" in out:
+        for field in ("current_storage_mcft", "last_year_storage_mcft"):
+            values = out.loc[suspect_rows, field]
+            upper = out.loc[suspect_rows, "full_capacity_mcft"]
+            out.loc[suspect_rows, field] = values.where(
+                upper.isna(), np.minimum(values, upper)
+            )
+
+    resolved = out.loc[suspect_rows, list(TIME_VARYING_FIELDS)].notna().all(axis=1)
+    resolved_index = resolved.index[resolved]
+    unresolved_index = resolved.index[~resolved]
+    out.loc[resolved_index, "quality_flag"] = "interpolated_repeated_snapshot"
+    out.loc[resolved_index, "date_validation"] = "verified_date_interpolated_payload"
+    out.loc[resolved_index, "interpolated_fields"] = ",".join(TIME_VARYING_FIELDS)
+    out.loc[unresolved_index, "quality_flag"] = "unresolved_repeated_snapshot"
+    out.loc[unresolved_index, "model_ready"] = False
+    out.loc[unresolved_index, "date_validation"] = "verified_date_unresolved_payload"
+    return out.drop(columns=["_date", "_suspect"])
 
 
 def make_wide(df: pd.DataFrame) -> pd.DataFrame:
@@ -442,6 +559,18 @@ def main():
     parser.add_argument("--sleep", type=float, default=0.35)
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--content-retries", type=int, default=2)
+    parser.add_argument(
+        "--min-repeated-snapshot-dates",
+        type=int,
+        default=MIN_REPEATED_SNAPSHOT_DATES,
+        help="Minimum exact complete-payload repeats to treat as fallback data.",
+    )
+    parser.add_argument(
+        "--min-repeated-snapshot-span-days",
+        type=int,
+        default=MIN_REPEATED_SNAPSHOT_SPAN_DAYS,
+        help="Minimum first-to-last repeat span used by fallback detection.",
+    )
     parser.add_argument("--insecure", action="store_true")
     args = parser.parse_args()
 
@@ -462,7 +591,7 @@ def main():
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     session = build_session(verify_ssl=not args.insecure)
-    all_days, failures = [], []
+    all_days = []
     dates = pd.date_range(start, end, freq="D")
 
     for i, date in enumerate(dates, 1):
@@ -477,14 +606,10 @@ def main():
             logging.info("[%d/%d] %s OK", i, len(dates), date.date())
         except Exception as exc:
             logging.warning("[%d/%d] %s REJECTED: %s", i, len(dates), date.date(), exc)
-            failures.append({
-                "date": date.date().isoformat(),
-                "error_type": type(exc).__name__,
-                "error": str(exc),
-                "url": BASE_URL.format(date=date.strftime("%Y-%m-%d")),
-            })
         if i < len(dates):
             time.sleep(args.sleep)
+
+    session.close()
 
     if not all_days:
         raise RuntimeError(
@@ -492,36 +617,33 @@ def main():
             "returning only a current snapshot."
         )
 
-    accepted = add_derived_fields(pd.concat(all_days, ignore_index=True))
-    accepted.to_csv(
-        output_dir / "tn_reservoir_all_accepted_before_snapshot_QA_FY2025_26.csv",
-        index=False,
+    raw = pd.concat(all_days, ignore_index=True)
+    suspicious = detect_repeated_snapshot_dates(
+        raw,
+        min_occurrences=args.min_repeated_snapshot_dates,
+        min_span_days=args.min_repeated_snapshot_span_days,
     )
-
-    suspicious = detect_known_fallback_dates(accepted)
-    suspicious_dates = set(suspicious["date"]) if not suspicious.empty else set()
-
-    clean = accepted[~accepted["date"].astype(str).isin(suspicious_dates)].copy()
-    clean["quality_flag"] = "verified"
-    clean["model_ready"] = True
+    suspicious_dates = suspicious["date"] if not suspicious.empty else []
+    clean = interpolate_repeated_snapshots(raw, suspicious_dates)
+    clean = repair_known_storage_outliers(clean)
+    # Derived values must be calculated after repairing the source fields so
+    # storage fractions, unit conversions and CWC calibration stay consistent.
+    clean = add_derived_fields(clean)
 
     clean.to_csv(output_dir / "tn_reservoir_daily_FY2025_26.csv", index=False)
     make_wide(clean).to_csv(
         output_dir / "tn_reservoir_daily_FY2025_26_wide.csv", index=False
     )
-
-    if failures:
-        pd.DataFrame(failures).to_csv(
-            output_dir / "tn_reservoir_scrape_failures_FY2025_26.csv", index=False
-        )
-    if not suspicious.empty:
-        suspicious.to_csv(
-            output_dir / "tn_reservoir_suspicious_snapshots_FY2025_26.csv", index=False
-        )
+    suspicious.to_csv(
+        output_dir / "tn_reservoir_suspicious_snapshots_FY2025_26.csv",
+        index=False,
+    )
 
     logging.info(
-        "Finished: %d requested dates, %d passed date validation, %d model-ready dates.",
-        len(dates), accepted["date"].nunique(), clean["date"].nunique()
+        "Finished: %d requested dates, %d passed date validation, "
+        "%d repeated-snapshot dates interpolated, %d model-ready dates.",
+        len(dates), raw["date"].nunique(), len(suspicious),
+        clean.loc[clean["model_ready"], "date"].nunique(),
     )
 
 

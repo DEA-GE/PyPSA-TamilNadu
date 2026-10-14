@@ -38,6 +38,12 @@ OBSERVED_FILE = (
     / "source"
     / "TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx"
 )
+OUTLOOK_ANNUAL_GENERATION_FILE = (
+    ROOT
+    / "data"
+    / "model_inputs"
+    / "tamil_nadu_outlook_annual_generation_FY2025_26.csv"
+)
 DEFAULT_OUTPUT_DIR = ROOT / "results" / "weekly_days"
 OIL_GAS_BUDGET_FILE = MODEL_DIR / "oil_gas_daily_energy_budget.csv"
 OIL_GAS_BUDGET_CONSTRAINT = "observed_fy2025_26_oil_gas_generation_target"
@@ -61,6 +67,18 @@ COMPARISON_CATEGORIES = [
     "hydro",
     "solar",
     "wind",
+    "comparable_total",
+]
+SUMMARY_CATEGORIES = [
+    "coal",
+    "oil_gas",
+    "nuclear",
+    "hydro",
+    "solar",
+    "wind",
+    "bio_power",
+    "small_hydro",
+    "other_res",
     "comparable_total",
 ]
 PLOT_LABELS = {
@@ -136,6 +154,40 @@ def read_observed_generation() -> pd.DataFrame:
     source_sum = observed[["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]].sum(axis=1)
     if not np.allclose(source_sum, observed["comparable_total"], atol=1e-8):
         raise ValueError("Observed Total does not reconcile to its six populated technologies")
+    return observed
+
+
+def read_observed_annual_generation() -> pd.DataFrame:
+    """Load authoritative Tamil Nadu Outlook FY2025-26 generation totals."""
+    observed = pd.read_csv(
+        OUTLOOK_ANNUAL_GENERATION_FILE,
+        parse_dates=["period_start", "period_end"],
+    )
+    required = {"carrier", "generation_gwh", "period_start", "period_end", "source"}
+    missing = required - set(observed.columns)
+    if missing:
+        raise ValueError(
+            f"{OUTLOOK_ANNUAL_GENERATION_FILE} is missing columns: {sorted(missing)}"
+        )
+    if observed["carrier"].duplicated().any():
+        duplicates = observed.loc[observed["carrier"].duplicated(), "carrier"].tolist()
+        raise ValueError(f"Duplicate annual observed carriers: {duplicates}")
+    if observed["generation_gwh"].isna().any() or observed["generation_gwh"].lt(0).any():
+        raise ValueError("Annual observed generation must be non-negative and complete")
+    if observed["period_start"].nunique() != 1 or observed["period_end"].nunique() != 1:
+        raise ValueError("Annual observed generation rows must use one common period")
+    observed = observed.set_index("carrier").sort_index()
+    comparable = ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
+    missing_carriers = set(comparable) - set(observed.index)
+    if missing_carriers:
+        raise ValueError(
+            f"Annual observed generation is missing carriers: {sorted(missing_carriers)}"
+        )
+    observed.loc["comparable_total", "generation_gwh"] = observed.loc[
+        comparable, "generation_gwh"
+    ].sum()
+    for column in ["period_start", "period_end", "source"]:
+        observed.loc["comparable_total", column] = observed.iloc[0][column]
     return observed
 
 
@@ -224,6 +276,8 @@ def carrier_energy_mu(network: pypsa.Network) -> pd.Series:
     values["other_res"] = float(by_carrier.get("bio_power", 0.0)) + float(
         by_carrier.get("small_hydro", 0.0)
     )
+    values["bio_power"] = float(by_carrier.get("bio_power", 0.0))
+    values["small_hydro"] = float(by_carrier.get("small_hydro", 0.0))
     values["system_plant_generation"] = sum(
         value
         for carrier, value in by_carrier.items()

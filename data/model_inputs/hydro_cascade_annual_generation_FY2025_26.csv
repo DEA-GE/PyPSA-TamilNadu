@@ -1,0 +1,7 @@
+asset_id,annual_generation_gwh,source,quality,notes
+kundah,1458.01,CEA National Power Portal Sub-report 16 March 2026,official,Sum of Kundah I-V actual Apr-2025 to Mar-2026 generation.
+parsons_valley,40.84,CEA National Power Portal Sub-report 16 March 2026,official,Actual Apr-2025 to Mar-2026 generation.
+pykara,36.42,CEA National Power Portal Sub-report 16 March 2026,official,Actual Apr-2025 to Mar-2026 generation.
+pykara_ultimate,445.35,CEA National Power Portal Sub-report 16 March 2026,official,Actual Apr-2025 to Mar-2026 generation.
+moyar,95.14,CEA National Power Portal Sub-report 16 March 2026,official,Actual Apr-2025 to Mar-2026 generation.
+suruliyar,130.75,CEA National Power Portal Sub-report 16 March 2026,official,Actual Apr-2025 to Mar-2026 generation.

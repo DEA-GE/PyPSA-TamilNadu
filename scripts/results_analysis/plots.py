@@ -60,7 +60,10 @@ def storage_figure(dispatch: pd.DataFrame, state_of_charge: pd.DataFrame):
     axes[0].axhline(0.0, color="black", linewidth=0.7)
     axes[0].set_title("Net storage dispatch")
     axes[0].set_ylabel("MW")
-    state_of_charge.plot(ax=axes[1], linewidth=1.0)
+    plotted_soc = state_of_charge.loc[
+        :, ~state_of_charge.columns.astype(str).str.contains("downstream", case=False)
+    ]
+    plotted_soc.plot(ax=axes[1], linewidth=1.0)
     axes[1].set_title("Storage state of charge")
     axes[1].set_ylabel("MWh")
     axes[1].set_xlabel("Time")

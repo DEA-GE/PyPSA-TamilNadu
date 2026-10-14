@@ -177,10 +177,69 @@ cascade water inflow is represented by `water_inflow` generators.
 `model/hydro_observed_soc.csv` gives dated MWh and fractional storage targets
 with source and quality. `model/hydro_capacity_validation.csv` checks every
 official MW record against its model component. Selected-week runs use
-observed storage at independent period boundaries; rolling runs pass modeled
-storage state between adjacent windows.
+observed storage at independent period boundaries. Rolling runs set the five
+directly observed water Stores to their dated storage readings at each daily
+boundary, treating a dated reading as the start-of-day stock, and admit their
+reported inflow. A separate, costly water-balance
+inflow/outflow reconciles days on which the storage readings and reported
+inflow cannot otherwise satisfy the water balance; it is reported in
+`measured_water_balance.csv`, not counted as measured natural inflow. This
+prevents an inconsistent source record from silently changing storage or
+creating unlabelled water. Reported reservoir outflow is not an equality
+constraint in this formulation; the optimizer routes required releases through
+turbines when power has system value and uses spill paths for remaining water.
+The exact constraint applies to the converted `soc_mwh` input. The builder caps
+source storage fractions at 100% of reported full capacity; thus a raw M.cft
+reading above that capacity is not represented exactly. The current Sholayar
+source has 44 such dates, which require separate source/capacity review.
+Upper Kodayar has no measured storage series. Its initial Store is assumed 50%
+full, after which its water balance is estimated Pechiparai daily inflow minus
+Kodayar-I turbine withdrawal and explicit non-generating spill to the Kodayar
+downstream sink. Spill has a small tie-breaker cost to prevent gratuitous water
+dumping and is used when needed to respect the published FRL capacity; no other
+upper-reservoir release path is represented.
+`model/upper_kodayar_inflow_estimate.csv` records the Pechiparai daily
+inflow and its scale factor. The model scales each day's Pechiparai inflow by
+the published Upper Kodayar/Pechiparai full-reservoir capacity ratio,
+98.66/150.22 = 0.6568. Both capacities
+are stated in the Government of India Expert Appraisal Committee's
+[Kodayar project minutes](https://environmentclearance.nic.in/writereaddata/Form-1A/Minutes/2103202340054026Final_MOM_43rd_EAC_River_07_03_23.pdf).
+Upper Kodayar's storage capacity uses its published 98.66 MCM volume. The
+Kodayar-I conversion uses TANGEDCO's [16.5 cubic feet per kWh turbine water
+consumption](https://tenders.bhel.com/sites/default/files/TCCSCT2159-2024-07-29-04%3A00%3A36.pdf),
+equivalent to 60.606 MWh per M.cft in the model. Kodayar-II retains a provisional
+100 m stage head, so its electrical conversion is separate while its water
+discharge preserves volume. Pechiparai flow remains a scenario estimate, not an
+Upper Kodayar inflow or storage measurement. The Kodayar-II forebay retains its
+own balance; Kodayar-II discharge reaches a terminal downstream sink rather
+than filling a small artificial pond. The terminal sink has an effectively
+unbounded finite model capacity, so it cannot restrict upstream generation.
+Rolling runs audit the daily upper balance
+in `upper_kodayar_balance.csv`.
+Other proxy storage, such as Upper Aliyar's Parambikulam profile, remains a soft
+boundary guide and never becomes an exact observation.
+Rolling runs pass modeled state between adjacent windows. If
+`model/hydro_monthly_stored_energy.csv` is present, its values are interpolated
+at rolling boundaries; absent monthly data create no rolling target.
 
 ## Observed generation and network geography
+
+`data/model_inputs/tamil_nadu_outlook_annual_generation_FY2025_26.csv`
+contains the authoritative FY2025-26 annual historical generation totals from
+the Tamil Nadu Outlook. Standardized full-year result analysis uses these
+values for its annual `generation_comparison` table. Because the Outlook
+values contain no daily chronology, monthly and partial-period comparisons
+continue to use the daily generation workbook described below.
+
+The Outlook values are reported in MU, where 1 MU = 1 GWh, so the CSV stores
+the same numeric values in its `generation_gwh` column. Small hydro and bio-
+power are aggregated into the `other_res` comparison category, and
+`comparable_total` uses the supplied Outlook total.
+
+`data/model_inputs/tamil_nadu_outlook_installed_capacity.json` contains the
+Outlook's historical installed-capacity categories and shares, including
+bio-power and small hydro. The main run notebook exports and displays an
+`installed_capacity_comparison` table against the model fleet.
 
 `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`
 has an `Electricity_Power_Generation_` sheet: `Parameter` and `State` identify
