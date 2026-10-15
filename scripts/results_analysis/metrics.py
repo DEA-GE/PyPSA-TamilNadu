@@ -93,6 +93,17 @@ def generation_comparison(
     result = generation_by_carrier(run).rename(
         columns={"generation_gwh": "modeled_generation_gwh"}
     )
+    # Keep the comparison taxonomy aligned with the annual Outlook input.
+    # Model dispatch is stored in MWh and generation_by_carrier converts it to
+    # GWh (1 MU = 1 GWh) before these aggregates are formed.
+    if {"bio_power", "small_hydro"}.intersection(result.index):
+        result.loc["other_res", "modeled_generation_gwh"] = result.reindex(
+            ["bio_power", "small_hydro"], fill_value=0.0
+        )["modeled_generation_gwh"].sum()
+    comparable_carriers = ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
+    result.loc["comparable_total", "modeled_generation_gwh"] = result.reindex(
+        comparable_carriers, fill_value=0.0
+    )["modeled_generation_gwh"].sum()
     dates = pd.DatetimeIndex(run.snapshots.normalize().unique())
     annual_match = False
     if observed_annual is not None and not observed_annual.empty:
@@ -129,6 +140,7 @@ def generation_comparison(
         result.observed_generation_gwh * 1_000.0
         / result.capacity_mw.replace(0.0, np.nan)
     )
+    result.index.name = "carrier"
     return result
 
 

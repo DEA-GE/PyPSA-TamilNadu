@@ -158,7 +158,16 @@ def read_observed_generation() -> pd.DataFrame:
     expected_dates = pd.date_range(FY_START, FY_END, freq="D", name="date")
     if not observed.index.equals(expected_dates):
         raise ValueError("Observed workbook does not contain every FY2025-26 date")
-    if observed[COMPARISON_CATEGORIES].isna().any().any():
+    populated_categories = [
+        "coal",
+        "oil_gas",
+        "nuclear",
+        "hydro",
+        "solar",
+        "wind",
+        "comparable_total",
+    ]
+    if observed[populated_categories].isna().any().any():
         raise ValueError("A populated comparison technology contains missing values")
     if observed["other_res"].notna().any():
         raise ValueError("Expected the supplied Other RES series to be entirely blank")
@@ -414,7 +423,7 @@ def build_comparison(
         comparison.groupby("technology", sort=False)
         .agg(
             days=("date", "count"),
-            observed_mu=("observed_mu", "sum"),
+            observed_mu=("observed_mu", lambda values: values.sum(min_count=1)),
             modeled_mu=("modeled_mu", "sum"),
             mean_error_mu=("error_mu", "mean"),
             mae_mu=("absolute_error_mu", "mean"),
@@ -431,16 +440,23 @@ def build_comparison(
 
 
 def make_plots(comparison: pd.DataFrame, summary: pd.DataFrame, output_dir: Path) -> None:
-    figure, axes = plt.subplots(4, 2, figsize=(16, 15), sharex=True)
-    for axis, category in zip(axes.flat, COMPARISON_CATEGORIES):
+    n_plots = len(COMPARISON_CATEGORIES)
+    n_cols = 3
+    n_rows = int(np.ceil(n_plots / n_cols))
+    figure, axes = plt.subplots(
+        n_rows, n_cols, figsize=(18, 5 * n_rows), sharex=True
+    )
+    axes = np.asarray(axes).reshape(-1)
+    for axis, category in zip(axes, COMPARISON_CATEGORIES):
         data = comparison.loc[comparison["technology"].eq(category)]
         axis.plot(data["date"], data["observed_mu"], marker="o", ms=3, label="Observed")
         axis.plot(data["date"], data["modeled_mu"], marker="o", ms=3, label="Modeled")
         axis.set_title(PLOT_LABELS[category])
         axis.set_ylabel("MU/day")
         axis.grid(alpha=0.25)
-    axes.flat[0].legend()
-    axes.flat[-1].axis("off")
+    for axis in axes[len(COMPARISON_CATEGORIES) :]:
+        axis.set_visible(False)
+    axes[0].legend()
     figure.suptitle("FY2025-26 weekly peak-demand days: modeled vs observed generation")
     figure.tight_layout()
     figure.savefig(output_dir / "daily_generation_comparison.png", dpi=160)
