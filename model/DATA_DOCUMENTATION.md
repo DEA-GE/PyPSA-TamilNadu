@@ -24,11 +24,22 @@ Changes to those inputs require a rebuild; changes to generated files in
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
 | `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv` | Hydro assumptions and validation, corridor ratings, and capacity reconciliation |
 
-The network includes annual oil-and-gas, nuclear, and biomass generation
+The network includes annual oil-and-gas, nuclear, and bio-power generation
 equality constraints. For a shorter solve, use the runners described in the
 [repository README](../README.md#how-to-run); they adjust the
 constraints for the chosen period. Directly optimizing a subset of snapshots
 without adjusting the annual constraints is not a valid short-run example.
+
+The bio-power equality totals 194,010 MWh from the twelve Tamil Nadu Outlook
+FY2025-26 monthly values. Rolling and selected-week runners replace the annual
+constraint with a month-prorated equality for each accepted week, leaving the
+daily and hourly generation pattern free for the optimizer.
+
+Small hydro is treated identically using a 307,560 MWh annual total from the
+twelve Tamil Nadu Outlook monthly values. Its previous placeholder availability
+profile is relaxed to nameplate because that profile cannot supply the observed
+monthly energy; weekly equality constraints determine energy while the model
+optimizes its daily and hourly timing.
 
 The [input data guide](../docs/input-data.md) maps each source and prepared
 input to its model output and explains units, timestamp alignment, provenance,

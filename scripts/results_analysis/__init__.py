@@ -1,7 +1,13 @@
 """Reusable result loading, validation, metrics, plots, and exports."""
 
 from .exports import export_analysis
-from .loaders import AnalysisRun, load_analysis_run, load_observed_generation
+from .loaders import (
+    AnalysisRun,
+    load_analysis_run,
+    load_observed_annual_generation,
+    load_observed_capacity,
+    load_observed_generation,
+)
 from .pipeline import AnalysisBundle, analyze_run
 
 __all__ = [
@@ -10,5 +16,7 @@ __all__ = [
     "analyze_run",
     "export_analysis",
     "load_analysis_run",
+    "load_observed_annual_generation",
+    "load_observed_capacity",
     "load_observed_generation",
 ]

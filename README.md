@@ -40,7 +40,7 @@ If `python` is not on your path, use the Python executable from your environment
    ```powershell
    python -m venv .venv
    .venv\Scripts\Activate.ps1
-   python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab xarray psutil
+   python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab xarray psutil Markdown tabulate
    ```
 
    If you also regenerate upstream data, install the packages for those
@@ -87,11 +87,11 @@ The loaded `model/` network has annual generation equality constraints. Use
 the notebook runner for short periods: calling
 `network.optimize(snapshots=network.snapshots[:24])` directly retains the
 annual targets and is not a valid one-day run. The runner applies the daily gas
-and nuclear targets and handles the biomass constraint for the selected mode.
+and nuclear targets and handles the bio-power constraint for the selected mode.
 
 ### Notebook parameters
 
-The checked-in **USER SETTINGS** cell contains these values:
+For a rolling relaxed run, use settings such as:
 
 ```python
 RUN_MODE = "rolling"
@@ -101,8 +101,8 @@ WARMUP_DAYS = 1
 LOOKAHEAD_DAYS = 1
 RESERVOIR_INITIAL_SOC_FRACTION = 0.5
 SOLVER_NAME = "highs"
-SOLVER_THREADS = 8
-PARALLEL_WORKERS = 1
+SOLVER_THREADS = "Default"  # uses the runner's 8-thread relaxed default
+PARALLEL_WORKERS = "Default"  # backend default; rolling runs still use one effective worker
 MIP_REL_GAP = 0.01
 UNIT_COMMITMENT = "relaxed"
 RUN_NAME = "relaxed_lp"
@@ -121,8 +121,8 @@ RESUME = True
 | `UNIT_COMMITMENT` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `MIP_REL_GAP` applies only to `full`. |
 | `RUN_NAME` | Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
 | `SOLVER_NAME` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
-| `SOLVER_THREADS` | Set an integer from 1 to 8 for threads per optimization. `full` uses HiGHS MIP parallelism; `relaxed` and `none` use parallel simplex when more than one thread is selected. |
-| `PARALLEL_WORKERS` | Set a positive integer for independent daily, monthly, or selected-week solves. Use `1` for peak and rolling runs. Active workers × `SOLVER_THREADS` cannot exceed the logical CPUs visible to Python. |
+| `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `relaxed` and `none` use parallel simplex when more than one thread is selected. |
+| `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
 | `MIP_REL_GAP` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
 | `ROLLING_TIME_LIMIT` | For `rolling` only, set a positive number of seconds per window or `None` for no time limit. It applies to both MIP and LP solves; LP windows must still reach optimality. |
 | `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
@@ -307,8 +307,15 @@ commitment or storage analysis.
   turbine/transfer `Link`s so that upstream discharge is routed downstream;
   Kadamparai uses separate pumping and generation Links. Lower Mettur and
   Bhavani Kattalai receive availability from their upstream observed releases.
-  The rolling runner transfers both `StorageUnit` and `Store` state between
-  consecutive chronological windows.
+  The rolling runner initializes observed and labelled proxy storage from the
+  first day's SOC, then transfers both `StorageUnit` and `Store` state between
+  consecutive chronological windows. The five directly measured water Stores
+  match their daily storage readings exactly; their reported inflow is also
+  admitted. Any incompatible water balance uses a costly, explicit balancing
+  inflow or outflow saved in `measured_water_balance.csv`. Proxy and monthly
+  storage targets remain soft, with quality-based bands and penalties. Optional
+  monthly stored-energy data are interpolated only at window boundaries; no
+  monthly target is imposed when that file is absent.
 - In the Papanasam--Servalar sub-cascade, the Agriculture SOC series applies
   only to `Papanasam_reservoir`. A lossless configurable tunnel connects it to
   the separate `Servalar_reservoir`; the official 20 MW Servalar turbine and a
@@ -401,6 +408,27 @@ hourly schedules. Gas and nuclear comparison errors are calibrated by design.
 Custom solve workflows must use `scripts/nuclear_energy_targets.py` to apply
 daily targets and adjust the annual equality for their selected dates.
 
+## Bio-power energy targets
+
+The Tamil Nadu Outlook FY2025-26 monthly bio-power generation values are kept
+in `data/model_inputs/tamil_nadu_bio_power_monthly_generation_FY2025_26.csv`.
+They total 194.01 GWh. Rolling and selected-week solves impose one exact energy
+equality on all `bio_power` generators for each accepted week. A week wholly
+inside one month receives seven days of that month's total; a week crossing a
+month boundary receives the corresponding daily share from both months.
+Hourly and daily dispatch within the week remain optimization decisions. The
+full-year network retains a 194,010 MWh aggregate equality for direct annual
+solves.
+
+Small hydro uses the same method. Its twelve Tamil Nadu Outlook values are in
+`data/model_inputs/tamil_nadu_small_hydro_monthly_generation_FY2025_26.csv`
+and total 307.56 GWh. Rolling and selected-week solves impose a month-prorated
+weekly equality across all `small_hydro` generators. Because the inherited
+placeholder availability profile cannot supply the observed energy, these
+solves make small hydro dispatchable between zero and nameplate; the weekly
+energy is fixed while its hourly and daily timing remains optimized. Rebuilding
+the model writes the corresponding 307,560 MWh annual equality as well.
+
 ## Reservoir hydro and seasonal inflow
 
 `data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while
@@ -426,31 +454,68 @@ Natural inflow and observed storage use the validated daily Tamil Nadu
 Agriculture reservoir data. Volumes use `1 cusec-day = 0.0864 M.cft` and are
 converted to electricity-equivalent energy by
 `0.0771634 × volume_M.cft × head_m × efficiency`, with a configurable first-pass
-efficiency of 0.90 and documented fixed heads. No statewide hydro-generation
-profile is allocated as artificial reservoir inflow. Where an agriculture
-series does not correspond directly to a plant, the model either uses a
-labelled connected-reservoir filling proxy or neutral endogenous pondage; it
-does not copy absolute volume between reservoirs.
+efficiency of 0.90 and documented fixed heads. Where an agriculture series
+does not correspond directly to a plant, the model either uses a labelled
+connected-reservoir filling proxy or neutral endogenous pondage; it does not
+copy absolute volume between reservoirs.
+
+The six unobserved Kundah/Pykara/Suruliyar assets additionally have an
+explicit *calibration* mode. Their CEA FY2025-26 annual actual generation is
+in `data/model_inputs/hydro_cascade_annual_generation_FY2025_26.csv`; the
+build distributes those annual totals using the observed Tamil Nadu daily
+hydro profile and then aggregates them into the rolling model's seven-day
+blocks. The resulting weekly targets are written to
+`model/hydro_cascade_generation_targets.csv`. The rolling runner enforces one
+energy equality per plant and committed week, leaving hourly and daily
+dispatch within the week free. It introduces only the corresponding weekly
+inferred source-water allowance needed to serve those totals:
+Upper Bhavani for Kundah, Pykara reservoir for Pykara, Glenmorgan forebay for
+the Pykara-Ultimate residual, and Suruliyar's own reservoir inflow. These are
+calibration requirements, not measured catchment inflows or plant-level
+weekly observations.
 
 `model/storage_units-inflow.csv` contains simple-reservoir hourly inflow and
 `model/hydro_reservoir_inflow.csv` provides its daily source audit. Inflows to
 cascade water buses are represented as `water_inflow` generators. Observed
 daily SOC targets are in `model/hydro_observed_soc.csv`. The selected-week
-runner applies these as independent start/end boundary conditions; the rolling
-runner carries state across contiguous windows. A full-year or long-horizon
-solve remains necessary to optimise seasonal water value endogenously.
+runner applies these as independent start/end boundary conditions. The rolling
+runner starts from observed or labelled proxy storage, guides each committed
+week's terminal storage toward quality-weighted seasonal targets, and carries
+the optimized state across contiguous windows. Its terminal-band violations
+are recorded in `window_log.csv`.
+
+Upper Kodayar uses an assumed half-full starting level and a daily water
+balance: Pechiparai daily inflow scaled by the published Upper Kodayar to
+Pechiparai capacity ratio (98.66/150.22 = 0.6568), less Kodayar-I turbine
+water use. Water use is converted with the plant-specific 16.5 cubic feet per
+kWh figure.
+Upper-reservoir spill is routed directly to the effectively unbounded Kodayar
+downstream sink when required to remain within the published FRL capacity. A
+small tie-breaker cost prevents gratuitous spill when retaining the water is
+feasible; no other upper-reservoir release is represented.
+The Pechiparai flow is a labelled estimate, not measured Kodayar inflow or
+storage; see `model/upper_kodayar_inflow_estimate.csv` and a rolling run's
+`upper_kodayar_balance.csv`.
+Kodayar-II discharges to an effectively unbounded terminal sink, so downstream
+storage capacity cannot restrict either turbine's generation.
+The Kundah/Parsons Valley and Pykara/Moyar cascades likewise discharge into
+effectively unbounded terminal river sinks. Their intermediate pondages have
+explicit non-generating bypass releases, so documented downstream generation
+below upstream generation does not fill an artificial bottleneck.
 
 ## Renewable profiles
 
 `data/model_inputs/renewable_profiles.csv` contains 8,760 hourly rows and
 separate wind and solar capacity factors for each of the nine balancing areas.
-The current area profiles correspond to the `Wind` and `Solar` sheets in
-`data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx`. See the
-[Input data guide](docs/input-data.md#wind-and-solar-availability) for the
-column layout and the source workbook's five-hour boundary wrap. Regenerate or
-check the prepared CSV with `scripts/prepare_renewable_profiles.py` before
-rebuilding the model. The builder uses statewide template shapes as a fallback
-only if the prepared CSV is absent.
+The active profiles were assembled from the area-specific 2025 and 2026 CSVs
+under `model/TamilNadu9BAs_profiles_2025_2026/`, restricted to FY2025-26,
+then shifted five hours later with a fiscal-year boundary wrap. The previous
+model profiles are archived in
+`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for the
+[comparison notebook](notebooks/compare_external_re_profiles_FY2025_26.ipynb).
+See the [Input data guide](docs/input-data.md#wind-and-solar-availability)
+for the source and validation details. The builder uses statewide template
+shapes as a fallback only if the active CSV is absent.
 
 ## Generated files and Git
 

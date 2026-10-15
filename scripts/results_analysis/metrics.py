@@ -85,17 +85,49 @@ def generation_by_carrier(run: AnalysisRun) -> pd.DataFrame:
 
 
 def generation_comparison(
-    run: AnalysisRun, observed_daily: pd.DataFrame | None
+    run: AnalysisRun,
+    observed_daily: pd.DataFrame | None,
+    observed_annual: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Compare modeled and observed generation over the analyzed period."""
     result = generation_by_carrier(run).rename(
         columns={"generation_gwh": "modeled_generation_gwh"}
     )
-    if observed_daily is None:
-        return result
+    # Keep the comparison taxonomy aligned with the annual Outlook input.
+    # Model dispatch is stored in MWh and generation_by_carrier converts it to
+    # GWh (1 MU = 1 GWh) before these aggregates are formed.
+    if {"bio_power", "small_hydro"}.intersection(result.index):
+        result.loc["other_res", "modeled_generation_gwh"] = result.reindex(
+            ["bio_power", "small_hydro"], fill_value=0.0
+        )["modeled_generation_gwh"].sum()
+    comparable_carriers = ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
+    result.loc["comparable_total", "modeled_generation_gwh"] = result.reindex(
+        comparable_carriers, fill_value=0.0
+    )["modeled_generation_gwh"].sum()
     dates = pd.DatetimeIndex(run.snapshots.normalize().unique())
-    observed = observed_daily.reindex(dates).sum(min_count=1)
-    result["observed_generation_gwh"] = observed.reindex(result.index)
+    annual_match = False
+    if observed_annual is not None and not observed_annual.empty:
+        period_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
+        period_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
+        expected_dates = pd.date_range(period_start, period_end, freq="D")
+        annual_match = dates.equals(expected_dates)
+    if annual_match:
+        result["observed_generation_gwh"] = observed_annual["generation_gwh"].reindex(
+            result.index
+        )
+        result["observed_source"] = observed_annual["source"].reindex(result.index)
+        result["observed_period"] = (
+            f"{period_start.date()} to {period_end.date()}"
+        )
+    elif observed_daily is not None:
+        observed = observed_daily.reindex(dates).sum(min_count=1)
+        result["observed_generation_gwh"] = observed.reindex(result.index)
+        result["observed_source"] = "daily historical generation"
+        result["observed_period"] = (
+            f"{dates.min().date()} to {dates.max().date()}"
+        )
+    else:
+        return result
     result["difference_gwh"] = (
         result.modeled_generation_gwh - result.observed_generation_gwh
     )
@@ -108,6 +140,7 @@ def generation_comparison(
         result.observed_generation_gwh * 1_000.0
         / result.capacity_mw.replace(0.0, np.nan)
     )
+    result.index.name = "carrier"
     return result
 
 
@@ -135,6 +168,37 @@ def installed_capacity_by_area(run: AnalysisRun) -> pd.DataFrame:
         .set_index(["balancing_area", "carrier"])
         .sort_index()
     )
+    return result
+
+
+def installed_capacity_comparison(
+    run: AnalysisRun, observed_capacity: pd.DataFrame | None
+) -> pd.DataFrame:
+    """Compare model capacity with historical Tamil Nadu Outlook categories."""
+    modeled = generation_by_carrier(run)[["capacity_mw"]].rename(
+        columns={"capacity_mw": "modeled_capacity_mw"}
+    )
+    if observed_capacity is None:
+        return modeled
+    result = modeled.reindex(observed_capacity.index).join(
+        observed_capacity.rename(
+            columns={
+                "installed_capacity_mw": "historical_capacity_mw",
+                "share_pct": "historical_share_pct",
+                "source": "historical_source",
+            }
+        )
+    )
+    result["modeled_share_pct"] = (
+        100.0 * result.modeled_capacity_mw / result.modeled_capacity_mw.sum()
+    )
+    result["difference_mw"] = (
+        result.modeled_capacity_mw - result.historical_capacity_mw
+    )
+    result["difference_pct"] = (
+        100.0 * result.difference_mw / result.historical_capacity_mw
+    )
+    result.index.name = "carrier"
     return result
 
 

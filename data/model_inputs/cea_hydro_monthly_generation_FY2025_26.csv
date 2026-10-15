@@ -1,0 +1,325 @@
+report_month,cea_station,hydro_system,monthly_generation_gwh,apr_to_report_generation_gwh,source_file,source_text_file,reconstructed_apr_to_report_gwh,cumulative_residual_gwh
+2025-04-01,ALIYAR HPS,aliyar,7.54,7.54,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,7.54,0.0
+2025-05-01,ALIYAR HPS,aliyar,5.36,12.9,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,12.9,0.0
+2025-06-01,ALIYAR HPS,aliyar,30.4,43.3,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,43.3,0.0
+2025-07-01,ALIYAR HPS,aliyar,35.88,79.18,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,79.18,0.0
+2025-08-01,ALIYAR HPS,aliyar,28.66,107.84,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,107.84,0.0
+2025-09-01,ALIYAR HPS,aliyar,15.33,123.17,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,123.17,0.0
+2025-10-01,ALIYAR HPS,aliyar,15.64,138.81,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,138.81,0.0
+2025-11-01,ALIYAR HPS,aliyar,12.03,150.84,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,150.84,0.0
+2025-12-01,ALIYAR HPS,aliyar,9.62,160.46,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,160.46,0.0
+2026-01-01,ALIYAR HPS,aliyar,3.39,163.85,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,163.85,0.0
+2026-02-01,ALIYAR HPS,aliyar,1.19,165.04,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,165.04,0.0
+2026-03-01,ALIYAR HPS,aliyar,9.27,174.31,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,174.31,0.0
+2025-04-01,BHAWANI KATTAL,bhavani_kattalai,1.08,1.08,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,1.08,0.0
+2025-05-01,BHAWANI KATTAL,bhavani_kattalai,0.4,1.48,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,1.48,0.0
+2025-06-01,BHAWANI KATTAL,bhavani_kattalai,30.71,32.19,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,32.19,0.0
+2025-07-01,BHAWANI KATTAL,bhavani_kattalai,7.24,39.43,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,39.43,0.0
+2025-08-01,BHAWANI KATTAL,bhavani_kattalai,14.7,54.13,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,54.13,0.0
+2025-09-01,BHAWANI KATTAL,bhavani_kattalai,12.78,66.91,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,66.91,0.0
+2025-10-01,BHAWANI KATTAL,bhavani_kattalai,11.31,78.22,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,78.22,0.0
+2025-11-01,BHAWANI KATTAL,bhavani_kattalai,8.78,87.0,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,87.0,0.0
+2025-12-01,BHAWANI KATTAL,bhavani_kattalai,8.49,95.49,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,95.49,0.0
+2026-01-01,BHAWANI KATTAL,bhavani_kattalai,6.71,102.2,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,102.2,0.0
+2026-02-01,BHAWANI KATTAL,bhavani_kattalai,1.36,103.56,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,103.56,0.0
+2026-03-01,BHAWANI KATTAL,bhavani_kattalai,2.31,105.87,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,105.87,0.0
+2025-04-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,2.28,2.28,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,2.28,0.0
+2025-05-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,1.29,3.57,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,3.57,0.0
+2025-06-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,9.45,13.02,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,13.02,0.0
+2025-07-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,10.69,23.71,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,23.71,0.0
+2025-08-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,13.96,37.67,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,37.67,0.0
+2025-09-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,15.75,53.42,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,53.42,0.0
+2025-10-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,9.04,62.46,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,62.46,0.0
+2025-11-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,11.41,73.87,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,73.87,0.0
+2025-12-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,8.6,82.47,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,82.47,0.0
+2026-01-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,7.35,89.82,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,89.82,0.0
+2026-02-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,0.2,90.02,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,90.02,0.0
+2026-03-01,BHAWANI BARRAGE-II HPS,bhawani_barrage_ii,0.2,90.22,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,90.22,0.0
+2025-04-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,0.11,0.11,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.11,0.0
+2025-05-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,0.14,0.25,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,0.25,0.0
+2025-06-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,6.92,7.17,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,7.17,0.0
+2025-07-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,8.17,15.34,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,15.34,0.0
+2025-08-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,11.09,26.43,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,26.43,0.0
+2025-09-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,12.42,38.85,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,38.85,0.0
+2025-10-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,10.23,49.08,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,49.08,0.0
+2025-11-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,8.13,57.21,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,57.21,0.0
+2025-12-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,8.2,65.41,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,65.41,0.0
+2026-01-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,6.34,71.75,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,71.75,0.0
+2026-02-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,0.0,71.75,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,71.75,0.0
+2026-03-01,BHAWANI BARRAGE-III HPS,bhawani_barrage_iii,0.9,72.65,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,72.65,0.0
+2025-04-01,KADAMPARI HPS,kadamparai,20.42,20.42,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,20.42,0.0
+2025-05-01,KADAMPARI HPS,kadamparai,20.49,40.91,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,40.91,0.0
+2025-06-01,KADAMPARI HPS,kadamparai,25.34,66.25,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,66.25,0.0
+2025-07-01,KADAMPARI HPS,kadamparai,23.84,90.09,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,90.09,0.0
+2025-08-01,KADAMPARI HPS,kadamparai,28.82,118.91,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,118.91,0.0
+2025-09-01,KADAMPARI HPS,kadamparai,17.6,136.51,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,136.51,0.0
+2025-10-01,KADAMPARI HPS,kadamparai,21.72,158.23,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,158.23,0.0
+2025-11-01,KADAMPARI HPS,kadamparai,27.26,185.49,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,185.49,0.0
+2025-12-01,KADAMPARI HPS,kadamparai,24.79,210.28,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,210.28,0.0
+2026-01-01,KADAMPARI HPS,kadamparai,20.35,230.63,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,230.63,0.0
+2026-02-01,KADAMPARI HPS,kadamparai,13.24,243.87,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,243.87,0.0
+2026-03-01,KADAMPARI HPS,kadamparai,14.1,257.97,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,257.97,0.0
+2025-04-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.0,0.0
+2025-05-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,0.0,0.0
+2025-06-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,0.0,0.0
+2025-07-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,0.0,0.0
+2025-08-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,0.0,0.0
+2025-09-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,0.0,0.0
+2025-10-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,0.0,0.0
+2025-11-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,0.0,0.0
+2025-12-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,0.0,0.0
+2026-01-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,0.0,0.0
+2026-02-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,0.0,0.0
+2026-03-01,KODAYAR-I HPS,kodayar_i,0.0,0.0,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,0.0,0.0
+2025-04-01,KODAYAR-II HPS,kodayar_ii,2.68,2.68,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,2.68,0.0
+2025-05-01,KODAYAR-II HPS,kodayar_ii,8.92,11.6,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,11.6,0.0
+2025-06-01,KODAYAR-II HPS,kodayar_ii,9.6,21.2,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,21.2,0.0
+2025-07-01,KODAYAR-II HPS,kodayar_ii,1.92,23.12,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,23.119999999999997,3.552713678800501e-15
+2025-08-01,KODAYAR-II HPS,kodayar_ii,8.08,31.2,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,31.2,0.0
+2025-09-01,KODAYAR-II HPS,kodayar_ii,8.33,39.53,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,39.53,0.0
+2025-10-01,KODAYAR-II HPS,kodayar_ii,9.67,49.2,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,49.2,0.0
+2025-11-01,KODAYAR-II HPS,kodayar_ii,8.94,58.14,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,58.14,0.0
+2025-12-01,KODAYAR-II HPS,kodayar_ii,6.3,64.44,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,64.44,0.0
+2026-01-01,KODAYAR-II HPS,kodayar_ii,3.36,67.8,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,67.8,0.0
+2026-02-01,KODAYAR-II HPS,kodayar_ii,1.95,69.75,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,69.75,0.0
+2026-03-01,KODAYAR-II HPS,kodayar_ii,2.02,71.77,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,71.77,0.0
+2025-04-01,KUNDAH-I HPS,kundah_i,15.05,15.05,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,15.05,0.0
+2025-05-01,KUNDAH-I HPS,kundah_i,13.1,28.15,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,28.15,0.0
+2025-06-01,KUNDAH-I HPS,kundah_i,17.22,45.37,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,45.37,0.0
+2025-07-01,KUNDAH-I HPS,kundah_i,22.27,67.64,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,67.64,0.0
+2025-08-01,KUNDAH-I HPS,kundah_i,21.6,89.24,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,89.24,0.0
+2025-09-01,KUNDAH-I HPS,kundah_i,14.63,103.87,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,103.87,0.0
+2025-10-01,KUNDAH-I HPS,kundah_i,17.86,121.73,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,121.72999999999999,1.4210854715202004e-14
+2025-11-01,KUNDAH-I HPS,kundah_i,20.58,142.31,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,142.31,0.0
+2025-12-01,KUNDAH-I HPS,kundah_i,12.09,154.4,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,154.4,0.0
+2026-01-01,KUNDAH-I HPS,kundah_i,4.12,158.52,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,158.51999999999998,2.842170943040401e-14
+2026-02-01,KUNDAH-I HPS,kundah_i,0.63,159.15,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,159.15,0.0
+2026-03-01,KUNDAH-I HPS,kundah_i,7.69,166.84,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,166.84,0.0
+2025-04-01,KUNDAH-II HPS,kundah_ii,39.76,39.76,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,39.76,0.0
+2025-05-01,KUNDAH-II HPS,kundah_ii,58.51,98.27,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,98.27,0.0
+2025-06-01,KUNDAH-II HPS,kundah_ii,61.93,160.2,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,160.2,0.0
+2025-07-01,KUNDAH-II HPS,kundah_ii,68.37,228.57,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,228.57,0.0
+2025-08-01,KUNDAH-II HPS,kundah_ii,102.53,331.1,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,331.1,0.0
+2025-09-01,KUNDAH-II HPS,kundah_ii,85.48,416.58,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,416.58,0.0
+2025-10-01,KUNDAH-II HPS,kundah_ii,74.03,490.61,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,490.61,0.0
+2025-11-01,KUNDAH-II HPS,kundah_ii,59.02,549.63,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,549.63,0.0
+2025-12-01,KUNDAH-II HPS,kundah_ii,38.16,587.79,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,587.79,0.0
+2026-01-01,KUNDAH-II HPS,kundah_ii,17.67,605.46,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,605.46,0.0
+2026-02-01,KUNDAH-II HPS,kundah_ii,7.99,613.45,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,613.45,0.0
+2026-03-01,KUNDAH-II HPS,kundah_ii,23.84,637.29,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,637.29,0.0
+2025-04-01,KUNDAH-III HPS,kundah_iii,25.14,25.14,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,25.14,0.0
+2025-05-01,KUNDAH-III HPS,kundah_iii,37.1,62.24,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,62.24,0.0
+2025-06-01,KUNDAH-III HPS,kundah_iii,38.56,100.8,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,100.80000000000001,-1.4210854715202004e-14
+2025-07-01,KUNDAH-III HPS,kundah_iii,41.58,142.38,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,142.38,0.0
+2025-08-01,KUNDAH-III HPS,kundah_iii,59.81,202.19,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,202.19,0.0
+2025-09-01,KUNDAH-III HPS,kundah_iii,49.56,251.75,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,251.75,0.0
+2025-10-01,KUNDAH-III HPS,kundah_iii,47.27,299.02,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,299.02,0.0
+2025-11-01,KUNDAH-III HPS,kundah_iii,37.25,336.27,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,336.27,0.0
+2025-12-01,KUNDAH-III HPS,kundah_iii,26.47,362.74,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,362.74,0.0
+2026-01-01,KUNDAH-III HPS,kundah_iii,16.86,379.6,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,379.6,0.0
+2026-02-01,KUNDAH-III HPS,kundah_iii,6.54,386.14,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,386.14,0.0
+2026-03-01,KUNDAH-III HPS,kundah_iii,16.24,402.38,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,402.38,0.0
+2025-04-01,KUNDAH-IV HPS,kundah_iv,2.86,2.86,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,2.86,0.0
+2025-05-01,KUNDAH-IV HPS,kundah_iv,17.14,20.0,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,20.0,0.0
+2025-06-01,KUNDAH-IV HPS,kundah_iv,31.22,51.22,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,51.22,0.0
+2025-07-01,KUNDAH-IV HPS,kundah_iv,27.96,79.18,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,79.18,0.0
+2025-08-01,KUNDAH-IV HPS,kundah_iv,28.64,107.82,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,107.82,0.0
+2025-09-01,KUNDAH-IV HPS,kundah_iv,15.72,123.54,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,123.54,0.0
+2025-10-01,KUNDAH-IV HPS,kundah_iv,24.32,147.86,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,147.86,0.0
+2025-11-01,KUNDAH-IV HPS,kundah_iv,18.61,166.47,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,166.47,0.0
+2025-12-01,KUNDAH-IV HPS,kundah_iv,6.51,172.98,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,172.98,0.0
+2026-01-01,KUNDAH-IV HPS,kundah_iv,0.97,173.95,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,173.95,0.0
+2026-02-01,KUNDAH-IV HPS,kundah_iv,0.44,174.39,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,174.39,0.0
+2026-03-01,KUNDAH-IV HPS,kundah_iv,0.35,174.74,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,174.74,0.0
+2025-04-01,KUNDAH-V HPS,kundah_v,10.86,10.86,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,10.86,0.0
+2025-05-01,KUNDAH-V HPS,kundah_v,6.0,16.86,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,16.86,0.0
+2025-06-01,KUNDAH-V HPS,kundah_v,11.01,27.87,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,27.869999999999997,3.552713678800501e-15
+2025-07-01,KUNDAH-V HPS,kundah_v,16.2,44.07,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,44.07,0.0
+2025-08-01,KUNDAH-V HPS,kundah_v,10.83,54.9,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,54.9,0.0
+2025-09-01,KUNDAH-V HPS,kundah_v,7.52,62.42,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,62.42,0.0
+2025-10-01,KUNDAH-V HPS,kundah_v,4.67,67.09,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,67.09,0.0
+2025-11-01,KUNDAH-V HPS,kundah_v,3.77,70.86,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,70.86,0.0
+2025-12-01,KUNDAH-V HPS,kundah_v,0.95,71.81,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,71.81,0.0
+2026-01-01,KUNDAH-V HPS,kundah_v,1.09,72.9,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,72.9,0.0
+2026-02-01,KUNDAH-V HPS,kundah_v,0.01,72.91,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,72.91,0.0
+2026-03-01,KUNDAH-V HPS,kundah_v,3.85,76.76,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,76.76,0.0
+2025-04-01,LOWER METTUR-I HPS,lower_mettur_i,1.65,1.65,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,1.65,0.0
+2025-05-01,LOWER METTUR-I HPS,lower_mettur_i,0.53,2.18,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,2.1799999999999997,4.440892098500626e-16
+2025-06-01,LOWER METTUR-I HPS,lower_mettur_i,6.64,8.82,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,8.82,0.0
+2025-07-01,LOWER METTUR-I HPS,lower_mettur_i,11.17,19.99,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,19.99,0.0
+2025-08-01,LOWER METTUR-I HPS,lower_mettur_i,15.5,35.49,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,35.489999999999995,7.105427357601002e-15
+2025-09-01,LOWER METTUR-I HPS,lower_mettur_i,15.71,51.2,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,51.2,0.0
+2025-10-01,LOWER METTUR-I HPS,lower_mettur_i,12.68,63.88,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,63.879999999999995,7.105427357601002e-15
+2025-11-01,LOWER METTUR-I HPS,lower_mettur_i,10.11,73.99,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,73.99,0.0
+2025-12-01,LOWER METTUR-I HPS,lower_mettur_i,10.12,84.11,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,84.11,0.0
+2026-01-01,LOWER METTUR-I HPS,lower_mettur_i,7.44,91.55,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,91.55,0.0
+2026-02-01,LOWER METTUR-I HPS,lower_mettur_i,1.93,93.48,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,93.48,0.0
+2026-03-01,LOWER METTUR-I HPS,lower_mettur_i,2.43,95.91,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,95.91,0.0
+2025-04-01,LOWER METTUR-II HPS,lower_mettur_ii,1.38,1.38,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,1.38,0.0
+2025-05-01,LOWER METTUR-II HPS,lower_mettur_ii,0.55,1.93,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,1.93,0.0
+2025-06-01,LOWER METTUR-II HPS,lower_mettur_ii,8.62,10.55,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,10.549999999999999,1.7763568394002505e-15
+2025-07-01,LOWER METTUR-II HPS,lower_mettur_ii,12.64,23.19,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,23.189999999999998,3.552713678800501e-15
+2025-08-01,LOWER METTUR-II HPS,lower_mettur_ii,14.88,38.07,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,38.07,0.0
+2025-09-01,LOWER METTUR-II HPS,lower_mettur_ii,15.33,53.4,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,53.4,0.0
+2025-10-01,LOWER METTUR-II HPS,lower_mettur_ii,12.8,66.2,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,66.2,0.0
+2025-11-01,LOWER METTUR-II HPS,lower_mettur_ii,9.79,75.99,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,75.99,0.0
+2025-12-01,LOWER METTUR-II HPS,lower_mettur_ii,9.87,85.86,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,85.86,0.0
+2026-01-01,LOWER METTUR-II HPS,lower_mettur_ii,6.95,92.81,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,92.81,0.0
+2026-02-01,LOWER METTUR-II HPS,lower_mettur_ii,2.76,95.57,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,95.57,0.0
+2026-03-01,LOWER METTUR-II HPS,lower_mettur_ii,2.7,98.27,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,98.27,0.0
+2025-04-01,LOWER METTUR-III HPS,lower_mettur_iii,0.62,0.62,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.62,0.0
+2025-05-01,LOWER METTUR-III HPS,lower_mettur_iii,1.22,1.84,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,1.8399999999999999,2.220446049250313e-16
+2025-06-01,LOWER METTUR-III HPS,lower_mettur_iii,8.22,10.06,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,10.06,0.0
+2025-07-01,LOWER METTUR-III HPS,lower_mettur_iii,9.5,19.56,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,19.560000000000002,-3.552713678800501e-15
+2025-08-01,LOWER METTUR-III HPS,lower_mettur_iii,14.05,33.61,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,33.61,0.0
+2025-09-01,LOWER METTUR-III HPS,lower_mettur_iii,14.55,48.16,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,48.160000000000004,-7.105427357601002e-15
+2025-10-01,LOWER METTUR-III HPS,lower_mettur_iii,11.2,59.36,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,59.36,0.0
+2025-11-01,LOWER METTUR-III HPS,lower_mettur_iii,9.22,68.58,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,68.58,0.0
+2025-12-01,LOWER METTUR-III HPS,lower_mettur_iii,9.32,77.9,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,77.9,0.0
+2026-01-01,LOWER METTUR-III HPS,lower_mettur_iii,6.8,84.7,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,84.7,0.0
+2026-02-01,LOWER METTUR-III HPS,lower_mettur_iii,2.46,87.16,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,87.16,0.0
+2026-03-01,LOWER METTUR-III HPS,lower_mettur_iii,2.22,89.38,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,89.38,0.0
+2025-04-01,LOWER METTUR-IV HPS,lower_mettur_iv,0.75,0.75,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.75,0.0
+2025-05-01,LOWER METTUR-IV HPS,lower_mettur_iv,1.0,1.75,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,1.75,0.0
+2025-06-01,LOWER METTUR-IV HPS,lower_mettur_iv,0.0,1.75,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,1.75,0.0
+2025-07-01,LOWER METTUR-IV HPS,lower_mettur_iv,8.24,9.99,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,9.99,0.0
+2025-08-01,LOWER METTUR-IV HPS,lower_mettur_iv,11.59,21.58,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,21.58,0.0
+2025-09-01,LOWER METTUR-IV HPS,lower_mettur_iv,11.7,33.28,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,33.28,0.0
+2025-10-01,LOWER METTUR-IV HPS,lower_mettur_iv,9.05,42.33,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,42.33,0.0
+2025-11-01,LOWER METTUR-IV HPS,lower_mettur_iv,7.77,50.1,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,50.1,0.0
+2025-12-01,LOWER METTUR-IV HPS,lower_mettur_iv,7.84,57.94,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,57.94,0.0
+2026-01-01,LOWER METTUR-IV HPS,lower_mettur_iv,5.61,63.55,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,63.55,0.0
+2026-02-01,LOWER METTUR-IV HPS,lower_mettur_iv,1.9,65.45,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,65.45,0.0
+2026-03-01,LOWER METTUR-IV HPS,lower_mettur_iv,1.78,67.23,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,67.23,0.0
+2025-04-01,METTUR DAM HPS,mettur_dam,7.87,7.87,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,7.87,0.0
+2025-05-01,METTUR DAM HPS,mettur_dam,8.25,16.12,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,16.12,0.0
+2025-06-01,METTUR DAM HPS,mettur_dam,17.87,33.99,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,33.99,0.0
+2025-07-01,METTUR DAM HPS,mettur_dam,34.83,68.82,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,68.82,0.0
+2025-08-01,METTUR DAM HPS,mettur_dam,26.08,94.9,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,94.9,0.0
+2025-09-01,METTUR DAM HPS,mettur_dam,24.56,119.46,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,119.46,0.0
+2025-10-01,METTUR DAM HPS,mettur_dam,19.9,139.36,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,139.35999999999999,2.842170943040401e-14
+2025-11-01,METTUR DAM HPS,mettur_dam,12.56,151.92,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,151.92,0.0
+2025-12-01,METTUR DAM HPS,mettur_dam,15.8,167.72,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,167.72,0.0
+2026-01-01,METTUR DAM HPS,mettur_dam,15.23,182.95,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,182.95,0.0
+2026-02-01,METTUR DAM HPS,mettur_dam,14.76,197.71,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,197.71,0.0
+2026-03-01,METTUR DAM HPS,mettur_dam,13.52,211.23,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,211.23,0.0
+2025-04-01,METTUR TUNNEL HPS,mettur_tunnel,0.0,0.0,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.0,0.0
+2025-05-01,METTUR TUNNEL HPS,mettur_tunnel,0.0,0.0,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,0.0,0.0
+2025-06-01,METTUR TUNNEL HPS,mettur_tunnel,61.12,61.12,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,61.12,0.0
+2025-07-01,METTUR TUNNEL HPS,mettur_tunnel,133.45,194.57,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,194.57,0.0
+2025-08-01,METTUR TUNNEL HPS,mettur_tunnel,96.08,290.65,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,290.65,0.0
+2025-09-01,METTUR TUNNEL HPS,mettur_tunnel,95.26,385.91,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,385.90999999999997,5.684341886080802e-14
+2025-10-01,METTUR TUNNEL HPS,mettur_tunnel,94.25,480.16,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,480.15999999999997,5.684341886080802e-14
+2025-11-01,METTUR TUNNEL HPS,mettur_tunnel,54.49,534.65,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,534.65,0.0
+2025-12-01,METTUR TUNNEL HPS,mettur_tunnel,44.09,578.74,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,578.74,0.0
+2026-01-01,METTUR TUNNEL HPS,mettur_tunnel,23.33,602.07,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,602.07,0.0
+2026-02-01,METTUR TUNNEL HPS,mettur_tunnel,0.0,602.07,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,602.07,0.0
+2026-03-01,METTUR TUNNEL HPS,mettur_tunnel,0.0,602.07,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,602.07,0.0
+2025-04-01,MOYAR HPS,moyar,5.17,5.17,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,5.17,0.0
+2025-05-01,MOYAR HPS,moyar,7.56,12.73,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,12.73,0.0
+2025-06-01,MOYAR HPS,moyar,6.81,19.54,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,19.54,0.0
+2025-07-01,MOYAR HPS,moyar,9.74,29.28,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,29.28,0.0
+2025-08-01,MOYAR HPS,moyar,10.02,39.3,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,39.3,0.0
+2025-09-01,MOYAR HPS,moyar,9.09,48.39,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,48.39,0.0
+2025-10-01,MOYAR HPS,moyar,16.14,64.53,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,64.53,0.0
+2025-11-01,MOYAR HPS,moyar,16.38,80.91,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,80.91,0.0
+2025-12-01,MOYAR HPS,moyar,4.92,85.83,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,85.83,0.0
+2026-01-01,MOYAR HPS,moyar,1.88,87.71,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,87.71,0.0
+2026-02-01,MOYAR HPS,moyar,2.17,89.88,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,89.88,0.0
+2026-03-01,MOYAR HPS,moyar,5.26,95.14,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,95.14,0.0
+2025-04-01,PAPANASAM HPS,papanasam,3.9,3.9,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,3.9,0.0
+2025-05-01,PAPANASAM HPS,papanasam,5.85,9.75,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,9.75,0.0
+2025-06-01,PAPANASAM HPS,papanasam,18.42,28.17,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,28.17,0.0
+2025-07-01,PAPANASAM HPS,papanasam,22.14,50.31,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,50.31,0.0
+2025-08-01,PAPANASAM HPS,papanasam,21.89,72.2,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,72.2,0.0
+2025-09-01,PAPANASAM HPS,papanasam,15.93,88.13,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,88.13,0.0
+2025-10-01,PAPANASAM HPS,papanasam,4.55,92.68,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,92.68,0.0
+2025-11-01,PAPANASAM HPS,papanasam,13.3,105.98,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,105.98,0.0
+2025-12-01,PAPANASAM HPS,papanasam,14.19,120.17,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,120.17,0.0
+2026-01-01,PAPANASAM HPS,papanasam,13.42,133.59,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,133.59,0.0
+2026-02-01,PAPANASAM HPS,papanasam,14.57,148.16,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,148.16,0.0
+2026-03-01,PAPANASAM HPS,papanasam,6.1,154.26,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,154.26,0.0
+2025-04-01,PARSON`S VALLEY HPS,parsons_valley,0.0,0.0,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.0,0.0
+2025-05-01,PARSON`S VALLEY HPS,parsons_valley,4.06,4.06,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,4.06,0.0
+2025-06-01,PARSON`S VALLEY HPS,parsons_valley,3.59,7.65,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,7.6499999999999995,8.881784197001252e-16
+2025-07-01,PARSON`S VALLEY HPS,parsons_valley,5.76,13.41,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,13.41,0.0
+2025-08-01,PARSON`S VALLEY HPS,parsons_valley,6.84,20.25,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,20.25,0.0
+2025-09-01,PARSON`S VALLEY HPS,parsons_valley,5.73,25.98,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,25.98,0.0
+2025-10-01,PARSON`S VALLEY HPS,parsons_valley,0.0,25.98,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,25.98,0.0
+2025-11-01,PARSON`S VALLEY HPS,parsons_valley,7.49,33.47,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,33.47,0.0
+2025-12-01,PARSON`S VALLEY HPS,parsons_valley,7.35,40.82,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,40.82,0.0
+2026-01-01,PARSON`S VALLEY HPS,parsons_valley,0.0,40.82,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,40.82,0.0
+2026-02-01,PARSON`S VALLEY HPS,parsons_valley,0.02,40.84,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,40.839999999999996,7.105427357601002e-15
+2026-03-01,PARSON`S VALLEY HPS,parsons_valley,0.0,40.84,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,40.839999999999996,7.105427357601002e-15
+2025-04-01,PERIYAR HPS,periyar,0.0,0.0,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.0,0.0
+2025-05-01,PERIYAR HPS,periyar,4.75,4.75,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,4.75,0.0
+2025-06-01,PERIYAR HPS,periyar,100.33,105.08,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,105.08,0.0
+2025-07-01,PERIYAR HPS,periyar,120.54,225.62,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,225.62,0.0
+2025-08-01,PERIYAR HPS,periyar,79.94,305.56,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,305.56,0.0
+2025-09-01,PERIYAR HPS,periyar,65.99,371.55,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,371.55,0.0
+2025-10-01,PERIYAR HPS,periyar,90.83,462.38,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,462.38,0.0
+2025-11-01,PERIYAR HPS,periyar,80.03,542.41,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,542.41,0.0
+2025-12-01,PERIYAR HPS,periyar,84.5,626.91,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,626.91,0.0
+2026-01-01,PERIYAR HPS,periyar,64.19,691.1,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,691.1,0.0
+2026-02-01,PERIYAR HPS,periyar,36.06,727.16,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,727.16,0.0
+2026-03-01,PERIYAR HPS,periyar,22.64,749.8,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,749.8,0.0
+2025-04-01,PYKARA HPS,pykara,0.57,0.57,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.57,0.0
+2025-05-01,PYKARA HPS,pykara,0.09,0.66,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,0.6599999999999999,1.1102230246251565e-16
+2025-06-01,PYKARA HPS,pykara,2.28,2.94,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,2.9399999999999995,4.440892098500626e-16
+2025-07-01,PYKARA HPS,pykara,8.35,11.29,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,11.29,0.0
+2025-08-01,PYKARA HPS,pykara,8.93,20.22,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,20.22,0.0
+2025-09-01,PYKARA HPS,pykara,5.45,25.67,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,25.669999999999998,3.552713678800501e-15
+2025-10-01,PYKARA HPS,pykara,4.49,30.16,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,30.16,0.0
+2025-11-01,PYKARA HPS,pykara,4.71,34.87,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,34.87,0.0
+2025-12-01,PYKARA HPS,pykara,1.53,36.4,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,36.4,0.0
+2026-01-01,PYKARA HPS,pykara,0.0,36.4,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,36.4,0.0
+2026-02-01,PYKARA HPS,pykara,0.0,36.4,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,36.4,0.0
+2026-03-01,PYKARA HPS,pykara,0.02,36.42,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,36.42,0.0
+2025-04-01,PYKARA ULTMATE HPS,pykara_ultimate,14.86,14.86,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,14.86,0.0
+2025-05-01,PYKARA ULTMATE HPS,pykara_ultimate,33.26,48.12,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,48.12,0.0
+2025-06-01,PYKARA ULTMATE HPS,pykara_ultimate,50.84,98.96,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,98.96000000000001,-1.4210854715202004e-14
+2025-07-01,PYKARA ULTMATE HPS,pykara_ultimate,85.91,184.87,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,184.87,0.0
+2025-08-01,PYKARA ULTMATE HPS,pykara_ultimate,72.74,257.61,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,257.61,0.0
+2025-09-01,PYKARA ULTMATE HPS,pykara_ultimate,46.32,303.93,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,303.93,0.0
+2025-10-01,PYKARA ULTMATE HPS,pykara_ultimate,46.53,350.46,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,350.46,0.0
+2025-11-01,PYKARA ULTMATE HPS,pykara_ultimate,49.2,399.66,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,399.66,0.0
+2025-12-01,PYKARA ULTMATE HPS,pykara_ultimate,16.12,415.78,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,415.78000000000003,-5.684341886080802e-14
+2026-01-01,PYKARA ULTMATE HPS,pykara_ultimate,5.45,421.23,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,421.23,0.0
+2026-02-01,PYKARA ULTMATE HPS,pykara_ultimate,7.19,428.42,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,428.42,0.0
+2026-03-01,PYKARA ULTMATE HPS,pykara_ultimate,16.93,445.35,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,445.35,0.0
+2025-04-01,SARKARPATHY HPS,sarkarpathy,15.72,15.72,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,15.72,0.0
+2025-05-01,SARKARPATHY HPS,sarkarpathy,15.44,31.16,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,31.16,0.0
+2025-06-01,SARKARPATHY HPS,sarkarpathy,13.15,44.31,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,44.31,0.0
+2025-07-01,SARKARPATHY HPS,sarkarpathy,3.88,48.19,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,48.19,0.0
+2025-08-01,SARKARPATHY HPS,sarkarpathy,15.15,63.34,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,63.34,0.0
+2025-09-01,SARKARPATHY HPS,sarkarpathy,14.66,78.0,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,78.0,0.0
+2025-10-01,SARKARPATHY HPS,sarkarpathy,14.42,92.42,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,92.42,0.0
+2025-11-01,SARKARPATHY HPS,sarkarpathy,14.19,106.61,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,106.61,0.0
+2025-12-01,SARKARPATHY HPS,sarkarpathy,7.32,113.93,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,113.93,0.0
+2026-01-01,SARKARPATHY HPS,sarkarpathy,6.54,120.47,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,120.47,0.0
+2026-02-01,SARKARPATHY HPS,sarkarpathy,15.88,136.35,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,136.35,0.0
+2026-03-01,SARKARPATHY HPS,sarkarpathy,17.03,153.38,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,153.38,0.0
+2025-04-01,SHOLAYAR HPS (TN),sholayar,0.0,0.0,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,0.0,0.0
+2025-05-01,SHOLAYAR HPS (TN),sholayar,1.29,1.29,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,1.29,0.0
+2025-06-01,SHOLAYAR HPS (TN),sholayar,55.88,57.17,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,57.17,0.0
+2025-07-01,SHOLAYAR HPS (TN),sholayar,74.4,131.57,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,131.57,0.0
+2025-08-01,SHOLAYAR HPS (TN),sholayar,75.29,206.86,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,206.86,0.0
+2025-09-01,SHOLAYAR HPS (TN),sholayar,40.43,247.29,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,247.29000000000002,-2.842170943040401e-14
+2025-10-01,SHOLAYAR HPS (TN),sholayar,23.92,271.21,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,271.21000000000004,-5.684341886080802e-14
+2025-11-01,SHOLAYAR HPS (TN),sholayar,44.09,315.3,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,315.3,0.0
+2025-12-01,SHOLAYAR HPS (TN),sholayar,12.8,328.1,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,328.1,0.0
+2026-01-01,SHOLAYAR HPS (TN),sholayar,27.61,355.71,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,355.71000000000004,-5.684341886080802e-14
+2026-02-01,SHOLAYAR HPS (TN),sholayar,33.13,388.84,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,388.84000000000003,-5.684341886080802e-14
+2026-03-01,SHOLAYAR HPS (TN),sholayar,0.0,388.84,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,388.84000000000003,-5.684341886080802e-14
+2025-04-01,SURULIYAR HPS,suruliyar,6.17,6.17,cea_subreport16_2025-04.pdf,cea_subreport16_2025-04.txt,6.17,0.0
+2025-05-01,SURULIYAR HPS,suruliyar,4.96,11.13,cea_subreport16_2025-05.pdf,cea_subreport16_2025-05.txt,11.129999999999999,1.7763568394002505e-15
+2025-06-01,SURULIYAR HPS,suruliyar,7.16,18.29,cea_subreport16_2025-06.pdf,cea_subreport16_2025-06.txt,18.29,0.0
+2025-07-01,SURULIYAR HPS,suruliyar,15.34,33.63,cea_subreport16_2025-07.pdf,cea_subreport16_2025-07.txt,33.629999999999995,7.105427357601002e-15
+2025-08-01,SURULIYAR HPS,suruliyar,17.86,51.49,cea_subreport16_2025-08.pdf,cea_subreport16_2025-08.txt,51.489999999999995,7.105427357601002e-15
+2025-09-01,SURULIYAR HPS,suruliyar,15.84,67.33,cea_subreport16_2025-09.pdf,cea_subreport16_2025-09.txt,67.33,0.0
+2025-10-01,SURULIYAR HPS,suruliyar,18.23,85.56,cea_subreport16_2025-10.pdf,cea_subreport16_2025-10.txt,85.56,0.0
+2025-11-01,SURULIYAR HPS,suruliyar,16.33,101.89,cea_subreport16_2025-11.pdf,cea_subreport16_2025-11.txt,101.89,0.0
+2025-12-01,SURULIYAR HPS,suruliyar,15.92,117.81,cea_subreport16_2025-12.pdf,cea_subreport16_2025-12.txt,117.81,0.0
+2026-01-01,SURULIYAR HPS,suruliyar,11.49,129.3,cea_subreport16_2026-01.pdf,cea_subreport16_2026-01.txt,129.3,0.0
+2026-02-01,SURULIYAR HPS,suruliyar,0.93,130.23,cea_subreport16_2026-02.pdf,cea_subreport16_2026-02.txt,130.23,0.0
+2026-03-01,SURULIYAR HPS,suruliyar,0.52,130.75,cea_subreport16_2026-03.pdf,cea_subreport16_2026-03.txt,130.75,0.0

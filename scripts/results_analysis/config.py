@@ -10,6 +10,8 @@ CARRIER_ORDER = (
     "diesel",
     "nuclear",
     "bio_power",
+    "small_hydro",
+    "other_res",
     "hydro",
     "solar",
     "wind",
@@ -23,6 +25,8 @@ CARRIER_LABELS = {
     "diesel": "Diesel",
     "nuclear": "Nuclear",
     "bio_power": "Bio-power",
+    "small_hydro": "Small hydro",
+    "other_res": "Other RES (small hydro + bio-power)",
     "hydro": "Hydro incl. pumped-storage discharge",
     "solar": "Solar",
     "wind": "Wind",
@@ -57,6 +61,13 @@ DISPATCHABLE_CARRIERS = (
 def canonical_carrier(value: str) -> str:
     """Map component-specific carrier labels to the reporting taxonomy."""
     carrier = str(value)
-    if carrier in {"hydro_turbine", "pumped_hydro", "reservoir_hydro"}:
+    if carrier in {
+        "hydro_turbine",
+        "hydro_run_of_river",
+        "pumped_hydro",
+        "reservoir_hydro",
+    }:
         return "hydro"
+    if carrier == "market_import":
+        return "imports"
     return carrier

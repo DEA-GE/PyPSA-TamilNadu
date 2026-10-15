@@ -1,4 +1,4 @@
-"""Prepare the FY2025-26 nine-area wind and solar workbook for the model.
+"""Prepare the previous FY2025-26 nine-area workbook for comparison.
 
 The source workbook begins at 2025-04-01 05:00 and ends at 2026-04-01 04:00.
 Its final five rows correspond to the model's first five hours. Validate that
@@ -17,7 +17,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx"
 SNAPSHOTS = ROOT / "data/build_template/snapshots.csv"
-OUTPUT = ROOT / "data/model_inputs/renewable_profiles.csv"
+OUTPUT = ROOT / "data/model_inputs/renewable_profiles_before_external_FY2025_26.csv"
 AREAS = (
     "Chennai North",
     "Chennai South",

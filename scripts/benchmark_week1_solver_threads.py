@@ -113,6 +113,7 @@ def _case_row(
         "wall_clock_seconds": elapsed,
         "process_cpu_seconds": window.get("process_cpu_seconds"),
         "average_cpu_cores": window.get("average_cpu_cores"),
+        "peak_cpu_cores_sampled": window.get("peak_cpu_cores_sampled"),
         "peak_process_rss_mb": window.get("peak_process_rss_mb_sampled"),
         "peak_process_threads": window.get("peak_process_threads_sampled"),
         "max_nodal_residual_mw": window["max_nodal_residual_mw"],
@@ -139,6 +140,7 @@ def _no_uc_week_rows(
         "runtime_seconds",
         "process_cpu_seconds",
         "average_cpu_cores",
+        "peak_cpu_cores_sampled",
         "peak_process_rss_mb_sampled",
         "peak_process_threads_sampled",
         "max_nodal_residual_mw",
@@ -238,6 +240,8 @@ def main() -> Path:
         "solver_runtime_seconds",
         "wall_clock_seconds",
         "average_cpu_cores",
+        "peak_cpu_cores_sampled",
+        "peak_process_threads",
     ]
     print("\n" + summary.reindex(columns=columns).to_string(index=False), flush=True)
     print(f"\nBenchmark summary: {summary_path}", flush=True)

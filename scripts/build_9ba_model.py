@@ -14,6 +14,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from bio_power_targets import read_bio_power_monthly_targets
+from small_hydro_targets import read_small_hydro_monthly_targets
+
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_MODEL = ROOT / "data" / "build_template"
@@ -24,6 +27,10 @@ GRID_FILE = SOURCE_DIR / "Grid_capacity.txt"
 GRID_AVAILABILITY_FACTOR = 0.50
 DEMAND_WORKBOOK = SOURCE_DIR / "tamil_nadu_balancing_area_demand.xlsx"
 PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
+# Empirical calibration of solar availability against the observed FY2025-26
+# statewide generation.  This scales the solar capacity-factor profiles (not
+# installed capacity) before they are assigned to generator p_max_pu.
+SOLAR_AVAILABILITY_MULTIPLIER = 0.7174
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
@@ -58,17 +65,64 @@ EXPECTED_JULY_2026_TOTAL_CAPACITY_MW = 48_380.41
 FY_START = pd.Timestamp("2025-04-01")
 FY_END = pd.Timestamp("2026-03-31")
 OIL_GAS_BUDGET_CONSTRAINT = "observed_fy2025_26_oil_gas_generation_target"
-BIOMASS_ENERGY_CONSTRAINT = "cea_resource_adequacy_biomass_generation_target"
-CEA_BIOMASS_CUF = 0.215
+BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
+SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
 RESERVOIR_MAX_HOURS = 720.0
 HYDRO_ASSET_REGISTRY = SOURCE_DIR / "hydro_asset_registry.csv"
 HYDRO_RECONCILIATION = SOURCE_DIR / "hydro_fleet_reconciliation.csv"
+CEA_MONTHLY_HYDRO_GENERATION = (
+    SOURCE_DIR / "cea_hydro_monthly_generation_FY2025_26.csv"
+)
 AGRICULTURE_RESERVOIR_DATA = (
     ROOT / "data" / "reservoirs" / "tn_reservoir_daily_FY2025_26.csv"
 )
 HYDRO_DEFAULT_EFFICIENCY = 0.90
 HYDRO_DEFAULT_HEAD_M = 100.0
 MCFT_M_HEAD_TO_MWH = 0.0771634
+
+# CEA reports stations while the model combines a few cascades.  The systems
+# below are the only explicit station-to-model aggregations used for targets.
+CEA_SYSTEMS_BY_ASSET = {
+    "aliyar": ["aliyar"], "bhavani_kattalai": ["bhavani_kattalai", "bhawani_barrage_ii", "bhawani_barrage_iii"],
+    "kadmparai": ["kadamparai"], "kodayar": ["kodayar_i", "kodayar_ii"],
+    "kundah": ["kundah_i", "kundah_ii", "kundah_iii", "kundah_iv", "kundah_v"],
+    "lower_mettur": ["lower_mettur_i", "lower_mettur_ii", "lower_mettur_iii", "lower_mettur_iv"],
+    "mettur": ["mettur_dam", "mettur_tunnel"], "moyar": ["moyar"], "papanasam": ["papanasam"],
+    "parsons_valley": ["parsons_valley"], "periyar": ["periyar"], "pykara": ["pykara"],
+    "pykara_ultimate": ["pykara_ultimate"], "sarkarpathy": ["sarkarpathy"], "sholayar": ["sholayar"],
+    "suruliyar": ["suruliyar"],
+}
+# These systems have no Agriculture-flow representation.  Their CEA energy is
+# therefore a weekly objective, allocated from monthly CEA values.  Agriculture
+# linked systems receive the same allocation as a ceiling, not an objective.
+NO_FLOW_CEA_TARGET_ASSETS = {"kundah", "parsons_valley", "pykara", "pykara_ultimate", "moyar", "suruliyar"}
+AGRICULTURE_CEA_CAP_ASSETS = {
+    "aliyar", "bhavani_kattalai", "kodayar", "lower_mettur", "mettur",
+    "papanasam", "periyar", "sarkarpathy", "sholayar",
+}
+# Existing-reservoir FRL capacities stated together in the Government of India
+# Expert Appraisal Committee minutes (7 March 2023, Kodayar PSHEP discussion).
+KODAYAR_UPPER_FRL_CAPACITY_MCM = 98.66
+KODAYAR_PECHIPARAI_FRL_CAPACITY_MCM = 150.22
+KODAYAR_CAPACITY_SCALE = KODAYAR_UPPER_FRL_CAPACITY_MCM / KODAYAR_PECHIPARAI_FRL_CAPACITY_MCM
+KODAYAR_CAPACITY_SOURCE = (
+    "https://environmentclearance.nic.in/writereaddata/Form-1A/Minutes/"
+    "2103202340054026Final_MOM_43rd_EAC_River_07_03_23.pdf"
+)
+KODAYAR_I_WATER_CFT_PER_KWH = 16.5
+KODAYAR_I_HEAD_FT = 3109.0
+KODAYAR_I_CONVERSION_SOURCE = (
+    "https://tenders.bhel.com/sites/default/files/"
+    "TCCSCT2159-2024-07-29-04%3A00%3A36.pdf"
+)
+KODAYAR_I_MWH_PER_MCFT = 1000.0 / KODAYAR_I_WATER_CFT_PER_KWH
+KODAYAR_II_ASSUMED_MWH_PER_MCFT = (
+    MCFT_M_HEAD_TO_MWH * HYDRO_DEFAULT_HEAD_M * HYDRO_DEFAULT_EFFICIENCY
+)
+MCM_TO_MCFT = 35.3146667214886
+# PyPSA Store capacities must be finite. This value makes terminal river sinks
+# effectively unbounded relative to any possible annual hydro discharge.
+TERMINAL_WATER_SINK_CAPACITY_MWH = 1.0e12
 # Small positive tie-breaker that prefers useful turbine discharge over
 # non-generating reservoir release whenever the electrical system can accept it.
 # Spill remains available when required by observed SOC boundaries or hydraulics.
@@ -222,6 +276,66 @@ def read_oil_gas_energy_budget(parameter="Oil & Gas") -> pd.DataFrame:
     if not np.isclose(budget["annual_share"].sum(), 1.0):
         raise AssertionError("Oil-and-gas daily shares do not sum to one")
     return budget
+
+
+def build_cascade_generation_calibration(
+    electrical_inventory: pd.DataFrame,
+) -> pd.DataFrame:
+    """Allocate CEA station-month generation to rolling weeks.
+
+    No-flow systems receive equality objectives. Systems represented with
+    Agriculture flows receive only upper bounds, so hydrology may reduce their
+    dispatch but cannot raise it above the observed CEA monthly energy.
+    """
+    cea = pd.read_csv(CEA_MONTHLY_HYDRO_GENERATION, parse_dates=["report_month"])
+    required = {"report_month", "hydro_system", "monthly_generation_gwh", "source_file"}
+    if required - set(cea):
+        raise ValueError("CEA monthly generation input is missing required columns")
+    expected_months = pd.date_range(FY_START, FY_END, freq="MS")
+    capacities = electrical_inventory.groupby("asset_id")["official_p_nom_mw"].sum()
+    dates = pd.date_range(FY_START, FY_END, freq="D", name="date")
+    week_start = FY_START + pd.to_timedelta(((dates - FY_START).days // 7) * 7, unit="D")
+    calendar = pd.DataFrame({"date": dates, "week_start": week_start, "report_month": dates.to_period("M").to_timestamp()})
+    calendar["week_end"] = (calendar.week_start + pd.Timedelta(days=6)).clip(upper=FY_END)
+    calendar["week_days"] = calendar.groupby("week_start")["date"].transform("size")
+    rows: list[pd.DataFrame] = []
+    for asset in sorted(NO_FLOW_CEA_TARGET_ASSETS | AGRICULTURE_CEA_CAP_ASSETS):
+        systems = CEA_SYSTEMS_BY_ASSET[asset]
+        if asset not in capacities.index:
+            raise ValueError(f"CEA target lacks official model capacity: {asset}")
+        monthly = cea.loc[cea.hydro_system.isin(systems)].groupby("report_month").agg(
+            monthly_generation_gwh=("monthly_generation_gwh", "sum"),
+            source_files=("source_file", lambda x: ";".join(sorted(x.unique()))),
+        ).reindex(expected_months)
+        if monthly.monthly_generation_gwh.isna().any():
+            raise ValueError(f"Incomplete CEA month coverage for {asset}")
+        days_in_month = calendar.groupby("report_month").date.transform("size")
+        daily_mwh = calendar.report_month.map(monthly.monthly_generation_gwh * 1000) / days_in_month
+        allocated = calendar.assign(daily_generation_target_mwh=daily_mwh.to_numpy())
+        frame = allocated.groupby("week_start", as_index=False).agg(
+            week_end=("week_end", "first"), week_days=("week_days", "first"),
+            weekly_generation_target_mwh=("daily_generation_target_mwh", "sum"),
+        )
+        frame.insert(1, "asset_id", asset)
+        frame["constraint_kind"] = "equality" if asset in NO_FLOW_CEA_TARGET_ASSETS else "maximum"
+        frame["weekly_capacity_mwh"] = float(capacities.at[asset]) * 24.0 * frame.week_days
+        frame["annual_generation_target_gwh"] = monthly.monthly_generation_gwh.sum()
+        frame["timing_basis"] = "CEA station-month total allocated uniformly by day, then aggregated to rolling weeks"
+        frame["source"] = "CEA National Power Portal Sub-report 16 FY2025-26 monthly reports"
+        frame["quality"] = "official"
+        frame["notes"] = f"CEA system(s): {';'.join(systems)}"
+        rows.append(frame)
+    targets = pd.concat(rows, ignore_index=True)
+    targets["target_exceeds_model_capacity"] = (
+        targets.weekly_generation_target_mwh > targets.weekly_capacity_mwh + 1e-8
+    )
+    over_capacity = targets.loc[
+        targets.target_exceeds_model_capacity & targets.constraint_kind.eq("equality")
+    ]
+    if len(over_capacity):
+        details = over_capacity[["asset_id", "week_start", "weekly_generation_target_mwh", "weekly_capacity_mwh"]]
+        raise ValueError(f"Hard CEA weekly objective exceeds official plant capacity: {details.to_dict('records')}")
+    return targets
 
 
 def join_unique(values: pd.Series) -> str:
@@ -599,7 +713,7 @@ def build_reservoir_inflow(
     raw["date"] = pd.to_datetime(raw["date"]).dt.normalize()
     raw["current_storage_mcft"] = pd.to_numeric(raw["current_storage_mcft"], errors="coerce")
     raw["full_capacity_mcft"] = pd.to_numeric(raw["full_capacity_mcft"], errors="coerce")
-    raw["current_inflow_cusec"] = pd.to_numeric(raw["current_inflow_cusec"], errors="coerce").fillna(0.0)
+    raw["current_inflow_cusec"] = pd.to_numeric(raw["current_inflow_cusec"], errors="coerce")
     raw = raw.dropna(subset=["current_storage_mcft", "full_capacity_mcft"])
 
     # Component-to-observation mapping.  Values marked proxy use only the
@@ -795,13 +909,15 @@ def build_hydraulic_cascades(
         name: str, e_nom: float, initial_fraction: float, source: str, quality: str,
         notes: str, *, initial_method: str | None = None, terminal_method: str | None = None,
         resolution: str | None = None, weekly_balance: str | None = None,
+        capacity_method: str | None = None, source_detail: str | None = None,
+        head_m: float | None = None, conversion_efficiency: float | None = None,
     ):
         bus = f"water_{slugify(name)}"
         buses.add(bus)
         stores.append({"name": name, "bus": bus, "e_nom": e_nom, "e_initial": e_nom * initial_fraction,
                        "e_cyclic": False, "carrier": "water_energy"})
         metadata.append({"reservoir_id": name, "pypsa_component": name, "p_nom_mw": np.nan,
-                         "e_nom_mwh": e_nom, "energy_capacity_method": "observed_or_documented_proxy",
+                         "e_nom_mwh": e_nom, "energy_capacity_method": capacity_method or "observed_or_documented_proxy",
                          "soc_source": source, "soc_proxy_reservoir": "",
                          "initial_soc_method": initial_method or (
                              "observed_daily" if source == "observed_agriculture" else
@@ -820,9 +936,10 @@ def build_hydraulic_cascades(
                              "seasonal_observed" if source == "observed_agriculture" else
                              "end_equals_start" if source == "endogenous_pondage" else "explicit_assumption"
                          ),
-                         "efficiency": HYDRO_DEFAULT_EFFICIENCY,
-                         "head_m": HYDRO_DEFAULT_HEAD_M, "data_quality": quality,
-                         "source": "Tamil Nadu Agriculture / documented first-pass assumption",
+                         "efficiency": conversion_efficiency if conversion_efficiency is not None else HYDRO_DEFAULT_EFFICIENCY,
+                         "head_m": head_m if head_m is not None else HYDRO_DEFAULT_HEAD_M,
+                         "data_quality": quality,
+                         "source": source_detail or "Tamil Nadu Agriculture / documented first-pass assumption",
                          "p_nom_source": "not_applicable_store", "notes": notes})
         return bus
 
@@ -838,10 +955,13 @@ def build_hydraulic_cascades(
         asset_id: str,
         storage_representation: str,
         aggregation_note: str = "",
+        electric_efficiency: float = 1.0,
     ):
+        if electric_efficiency <= 0:
+            raise ValueError("Hydro turbine electrical conversion must be positive")
         links.append({"name": name, "bus0": upstream, "bus1": electrical_bus, "bus2": downstream,
-                      "p_nom": output_mw, "p_min_pu": 0.0,
-                      "efficiency": 1.0, "efficiency2": 1.0,
+                      "p_nom": output_mw / electric_efficiency, "p_min_pu": 0.0,
+                      "efficiency": electric_efficiency, "efficiency2": 1.0,
                       "carrier": "hydro_turbine", "marginal_cost": 0.0})
         turbine_audit.append({
             "official_component_id": official_component_id,
@@ -855,7 +975,11 @@ def build_hydraulic_cascades(
             "downstream_store": downstream.removeprefix("water_"),
             "storage_representation": storage_representation,
             "aggregation_note": aggregation_note,
-            "p_nom_validation": "pass: model p_nom equals official inventory",
+            "p_nom_validation": (
+                "pass: electrical output capacity equals official inventory"
+                if electric_efficiency != 1.0 else
+                "pass: model p_nom equals official inventory"
+            ),
         })
 
     def add_asset_turbines(
@@ -954,11 +1078,32 @@ def build_hydraulic_cascades(
                   "efficiency": HYDRO_DEFAULT_EFFICIENCY ** 2, "efficiency2": -1.0 / HYDRO_DEFAULT_EFFICIENCY,
                   "carrier": "hydro_pump", "marginal_cost": 0.0})
 
-    # Kodayar: seasonal Upper Kodayar and endogenous Kodayar-II forebay.
-    kod_mw, kod_e = capacity("hydro_kodayar")
-    kod_upper = add_store("Upper_Kodayar", kod_e, 0.5, "proxy_connected_reservoir", "low", "Provisional Pechiparai normalized seasonal proxy until monthly Kodayar group energy is loaded.", initial_method="proxy_fraction", terminal_method="proxy_target", resolution="proxy", weekly_balance="explicit_assumption")
+    # Kodayar: the upper Store has no measured storage series. Its state evolves
+    # from assumed initial water, estimated natural inflow, Kodayar-I use, and
+    # spill when the estimated wet-season inflow would otherwise exceed FRL.
+    kod_mw, _ = capacity("hydro_kodayar")
+    kod_e = KODAYAR_UPPER_FRL_CAPACITY_MCM * MCM_TO_MCFT * KODAYAR_I_MWH_PER_MCFT
+    kod_upper = add_store(
+        "Upper_Kodayar", kod_e, 0.5, "assumed", "low",
+        "Published Upper Kodayar FRL capacity and Kodayar-I water-use conversion; initial storage assumed half full. Subsequent storage follows estimated inflow minus Kodayar-I turbine withdrawal and explicit non-generating spill.",
+        initial_method="assumed_fraction", terminal_method="none",
+        resolution="none", weekly_balance="none",
+        capacity_method="published_upper_frl_volume_x_kodayar_i_water_use_conversion",
+        source_detail=f"{KODAYAR_CAPACITY_SOURCE} | {KODAYAR_I_CONVERSION_SOURCE}",
+        head_m=KODAYAR_I_HEAD_FT * 0.3048,
+        conversion_efficiency=(
+            KODAYAR_I_MWH_PER_MCFT
+            / (MCFT_M_HEAD_TO_MWH * KODAYAR_I_HEAD_FT * 0.3048)
+        ),
+    )
     kod_ii = add_store("Kodayar_II_forebay", 0.10 * kod_e, 0.5, "endogenous_pondage", "low", "Intermediate pondage; no invented seasonal trajectory.")
-    kod_down = add_store("Kodayar_downstream", 0.10 * kod_e, 0.5, "endogenous_pondage", "low", "Downstream Kodayar routing sink.")
+    kod_down = add_store(
+        "Kodayar_downstream", TERMINAL_WATER_SINK_CAPACITY_MWH, 0.0,
+        "downstream_sink", "low",
+        "Effectively unbounded terminal sink for Kodayar-II turbine discharge; it does not limit upstream generation.",
+        initial_method="zero", terminal_method="none",
+        resolution="none", weekly_balance="none",
+    )
     kod_units = electrical_inventory.loc[electrical_inventory["asset_id"].eq("kodayar")].sort_values("official_component_id")
     if len(kod_units) != 2:
         raise ValueError("Kodayar I-II must have two official inventory records")
@@ -966,7 +1111,19 @@ def build_hydraulic_cascades(
     add_turbine("kodayar_I__" + str(first_kod.official_component_id), kod_upper, "Tirunelveli", kod_ii,
                 float(first_kod.official_p_nom_mw), str(first_kod.official_component_id), "kodayar", "group-aggregated Kodayar storage")
     add_turbine("kodayar_II__" + str(second_kod.official_component_id), kod_ii, "Tirunelveli", kod_down,
-                float(second_kod.official_p_nom_mw), str(second_kod.official_component_id), "kodayar", "group-aggregated Kodayar storage")
+                float(second_kod.official_p_nom_mw), str(second_kod.official_component_id), "kodayar", "group-aggregated Kodayar storage",
+                electric_efficiency=KODAYAR_II_ASSUMED_MWH_PER_MCFT / KODAYAR_I_MWH_PER_MCFT)
+    # The small common spill cost is necessary here because Upper Kodayar has
+    # no terminal target; without it, gratuitous dumping of stored water would
+    # be objective-neutral.
+    links.append({
+        "name": "upper_kodayar_spill", "bus0": kod_upper, "bus1": kod_down,
+        # No surveyed spillway rating is available. One reservoir-equivalent
+        # per hour is a finite non-binding hydraulic cap for this formulation.
+        "p_nom": kod_e,
+        "p_min_pu": 0.0, "efficiency": 1.0, "carrier": "water_spill",
+        "marginal_cost": WATER_SPILL_MARGINAL_COST,
+    })
 
     # Nilgiris/Kundah and Pykara cascades: observed seasonal data are added later;
     # absent series use documented neutral initial values and endogenous pondage.
@@ -974,19 +1131,37 @@ def build_hydraulic_cascades(
     _, parsons_e = capacity("hydro_parsons_valley")
     kund_upper = add_store("Upper_Bhavani", kund_e, 0.5, "monthly_group_energy", "low", "SRPC monthly stored-energy boundary method; provisional neutral fraction until the series is loaded.", initial_method="monthly_interpolated", terminal_method="monthly_interpolated_tolerance", resolution="monthly", weekly_balance="seasonal_interpolated")
     kund_down = add_store("Kundah_pondage", 0.10 * kund_e, 0.5, "endogenous_pondage", "low", "Aggregated intermediate Kundah pondage.")
-    kund_sink = add_store("Kundah_downstream", 0.10 * parsons_e, 0.5, "endogenous_pondage", "low", "Downstream routing sink.")
+    kund_sink = add_store(
+        "Kundah_downstream", TERMINAL_WATER_SINK_CAPACITY_MWH, 0.0,
+        "downstream_sink", "low",
+        "Effectively unbounded terminal sink for Parsons Valley turbine discharge; it does not limit upstream generation.",
+        initial_method="zero", terminal_method="none",
+        resolution="none", weekly_balance="none",
+    )
     add_asset_turbines("kundah", kund_upper, "Coimbatore", kund_down, "group-aggregated Kundah storage", "kundah_turbine", "Official Kundah units share the first-pass aggregate hydraulic stage; no 585 MW source-table total is used.")
     add_asset_turbines("parsons_valley", kund_down, "Coimbatore", kund_sink, "Kundah downstream pondage", "parsons_valley_turbine")
+    links.append({"name": "kundah_pondage_bypass_release", "bus0": kund_down, "bus1": kund_sink,
+                  "p_nom": kund_mw, "p_min_pu": 0.0, "efficiency": 1.0,
+                  "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST})
     pyk_mw, pyk_e = capacity("hydro_pykara")
     pus_mw, pus_e = capacity("hydro_pykara_ultimate")
     moy_mw, moy_e = capacity("hydro_moyar")
     pyk = add_store("Pykara", pyk_e, 0.5, "monthly_group_energy", "low", "SRPC monthly stored-energy boundary method; provisional neutral fraction until the series is loaded.", initial_method="monthly_interpolated", terminal_method="monthly_interpolated_tolerance", resolution="monthly", weekly_balance="seasonal_interpolated")
     glen = add_store("Glenmorgan_forebay", 0.10 * pus_e, 0.5, "endogenous_pondage", "low", "No artificial seasonal forebay profile.")
     moy = add_store("Moyar_pondage", 0.10 * moy_e, 0.5, "endogenous_pondage", "low", "Downstream Pykara cascade pondage.")
-    sink = add_store("Pykara_downstream", 0.10 * moy_e, 0.5, "endogenous_pondage", "low", "Downstream routing sink.")
+    sink = add_store(
+        "Pykara_downstream", TERMINAL_WATER_SINK_CAPACITY_MWH, 0.0,
+        "downstream_sink", "low",
+        "Effectively unbounded terminal sink for Moyar turbine discharge; it does not limit upstream generation.",
+        initial_method="zero", terminal_method="none",
+        resolution="none", weekly_balance="none",
+    )
     add_asset_turbines("pykara", pyk, "Coimbatore", glen, "individual Pykara Store", "pykara_turbine", "Official Pykara units share one first-pass hydraulic stage; no 61.2 MW grouped reference is used.")
     add_asset_turbines("pykara_ultimate", glen, "Coimbatore", moy, "Pykara group forebay", "pushep_turbine")
     add_asset_turbines("moyar", moy, "Coimbatore", sink, "Pykara/Moyar group pondage", "moyar_turbine", "Official Moyar units share one first-pass hydraulic stage; no 38 MW reference is used.")
+    links.append({"name": "moyar_pondage_bypass_release", "bus0": moy, "bus1": sink,
+                  "p_nom": pus_mw + moy_mw, "p_min_pu": 0.0, "efficiency": 1.0,
+                  "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST})
 
     # Papanasam--Servalar: the Agriculture Papanasam series belongs only to the
     # seasonal Papanasam reservoir. Servalar is a separate upstream reservoir
@@ -1079,8 +1254,10 @@ def build_hydraulic_cascades(
     )
 
 
-def build_water_inflow_generators(water_buses: pd.DataFrame, snapshots: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Create exogenous water-bus inflow generators from observed daily flow."""
+def build_water_inflow_generators(
+    water_buses: pd.DataFrame, snapshots: pd.Series, upper_kodayar_capacity_mwh: float,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Create observed inflows and a labelled Pechiparai proxy for Upper Kodayar."""
     raw = pd.read_csv(AGRICULTURE_RESERVOIR_DATA)
     raw = raw.loc[raw["model_ready"].astype(str).str.lower().eq("true")].copy()
     raw["date"] = pd.to_datetime(raw["date"]).dt.normalize()
@@ -1099,14 +1276,134 @@ def build_water_inflow_generators(water_buses: pd.DataFrame, snapshots: pd.Serie
         reservoir = mapping.get(bus)
         if reservoir is None:
             continue
-        daily = raw.loc[raw["reservoir"].eq(reservoir)].set_index("date")["current_inflow_cusec"]
+        daily = raw.loc[raw["reservoir"].eq(reservoir)].set_index("date")["current_inflow_cusec"].fillna(0.0)
         mw = index.normalize().map(daily).fillna(0.0).to_numpy() * 0.0864 * MCFT_M_HEAD_TO_MWH * HYDRO_DEFAULT_HEAD_M * HYDRO_DEFAULT_EFFICIENCY / 24.0
         p_nom = max(float(np.max(mw)), 1e-6)
         name = f"{slugify(reservoir)}_natural_inflow"
         rows.append({"name": name, "bus": bus, "p_nom": p_nom, "p_min_pu": 0.0, "p_max_pu": 1.0,
                      "carrier": "water_inflow", "marginal_cost": 0.0, "committable": False})
         profiles[name] = mw / p_nom
-    return pd.DataFrame(rows), pd.DataFrame(profiles, index=pd.RangeIndex(len(index)))
+    if "water_upper_kodayar" not in set(water_buses["name"]):
+        raise ValueError("Upper Kodayar water bus is missing")
+    pechiparai = raw.loc[raw["reservoir"].eq("Pechiparai")].set_index("date").sort_index()
+    if pechiparai.index.has_duplicates or pechiparai.empty:
+        raise ValueError("Expected one Pechiparai inflow reading per date")
+    dates = index.normalize().unique()
+    pechiparai = pechiparai.reindex(dates)
+    if pechiparai[["current_inflow_cusec", "full_capacity_mcft"]].isna().any().any():
+        raise ValueError("Pechiparai inflow/capacity is missing for an Upper Kodayar model date")
+    if (pechiparai["current_inflow_cusec"] < 0).any():
+        raise ValueError("Pechiparai inflow must be nonnegative")
+    expected_capacity_mwh = (
+        KODAYAR_UPPER_FRL_CAPACITY_MCM * MCM_TO_MCFT * KODAYAR_I_MWH_PER_MCFT
+    )
+    if not np.isclose(upper_kodayar_capacity_mwh, expected_capacity_mwh):
+        raise ValueError("Upper Kodayar capacity does not match its published volume")
+    pechiparai_daily_mcft = pechiparai["current_inflow_cusec"] * 0.0864
+    inflow_scale = KODAYAR_CAPACITY_SCALE
+    estimated_daily_mcft = pechiparai_daily_mcft * inflow_scale
+    estimated_daily_mwh = estimated_daily_mcft * KODAYAR_I_MWH_PER_MCFT
+    hourly_mw = index.normalize().map(estimated_daily_mwh).to_numpy() / 24.0
+    peak_mw = float(np.max(hourly_mw))
+    if peak_mw <= 0:
+        raise ValueError("Upper Kodayar estimated inflow must be positive")
+    rows.append({
+        "name": "upper_kodayar_estimated_inflow",
+        "bus": "water_upper_kodayar",
+        "p_nom": peak_mw,
+        "p_min_pu": 0.0,
+        "p_max_pu": 1.0,
+        "carrier": "water_inflow",
+        "marginal_cost": 0.0,
+        "committable": False,
+    })
+    profiles["upper_kodayar_estimated_inflow"] = hourly_mw / peak_mw
+    kodayar_audit = pd.DataFrame({
+        "date": dates,
+        "proxy_reservoir": "Pechiparai",
+        "proxy_inflow_cusec": pechiparai["current_inflow_cusec"].to_numpy(),
+        "proxy_full_capacity_mcft": pechiparai["full_capacity_mcft"].to_numpy(),
+        "upper_kodayar_capacity_mwh_equiv": upper_kodayar_capacity_mwh,
+        "capacity_ratio": KODAYAR_CAPACITY_SCALE,
+        "inflow_scale": inflow_scale,
+        "upper_frl_capacity_mcm": KODAYAR_UPPER_FRL_CAPACITY_MCM,
+        "pechiparai_frl_capacity_mcm": KODAYAR_PECHIPARAI_FRL_CAPACITY_MCM,
+        "capacity_source": KODAYAR_CAPACITY_SOURCE,
+        "kodayar_i_mwh_per_mcft": KODAYAR_I_MWH_PER_MCFT,
+        "kodayar_i_water_use_source": KODAYAR_I_CONVERSION_SOURCE,
+        "estimated_upper_inflow_mcft": estimated_daily_mcft.to_numpy(),
+        "estimated_upper_inflow_mwh_equiv": estimated_daily_mwh.to_numpy(),
+        "method": "Pechiparai daily inflow scaled by the published Upper Kodayar/Pechiparai FRL capacity ratio",
+    })
+    return pd.DataFrame(rows), pd.DataFrame(profiles, index=pd.RangeIndex(len(index))), kodayar_audit
+
+
+def build_inferred_cascade_inflows(
+    water_buses: pd.DataFrame, snapshots: pd.Series, targets: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Infer weekly calibration water allowances and preserve routed water.
+
+    Water uses the model's existing MWh-equivalent hydraulic basis. Kundah
+    water is injected once at Upper Bhavani and can then serve Parsons Valley.
+    Pykara Ultimate exceeds upstream Pykara generation, so its residual is an
+    explicit Glenmorgan forebay diversion rather than hidden Pykara inflow.
+    """
+    index = pd.DatetimeIndex(pd.to_datetime(snapshots))
+    weekly = targets.pivot(
+        index="week_start", columns="asset_id", values="weekly_generation_target_mwh"
+    )
+    weekly.index = pd.DatetimeIndex(weekly.index)
+    week_hours = (
+        targets.drop_duplicates("week_start").set_index("week_start")["week_days"] * 24.0
+    )
+    week_hours.index = pd.DatetimeIndex(week_hours.index)
+    snapshot_week = FY_START + pd.to_timedelta(
+        ((index.normalize() - FY_START).days // 7) * 7, unit="D"
+    )
+    if weekly.isna().any().any() or not pd.Index(snapshot_week).isin(weekly.index).all():
+        raise ValueError("Cascade calibration targets do not cover all rolling weeks")
+    requirements = pd.DataFrame({
+        "kundah_upper_bhavani_calibration_inflow": weekly["kundah"],
+        "pykara_calibration_inflow": weekly["pykara"],
+        "glenmorgan_diversion_calibration_inflow": (
+            weekly["pykara_ultimate"] - weekly["pykara"]
+        ).clip(lower=0.0),
+    }, index=weekly.index)
+    buses = {
+        "kundah_upper_bhavani_calibration_inflow": "water_upper_bhavani",
+        "pykara_calibration_inflow": "water_pykara",
+        "glenmorgan_diversion_calibration_inflow": "water_glenmorgan_forebay",
+    }
+    if set(buses.values()) - set(water_buses["name"]):
+        raise ValueError("Expected cascade calibration water buses are missing")
+    rows: list[dict[str, object]] = []
+    profiles: dict[str, np.ndarray] = {}
+    audit_rows: list[pd.DataFrame] = []
+    for name, target in requirements.items():
+        hourly_mw = (
+            pd.Index(snapshot_week).map(target).to_numpy()
+            / pd.Index(snapshot_week).map(week_hours).to_numpy()
+        )
+        p_nom = max(float(hourly_mw.max()), 1e-6)
+        rows.append({"name": name, "bus": buses[name], "p_nom": p_nom,
+                     "p_min_pu": 0.0, "p_max_pu": 1.0, "carrier": "water_inflow",
+                     "marginal_cost": 0.0, "committable": False})
+        profiles[name] = hourly_mw / p_nom
+        audit_rows.append(pd.DataFrame({
+            "week_start": target.index,
+            "week_end": target.index.map(
+                targets.drop_duplicates("week_start").set_index("week_start")["week_end"]
+            ),
+            "source_component": name, "water_bus": buses[name],
+            "inferred_inflow_mwh": target.to_numpy(),
+            "method": "weekly calibration water allowance delivered uniformly within the rolling week",
+        }))
+    audit = pd.concat(audit_rows, ignore_index=True)
+    water_mwh_per_mcft = MCFT_M_HEAD_TO_MWH * HYDRO_DEFAULT_HEAD_M * HYDRO_DEFAULT_EFFICIENCY
+    audit["inferred_inflow_mcft_at_assumed_head"] = audit["inferred_inflow_mwh"] / water_mwh_per_mcft
+    audit["inferred_inflow_mcm_at_assumed_head"] = audit["inferred_inflow_mcft_at_assumed_head"] / MCM_TO_MCFT
+    audit["volume_conversion_basis"] = f"{HYDRO_DEFAULT_HEAD_M:g} m head; {HYDRO_DEFAULT_EFFICIENCY:.0%} efficiency"
+    return (pd.DataFrame(rows), pd.DataFrame(profiles, index=pd.RangeIndex(len(index))), audit)
 
 
 def allocate_mechanisms(
@@ -1365,7 +1662,10 @@ def placeholder_profiles(
         values = profiles[required_columns]
         if values.isna().any().any() or ((values < 0.0) | (values > 1.0)).any().any():
             raise ValueError("Renewable profiles must contain values from zero to one")
-        return profiles[["snapshot", *required_columns]]
+        profiles = profiles[["snapshot", *required_columns]].copy()
+        solar_columns = [column for column in required_columns if column.endswith("_solar")]
+        profiles.loc[:, solar_columns] *= SOLAR_AVAILABILITY_MULTIPLIER
+        return profiles
 
     technology = pd.read_csv(BASE_MODEL / "technology-p_max-pu.csv", index_col=0)
     meta = metadata.set_index("component_id")
@@ -1384,6 +1684,8 @@ def placeholder_profiles(
         profiles[f"{slugify(area)}_solar"] = solar_profile.to_numpy()
         profiles[f"{slugify(area)}_wind"] = technology["wind_fleet"].to_numpy()
     profiles.to_csv(PROFILE_INPUT, index=False)
+    solar_columns = [column for column in required_columns if column.endswith("_solar")]
+    profiles.loc[:, solar_columns] *= SOLAR_AVAILABILITY_MULTIPLIER
     return profiles
 
 
@@ -1612,6 +1914,9 @@ def main() -> None:
     snapshots = snapshots_table["snapshot"]
     oil_gas_budget = read_oil_gas_energy_budget()
     nuclear_budget = read_oil_gas_energy_budget("Nuclear")
+    cascade_generation_targets = build_cascade_generation_calibration(
+        hydro_electrical_inventory
+    )
     reservoir_storage = storage.loc[storage["name"].isin(reservoir_names)]
     reservoir_inflow, reservoir_inflow_audit, hydro_observed_soc, hydro_parameters = build_reservoir_inflow(
         snapshots_table, reservoir_storage
@@ -1644,7 +1949,6 @@ def main() -> None:
         "hydro_sholayar": ["Sholayar"],
         "hydro_sarkarpathy": ["Parambikulam", "Thunacadavu"],
         "hydro_aliyar": ["Upper_Aliyar"],
-        "hydro_kodayar": ["Upper_Kodayar"],
     }
     store_sizes = stores.set_index("name")["e_nom"]
     store_soc_rows: list[pd.DataFrame] = []
@@ -1654,15 +1958,70 @@ def main() -> None:
             copied = source.copy()
             copied["pypsa_component"] = target_store
             copied["soc_mwh"] = copied["soc_fraction"] * float(store_sizes[target_store])
+            if target_store == "Parambikulam":
+                # This Store is the observed reservoir itself. The electrical
+                # Sarkarpathy component used it as a proxy, but the hydraulic
+                # Store's storage fraction is directly measured here.
+                copied["soc_source"] = "observed_agriculture"
+                copied["data_quality"] = "high"
             store_soc_rows.append(copied)
     if store_soc_rows:
         hydro_observed_soc = pd.concat([hydro_observed_soc, *store_soc_rows], ignore_index=True)
-    water_inflow_generators, water_inflow_profiles = build_water_inflow_generators(
-        water_buses, snapshots
+    # The electrical Kodayar group is represented by Links; its old Pechiparai
+    # storage proxy is not an active Store observation or rolling target.
+    hydro_observed_soc = hydro_observed_soc.loc[
+        ~hydro_observed_soc["pypsa_component"].eq("hydro_kodayar")
+    ].copy()
+    water_inflow_generators, water_inflow_profiles, kodayar_inflow_audit = build_water_inflow_generators(
+        water_buses, snapshots, float(store_sizes["Upper_Kodayar"])
     )
-    generators = pd.concat([generators, water_inflow_generators], ignore_index=True, sort=False)
+    cascade_inflow_generators, cascade_inflow_profiles, cascade_inflow_audit = build_inferred_cascade_inflows(
+        water_buses, snapshots, cascade_generation_targets
+    )
+    generators = pd.concat(
+        [generators, water_inflow_generators, cascade_inflow_generators],
+        ignore_index=True, sort=False,
+    )
     reservoir_names = pd.Index(storage.loc[storage["carrier"].eq("hydro") & storage["p_min_pu"].ge(0), "name"])
     reservoir_inflow = reservoir_inflow.reindex(columns=reservoir_names, fill_value=0.0)
+    suruliyar_weekly = cascade_generation_targets.loc[
+        cascade_generation_targets.asset_id.eq("suruliyar")
+    ].set_index("week_start")["weekly_generation_target_mwh"]
+    suruliyar_week_hours = (
+        cascade_generation_targets.loc[
+            cascade_generation_targets.asset_id.eq("suruliyar")
+        ].set_index("week_start")["week_days"] * 24.0
+    )
+    snapshot_index = pd.DatetimeIndex(pd.to_datetime(snapshots))
+    snapshot_week = FY_START + pd.to_timedelta(
+        ((snapshot_index.normalize() - FY_START).days // 7) * 7, unit="D"
+    )
+    suruliyar_efficiency = float(
+        storage.loc[storage.name.eq("hydro_suruliyar"), "efficiency_dispatch"].iloc[0]
+    )
+    # PyPSA's StorageUnit inflow series is absolute MW, not per-unit of p_nom.
+    reservoir_inflow["hydro_suruliyar"] = (
+        pd.Index(snapshot_week).map(suruliyar_weekly).to_numpy()
+        / suruliyar_efficiency
+        / pd.Index(snapshot_week).map(suruliyar_week_hours).to_numpy()
+    )
+    water_mwh_per_mcft = MCFT_M_HEAD_TO_MWH * HYDRO_DEFAULT_HEAD_M * HYDRO_DEFAULT_EFFICIENCY
+    suruliyar_audit = pd.DataFrame({
+        "week_start": suruliyar_weekly.index,
+        "week_end": suruliyar_weekly.index.map(
+            cascade_generation_targets.loc[
+                cascade_generation_targets.asset_id.eq("suruliyar")
+            ].set_index("week_start")["week_end"]
+        ),
+        "source_component": "suruliyar_calibration_inflow",
+        "water_bus": "hydro_suruliyar StorageUnit",
+        "inferred_inflow_mwh": suruliyar_weekly.to_numpy() / suruliyar_efficiency,
+        "method": "weekly calibration water allowance from generation target and StorageUnit dispatch efficiency",
+    })
+    suruliyar_audit["inferred_inflow_mcft_at_assumed_head"] = suruliyar_audit["inferred_inflow_mwh"] / water_mwh_per_mcft
+    suruliyar_audit["inferred_inflow_mcm_at_assumed_head"] = suruliyar_audit["inferred_inflow_mcft_at_assumed_head"] / MCM_TO_MCFT
+    suruliyar_audit["volume_conversion_basis"] = f"{HYDRO_DEFAULT_HEAD_M:g} m head; {HYDRO_DEFAULT_EFFICIENCY:.0%} efficiency"
+    cascade_inflow_audit = pd.concat([cascade_inflow_audit, suruliyar_audit], ignore_index=True)
     nuclear_mask = generators["carrier"].eq("nuclear")
     nuclear_capacity = generators.loc[nuclear_mask, "p_nom"].sum()
     if (nuclear_budget.daily_energy_target_mwh > nuclear_capacity * 24 + 1e-5).any():
@@ -1680,10 +2039,18 @@ def main() -> None:
     )
     if biomass_capacity_mw <= 0:
         raise ValueError("Cannot apply a biomass target without bio_power generators")
-    # CEA's Resource Adequacy Study assumes a 21.5% CUF for biomass.  An
-    # equality target is intentional: without it, biomass is almost entirely
-    # displaced by the lower-cost coal fleet in economic dispatch.
-    biomass_annual_target_mwh = biomass_capacity_mw * CEA_BIOMASS_CUF * len(snapshots)
+    # Tamil Nadu Outlook reports monthly bio-power generation. The annual
+    # global constraint keeps direct full-year solves consistent; rolling and
+    # selected-week solves replace it with month-prorated weekly equalities.
+    biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
+    biomass_annual_target_mwh = float(biomass_monthly_targets_mwh.sum())
+    small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
+    small_hydro_annual_target_mwh = float(small_hydro_monthly_targets_mwh.sum())
+    small_hydro_capacity_mw = float(
+        generators.loc[generators["carrier"].eq("small_hydro"), "p_nom"].sum()
+    )
+    if small_hydro_capacity_mw <= 0:
+        raise ValueError("Cannot apply a small-hydro target without small_hydro generators")
     global_constraints = pd.DataFrame(
         [
             {
@@ -1700,6 +2067,13 @@ def main() -> None:
                 "sense": "==",
                 "constant": biomass_annual_target_mwh,
             },
+            {
+                "name": SMALL_HYDRO_ENERGY_CONSTRAINT,
+                "type": "operational_limit",
+                "carrier_attribute": "small_hydro",
+                "sense": "==",
+                "constant": small_hydro_annual_target_mwh,
+            },
         ]
     )
     area_profiles = placeholder_profiles(
@@ -1708,11 +2082,19 @@ def main() -> None:
     generator_profiles = build_generator_profiles(
         generators, expanded_metadata, area_profiles
     )
+    # Monthly observed energy equalities supersede the inherited placeholder
+    # profile for small hydro. Make its timing dispatchable up to nameplate.
+    small_hydro_names = generators.loc[
+        generators["carrier"].eq("small_hydro"), "name"
+    ]
+    generator_profiles.loc[:, small_hydro_names] = 1.0
     ror_profiles = build_run_of_river_profiles(generators, snapshots)
     for name in ror_profiles.columns:
         generator_profiles[name] = ror_profiles[name]
     for name in water_inflow_profiles.columns:
         generator_profiles[name] = water_inflow_profiles[name]
+    for name in cascade_inflow_profiles.columns:
+        generator_profiles[name] = cascade_inflow_profiles[name]
 
     # Keep the preference on the final fleet so it applies consistently to
     # both the source fleet and the July-2026 capacity overlay.
@@ -1731,6 +2113,7 @@ def main() -> None:
         OUTPUT_DIR / "hydro_reservoir_inflow.csv", index=False, date_format="%Y-%m-%d"
     )
     hydro_observed_soc.to_csv(OUTPUT_DIR / "hydro_observed_soc.csv", index=False)
+    kodayar_inflow_audit.to_csv(OUTPUT_DIR / "upper_kodayar_inflow_estimate.csv", index=False)
     hydro_parameter_report = pd.concat([hydro_parameters, cascade_metadata], ignore_index=True, sort=False)
     hydro_parameter_report.to_csv(OUTPUT_DIR / "hydro_reservoir_parameters.csv", index=False)
     hydro_parameter_report.loc[
@@ -1767,9 +2150,19 @@ def main() -> None:
     load_time_series.to_csv(OUTPUT_DIR / "loads-p_set.csv")
     generators.to_csv(OUTPUT_DIR / "generators.csv", index=False)
     generator_profiles.to_csv(OUTPUT_DIR / "generators-p_max_pu.csv")
+    pd.concat([
+        water_inflow_profiles[["upper_kodayar_estimated_inflow"]],
+        cascade_inflow_profiles,
+    ], axis=1).to_csv(OUTPUT_DIR / "generators-p_min_pu.csv")
     storage.to_csv(OUTPUT_DIR / "storage_units.csv", index=False)
     stores.to_csv(OUTPUT_DIR / "stores.csv", index=False)
     reservoir_inflow.to_csv(OUTPUT_DIR / "storage_units-inflow.csv")
+    cascade_generation_targets.to_csv(
+        OUTPUT_DIR / "hydro_cascade_generation_targets.csv", index=False, date_format="%Y-%m-%d"
+    )
+    cascade_inflow_audit.to_csv(
+        OUTPUT_DIR / "hydro_cascade_inferred_inflow.csv", index=False, date_format="%Y-%m-%d"
+    )
     snapshots_table.to_csv(OUTPUT_DIR / "snapshots.csv", index=False)
     global_constraints.to_csv(OUTPUT_DIR / "global_constraints.csv", index=False)
     oil_gas_budget.to_csv(
@@ -1792,9 +2185,8 @@ def main() -> None:
     pd.DataFrame(
         [
             {
-                "source": "CEA Resource Adequacy Study",
+                "source": "Tamil Nadu Outlook monthly generation table",
                 "fiscal_year": "FY2025-26",
-                "cuf": CEA_BIOMASS_CUF,
                 "installed_capacity_mw": biomass_capacity_mw,
                 "annual_energy_target_mwh": biomass_annual_target_mwh,
                 "constraint_name": BIOMASS_ENERGY_CONSTRAINT,
@@ -1802,6 +2194,18 @@ def main() -> None:
             }
         ]
     ).to_csv(OUTPUT_DIR / "biomass_energy_target_summary.csv", index=False)
+    pd.DataFrame(
+        [
+            {
+                "source": "Tamil Nadu Outlook monthly generation table",
+                "fiscal_year": "FY2025-26",
+                "installed_capacity_mw": small_hydro_capacity_mw,
+                "annual_energy_target_mwh": small_hydro_annual_target_mwh,
+                "constraint_name": SMALL_HYDRO_ENERGY_CONSTRAINT,
+                "constraint_sense": "==",
+            }
+        ]
+    ).to_csv(OUTPUT_DIR / "small_hydro_energy_target_summary.csv", index=False)
     expanded_metadata.to_csv(OUTPUT_DIR / "component_metadata.csv", index=False)
     district_allocation_export.to_csv(
         OUTPUT_DIR / "district_capacity_allocation.csv", index=False
@@ -1908,9 +2312,12 @@ def main() -> None:
         f"{oil_gas_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
     )
     print(
-        "Applied CEA biomass energy equality target: "
-        f"{biomass_annual_target_mwh / 1_000.0:,.2f} MU "
-        f"at {CEA_BIOMASS_CUF:.1%} CUF over FY2025-26"
+        "Applied observed bio-power energy equality target: "
+        f"{biomass_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
+    )
+    print(
+        "Applied observed small-hydro energy equality target: "
+        f"{small_hydro_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
     )
     print(
         "Applied July 2026 capacity overlay: "

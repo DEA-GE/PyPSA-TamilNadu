@@ -152,3 +152,26 @@ def load_observed_generation() -> pd.DataFrame:
     observed = read_observed_generation().copy()
     observed.index = pd.DatetimeIndex(observed.index)
     return observed.sort_index()
+
+
+def load_observed_annual_generation() -> pd.DataFrame:
+    """Load authoritative Tamil Nadu Outlook annual generation benchmarks."""
+    from run_9ba_weekly_days_2025_26 import read_observed_annual_generation
+
+    return read_observed_annual_generation()
+
+
+def load_observed_capacity() -> pd.DataFrame:
+    """Load Tamil Nadu Outlook historical installed-capacity benchmarks."""
+    source = (
+        Path(__file__).resolve().parents[2]
+        / "data"
+        / "model_inputs"
+        / "tamil_nadu_outlook_installed_capacity.json"
+    )
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    observed = pd.DataFrame(payload["categories"]).set_index("carrier")
+    if observed.index.duplicated().any():
+        raise ValueError("Tamil Nadu Outlook capacity categories must be unique")
+    observed["source"] = str(payload["source"])
+    return observed.sort_index()

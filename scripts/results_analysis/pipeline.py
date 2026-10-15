@@ -17,6 +17,7 @@ from .metrics import (
     generation_by_carrier_timeseries,
     generation_comparison,
     installed_capacity_by_area,
+    installed_capacity_comparison,
     monthly_generation_comparison,
     monthly_resource_seasonality,
     peak_hour_by_area,
@@ -49,6 +50,8 @@ class AnalysisBundle:
 def analyze_run(
     run: AnalysisRun,
     observed_daily: pd.DataFrame | None = None,
+    observed_annual: pd.DataFrame | None = None,
+    observed_capacity: pd.DataFrame | None = None,
 ) -> AnalysisBundle:
     """Calculate the common schema plus applicable horizon-specific outputs."""
     generation_hourly = generation_by_carrier_timeseries(run)
@@ -70,13 +73,18 @@ def analyze_run(
         "topology_validation": topology_validation(run),
         "system_metrics": system_metrics(run),
         "generation_by_carrier": generation_by_carrier(run),
-        "generation_comparison": generation_comparison(run, observed_daily),
+        "generation_comparison": generation_comparison(
+            run, observed_daily, observed_annual
+        ),
         "storage_metrics": storage_metrics(run),
         "store_metrics": store_metrics(run),
         "commitment_by_unit": unit_commitment,
         "commitment_by_carrier": commitment_by_carrier(unit_commitment),
         "balancing_area_metrics": balancing_area_metrics(run),
         "installed_capacity_by_area": installed_capacity_by_area(run),
+        "installed_capacity_comparison": installed_capacity_comparison(
+            run, observed_capacity
+        ),
         "renewable_generation_by_area": renewable_generation_by_area(run),
         "corridor_metrics": corridors,
         "ramp_timeseries": ramps,
