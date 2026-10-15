@@ -1352,13 +1352,17 @@ def _write_outputs(
     (output_dir / "validation.json").write_text(json.dumps(validation, indent=2), encoding="utf-8")
 
     plot_path = output_dir / "daily_generation_comparison.png"
-    fig, axes = plt.subplots(4, 2, figsize=(15, 14), sharex=True)
+    n_plots = len(COMPARISON_CATEGORIES)
+    n_cols = 3
+    n_rows = int(np.ceil(n_plots / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(18, 5 * n_rows), sharex=True)
+    axes = np.asarray(axes).reshape(-1)
     if mode == "selected_weeks":
         gap_positions = np.flatnonzero(dates.to_series().diff().gt(pd.Timedelta(days=1)))
         plot_blocks = np.split(dates, gap_positions)
     else:
         plot_blocks = [dates]
-    for axis, carrier in zip(axes.flat, COMPARISON_CATEGORIES):
+    for axis, carrier in zip(axes, COMPARISON_CATEGORIES):
         for block_number, block in enumerate(plot_blocks):
             axis.plot(
                 block,
@@ -1375,9 +1379,9 @@ def _write_outputs(
         axis.set_title(PLOT_LABELS.get(carrier, carrier.replace("_", " ").title()))
         axis.set_ylabel("GWh/day")
         axis.grid(alpha=0.25)
-    for axis in axes.flat[len(COMPARISON_CATEGORIES) :]:
+    for axis in axes[len(COMPARISON_CATEGORIES) :]:
         axis.set_visible(False)
-    axes[0, 0].legend()
+    axes[0].legend()
     fig.suptitle(f"9-BA {mode} dispatch: model versus observed", fontsize=15)
     fig.autofmt_xdate()
     fig.tight_layout(rect=(0, 0, 1, 0.97))

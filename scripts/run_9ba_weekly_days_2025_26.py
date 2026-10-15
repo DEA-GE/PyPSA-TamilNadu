@@ -67,6 +67,9 @@ COMPARISON_CATEGORIES = [
     "hydro",
     "solar",
     "wind",
+    "small_hydro",
+    "bio_power",
+    "other_res",
     "comparable_total",
 ]
 SUMMARY_CATEGORIES = [
@@ -88,6 +91,9 @@ PLOT_LABELS = {
     "hydro": "Hydro incl. pumped-storage discharge",
     "solar": "Solar",
     "wind": "Wind",
+    "small_hydro": "Small hydro",
+    "bio_power": "Bio-power",
+    "other_res": "Other RES (small hydro + bio-power)",
     "comparable_total": "Comparable total",
 }
 
@@ -143,6 +149,11 @@ def read_observed_generation() -> pd.DataFrame:
     observed.index = pd.DatetimeIndex(parsed_dates, name="date")
     observed = observed.apply(pd.to_numeric, errors="coerce")
     observed = observed.rename(columns=OBSERVED_ROWS).sort_index()
+    # The daily workbook has no separate chronology for small hydro or
+    # bio-power. Keep explicit blank columns so comparison figures can show
+    # the modeled series without implying unavailable daily observations.
+    for carrier in ("small_hydro", "bio_power"):
+        observed[carrier] = np.nan
 
     expected_dates = pd.date_range(FY_START, FY_END, freq="D", name="date")
     if not observed.index.equals(expected_dates):
