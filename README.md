@@ -34,13 +34,13 @@ Run these commands from the repository root. The example uses PowerShell; on
 macOS or Linux, activate the virtual environment with `source .venv/bin/activate`.
 If `python` is not on your path, use the Python executable from your environment.
 
-1. Create an environment and install the packages used to build, solve, and
-   analyze the model:
+1. With Python 3.11 or newer, create an environment and install the packages
+   used to build, solve, and analyze the model:
 
    ```powershell
    python -m venv .venv
    .venv\Scripts\Activate.ps1
-   python -m pip install pypsa==1.2.4 highspy pandas openpyxl matplotlib jupyterlab xarray psutil Markdown tabulate
+   python -m pip install pypsa==1.4.0 highspy pandas openpyxl matplotlib jupyterlab xarray psutil Markdown tabulate
    ```
 
    If you also regenerate upstream data, install the packages for those

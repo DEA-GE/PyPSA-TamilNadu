@@ -794,6 +794,7 @@ def _solve_selected_weeks(
             saved_validation = json.loads(validation_file.read_text(encoding="utf-8"))
             compatible = (
                 saved_validation.get("model_version") == CHECKPOINT_MODEL_VERSION
+                and saved_validation.get("pypsa_version") == pypsa.__version__
                 and saved_validation.get("warmup_days") == warmup_days
                 and saved_validation.get("lookahead_days") == lookahead_days
                 and saved_validation.get("solver_name") == solver_name
@@ -1195,6 +1196,7 @@ def _solve_selected_weeks(
         )
         week_validation = {
             "model_version": CHECKPOINT_MODEL_VERSION,
+            "pypsa_version": pypsa.__version__,
             "formulation": "continuous selected week with warm-up and look-ahead",
             "solver_status": str(status),
             "solver_condition": str(condition),
