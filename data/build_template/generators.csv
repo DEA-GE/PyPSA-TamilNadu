@@ -144,7 +144,6 @@ tamil_nadu_karur_156_49__aggregate_01,Tamil_Nadu,156.49,0.0,1.0,,inf,solar,0.0,F
 tamil_nadu_krishnagiri_0_75__aggregate_01,Tamil_Nadu,0.75,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
 tamil_nadu_madurai_1__aggregate_01,Tamil_Nadu,1.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
 tamil_nadu_n_a_251__aggregate_01,Tamil_Nadu,251.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
-tamil_nadu_n_a_off_grid_75_91__aggregate_01,Tamil_Nadu,75.91,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
 tamil_nadu_n_a_others_districts_not_specified_8930_85__aggregate_01,Tamil_Nadu,8930.85,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
 tamil_nadu_n_a_rooftop_grid_connected_1635_8__aggregate_01,Tamil_Nadu,1635.8,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
 tamil_nadu_nagapattinam_5__aggregate_01,Tamil_Nadu,5.0,0.0,1.0,,inf,solar,0.0,False,0.0,0.0,0,0,1,0,,,,
@@ -210,7 +209,6 @@ orient_green_power_ltd_tamil_nadu_coimbatore_10__unit_01,Tamil_Nadu,10.0,0.5,0.6
 others_districts_not_specified_waste_to_energy_tamil_nadu_n_a_6___aggregate_01,Tamil_Nadu,6.4,0.5,0.6,0.0,inf,bio_power,4512.5,True,2426.2643111683983,2426.2643111683983,4,4,0,4,1.0,1.0,0.5,0.5
 others_districts_not_specified_biomass_bagasse_based_cogen_tamil__aggregate_01,Tamil_Nadu,138.2,0.5,0.6,0.0,inf,bio_power,4512.5,True,52392.144969292596,52392.144969292596,4,4,0,4,1.0,1.0,0.5,0.5
 others_districts_not_specified_non_bagasse_based_cogen_tamil_nad__aggregate_01,Tamil_Nadu,52.05,0.5,0.6,0.0,inf,bio_power,4512.5,True,19732.352718174236,19732.352718174236,4,4,0,4,1.0,1.0,0.5,0.5
-others_districts_not_specified_waste_to_energy_off_grid_tamil_na__aggregate_01,Tamil_Nadu,27.57,0.5,0.6,0.0,inf,bio_power,4512.5,True,10451.891727955115,10451.891727955115,4,4,0,4,1.0,1.0,0.5,0.5
 ponni_sugars_limited_tamil_nadu_erode_19__unit_01,Tamil_Nadu,19.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,7202.9721737811815,7202.9721737811815,4,4,0,4,1.0,1.0,0.5,0.5
 prathyusha_power_pvt_ltd_tamil_nadu_tirunelveli_10__unit_01,Tamil_Nadu,10.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,3791.037986200622,3791.037986200622,4,4,0,4,1.0,1.0,0.5,0.5
 rajashree_sugars_chemicals_ltd_tamil_nadu_theni_12__unit_01,Tamil_Nadu,12.0,0.5,0.6,0.0,inf,bio_power,4512.5,True,4549.2455834407465,4549.2455834407465,4,4,0,4,1.0,1.0,0.5,0.5
