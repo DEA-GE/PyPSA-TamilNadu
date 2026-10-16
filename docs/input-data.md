@@ -21,11 +21,15 @@ an explicit `snapshot` timestamp.
 | July 2026 capacity additions | `data/model_inputs/additional_capacity_2026_07.csv` | `model/additional_capacity_2026_07.csv`, `model/capacity_reconciliation_2026_07.csv` |
 | Hydro assets and observations | `data/model_inputs/hydro_asset_registry.csv`, `data/model_inputs/hydro_fleet_reconciliation.csv`, `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` | `model/hydro_reservoir_parameters.csv`, `model/hydro_reservoir_inflow.csv`, `model/hydro_observed_soc.csv` |
 | Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/global_constraints.csv` |
-| Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/Grid_capacity.txt` | `model/buses.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
+| Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx` | `model/buses.csv`, `model/lines.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
 single-node input set, not a second supported network.
+
+The grid is imported with PyPSA's `Network.import_from_excel()` API. To replace
+only the grid in an already-built model (without rebuilding generation, demand,
+or hydro inputs), run `python scripts/import_grid_from_excel.py`.
 
 ## Demand: hourly total and area profiles
 

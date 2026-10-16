@@ -14,11 +14,14 @@ the plant inventory and observed-generation workbooks in `data/source/`.
 Changes to those inputs require a rebuild; changes to generated files in
 `model/` will be overwritten.
 
+To replace only the transmission network from the active Excel input, run
+`python scripts/import_grid_from_excel.py` from the repository root.
+
 ## What is in this folder
 
 | Files | Meaning |
 | --- | --- |
-| `buses.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
+| `buses.csv`, `lines.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
 | `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand, availability, and simple-reservoir inflow |
 | `global_constraints.csv`, `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv` | Annual equality constraints and observed daily energy targets |
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pypsa
 
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
@@ -23,8 +24,7 @@ BASE_MODEL = ROOT / "data" / "build_template"
 SOURCE_DIR = ROOT / "data" / "model_inputs"
 OUTPUT_DIR = ROOT / "model"
 AREA_FILE = SOURCE_DIR / "Balancing_areas.txt"
-GRID_FILE = SOURCE_DIR / "Grid_capacity.txt"
-GRID_AVAILABILITY_FACTOR = 0.50
+GRID_WORKBOOK = SOURCE_DIR / "TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx"
 DEMAND_WORKBOOK = SOURCE_DIR / "tamil_nadu_balancing_area_demand.xlsx"
 PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
 # Empirical calibration of solar availability against the observed FY2025-26
@@ -175,43 +175,48 @@ def canonical_district(district: object) -> str:
     return DISTRICT_ALIASES.get(value, value)
 
 
-def read_grid() -> pd.DataFrame:
-    records: list[dict[str, object]] = []
-    lines = GRID_FILE.read_text(encoding="utf-8").splitlines()
-    for line in lines[1:]:
-        if not line.strip():
-            continue
-        cells = [cell.strip() for cell in line.split("\t")]
-        if len(cells) != 3:
-            raise ValueError(f"Could not parse grid row: {line!r}")
-        values = [float(value) for value in re.findall(r"\d+(?:\.\d+)?", cells[2])]
-        if not values:
-            raise ValueError(f"No capacity found in grid row: {line!r}")
-        stated_capacity_mw = float(np.mean(values))
-        effective_capacity_mw = stated_capacity_mw * GRID_AVAILABILITY_FACTOR
-        records.append(
-            {
-                "name": f"{slugify(cells[0])}__{slugify(cells[1])}",
-                "bus0": cells[0],
-                "bus1": cells[1],
-                # Apply the deterministic transmission availability derating to
-                # the Link rating so that both directional flow limits are 80%
-                # of the stated corridor capacity in every snapshot.
-                "p_nom": effective_capacity_mw,
-                "p_min_pu": -1.0,
-                "efficiency": 1.0,
-                "carrier": "AC",
-                "marginal_cost": 0.0,
-                "stated_capacity_mw": stated_capacity_mw,
-                "availability_factor": GRID_AVAILABILITY_FACTOR,
-                "source_capacity_text": cells[2],
-                "capacity_method": "value" if len(values) == 1 else "range midpoint",
-            }
-        )
-    grid = pd.DataFrame(records)
-    if len(grid) != 18:
-        raise ValueError(f"Expected 18 grid corridors, found {len(grid)}")
-    return grid
+def read_grid() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Import the authoritative transmission network from its PyPSA workbook."""
+    imported = pypsa.Network()
+    # PyPSA documents import_from_excel for workbooks with one sheet per
+    # component. openpyxl works with the installed PyPSA and this workbook.
+    imported.import_from_excel(GRID_WORKBOOK, engine="openpyxl")
+
+    buses = imported.buses.reset_index()
+    buses["carrier"] = buses["carrier"].replace("", "AC").fillna("AC")
+    buses = buses.reindex(columns=[
+        "name", "v_nom", "x", "y", "carrier", "kind",
+        "within_area_mw", "within_area_circuits",
+    ])
+
+    lines = imported.lines.reset_index().reindex(columns=[
+        "name", "bus0", "bus1", "x", "r", "b", "s_nom", "s_max_pu",
+        "length", "carrier", "kind", "s_nom_n1", "largest_circuit_mw",
+        "n_circuits", "n_circuits_rated", "circuits_by_kv", "mw_by_kv",
+        "line_ids",
+    ])
+
+    links = imported.links.reset_index()
+    if "active" in links:
+        links = links.loc[links["active"].fillna(False).astype(bool)].copy()
+    links = links.reindex(columns=[
+        "name", "bus0", "bus1", "carrier", "p_nom", "p_min_pu",
+        "p_max_pu", "marginal_cost", "length", "kind", "direction", "pair",
+        "p_nom_n1", "largest_circuit_mw", "n_circuits", "circuits_by_kv",
+        "x_equivalent_ohm", "line_ids",
+    ])
+
+    if len(lines) != 18:
+        raise ValueError(f"Expected 18 active internal grid lines, found {len(lines)}")
+    if len(links) != 24:
+        raise ValueError(f"Expected 24 active interconnector links, found {len(links)}")
+    if lines["name"].duplicated().any() or links["name"].duplicated().any():
+        raise ValueError("Imported grid component names must be unique")
+
+    line_metadata = lines.assign(component_type="Line", source_workbook=GRID_WORKBOOK.name)
+    link_metadata = links.assign(component_type="Link", source_workbook=GRID_WORKBOOK.name)
+    metadata = pd.concat([line_metadata, link_metadata], ignore_index=True, sort=False)
+    return buses, lines, links, metadata
 
 
 def read_demand_shares() -> pd.DataFrame:
@@ -1841,13 +1846,19 @@ def build_hydro_capacity_validation(
 
 def main() -> None:
     district_to_area = read_area_mapping()
-    grid = read_grid()
+    grid_buses, grid_lines, grid_links, grid_metadata = read_grid()
     demand = read_demand_shares()
     areas = demand["balancing_area"].tolist()
     if set(areas) != set(district_to_area.values()):
         raise ValueError("Balancing areas differ between demand and district inputs")
-    if set(grid["bus0"]) | set(grid["bus1"]) != set(areas):
-        raise ValueError("Grid endpoints differ from the nine balancing areas")
+    tn_grid_buses = set(
+        grid_buses.loc[grid_buses["kind"].eq("TN balancing area"), "name"]
+    )
+    if tn_grid_buses != set(areas):
+        raise ValueError("Imported Tamil Nadu grid buses differ from the nine balancing areas")
+    grid_endpoints = set(grid_lines["bus0"]) | set(grid_lines["bus1"]) | set(grid_links["bus0"]) | set(grid_links["bus1"])
+    if grid_endpoints - set(grid_buses["name"]):
+        raise ValueError("Imported grid components refer to unknown buses")
 
     metadata = pd.read_csv(BASE_MODEL / "component_metadata.csv")
     original_generators = pd.read_csv(BASE_MODEL / "generators.csv")
@@ -2133,17 +2144,17 @@ def main() -> None:
     )
     network.to_csv(OUTPUT_DIR / "network.csv", index=False)
     pd.concat([
-        pd.DataFrame({"name": areas, "v_nom": 230.0, "carrier": "AC"}),
+        grid_buses,
         water_buses,
-    ], ignore_index=True).to_csv(
+    ], ignore_index=True, sort=False).to_csv(
         OUTPUT_DIR / "buses.csv", index=False
     )
-    grid_links = grid.drop(columns=["stated_capacity_mw", "availability_factor", "source_capacity_text", "capacity_method"])
     link_columns = list(dict.fromkeys([*grid_links.columns, *hydraulic_links.columns]))
     pd.concat([grid_links.reindex(columns=link_columns), hydraulic_links.reindex(columns=link_columns)], ignore_index=True).to_csv(
         OUTPUT_DIR / "links.csv", index=False
     )
-    grid[["name", "bus0", "bus1", "stated_capacity_mw", "availability_factor", "p_nom", "source_capacity_text", "capacity_method"]].to_csv(
+    grid_lines.to_csv(OUTPUT_DIR / "lines.csv", index=False)
+    grid_metadata.to_csv(
         OUTPUT_DIR / "transmission_capacity_metadata.csv", index=False
     )
     loads.to_csv(OUTPUT_DIR / "loads.csv", index=False)
@@ -2280,7 +2291,13 @@ def main() -> None:
 
     carriers = pd.read_csv(BASE_MODEL / "carriers.csv")
     missing_carriers = sorted(
-        (set(generators["carrier"]) | set(stores["carrier"]) | set(hydraulic_links["carrier"]))
+        (
+            set(generators["carrier"])
+            | set(stores["carrier"])
+            | set(hydraulic_links["carrier"])
+            | set(grid_lines["carrier"])
+            | set(grid_links["carrier"])
+        )
         - set(carriers["name"])
     )
     if missing_carriers:
@@ -2301,8 +2318,9 @@ def main() -> None:
 
     committable = generators.loc[generators["committable"].astype(bool)]
     print(
-        f"Wrote nine electrical buses and {len(grid)} bidirectional "
-        "transmission corridors; hydraulic water buses are included separately"
+        f"Wrote {len(grid_buses)} electrical grid buses, {len(grid_lines)} internal "
+        f"lines, and {len(grid_links)} directional interconnector links; hydraulic "
+        "water buses are included separately"
     )
     print(f"Wrote {len(loads)} hourly loads over {len(snapshots)} snapshots")
     print(f"Wrote {len(generators)} generators, including {len(committable)} committable records")

@@ -1,35 +1,40 @@
-name,v_nom,carrier
-Chennai North,230.0,AC
-Chennai South,230.0,AC
-Coimbatore,230.0,AC
-Erode,230.0,AC
-Madurai,230.0,AC
-Tirunelveli,230.0,AC
-Trichy,230.0,AC
-Vellore,230.0,AC
-Villupuram,230.0,AC
-water_glenmorgan_forebay,1.0,water_energy
-water_kadamparai,1.0,water_energy
-water_kodayar_downstream,1.0,water_energy
-water_kodayar_ii_forebay,1.0,water_energy
-water_kundah_downstream,1.0,water_energy
-water_kundah_pondage,1.0,water_energy
-water_lower_aliyar,1.0,water_energy
-water_mettur_downstream,1.0,water_energy
-water_mettur_reservoir,1.0,water_energy
-water_moyar_pondage,1.0,water_energy
-water_pap_downstream,1.0,water_energy
-water_papanasam_downstream_river,1.0,water_energy
-water_papanasam_lower_pondage,1.0,water_energy
-water_papanasam_reservoir,1.0,water_energy
-water_parambikulam,1.0,water_energy
-water_periyar_downstream,1.0,water_energy
-water_periyar_reservoir,1.0,water_energy
-water_pykara,1.0,water_energy
-water_pykara_downstream,1.0,water_energy
-water_servalar_reservoir,1.0,water_energy
-water_sholayar,1.0,water_energy
-water_thunacadavu,1.0,water_energy
-water_upper_aliyar,1.0,water_energy
-water_upper_bhavani,1.0,water_energy
-water_upper_kodayar,1.0,water_energy
+name,v_nom,x,y,carrier,kind,within_area_mw,within_area_circuits
+Tirunelveli,400.0,77.721,8.947,AC,TN balancing area,57993.0,85.0
+Villupuram,400.0,79.265,12.006,AC,TN balancing area,17444.0,30.0
+Chennai North,400.0,79.929,13.201,AC,TN balancing area,29276.0,63.0
+Coimbatore,400.0,77.064,10.956,AC,TN balancing area,30706.0,58.0
+Madurai,400.0,78.114,9.939,AC,TN balancing area,11221.0,26.0
+Chennai South,400.0,79.918,12.656,AC,TN balancing area,11289.0,36.0
+Trichy,400.0,78.947,10.752,AC,TN balancing area,8452.0,27.0
+Vellore,400.0,78.438,12.473,AC,TN balancing area,8070.0,21.0
+Erode,400.0,77.852,11.495,AC,TN balancing area,7340.0,28.0
+Andhra Pradesh,400.0,79.55,13.75,AC,neighbouring state,,
+Karnataka,400.0,77.25,12.85,AC,neighbouring state,,
+Kerala,400.0,76.75,9.75,AC,neighbouring state,,
+Puducherry,400.0,80.17,11.93,AC,neighbouring state,,
+Western Region,400.0,76.55,14.05,AC,neighbouring region,,
+water_glenmorgan_forebay,1.0,,,water_energy,,,
+water_kadamparai,1.0,,,water_energy,,,
+water_kodayar_downstream,1.0,,,water_energy,,,
+water_kodayar_ii_forebay,1.0,,,water_energy,,,
+water_kundah_downstream,1.0,,,water_energy,,,
+water_kundah_pondage,1.0,,,water_energy,,,
+water_lower_aliyar,1.0,,,water_energy,,,
+water_mettur_downstream,1.0,,,water_energy,,,
+water_mettur_reservoir,1.0,,,water_energy,,,
+water_moyar_pondage,1.0,,,water_energy,,,
+water_pap_downstream,1.0,,,water_energy,,,
+water_papanasam_downstream_river,1.0,,,water_energy,,,
+water_papanasam_lower_pondage,1.0,,,water_energy,,,
+water_papanasam_reservoir,1.0,,,water_energy,,,
+water_parambikulam,1.0,,,water_energy,,,
+water_periyar_downstream,1.0,,,water_energy,,,
+water_periyar_reservoir,1.0,,,water_energy,,,
+water_pykara,1.0,,,water_energy,,,
+water_pykara_downstream,1.0,,,water_energy,,,
+water_servalar_reservoir,1.0,,,water_energy,,,
+water_sholayar,1.0,,,water_energy,,,
+water_thunacadavu,1.0,,,water_energy,,,
+water_upper_aliyar,1.0,,,water_energy,,,
+water_upper_bhavani,1.0,,,water_energy,,,
+water_upper_kodayar,1.0,,,water_energy,,,
