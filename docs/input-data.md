@@ -22,6 +22,8 @@ an explicit `snapshot` timestamp.
 | Hydro assets and observations | `data/model_inputs/hydro_asset_registry.csv`, `data/model_inputs/hydro_fleet_reconciliation.csv`, `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` | `model/hydro_reservoir_parameters.csv`, `model/hydro_reservoir_inflow.csv`, `model/hydro_observed_soc.csv` |
 | Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/global_constraints.csv` |
 | Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx` | `model/buses.csv`, `model/lines.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
+| Interstate import entitlements | `data/model_inputs/interstate_import_generators.csv` | `model/generators.csv`, `model/component_metadata.csv` |
+| In-state stations' Tamil Nadu capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/generators.csv`, `model/tn_export_capacity_allocations.csv`, `model/capacity_reconciliation_2026_07.csv` |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -254,6 +256,13 @@ wind, and total generation; it is **observed generation**, not an hourly
 availability profile. See the two `model/*_daily_energy_budget.csv` files and
 `model/global_constraints.csv` for the processed targets. Exact target
 matching for oil and gas or nuclear is an imposed calibration condition.
+
+`data/model_inputs/tn_export_capacity_allocations.csv` records four thermal
+stations physically in Tamil Nadu whose full capacity is not allocated to
+Tamil Nadu. The builder derates those units to their stated TN shares before
+district allocation; nuclear capacity is not derated. The model does not
+represent the corresponding export flows. The generated audit is
+`model/tn_export_capacity_allocations.csv`.
 
 `data/model_inputs/Balancing_areas.txt` is a Markdown-style table mapping 38
 districts to the nine bus names. `data/model_inputs/Grid_capacity.txt` is a

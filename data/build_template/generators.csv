@@ -273,5 +273,4 @@ thirumurthy_mini_hydel_project__unit_02,Tamil_Nadu,0.65,0.0,1.0,,inf,small_hydro
 thirumurthy_mini_hydel_project__unit_03,Tamil_Nadu,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
 vaigai_hydro_power_project__unit_01,Tamil_Nadu,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
 vaigai_hydro_power_project__unit_02,Tamil_Nadu,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0,0,1,0,,,,
-STOA_MTOA_import,Tamil_Nadu,6727.0,0.0,1.0,,17752000.0,market_import,6500.0,False,0.0,0.0,0,0,1,0,,,,
 unserved_energy,Tamil_Nadu,100000.0,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0,0,1,0,,,,

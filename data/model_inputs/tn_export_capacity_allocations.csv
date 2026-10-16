@@ -1,0 +1,5 @@
+station_id,plant_name,component_prefix,gross_capacity_mw,tn_capacity_mw,known_other_state_allocation_mw,unlisted_or_unallocated_mw,recipient_allocations,source_reference
+vallur,Vallur Thermal,vallur_tpp__unit_,1500,1040.6,340.2,119.2,"Andhra Pradesh:82.4;Telangana:96.4;Karnataka:111.5;Kerala:49.9",CEA LGBR 2025-26 allocations supplied by user
+ntpl_tuticorin,NTPL Tuticorin,tuticorin_joint_venture__unit_,1000,387,485,128,"Andhra Pradesh:117.4;Telangana:137.2;Karnataka:157.9;Kerala:72.5",CEA LGBR 2025-26 allocations supplied by user
+neyveli_new_thermal,Neyveli New Thermal,neyveli_new_tpp_neyveli_extension__unit_,1000,653.1,216.7,130.2,"Andhra Pradesh:52.5;Telangana:61.3;Karnataka:70.5;Kerala:32.4",CEA LGBR 2025-26 allocations supplied by user
+neyveli_tps_ii,Neyveli TPS-II,neyveli_tps_ii__unit_,1470,590.3,479.7,400,"Andhra Pradesh:127.7;Karnataka:199;Kerala:153",CEA LGBR 2025-26 allocations supplied by user

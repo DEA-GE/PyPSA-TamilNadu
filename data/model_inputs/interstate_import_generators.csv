@@ -1,0 +1,10 @@
+name,plant_name,source_type,state,bus,tn_capacity_mw,source_reference,notes
+central_cgs_ramagundam_stages_i_ii,Ramagundam Stages I-II,central allocation,Telangana,Andhra Pradesh,470,CEA LGBR 2025-26 supplied by user,Telangana allocation represented at the Andhra Pradesh external bus as instructed
+central_cgs_ramagundam_stage_iii,Ramagundam Stage III,central allocation,Telangana,Andhra Pradesh,118,CEA LGBR 2025-26 supplied by user,Telangana allocation represented at the Andhra Pradesh external bus as instructed
+central_cgs_talcher_stage_ii,Talcher Stage II,central allocation,Odisha,Western Region,477,CEA LGBR 2025-26 supplied by user,Odisha allocation represented at the Western Region external bus as instructed
+central_cgs_simhadri_stage_ii,Simhadri Stage II,central allocation,Andhra Pradesh,Andhra Pradesh,197.7,CEA LGBR 2025-26 supplied by user,
+central_cgs_kudgi_stage_i,Kudgi Stage I,central allocation,Karnataka,Karnataka,300,CEA LGBR 2025-26 supplied by user,
+central_cgs_kaiga_units_1_2,Kaiga Units 1-2,central allocation,Karnataka,Karnataka,105,CEA LGBR 2025-26 supplied by user,
+central_cgs_kaiga_units_3_4,Kaiga Units 3-4,central allocation,Karnataka,Karnataka,91,CEA LGBR 2025-26 supplied by user,
+medium_term_meenakshi_energy,Meenakshi Energy,medium-term contract,Andhra Pradesh,Andhra Pradesh,300,Economic Times report supplied by user,Part of the 1580 MW TNPDCL medium-term portfolio; five-year price stated as 5.38 INR/kWh
+medium_term_vedanta_chhattisgarh,Vedanta Chhattisgarh Thermal Power Plant,medium-term contract,Chhattisgarh,Western Region,200,Economic Times report supplied by user,Part of the 1580 MW TNPDCL medium-term portfolio; five-year price stated as 5.38 INR/kWh

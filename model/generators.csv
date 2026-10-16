@@ -12,16 +12,16 @@ neyveli_ext_tps_i__unit_01,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,8
 neyveli_ext_tps_i__unit_02,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 neyveli_ext_tps_ii__unit_01,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,997838.0176284716,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 neyveli_ext_tps_ii__unit_02,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,997838.0176284716,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_new_tpp_neyveli_extension__unit_01,Villupuram,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_new_tpp_neyveli_extension__unit_02,Villupuram,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_new_tpp_neyveli_extension__unit_01,Villupuram,326.55,0.55,0.85,0.0,inf,coal,3087.5,True,1303376.01862631,1303376.01862631,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_new_tpp_neyveli_extension__unit_02,Villupuram,326.55,0.55,0.85,0.0,inf,coal,3087.5,True,1303376.01862631,1303376.01862631,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 neyveli_tps_z__unit_01,Villupuram,250.0,0.55,0.85,0.0,inf,coal,3087.5,True,997838.0176284716,997838.0176284716,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_03,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_02,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_01,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_04,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_05,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_06,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-neyveli_tps_ii__unit_07,Villupuram,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_03,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_02,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_01,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_04,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_05,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_06,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+neyveli_tps_ii__unit_07,Villupuram,84.32857142857142,0.55,0.85,0.0,inf,coal,3087.5,True,336585.0181749067,336585.0181749067,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 north_chennai_tps__unit_01,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 north_chennai_tps__unit_02,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 north_chennai_tps__unit_03,Chennai North,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
@@ -37,17 +37,17 @@ tulsyan_nec_limited__unit_01,Chennai North,35.0,0.55,0.85,0.0,inf,coal,3087.5,Tr
 tulsyan_nec_limited__unit_02,Chennai North,35.0,0.55,0.85,0.0,inf,coal,3087.5,True,139697.32246798603,139697.32246798603,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_p_tpp__unit_01,Tirunelveli,150.0,0.55,0.85,0.0,inf,coal,3087.5,True,598702.810577083,598702.810577083,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_p_tpp__unit_02,Tirunelveli,150.0,0.55,0.85,0.0,inf,coal,3087.5,True,598702.810577083,598702.810577083,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-tuticorin_joint_venture__unit_01,Tirunelveli,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-tuticorin_joint_venture__unit_02,Tirunelveli,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+tuticorin_joint_venture__unit_01,Tirunelveli,193.5,0.55,0.85,0.0,inf,coal,3087.5,True,772326.6256444373,772326.6256444373,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+tuticorin_joint_venture__unit_02,Tirunelveli,193.5,0.55,0.85,0.0,inf,coal,3087.5,True,772326.6256444373,772326.6256444373,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_tps__unit_01,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_tps__unit_02,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_tps__unit_03,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_tps__unit_05,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_tps__unit_04,Tirunelveli,210.0,0.55,0.85,0.0,inf,coal,3087.5,True,838183.9348079162,838183.9348079162,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 tuticorin_thermal_power_plant__unit_01,Tirunelveli,525.0,0.55,0.85,0.0,inf,coal,3087.5,True,2095459.8370197904,2095459.8370197904,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-vallur_tpp__unit_01,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-vallur_tpp__unit_02,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
-vallur_tpp__unit_03,Chennai North,500.0,0.55,0.85,0.0,inf,coal,3087.5,True,1995676.0352569437,1995676.0352569437,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+vallur_tpp__unit_01,Chennai North,346.8666666666667,0.55,0.85,0.0,inf,coal,3087.5,True,1384466.9881922503,1384466.9881922503,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+vallur_tpp__unit_02,Chennai North,346.8666666666667,0.55,0.85,0.0,inf,coal,3087.5,True,1384466.9881922503,1384466.9881922503,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
+vallur_tpp__unit_03,Chennai North,346.8666666666667,0.55,0.85,0.0,inf,coal,3087.5,True,1384466.9881922503,1384466.9881922503,8.0,8.0,0.0,8.0,0.6,0.6,0.55,0.55
 bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_02,Erode,15.0,0.0,0.0,,45984.9157054126,hydro_run_of_river,300.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 bhavani_kattalai_barrage_i_hydroelectric_power_project__unit_01,Erode,15.0,0.0,0.0,,45984.9157054126,hydro_run_of_river,300.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 bhavani_kattalai_barrage_ii_hydroelectric_power_project__unit_01,Erode,15.0,0.0,0.0,,45984.9157054126,hydro_run_of_river,300.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
@@ -273,15 +273,6 @@ thirumurthy_mini_hydel_project__unit_02,Coimbatore,0.65,0.0,1.0,,inf,small_hydro
 thirumurthy_mini_hydel_project__unit_03,Coimbatore,0.65,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 vaigai_hydro_power_project__unit_01,Tirunelveli,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 vaigai_hydro_power_project__unit_02,Madurai,3.0,0.0,1.0,,inf,small_hydro,0.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__chennai_north,Chennai North,570.0335359463425,0.0,1.0,,1504271.641165374,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__chennai_south,Chennai South,713.4483336826662,0.0,1.0,,1882731.5028295957,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__coimbatore,Coimbatore,1032.1031230350034,0.0,1.0,,2723635.296583526,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__erode,Erode,875.9985328023475,0.0,1.0,,2311688.115699015,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__madurai,Madurai,659.2649339761058,0.0,1.0,,1739745.9652064561,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__tirunelveli,Tirunelveli,562.3793753929995,0.0,1.0,,1484072.9406832953,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__trichy,Trichy,813.9595472647244,0.0,1.0,,2147972.3328442676,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__vellore,Vellore,814.5638230978832,0.0,1.0,,2149566.967092853,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-STOA_MTOA_import__villupuram,Villupuram,685.2487948019283,0.0,1.0,,1808315.2378956194,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__chennai_north,Chennai North,8473.815013324549,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__chennai_south,Chennai South,10605.743030811152,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__coimbatore,Coimbatore,15342.69545168728,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
@@ -291,6 +282,15 @@ unserved_energy__tirunelveli,Tirunelveli,8360.032338233974,0.0,1.0,,inf,unserved
 unserved_energy__trichy,Trichy,12099.889211605832,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__vellore,Vellore,12108.872054376143,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__villupuram,Villupuram,10186.543701530078,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_ramagundam_stages_i_ii,Andhra Pradesh,470.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_ramagundam_stage_iii,Andhra Pradesh,118.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_talcher_stage_ii,Western Region,477.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_simhadri_stage_ii,Andhra Pradesh,197.7,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_kudgi_stage_i,Karnataka,300.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_kaiga_units_1_2,Karnataka,105.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+central_cgs_kaiga_units_3_4,Karnataka,91.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+medium_term_meenakshi_energy,Andhra Pradesh,300.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
+medium_term_vedanta_chhattisgarh,Western Region,200.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 additional_2026_07__diesel_samayanallur__unit_01,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_02,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_03,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4

@@ -352,8 +352,13 @@ primarily reflecting OSM-backed solar and wind allocation. Inspect
 district-level source table and `model/component_metadata.csv` for each
 PyPSA component's assigned bus, method, confidence, and allocation share.
 `model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
-Statewide market imports and unserved-energy mechanisms are split using demand
-energy shares; they are not reported as installed plant.
+Interstate imports are represented by source-specific generators at external
+grid buses, using Tamil Nadu's allocated capacity and the modeled inbound
+interconnector links. Their marginal cost is 6,500 INR/MWh. The Telangana and
+Odisha sources use the Andhra Pradesh and Western Region buses, respectively,
+as specified study proxies. The former 6,727 MW statewide direct-injection
+import proxy has been removed. Unserved energy remains split using demand
+energy shares and is not reported as installed plant.
 
 The July-2026 overlay adds 563.9895 MW to the modeled fleet: 211.70 MW diesel,
 212.33 MW solar, and 139.9595 MW wind. Project evidence locates the diesel

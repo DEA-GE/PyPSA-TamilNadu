@@ -1,4 +1,5 @@
 name,type,carrier_attribute,sense,constant
 observed_fy2025_26_oil_gas_generation_target,operational_limit,oil_gas,==,1241450.0
 observed_fy2025_26_bio_power_generation_target,operational_limit,bio_power,==,194010.0
+observed_fy2025_26_small_hydro_generation_target,operational_limit,small_hydro,==,307560.0
 observed_fy2025_26_nuclear_generation_target,operational_limit,nuclear,==,15143750.0

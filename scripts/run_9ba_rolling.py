@@ -12,6 +12,7 @@ import hashlib
 import json
 import threading
 import time
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +36,7 @@ BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "monthly-other-res-weekly-targets-v1"
+CHECKPOINT_MODEL_VERSION = "pap-aliyar-feeder-v4"
 SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
@@ -113,7 +114,7 @@ def _add_weekly_cascade_targets(
             raise ValueError(f"Unsupported CEA target component type for {asset}: {component_type}")
         expression = (expression * weight).sum()
         target = float(row.weekly_generation_target_mwh)
-        name = f"CEAHydro-{asset}-{week_start:%Y%m%d}"
+        name = f"GlobalConstraint-CEAHydro-{asset}-{week_start:%Y%m%d}"
         if row.constraint_kind == "equality":
             network.model.add_constraints(expression == target, name=name)
         elif row.constraint_kind == "maximum":
@@ -192,7 +193,7 @@ def _add_exact_measured_storage(
             network.model.add_constraints(
                 states.sel({store_dim: component, "snapshot": terminal})
                 == float(measured.at[next_day, component]),
-                name=f"MeasuredStore-{component}-{day:%Y%m%d}",
+                name=f"GlobalConstraint-MeasuredStore-{component}-{day:%Y%m%d}",
             )
 
 
@@ -399,7 +400,21 @@ def _add_hydro_terminal_targets(
             continue
         variables = model[variable_name]
         dimension = next(dim for dim in variables.dims if dim != "snapshot")
-        for component, row in targets.loc[targets.index.intersection(frame.index)].iterrows():
+        component_targets = targets.loc[targets.index.intersection(frame.index)]
+        if component_targets.empty:
+            continue
+        component_index = pd.Index(component_targets.index, name=dimension)
+        shortfalls = model.add_variables(
+            lower=0,
+            coords=[component_index],
+            name=f"{kind}-hydro_shortfall",
+        )
+        excesses = model.add_variables(
+            lower=0,
+            coords=[component_index],
+            name=f"{kind}-hydro_excess",
+        )
+        for component, row in component_targets.iterrows():
             capacity = (float(frame.at[component, "p_nom"]) * float(frame.at[component, "max_hours"])
                         if kind == "StorageUnit" else float(frame.at[component, "e_nom"]))
             if not np.isfinite(capacity) or capacity <= 0:
@@ -411,11 +426,17 @@ def _add_hydro_terminal_targets(
             band = HYDRO_BAND_PU[quality] * capacity
             lower = max(0.0, target - band)
             upper = min(capacity, target + band)
-            shortfall = model.add_variables(lower=0, name=f"hydro_shortfall_{component}")
-            excess = model.add_variables(lower=0, name=f"hydro_excess_{component}")
+            shortfall = shortfalls.sel({dimension: component})
+            excess = excesses.sel({dimension: component})
             state = variables.sel({dimension: component, "snapshot": terminal})
-            model.add_constraints(state + shortfall >= lower, name=f"HydroLower-{component}")
-            model.add_constraints(state - excess <= upper, name=f"HydroUpper-{component}")
+            model.add_constraints(
+                state + shortfall >= lower,
+                name=f"GlobalConstraint-HydroLower-{component}",
+            )
+            model.add_constraints(
+                state - excess <= upper,
+                name=f"GlobalConstraint-HydroUpper-{component}",
+            )
             penalty = penalty + HYDRO_SLACK_COST[quality] * (shortfall + excess)
     if not isinstance(penalty, int):
         model.add_objective(model.objective.expression + penalty, overwrite=True)
@@ -436,6 +457,54 @@ def _hydro_terminal_error(network: pypsa.Network, targets: pd.DataFrame) -> tupl
         band = HYDRO_BAND_PU.get(row.quality, HYDRO_BAND_PU["low"]) * capacity
         violations.append(max(0.0, abs(state - row.target_mwh) - band))
     return float(sum(violations)), float(max(violations, default=0.0))
+
+
+def _write_shadow_prices(network: pypsa.Network, path: Path) -> int:
+    """Persist every Linopy constraint dual without relying on PyPSA mapping."""
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message="Coordinates across variables not equal. Perform outer join.",
+            category=UserWarning,
+        )
+        duals = network.model.dual
+    if not len(duals.data_vars):
+        raise RuntimeError("The accepted solution does not contain shadow prices")
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    encoding = {
+        name: {"zlib": True, "complevel": 4, "shuffle": True}
+        for name in duals.data_vars
+    }
+    duals.to_netcdf(temporary, engine="netcdf4", encoding=encoding)
+    temporary.replace(path)
+    return len(duals.data_vars)
+
+
+def _hydro_terminal_slacks(network: pypsa.Network) -> pd.DataFrame:
+    """Return solved terminal-band slack variables in a portable tabular form."""
+    rows = []
+    for component_type in ("StorageUnit", "Store"):
+        values: dict[str, pd.Series] = {}
+        for direction in ("shortfall", "excess"):
+            name = f"{component_type}-hydro_{direction}"
+            if name not in network.model.variables:
+                continue
+            variable = network.model[name]
+            dimensions = [dim for dim in variable.dims if dim != "snapshot"]
+            if len(dimensions) != 1:
+                raise ValueError(f"Unexpected dimensions for {name}: {variable.dims}")
+            values[direction] = variable.solution.to_series()
+        if not values:
+            continue
+        table = pd.DataFrame(values).fillna(0.0)
+        table.index.name = "component"
+        table.insert(0, "component_type", component_type)
+        rows.append(table.reset_index())
+    if not rows:
+        return pd.DataFrame(
+            columns=["component_type", "component", "shortfall", "excess"]
+        )
+    return pd.concat(rows, ignore_index=True)
 
 
 class _SolveResourceMonitor:
@@ -800,7 +869,7 @@ def _add_daily_targets(
             expression = (expression * weights).sum()
             network.model.add_constraints(
                 expression == float(target),
-                name=f"RollingOilGasDailyTarget-{date:%Y%m%d}",
+                name=f"GlobalConstraint-RollingOilGasDailyTarget-{date:%Y%m%d}",
             )
 
 
@@ -837,7 +906,10 @@ def _add_committed_biomass_target(
     )
     network.model.add_constraints(
         expression == target_mwh,
-        name=f"RollingBiomassEnergyTarget-{committed_snapshots[0]:%Y%m%d}",
+        name=(
+            "GlobalConstraint-RollingBiomassEnergyTarget-"
+            f"{committed_snapshots[0]:%Y%m%d}"
+        ),
     )
 
 
@@ -863,7 +935,10 @@ def _add_committed_small_hydro_target(
     )
     network.model.add_constraints(
         (expression * weights).sum() == target_mwh,
-        name=f"RollingSmallHydroEnergyTarget-{committed_snapshots[0]:%Y%m%d}",
+        name=(
+            "GlobalConstraint-RollingSmallHydroEnergyTarget-"
+            f"{committed_snapshots[0]:%Y%m%d}"
+        ),
     )
 
 
@@ -992,9 +1067,18 @@ def run_rolling_year(
         ).drop(index=measured_store_targets.columns, errors="ignore")
         checkpoint = chunks_dir / f"window_{number:03d}_{start:%Y-%m-%d}.nc"
         daily_file = checkpoint.with_suffix(".daily.csv")
+        dual_file = checkpoint.with_suffix(".duals.nc")
+        slack_file = checkpoint.with_suffix(".hydro_terminal_slacks.csv")
         meta_file = checkpoint.with_suffix(".json")
 
-        if resume and checkpoint.exists() and daily_file.exists() and meta_file.exists():
+        if (
+            resume
+            and checkpoint.exists()
+            and daily_file.exists()
+            and dual_file.exists()
+            and slack_file.exists()
+            and meta_file.exists()
+        ):
             checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
             if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
                     and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
@@ -1095,6 +1179,7 @@ def run_rolling_year(
                 ),
                 include_objective_constant=False,
                 linearized_unit_commitment=unit_commitment == "relaxed",
+                assign_all_duals=True,
             )
             runtime = time.perf_counter() - started
         report = getattr(getattr(network.model, "solver", None), "report", None)
@@ -1159,6 +1244,10 @@ def run_rolling_year(
                 flush=True,
             )
 
+        shadow_price_constraints = _write_shadow_prices(network, dual_file)
+        hydro_slacks = _hydro_terminal_slacks(network)
+        hydro_slacks.to_csv(slack_file, index=False)
+
         # The checkpoint contains only accepted hours. It is also the complete
         # state source for the next window and for restart/resume.
         # Release the large Linopy/HiGHS model before checkpointing. Copying a
@@ -1221,6 +1310,10 @@ def run_rolling_year(
             "solver_status": str(status),
             "termination_condition": str(condition),
             "accepted_solution": accepted_solution,
+            "shadow_prices_recorded": True,
+            "shadow_price_constraints": shadow_price_constraints,
+            "shadow_price_file": dual_file.name,
+            "hydro_terminal_slack_file": slack_file.name,
             "mip_gap": mip_gap,
             "time_limit_seconds": time_limit,
             "max_time_limit_mip_gap": (
@@ -1287,6 +1380,9 @@ def run_rolling_year(
         "complete": completed_snapshots == len(snapshots),
         "all_solver_statuses_ok": bool(
             len(window_log) and window_log["accepted_solution"].all()
+        ),
+        "shadow_prices_recorded": bool(
+            len(window_log) and window_log["shadow_prices_recorded"].all()
         ),
         "time_limit_seconds": time_limit,
         "max_time_limit_mip_gap": (

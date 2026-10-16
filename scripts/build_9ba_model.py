@@ -32,6 +32,9 @@ PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
 # installed capacity) before they are assigned to generator p_max_pu.
 SOLAR_AVAILABILITY_MULTIPLIER = 0.7174
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
+INTERSTATE_IMPORT_FILE = SOURCE_DIR / "interstate_import_generators.csv"
+INTERSTATE_IMPORT_MARGINAL_COST = 6_500.0  # INR/MWh (6.5 INR/kWh)
+TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
     / "data"
@@ -61,6 +64,9 @@ EXPECTED_ADDITIONAL_CAPACITY_MW = {
     "wind": 139.9595,
 }
 EXPECTED_UNASSIGNED_CAPACITY_MW = 49.31
+EXPECTED_EXCLUDED_OFF_GRID_CAPACITY_MW = 75.91 + 27.57
+EXPECTED_KNOWN_EXPORT_ALLOCATION_MW = 1_521.6
+EXPECTED_UNLISTED_EXPORT_ALLOCATION_MW = 777.4
 EXPECTED_JULY_2026_TOTAL_CAPACITY_MW = 48_380.41
 FY_START = pd.Timestamp("2025-04-01")
 FY_END = pd.Timestamp("2026-03-31")
@@ -366,6 +372,13 @@ def read_district_allocations(
     allocation = allocation.loc[
         allocation["Commissioning Group"].eq("operational")
     ].copy()
+    # Off-grid categories are intentionally absent from the supported model's
+    # component metadata and district allocation. Keep the workbook join
+    # consistent with that documented scope.
+    off_grid = allocation["Name of Power Plant"].astype(str).str.contains(
+        r"off\s*-?\s*grid", case=False, regex=True
+    )
+    allocation = allocation.loc[~off_grid].copy()
     allocation["Original Row"] = allocation["Original Row"].astype(int)
 
     metadata_by_row = metadata.set_index("excel_row", verify_integrity=True)
@@ -464,6 +477,77 @@ def scale_component(row: pd.Series, share: float) -> pd.Series:
         if column in result.index and pd.notna(result[column]) and np.isfinite(result[column]):
             result[column] = float(result[column]) * share
     return result
+
+
+def apply_tn_export_capacity_allocations(
+    generators: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Reduce listed in-state stations to their Tamil Nadu capacity shares."""
+    allocations = pd.read_csv(TN_EXPORT_CAPACITY_FILE)
+    required = {
+        "station_id", "plant_name", "component_prefix", "gross_capacity_mw",
+        "tn_capacity_mw", "known_other_state_allocation_mw",
+        "unlisted_or_unallocated_mw", "recipient_allocations", "source_reference",
+    }
+    missing = sorted(required - set(allocations.columns))
+    if missing:
+        raise ValueError(f"TN export-allocation input is missing columns: {missing}")
+    if allocations["station_id"].duplicated().any():
+        raise ValueError("TN export-allocation station IDs must be unique")
+    numeric = [
+        "gross_capacity_mw", "tn_capacity_mw",
+        "known_other_state_allocation_mw", "unlisted_or_unallocated_mw",
+    ]
+    allocations[numeric] = allocations[numeric].apply(pd.to_numeric, errors="raise")
+    if (allocations[numeric] < 0).any().any():
+        raise ValueError("TN export-allocation capacities cannot be negative")
+    if not np.allclose(
+        allocations.gross_capacity_mw,
+        allocations.tn_capacity_mw
+        + allocations.known_other_state_allocation_mw
+        + allocations.unlisted_or_unallocated_mw,
+    ):
+        raise ValueError("Station capacities do not reconcile to TN, named-state, and residual shares")
+
+    adjusted = generators.copy()
+    allocations["applied_tn_capacity_ratio"] = (
+        allocations.tn_capacity_mw / allocations.gross_capacity_mw
+    )
+    for index, record in allocations.iterrows():
+        prefix = str(record.component_prefix)
+        mask = adjusted["name"].astype(str).str.startswith(prefix)
+        matched = adjusted.loc[mask]
+        if matched.empty:
+            raise ValueError(f"No generator units match TN allocation {record.station_id!r}")
+        installed = float(matched.p_nom.sum())
+        if not np.isclose(installed, float(record.gross_capacity_mw)):
+            raise ValueError(
+                f"{record.station_id} generator capacity is {installed} MW; expected "
+                f"{record.gross_capacity_mw} MW"
+            )
+        ratio = float(record.applied_tn_capacity_ratio)
+        adjusted.loc[mask] = pd.DataFrame(
+            [scale_component(row, ratio) for _, row in matched.iterrows()],
+            index=matched.index,
+        )
+        allocations.loc[index, "modeled_tn_capacity_mw"] = float(
+            adjusted.loc[mask, "p_nom"].sum()
+        )
+        allocations.loc[index, "capacity_withheld_from_tn_mw"] = (
+            float(record.gross_capacity_mw) - float(record.tn_capacity_mw)
+        )
+
+    if not np.isclose(allocations.tn_capacity_mw.sum(), 2_671.0):
+        raise AssertionError("TN station capacity shares do not sum to the documented 2,671 MW")
+    if not np.isclose(
+        allocations.known_other_state_allocation_mw.sum(),
+        EXPECTED_KNOWN_EXPORT_ALLOCATION_MW,
+    ) or not np.isclose(
+        allocations.unlisted_or_unallocated_mw.sum(),
+        EXPECTED_UNLISTED_EXPORT_ALLOCATION_MW,
+    ):
+        raise AssertionError("TN station export allocations do not match the documented totals")
+    return adjusted, allocations
 
 
 def allocated_name(original: str, area: str, split: bool) -> str:
@@ -1045,8 +1129,23 @@ def build_hydraulic_cascades(
     para = add_store("Parambikulam", sark_e, 0.5, "observed_agriculture", "high", "Seasonal source for PAP.")
     thun = add_store("Thunacadavu", 0.15 * sark_e, 0.5, "endogenous_pondage", "medium", "Initial fraction may use the connected Parambikulam SOC proxy; weekly water-neutral thereafter.", initial_method="proxy_fraction", terminal_method="end_equals_start", resolution="none", weekly_balance="end_equals_start")
     shol = add_store("Sholayar", shol_e, 0.5, "observed_agriculture", "high", "Observed daily Agriculture storage/inflow.")
-    upper = add_store("Upper_Aliyar", aliyar_e, 0.5, "proxy_connected_reservoir", "medium", "PAP seasonal proxy; lower Aliyar absolute storage is not copied.", initial_method="proxy_fraction", terminal_method="proxy_target", resolution="proxy", weekly_balance="seasonal_observed")
-    lower = add_store("Lower_Aliyar", aliyar_e, 0.5, "endogenous_pondage", "low", "Receives PAP turbine discharge.")
+    # The available Parambikulam observation is a useful seasonal *initial-state*
+    # proxy, but the reviewed PAP routing supports delivery to Aliyar rather than a
+    # documented, direct Parambikulam-to-Upper-Aliyar transfer.  Do not recreate a
+    # daily target from it: that forces water into Upper Aliyar without a physical
+    # replenishment path.  The rolling state therefore carries forward after the
+    # initial window until transfer timing/capacity data can support an explicit link.
+    upper = add_store(
+        "Upper_Aliyar", aliyar_e, 0.5, "proxy_connected_reservoir", "medium",
+        "Parambikulam fraction is used only to initialise Upper Aliyar; no verified direct transfer is modelled. Subsequent windows retain their solved state.",
+        initial_method="proxy_fraction", terminal_method="end_equals_start",
+        resolution="none", weekly_balance="end_equals_start",
+        source_detail="Parambikulam proxy for initial state only; PAP routing review (IAMWARM/TNAU) does not verify a direct transfer to Upper Aliyar.",
+    )
+    lower = add_store(
+        "Lower_Aliyar", aliyar_e, 0.5, "endogenous_pondage", "low",
+        "Receives Upper Aliyar turbine discharge and documented PAP Contour Canal / Aliyar Feeder deliveries from the Parambikulam group.",
+    )
     pap_sink = add_store(
         "PAP_downstream",
         sark_e + shol_e + aliyar_e + PAP_OBSERVED_RELEASE_CAPACITY_MW * len(snapshots),
@@ -1058,6 +1157,18 @@ def build_hydraulic_cascades(
     )
     links.append({"name": "pap_parambikulam_to_thunacadavu", "bus0": para, "bus1": thun, "p_nom": sark_mw / HYDRO_DEFAULT_EFFICIENCY,
                   "p_min_pu": 0.0, "efficiency": 1.0, "carrier": "water_transfer", "marginal_cost": 0.0})
+    # IAMWARM documents that water from the Parambikulam group can be diverted
+    # to Aliyar Reservoir through the Contour Canal and Aliyar Feeder Canal.
+    # Neither that source nor the supplied water-source workbook provides a
+    # canal rating or delivery schedule, so use the explicit existing PAP
+    # unsurveyed-routing limit as a provisional bound rather than a claimed
+    # measured capacity. This delivery enters Lower_Aliyar, never Upper_Aliyar.
+    links.append({
+        "name": "pap_contour_aliyar_feeder_to_lower_aliyar",
+        "bus0": para, "bus1": lower,
+        "p_nom": PAP_OBSERVED_RELEASE_CAPACITY_MW, "p_min_pu": 0.0,
+        "efficiency": 1.0, "carrier": "water_transfer", "marginal_cost": 0.0,
+    })
     links.extend([
         {"name": "pap_parambikulam_observed_release", "bus0": para, "bus1": pap_sink,
          "p_nom": PAP_OBSERVED_RELEASE_CAPACITY_MW, "p_min_pu": 0.0,
@@ -1441,6 +1552,74 @@ def allocate_mechanisms(
                 }
             )
     return pd.DataFrame(output_rows, columns=mechanisms.columns), pd.DataFrame(metadata_rows)
+
+
+def build_interstate_import_generators(
+    buses: pd.DataFrame, generator_columns: pd.Index
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Build source-specific imports at neighboring-region grid buses."""
+    imports = pd.read_csv(INTERSTATE_IMPORT_FILE)
+    required = {
+        "name", "plant_name", "source_type", "state", "bus",
+        "tn_capacity_mw", "source_reference", "notes",
+    }
+    missing = sorted(required - set(imports.columns))
+    if missing:
+        raise ValueError(f"Interstate import input is missing columns: {missing}")
+    if imports["name"].duplicated().any():
+        raise ValueError("Interstate import generator names must be unique")
+    imports["tn_capacity_mw"] = pd.to_numeric(
+        imports["tn_capacity_mw"], errors="raise"
+    )
+    if imports["tn_capacity_mw"].isna().any() or (imports["tn_capacity_mw"] <= 0).any():
+        raise ValueError("Interstate import capacities must be positive MW values")
+    unknown_buses = sorted(set(imports["bus"]) - set(buses["name"]))
+    if unknown_buses:
+        raise ValueError(f"Interstate imports refer to unknown grid buses: {unknown_buses}")
+
+    rows: list[dict[str, object]] = []
+    metadata_rows: list[dict[str, object]] = []
+    for record in imports.to_dict("records"):
+        capacity = float(record["tn_capacity_mw"])
+        row: dict[str, object] = {
+            "name": record["name"],
+            "bus": record["bus"],
+            "p_nom": capacity,
+            "p_min_pu": 0.0,
+            "p_max_pu": 1.0,
+            "p_init": 0.0,
+            "e_sum_max": np.inf,
+            "carrier": "market_import",
+            "marginal_cost": INTERSTATE_IMPORT_MARGINAL_COST,
+            "committable": False,
+            "start_up_cost": 0.0,
+            "shut_down_cost": 0.0,
+            "min_up_time": 0,
+            "min_down_time": 0,
+            "up_time_before": 1,
+            "down_time_before": 0,
+        }
+        rows.append(row)
+        metadata_rows.append({
+            "component_type": "Generator",
+            "component_id": record["name"],
+            "original_component_id": record["name"],
+            "source": record["source_type"],
+            "plant_name": record["plant_name"],
+            "state": record["state"],
+            "bus": record["bus"],
+            "allocation_method": "Tamil Nadu capacity entitlement at external grid bus",
+            "allocation_share": 1.0,
+            "original_capacity_mw": capacity,
+            "capacity_mw": capacity,
+            "source_reference": record["source_reference"],
+            "notes": record["notes"],
+        })
+    generators = pd.DataFrame(rows).reindex(columns=generator_columns)
+    metadata = pd.DataFrame(metadata_rows)
+    if not np.isclose(imports["tn_capacity_mw"].sum(), 2_258.7):
+        raise AssertionError("Interstate import capacities do not sum to the documented 2,258.7 MW")
+    return generators, metadata
 
 
 def read_additional_capacity(
@@ -1870,6 +2049,18 @@ def main() -> None:
     source_generators = original_generators.loc[
         ~original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].copy()
+    source_generators, tn_export_allocations = apply_tn_export_capacity_allocations(
+        source_generators
+    )
+    # Keep source metadata in step with the derated generator nameplate so
+    # district allocation and conservation checks use TN-available capacity.
+    for _, allocation in tn_export_allocations.iterrows():
+        unit_mask = metadata["component_id"].astype(str).str.startswith(
+            str(allocation.component_prefix)
+        ) & metadata["component_type"].eq("Generator")
+        metadata.loc[unit_mask, "capacity_mw"] *= float(
+            allocation.applied_tn_capacity_ratio
+        )
     mechanisms = original_generators.loc[
         original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].copy()
@@ -1880,6 +2071,15 @@ def main() -> None:
     generators = pd.concat([generators, allocated_mechanisms], ignore_index=True)
     generator_metadata = pd.concat(
         [generator_metadata, mechanism_metadata], ignore_index=True, sort=False
+    )
+    interstate_imports, interstate_import_metadata = build_interstate_import_generators(
+        grid_buses, original_generators.columns
+    )
+    if set(interstate_imports["name"]) & set(generators["name"]):
+        raise AssertionError("Interstate import generator names duplicate existing generators")
+    generators = pd.concat([generators, interstate_imports], ignore_index=True)
+    generator_metadata = pd.concat(
+        [generator_metadata, interstate_import_metadata], ignore_index=True, sort=False
     )
     storage, storage_metadata = allocate_source_components(
         original_storage, metadata, "StorageUnit", district_allocations
@@ -1893,7 +2093,7 @@ def main() -> None:
         )
     )
     validate_capacity_conservation(
-        original_generators, original_storage, generators, storage
+        source_generators, original_storage, generators, storage
     )
     # The pre-cascade check above still sees the official Servalar source
     # Generator. Remove it only after that check; build_hydraulic_cascades
@@ -2120,6 +2320,7 @@ def main() -> None:
         "sense": "==", "constant": nuclear_budget.daily_energy_target_mwh.sum(),
     }
     nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
+    tn_export_allocations.to_csv(OUTPUT_DIR / "tn_export_capacity_allocations.csv", index=False)
     reservoir_inflow_audit.to_csv(
         OUTPUT_DIR / "hydro_reservoir_inflow.csv", index=False, date_format="%Y-%m-%d"
     )
@@ -2251,13 +2452,15 @@ def main() -> None:
             ~additional_capacity["include_in_model"], "capacity_mw"
         ].sum()
     )
+    excluded_off_grid_capacity_mw = EXPECTED_EXCLUDED_OFF_GRID_CAPACITY_MW
+    withheld_export_capacity_mw = float(tn_export_allocations.capacity_withheld_from_tn_mw.sum())
     if not np.isclose(
-        modeled_total_mw + unassigned_total_mw,
+        modeled_total_mw + unassigned_total_mw + excluded_off_grid_capacity_mw + withheld_export_capacity_mw,
         EXPECTED_JULY_2026_TOTAL_CAPACITY_MW,
     ):
         raise AssertionError(
-            "Modeled capacity plus the excluded reporting difference does not "
-            "reconcile to the July 2026 comparison total"
+            "Modeled capacity plus excluded off-grid and unassigned capacities "
+            "does not reconcile to the July 2026 comparison total"
         )
     pd.DataFrame(
         [
@@ -2280,6 +2483,16 @@ def main() -> None:
                 "item": "cea_mnre_reporting_difference",
                 "capacity_mw": unassigned_total_mw,
                 "treatment": "excluded unassigned",
+            },
+            {
+                "item": "off_grid_solar_and_bio_power",
+                "capacity_mw": excluded_off_grid_capacity_mw,
+                "treatment": "excluded off-grid capacity",
+            },
+            {
+                "item": "in_state_capacity_allocated_outside_tamil_nadu_or_unallocated",
+                "capacity_mw": withheld_export_capacity_mw,
+                "treatment": "excluded from TN demand-serving generators",
             },
             {
                 "item": "july_2026_comparison_total",

@@ -27,6 +27,18 @@ To replace only the transmission network from the active Excel input, run
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
 | `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv` | Hydro assumptions and validation, corridor ratings, and capacity reconciliation |
 
+Interstate imports use plant-specific generator records at external grid buses.
+The model represents 2,258.7 MW of Tamil Nadu allocations and contracts at a
+6,500 INR/MWh marginal cost. Telangana and Odisha sources are mapped to the
+Andhra Pradesh and Western Region buses, respectively, as study proxies. The
+previous 6,727 MW aggregate direct-injection import proxy is removed.
+
+The four listed in-state thermal stations with allocations to other states are
+derated to their Tamil Nadu shares before spatial allocation. Their out-of-state
+and unlisted/unallocated capacity is not represented as a TN-serving generator
+or as an explicit export flow. Nuclear retains its full nameplate capacity and
+uses observed FY2025-26 daily and annual generation equality targets.
+
 The network includes annual oil-and-gas, nuclear, and bio-power generation
 equality constraints. For a shorter solve, use the runners described in the
 [repository README](../README.md#how-to-run); they adjust the

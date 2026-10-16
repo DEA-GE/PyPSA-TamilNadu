@@ -1,6 +1,8 @@
 item,capacity_mw,treatment
-validated_workbook_baseline,47767.110499999995,modeled
+validated_workbook_baseline,45364.6305,modeled
 july_2026_capacity_overlay,563.9894999979999,modeled
-updated_pypsa_installed_capacity,48331.099999998,modeled total
+updated_pypsa_installed_capacity,45928.619999998,modeled total
 cea_mnre_reporting_difference,49.31,excluded unassigned
+off_grid_solar_and_bio_power,103.47999999999999,excluded off-grid capacity
+in_state_capacity_allocated_outside_tamil_nadu_or_unallocated,2299.0,excluded from TN demand-serving generators
 july_2026_comparison_total,48380.41,reconciled total
