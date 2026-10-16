@@ -35,6 +35,13 @@ FY2025-26 monthly values. Rolling and selected-week runners replace the annual
 constraint with a month-prorated equality for each accepted week, leaving the
 daily and hourly generation pattern free for the optimizer.
 
+Explicitly off-grid capacity is excluded from the supported model. In
+particular, the 75.91 MW off-grid solar category and the 27.57 MW off-grid
+waste-to-energy (bio-power) category are omitted from `generators.csv`, their
+availability columns, component metadata, and district-allocation audit. They
+must not be added back when rebuilding the model unless the study scope is
+changed deliberately.
+
 Small hydro is treated identically using a 307,560 MWh annual total from the
 twelve Tamil Nadu Outlook monthly values. Its previous placeholder availability
 profile is relaxed to nameplate because that profile cannot supply the observed

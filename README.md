@@ -294,6 +294,10 @@ commitment or storage analysis.
   template's commitment flags, start/shut-down costs, minimum up/down times,
   and ramp limits. Some geographically unspecified aggregate bio-power records are
   split across areas, so each allocated part is independently committable.
+- Explicitly off-grid capacity is excluded from the modeled fleet. This removes
+  the 75.91 MW off-grid solar category and the 27.57 MW off-grid waste-to-energy
+  (bio-power) category; the remaining generators are grid-connected or treated
+  as part of the modeled grid fleet.
 - The 211.70 MW diesel overlay is represented as fourteen committable units:
   seven at Samayanallur in the Madurai area and seven at Samalpatti in the
   Vellore area. In the absence of plant-specific operating data, these units
