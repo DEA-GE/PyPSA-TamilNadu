@@ -438,6 +438,17 @@ solves make small hydro dispatchable between zero and nameplate; the weekly
 energy is fixed while its hourly and daily timing remains optimized. Rebuilding
 the model writes the corresponding 307,560 MWh annual equality as well.
 
+The production runner also applies a statewide hydro-energy equality covering
+conventional hydro, run-of-river generators, hydro StorageUnits, cascade and
+pumped-storage turbine Links (at electrical output), and small hydro. The
+FY2025-26 target is 5,845.97 GWh: 5,538.41 GWh from the observed daily Hydro
+series plus the 307.56 GWh small-hydro total above. Because the full year is
+solved as rolling windows, each committed window receives its observed-hydro
+plus month-prorated small-hydro share; these shares sum exactly to the annual
+equality while leaving hourly dispatch within each window free. The custom
+target is recorded in `model/global_constraints.csv`, and the rolling runner
+replaces that record with the corresponding Linopy electrical-output equality.
+
 ## Reservoir hydro and seasonal inflow
 
 `data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while

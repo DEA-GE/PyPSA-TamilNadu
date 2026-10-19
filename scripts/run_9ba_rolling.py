@@ -25,6 +25,12 @@ from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
+from statewide_hydro_targets import (
+    STATEWIDE_HYDRO_ENERGY_CONSTRAINT,
+    add_statewide_hydro_energy_equality,
+    read_large_hydro_daily_targets,
+    statewide_hydro_energy_target_mwh,
+)
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
@@ -39,7 +45,7 @@ BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "pap-aliyar-feeder-v5"
+CHECKPOINT_MODEL_VERSION = "statewide-hydro-energy-v6"
 SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
@@ -1026,6 +1032,24 @@ def run_rolling_year(
         )
     biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
     small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
+    large_hydro_daily_targets_mwh = read_large_hydro_daily_targets()
+    if STATEWIDE_HYDRO_ENERGY_CONSTRAINT not in base_network.global_constraints.index:
+        raise ValueError(
+            f"The model is missing {STATEWIDE_HYDRO_ENERGY_CONSTRAINT!r}; rebuild it first"
+        )
+    configured_statewide_hydro_target_mwh = float(
+        base_network.global_constraints.at[
+            STATEWIDE_HYDRO_ENERGY_CONSTRAINT, "constant"
+        ]
+    )
+    expected_annual_statewide_hydro_target_mwh = float(
+        large_hydro_daily_targets_mwh.sum() + small_hydro_monthly_targets_mwh.sum()
+    )
+    if not np.isclose(
+        configured_statewide_hydro_target_mwh,
+        expected_annual_statewide_hydro_target_mwh,
+    ):
+        raise ValueError("The model's statewide hydro target is stale; rebuild it first")
     small_hydro_units = base_network.generators.index[
         base_network.generators.carrier.eq("small_hydro")
     ]
@@ -1067,6 +1091,12 @@ def run_rolling_year(
             base_network.snapshot_weightings.generators,
             small_hydro_monthly_targets_mwh,
         )
+        expected_statewide_hydro_target_mwh = statewide_hydro_energy_target_mwh(
+            committed,
+            base_network.snapshot_weightings.generators,
+            large_hydro_daily_targets_mwh,
+            small_hydro_monthly_targets_mwh,
+        )
         terminal_targets = _hydro_targets_at(
             committed[-1], observed_soc, hydro_parameters, monthly_soc
         ).drop(index=measured_store_targets.columns, errors="ignore")
@@ -1096,6 +1126,10 @@ def run_rolling_year(
                     and np.isclose(
                         checkpoint_meta.get("small_hydro_target_mwh", np.nan),
                         expected_small_hydro_target_mwh,
+                    )
+                    and np.isclose(
+                        checkpoint_meta.get("statewide_hydro_target_mwh", np.nan),
+                        expected_statewide_hydro_target_mwh,
                     )):
                 print(f"Loading completed window {number}/{len(starts)}: {start.date()}", flush=True)
                 previous = pypsa.Network(checkpoint)
@@ -1124,6 +1158,7 @@ def run_rolling_year(
         network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
         if SMALL_HYDRO_ENERGY_CONSTRAINT in network.global_constraints.index:
             network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
+        network.remove("GlobalConstraint", STATEWIDE_HYDRO_ENERGY_CONSTRAINT)
         # Keep topology construction explicit before optimization so slack-bus
         # assignment cannot encounter read-only views from copied static data.
         _prepare_topology_for_pandas3(network)
@@ -1173,6 +1208,13 @@ def run_rolling_year(
                     ),
                     _add_committed_small_hydro_target(
                         n, committed, small_hydro_monthly_targets_mwh
+                    ),
+                    add_statewide_hydro_energy_equality(
+                        n,
+                        committed,
+                        expected_statewide_hydro_target_mwh,
+                        "GlobalConstraint-RollingStatewideHydroEnergyTarget-"
+                        f"{committed[0]:%Y%m%d}",
                     ),
                     _add_hydro_terminal_targets(n, committed, terminal_targets),
                     _add_exact_measured_storage(n, s, measured_store_targets),
@@ -1263,6 +1305,9 @@ def run_rolling_year(
         biomass_target_mwh = expected_bio_power_target_mwh
         biomass_generation_mwh = float(daily["bio_power"].sum() * 1_000.0)
         small_hydro_generation_mwh = float(daily["small_hydro"].sum() * 1_000.0)
+        statewide_hydro_generation_mwh = float(
+            (daily["hydro"] + daily["small_hydro"]).sum() * 1_000.0
+        )
         water_balance_daily = _measured_water_balance_daily(
             previous, measured_store_targets
         )
@@ -1303,6 +1348,12 @@ def run_rolling_year(
             "small_hydro_generation_mwh": small_hydro_generation_mwh,
             "small_hydro_target_error_mwh": (
                 small_hydro_generation_mwh - expected_small_hydro_target_mwh
+            ),
+            "statewide_hydro_target_mwh": expected_statewide_hydro_target_mwh,
+            "statewide_hydro_generation_mwh": statewide_hydro_generation_mwh,
+            "statewide_hydro_target_error_mwh": (
+                statewide_hydro_generation_mwh
+                - expected_statewide_hydro_target_mwh
             ),
             "unit_commitment": unit_commitment,
             "window": number,
@@ -1401,6 +1452,13 @@ def run_rolling_year(
         ) if len(window_log) else None,
         "max_abs_small_hydro_target_deviation_mwh": float(
             window_log["small_hydro_target_error_mwh"].abs().max()
+        ) if len(window_log) else None,
+        "annual_statewide_hydro_target_mwh": configured_statewide_hydro_target_mwh,
+        "modeled_statewide_hydro_generation_mwh": float(
+            (modeled["hydro"] + modeled["small_hydro"]).sum() * 1_000.0
+        ) if len(modeled) else None,
+        "max_abs_statewide_hydro_target_deviation_mwh": float(
+            window_log["statewide_hydro_target_error_mwh"].abs().max()
         ) if len(window_log) else None,
         "measured_storage_max_error_mwh": float(
             water_balance.opening_error_mwh.abs().max()

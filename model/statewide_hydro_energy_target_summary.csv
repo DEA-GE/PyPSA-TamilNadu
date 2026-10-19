@@ -1,0 +1,2 @@
+large_hydro_source,small_hydro_source,fiscal_year,large_hydro_target_mwh,small_hydro_target_mwh,annual_energy_target_mwh,constraint_name,constraint_sense
+TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx,Tamil Nadu Outlook monthly generation table,FY2025-26,5538410.0,307560.0,5845970.0,observed_fy2025_26_statewide_hydro_generation_target,==

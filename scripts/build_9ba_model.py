@@ -17,6 +17,10 @@ import pypsa
 
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
+from statewide_hydro_targets import (
+    STATEWIDE_HYDRO_ENERGY_CONSTRAINT,
+    read_large_hydro_daily_targets,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -2353,6 +2357,11 @@ def main() -> None:
     biomass_annual_target_mwh = float(biomass_monthly_targets_mwh.sum())
     small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
     small_hydro_annual_target_mwh = float(small_hydro_monthly_targets_mwh.sum())
+    large_hydro_daily_targets_mwh = read_large_hydro_daily_targets()
+    large_hydro_annual_target_mwh = float(large_hydro_daily_targets_mwh.sum())
+    statewide_hydro_annual_target_mwh = (
+        large_hydro_annual_target_mwh + small_hydro_annual_target_mwh
+    )
     small_hydro_capacity_mw = float(
         generators.loc[generators["carrier"].eq("small_hydro"), "p_nom"].sum()
     )
@@ -2380,6 +2389,15 @@ def main() -> None:
                 "carrier_attribute": "small_hydro",
                 "sense": "==",
                 "constant": small_hydro_annual_target_mwh,
+            },
+            {
+                "name": STATEWIDE_HYDRO_ENERGY_CONSTRAINT,
+                "type": "statewide_hydro_energy",
+                "carrier_attribute": (
+                    "hydro,hydro_run_of_river,hydro_turbine,small_hydro"
+                ),
+                "sense": "==",
+                "constant": statewide_hydro_annual_target_mwh,
             },
         ]
     )
@@ -2519,6 +2537,20 @@ def main() -> None:
             }
         ]
     ).to_csv(OUTPUT_DIR / "small_hydro_energy_target_summary.csv", index=False)
+    pd.DataFrame(
+        [
+            {
+                "large_hydro_source": OBSERVED_GENERATION_FILE.name,
+                "small_hydro_source": "Tamil Nadu Outlook monthly generation table",
+                "fiscal_year": "FY2025-26",
+                "large_hydro_target_mwh": large_hydro_annual_target_mwh,
+                "small_hydro_target_mwh": small_hydro_annual_target_mwh,
+                "annual_energy_target_mwh": statewide_hydro_annual_target_mwh,
+                "constraint_name": STATEWIDE_HYDRO_ENERGY_CONSTRAINT,
+                "constraint_sense": "==",
+            }
+        ]
+    ).to_csv(OUTPUT_DIR / "statewide_hydro_energy_target_summary.csv", index=False)
     expanded_metadata.to_csv(OUTPUT_DIR / "component_metadata.csv", index=False)
     district_allocation_export.to_csv(
         OUTPUT_DIR / "district_capacity_allocation.csv", index=False
@@ -2664,6 +2696,10 @@ def main() -> None:
     print(
         "Applied observed small-hydro energy equality target: "
         f"{small_hydro_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
+    )
+    print(
+        "Applied statewide hydro energy equality target (hydro + small hydro): "
+        f"{statewide_hydro_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
     )
     print(
         "Applied July 2026 capacity overlay: "
