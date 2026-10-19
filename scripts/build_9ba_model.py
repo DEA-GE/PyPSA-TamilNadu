@@ -32,8 +32,7 @@ PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
 # installed capacity) before they are assigned to generator p_max_pu.
 SOLAR_AVAILABILITY_MULTIPLIER = 0.7174
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
-INTERSTATE_IMPORT_FILE = SOURCE_DIR / "interstate_import_generators.csv"
-INTERSTATE_IMPORT_MARGINAL_COST = 6_500.0  # INR/MWh (6.5 INR/kWh)
+INTERSTATE_SIGNED_FLOW_FILE = SOURCE_DIR / "interstate_signed_flows.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
@@ -1614,74 +1613,6 @@ def allocate_mechanisms(
     return pd.DataFrame(output_rows, columns=mechanisms.columns), pd.DataFrame(metadata_rows)
 
 
-def build_interstate_import_generators(
-    buses: pd.DataFrame, generator_columns: pd.Index
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Build source-specific imports at neighboring-region grid buses."""
-    imports = pd.read_csv(INTERSTATE_IMPORT_FILE)
-    required = {
-        "name", "plant_name", "source_type", "state", "bus",
-        "tn_capacity_mw", "source_reference", "notes",
-    }
-    missing = sorted(required - set(imports.columns))
-    if missing:
-        raise ValueError(f"Interstate import input is missing columns: {missing}")
-    if imports["name"].duplicated().any():
-        raise ValueError("Interstate import generator names must be unique")
-    imports["tn_capacity_mw"] = pd.to_numeric(
-        imports["tn_capacity_mw"], errors="raise"
-    )
-    if imports["tn_capacity_mw"].isna().any() or (imports["tn_capacity_mw"] <= 0).any():
-        raise ValueError("Interstate import capacities must be positive MW values")
-    unknown_buses = sorted(set(imports["bus"]) - set(buses["name"]))
-    if unknown_buses:
-        raise ValueError(f"Interstate imports refer to unknown grid buses: {unknown_buses}")
-
-    rows: list[dict[str, object]] = []
-    metadata_rows: list[dict[str, object]] = []
-    for record in imports.to_dict("records"):
-        capacity = float(record["tn_capacity_mw"])
-        row: dict[str, object] = {
-            "name": record["name"],
-            "bus": record["bus"],
-            "p_nom": capacity,
-            "p_min_pu": 0.0,
-            "p_max_pu": 1.0,
-            "p_init": 0.0,
-            "e_sum_max": np.inf,
-            "carrier": "market_import",
-            "marginal_cost": INTERSTATE_IMPORT_MARGINAL_COST,
-            "committable": False,
-            "start_up_cost": 0.0,
-            "shut_down_cost": 0.0,
-            "min_up_time": 0,
-            "min_down_time": 0,
-            "up_time_before": 1,
-            "down_time_before": 0,
-        }
-        rows.append(row)
-        metadata_rows.append({
-            "component_type": "Generator",
-            "component_id": record["name"],
-            "original_component_id": record["name"],
-            "source": record["source_type"],
-            "plant_name": record["plant_name"],
-            "state": record["state"],
-            "bus": record["bus"],
-            "allocation_method": "Tamil Nadu capacity entitlement at external grid bus",
-            "allocation_share": 1.0,
-            "original_capacity_mw": capacity,
-            "capacity_mw": capacity,
-            "source_reference": record["source_reference"],
-            "notes": record["notes"],
-        })
-    generators = pd.DataFrame(rows).reindex(columns=generator_columns)
-    metadata = pd.DataFrame(metadata_rows)
-    if not np.isclose(imports["tn_capacity_mw"].sum(), 2_258.7):
-        raise AssertionError("Interstate import capacities do not sum to the documented 2,258.7 MW")
-    return generators, metadata
-
-
 def read_additional_capacity(
     district_to_area: dict[str, str],
 ) -> pd.DataFrame:
@@ -1888,6 +1819,114 @@ def build_loads(demand: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Da
     if not np.allclose(time_series.sum(axis=1), base_load, atol=1e-6):
         raise AssertionError("Balancing-area loads do not preserve state demand")
     return pd.DataFrame(loads), time_series, allocation
+
+
+def build_interstate_flow_loads(
+    buses: pd.DataFrame, grid_links: pd.DataFrame, snapshots: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Represent signed interstate purchases through nominated interconnectors.
+
+    The source convention is positive for a Tamil Nadu import and negative for
+    an export. Plant generation already includes export-serving output, so the
+    load convention is the inverse. Loads are attached to the *external* side
+    of the nominated interface and the relevant directional Link is fixed to
+    carry the matching hourly flow, rather than bypassing the interconnector.
+    """
+    flows = pd.read_csv(INTERSTATE_SIGNED_FLOW_FILE)
+    required = {
+        "direction", "counterparty_state", "signed_gwh_per_year", "evidence_fy",
+        "fy25_26_treatment", "tn_bus", "external_bus", "proxy_interface", "purchase_evidence",
+        "qualification",
+    }
+    missing = sorted(required - set(flows.columns))
+    if missing:
+        raise ValueError(f"Signed interstate-flow input is missing columns: {missing}")
+    if len(snapshots) != 8_760:
+        raise ValueError("Signed interstate flows require the complete 8,760-hour FY2025-26 model")
+    flows["signed_gwh_per_year"] = pd.to_numeric(flows["signed_gwh_per_year"], errors="raise")
+    if flows["signed_gwh_per_year"].eq(0.0).any():
+        raise ValueError("Signed interstate flows cannot be zero")
+    expected_sign = flows["direction"].map({"Import": 1.0, "Export": -1.0})
+    if expected_sign.isna().any():
+        raise ValueError("Signed interstate-flow directions must be Import or Export")
+    if not (np.sign(flows["signed_gwh_per_year"]) == expected_sign).all():
+        raise ValueError("Signed interstate-flow values do not match the documented direction convention")
+    unknown_buses = sorted(set(flows[["tn_bus", "external_bus"]].stack()) - set(buses["name"]))
+    if unknown_buses:
+        raise ValueError(f"Signed interstate flows refer to unknown grid buses: {unknown_buses}")
+
+    flows["load_name"] = flows.apply(
+        lambda row: f"interstate_{slugify(row.direction)}_{slugify(row.counterparty_state)}_flow",
+        axis=1,
+    )
+    if flows["load_name"].duplicated().any():
+        raise ValueError("Signed interstate-flow directions and counterparties must be unique")
+    flows["model_load_mw"] = -flows["signed_gwh_per_year"] * 1_000.0 / len(snapshots)
+    flows["required_link_flow_mw"] = flows["model_load_mw"].abs()
+    flows["link_bus0"] = np.where(
+        flows["direction"].eq("Import"), flows["external_bus"], flows["tn_bus"]
+    )
+    flows["link_bus1"] = np.where(
+        flows["direction"].eq("Import"), flows["tn_bus"], flows["external_bus"]
+    )
+
+    def matching_link(row: pd.Series) -> pd.Series:
+        matches = grid_links.loc[
+            grid_links["bus0"].eq(row["link_bus0"])
+            & grid_links["bus1"].eq(row["link_bus1"])
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"Expected one directional interconnector from {row['link_bus0']} "
+                f"to {row['link_bus1']} for {row['load_name']}; found {len(matches)}"
+            )
+        return matches.iloc[0]
+
+    matched_links = flows.apply(matching_link, axis=1)
+    flows["interconnector"] = matched_links["name"].to_numpy()
+    flows["interconnector_p_nom_mw"] = pd.to_numeric(matched_links["p_nom"], errors="raise").to_numpy()
+    flows["interconnector_static_p_max_pu"] = pd.to_numeric(
+        matched_links["p_max_pu"], errors="raise"
+    ).to_numpy()
+    link_flows = flows.groupby("interconnector", sort=False)["required_link_flow_mw"].sum()
+    link_limits = matched_links.drop_duplicates("name").set_index("name")
+    allowed_mw = (
+        pd.to_numeric(link_limits["p_nom"], errors="raise")
+        * pd.to_numeric(link_limits["p_max_pu"], errors="raise")
+    )
+    exceeded = link_flows[link_flows > allowed_mw.reindex(link_flows.index) + 1e-9]
+    if len(exceeded):
+        raise ValueError(
+            "Signed interstate flows exceed directional interconnector capacity: "
+            f"{exceeded.to_dict()}"
+        )
+
+    loads = flows.rename(columns={"load_name": "name", "external_bus": "bus"})[
+        ["name", "bus"]
+    ].copy()
+    loads["carrier"] = "interstate_exchange"
+    profiles = pd.DataFrame(
+        {
+            row.load_name: np.full(len(snapshots), row.model_load_mw)
+            for row in flows.itertuples(index=False)
+        },
+        index=pd.RangeIndex(len(snapshots)),
+    )
+    modeled_energy_mwh = profiles.sum(axis=0)
+    expected_energy_mwh = -flows.set_index("load_name")["signed_gwh_per_year"] * 1_000.0
+    if not np.allclose(modeled_energy_mwh.reindex(expected_energy_mwh.index), expected_energy_mwh):
+        raise AssertionError("Signed interstate-flow loads do not preserve annual energy")
+    link_pu = link_flows / pd.to_numeric(link_limits.loc[link_flows.index, "p_nom"], errors="raise")
+    link_min_pu = pd.DataFrame(
+        {name: np.full(len(snapshots), value) for name, value in link_pu.items()},
+        index=pd.RangeIndex(len(snapshots)),
+    )
+    link_max_pu = link_min_pu.copy()
+    audit = flows.copy()
+    audit["model_annual_energy_mwh"] = audit["load_name"].map(modeled_energy_mwh)
+    audit["conversion"] = "external_load_mw = -signed_gwh_per_year * 1000 / 8760"
+    audit["source_file"] = "TamilNadu_Interstate_Flows.xlsx"
+    return loads, profiles, link_min_pu, link_max_pu, audit
 
 
 def placeholder_profiles(
@@ -2168,15 +2207,6 @@ def main() -> None:
     generator_metadata = pd.concat(
         [generator_metadata, mechanism_metadata], ignore_index=True, sort=False
     )
-    interstate_imports, interstate_import_metadata = build_interstate_import_generators(
-        grid_buses, original_generators.columns
-    )
-    if set(interstate_imports["name"]) & set(generators["name"]):
-        raise AssertionError("Interstate import generator names duplicate existing generators")
-    generators = pd.concat([generators, interstate_imports], ignore_index=True)
-    generator_metadata = pd.concat(
-        [generator_metadata, interstate_import_metadata], ignore_index=True, sort=False
-    )
     storage, storage_metadata = allocate_source_components(
         original_storage, metadata, "StorageUnit", district_allocations
     )
@@ -2216,9 +2246,20 @@ def main() -> None:
         sort=False,
     )
 
-    loads, load_time_series, demand_allocation = build_loads(demand)
     snapshots_table = pd.read_csv(BASE_MODEL / "snapshots.csv")
     snapshots = snapshots_table["snapshot"]
+    loads, load_time_series, demand_allocation = build_loads(demand)
+    (
+        interstate_flow_loads,
+        interstate_flow_profiles,
+        interstate_link_p_min_pu,
+        interstate_link_p_max_pu,
+        interstate_flow_audit,
+    ) = build_interstate_flow_loads(
+        grid_buses, grid_links, snapshots
+    )
+    loads = pd.concat([loads, interstate_flow_loads], ignore_index=True)
+    load_time_series = pd.concat([load_time_series, interstate_flow_profiles], axis=1)
     oil_gas_budget = read_oil_gas_energy_budget()
     nuclear_budget = read_oil_gas_energy_budget("Nuclear")
     cascade_generation_targets = build_cascade_generation_calibration(
@@ -2417,6 +2458,7 @@ def main() -> None:
     }
     nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
     tn_export_allocations.to_csv(OUTPUT_DIR / "tn_export_capacity_allocations.csv", index=False)
+    interstate_flow_audit.to_csv(OUTPUT_DIR / "interstate_signed_flows.csv", index=False)
     reservoir_inflow_audit.to_csv(
         OUTPUT_DIR / "hydro_reservoir_inflow.csv", index=False, date_format="%Y-%m-%d"
     )
@@ -2455,6 +2497,8 @@ def main() -> None:
     pd.concat([grid_links.reindex(columns=link_columns), hydraulic_links.reindex(columns=link_columns)], ignore_index=True).to_csv(
         OUTPUT_DIR / "links.csv", index=False
     )
+    interstate_link_p_min_pu.to_csv(OUTPUT_DIR / "links-p_min_pu.csv")
+    interstate_link_p_max_pu.to_csv(OUTPUT_DIR / "links-p_max_pu.csv")
     grid_lines.to_csv(OUTPUT_DIR / "lines.csv", index=False)
     grid_metadata.to_csv(
         OUTPUT_DIR / "transmission_capacity_metadata.csv", index=False

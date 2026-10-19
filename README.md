@@ -354,13 +354,20 @@ primarily reflecting OSM-backed solar and wind allocation. Inspect
 district-level source table and `model/component_metadata.csv` for each
 PyPSA component's assigned bus, method, confidence, and allocation share.
 `model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
-Interstate imports are represented by source-specific generators at external
-grid buses, using Tamil Nadu's allocated capacity and the modeled inbound
-interconnector links. Their marginal cost is 6,500 INR/MWh. The Telangana and
-Odisha sources use the Andhra Pradesh and Western Region buses, respectively,
-as specified study proxies. The former 6,727 MW statewide direct-injection
-import proxy has been removed. Unserved energy remains split using demand
-energy shares and is not reported as installed plant.
+Interstate exchange is represented as fixed loads on the external side of a
+nominated directional interconnector. The source values use positive for an
+import and negative for an export; because the modelled plant fleet already
+includes export-serving generation, the loads use the inverse sign. Imports
+therefore become negative external demand and exports become positive external
+demand. The matching directional interconnector is fixed to carry the same
+hourly MW flow, so interchange crosses the boundary bus rather than bypassing
+the transmission network. Annual values are spread uniformly over the 8,760
+hours and are auditable in `model/interstate_signed_flows.csv`. The series are
+purchasing-state evidence, not measured border flows; FY2024-25 proxies and the
+FY2025-26 export benchmark must not be interpreted as a validated net-exchange
+balance. The former dispatchable import-entitlement generators are not included,
+avoiding double counting. Unserved energy remains split using demand energy
+shares and is not reported as installed plant.
 
 The July-2026 overlay adds 563.9895 MW to the modeled fleet: 211.70 MW diesel,
 212.33 MW solar, and 139.9595 MW wind. Project evidence locates the diesel

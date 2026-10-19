@@ -22,16 +22,24 @@ To replace only the transmission network from the active Excel input, run
 | Files | Meaning |
 | --- | --- |
 | `buses.csv`, `lines.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
-| `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand, availability, and simple-reservoir inflow |
+| `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `links-p_min_pu.csv`, `links-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand, generator availability, fixed interstate-link flows, and simple-reservoir inflow |
 | `global_constraints.csv`, `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv` | Annual equality constraints and observed daily energy targets |
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
-| `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv` | Hydro assumptions and validation, corridor ratings, and capacity reconciliation |
+| `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv`, `interstate_signed_flows.csv` | Hydro assumptions and validation, corridor ratings, capacity reconciliation, and signed interstate-flow audit |
 
-Interstate imports use plant-specific generator records at external grid buses.
-The model represents 2,258.7 MW of Tamil Nadu allocations and contracts at a
-6,500 INR/MWh marginal cost. Telangana and Odisha sources are mapped to the
-Andhra Pradesh and Western Region buses, respectively, as study proxies. The
-previous 6,727 MW aggregate direct-injection import proxy is removed.
+Signed interstate purchases are fixed hourly loads on the external side of the
+specified proxy interface. The source convention is positive for a Tamil Nadu
+import and negative for an export; the model uses the inverse as load because
+the generation fleet already includes export-serving output. Thus imports are
+negative external demand and exports are positive external demand. The matching
+directional interconnector has equal hourly minimum and maximum flow, ensuring
+that the exchange crosses the nominated Tamil Nadu boundary bus. Each annual GWh
+figure is spread uniformly over the 8,760 model hours. The generated
+`interstate_signed_flows.csv` retains the source sign, applied MW load,
+directional interconnector, vintage, routing proxy, and qualification. It is
+purchasing-state evidence, not a measurement of physical border flow; the
+mixed-vintage net is diagnostic only. The former dispatchable import-entitlement
+generators are removed to avoid double counting.
 
 The four listed in-state thermal stations with allocations to other states are
 derated to their Tamil Nadu shares before spatial allocation. Their out-of-state
