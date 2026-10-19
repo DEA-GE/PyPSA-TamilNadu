@@ -26,8 +26,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
+
+from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
+
+configure_for_pypsa_124()
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -21,6 +21,7 @@ import psutil
 import pypsa
 import xarray as xr
 
+from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
@@ -31,6 +32,8 @@ from nuclear_energy_targets import (
     prepare_nuclear_targets,
 )
 from run_9ba_weekly_days_2025_26 import MODEL_DIR, OIL_GAS_BUDGET_CONSTRAINT
+
+configure_for_pypsa_124()
 
 BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
