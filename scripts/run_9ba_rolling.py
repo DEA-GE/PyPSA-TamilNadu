@@ -39,7 +39,7 @@ BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "pap-aliyar-feeder-v4"
+CHECKPOINT_MODEL_VERSION = "pap-aliyar-feeder-v5"
 SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
@@ -758,8 +758,10 @@ def _add_relaxed_boundary_constraints(
         name="Generator-relaxed-boundary-ramp-down",
     )
 
-    # PyPSA's tightened Hua relaxation starts at the second snapshot. Add the
-    # same four inequalities across the rolling boundary.
+    # PyPSA 1.4 applies its tightened Hua relaxation at the first snapshot only
+    # when p_init is available. Relaxed rolling state is fractional, so p_init
+    # is deliberately unset above and these inequalities supply the preceding
+    # dispatch and commitment state across the rolling boundary.
     model.add_constraints(
         (upper - ramp_shut) * (status_now - start_up_now)
         >= dispatch_before - ramp_shut * status_before,
@@ -838,7 +840,7 @@ def _add_relaxed_boundary_constraints(
 
 
 def _prepare_topology_for_pandas3(network: pypsa.Network) -> None:
-    """Build topology without triggering PyPSA 1.2/Pandas 3 read-only views."""
+    """Build topology after making imported pandas 3 object columns writable."""
     # Network.copy(snapshots=...) can leave these object columns backed by
     # read-only arrays under pandas 3. PyPSA mutates them while selecting slack
     # generators and buses, so replace the complete columns with writable data.
@@ -1084,6 +1086,7 @@ def run_rolling_year(
         ):
             checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
             if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
+                    and checkpoint_meta.get("pypsa_version") == pypsa.__version__
                     and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
                     and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
                     and np.isclose(
@@ -1121,11 +1124,8 @@ def run_rolling_year(
         network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
         if SMALL_HYDRO_ENERGY_CONSTRAINT in network.global_constraints.index:
             network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
-        # PyPSA 1.2.x with pandas 3 can expose imported static columns through
-        # read-only NumPy views.  If topology is left until optimize() post-
-        # processing, slack-bus assignment then fails after a successful solve
-        # with "assignment destination is read-only".  Building topology here
-        # avoids that incompatible late mutation.
+        # Keep topology construction explicit before optimization so slack-bus
+        # assignment cannot encounter read-only views from copied static data.
         _prepare_topology_for_pandas3(network)
         network.storage_units.loc[:, "cyclic_state_of_charge"] = False
         if len(network.stores):
@@ -1284,6 +1284,7 @@ def run_rolling_year(
         )
         row = {
             "model_version": CHECKPOINT_MODEL_VERSION,
+            "pypsa_version": pypsa.__version__,
             "hydro_input_hash": hydro_input_hash,
             "hydro_terminal_targets": len(terminal_targets),
             "hydro_terminal_band_violation_mwh": hydro_total_error,
@@ -1373,6 +1374,7 @@ def run_rolling_year(
     completed_snapshots = int(window_log["committed_snapshots"].sum()) if len(window_log) else 0
     validation = {
         "model_version": CHECKPOINT_MODEL_VERSION,
+        "pypsa_version": pypsa.__version__,
         "hydro_input_hash": hydro_input_hash,
         "unit_commitment": unit_commitment,
         "formulation": f"rolling {commit_days}-day commitment with {lookahead_days}-day look-ahead",

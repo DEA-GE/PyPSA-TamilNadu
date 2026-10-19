@@ -2343,6 +2343,7 @@ def main() -> None:
         "Tamil Nadu FY 2025-26 nine-balancing-area hourly UC inputs "
         "with July 2026 capacity overlay and seasonal reservoir hydro"
     )
+    network.loc[0, "pypsa_version"] = pypsa.__version__
     network.to_csv(OUTPUT_DIR / "network.csv", index=False)
     pd.concat([
         grid_buses,
