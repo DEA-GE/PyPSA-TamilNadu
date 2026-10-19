@@ -473,6 +473,16 @@ def _write_shadow_prices(network: pypsa.Network, path: Path) -> int:
         duals = network.model.dual
     if not len(duals.data_vars):
         raise RuntimeError("The accepted solution does not contain shadow prices")
+    # Linopy can expose dual arrays as object dtype after pandas 3 label
+    # alignment. Dual values are numeric; NetCDF4 rejects object arrays.
+    for name in duals.data_vars:
+        if duals[name].dtype == object:
+            duals[name] = duals[name].astype(float)
+    # Linopy constraint labels can also leave object-typed coordinates;
+    # NetCDF stores those labels as strings.
+    for name in duals.coords:
+        if duals[name].dtype == object:
+            duals = duals.assign_coords({name: duals[name].astype(str)})
     temporary = path.with_suffix(path.suffix + ".tmp")
     encoding = {
         name: {"zlib": True, "complevel": 4, "shuffle": True}
