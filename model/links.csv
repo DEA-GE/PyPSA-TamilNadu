@@ -80,10 +80,10 @@ pykara_turbine__pykara_hydroelectric_power_project__unit_06,water_pykara,Coimbat
 pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_01,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
 pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_02,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
 pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_03,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
-moyar_turbine__moyar_power_house__unit_01,water_moyar_pondage,Coimbatore,hydro_turbine,14.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
-moyar_turbine__moyar_power_house__unit_02,water_moyar_pondage,Coimbatore,hydro_turbine,14.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
+moyar_turbine__moyar_power_house__unit_01,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
+moyar_turbine__moyar_power_house__unit_02,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
 moyar_turbine__moyar_power_house__unit_03,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
-moyar_pondage_bypass_release,water_moyar_pondage,water_pykara_downstream,water_spill,190.0,0.0,,0.01,,,,,,,,,,,,1.0,
+moyar_pondage_bypass_release,water_moyar_pondage,water_pykara_downstream,water_spill,186.0,0.0,,0.01,,,,,,,,,,,,1.0,
 papanasam_servalar_transfer_tunnel,water_papanasam_reservoir,water_servalar_reservoir,water_transfer,20.0,0.0,,0.0,,,,,,,,,,,,1.0,
 papanasam_direct_release,water_papanasam_reservoir,water_papanasam_lower_pondage,water_transfer,100.0,0.0,,0.0,,,,,,,,,,,,1.0,
 papanasam_lower_pondage_bypass,water_papanasam_lower_pondage,water_papanasam_downstream_river,water_spill,100.0,0.0,,0.01,,,,,,,,,,,,1.0,

@@ -18,7 +18,7 @@ Kundah_pondage,water_kundah_pondage,39960.0,19980.0,False,water_energy
 Kundah_downstream,water_kundah_downstream,1000000000000.0,0.0,False,water_energy
 Pykara,water_pykara,42624.0,21312.0,False,water_energy
 Glenmorgan_forebay,water_glenmorgan_forebay,10800.0,5400.0,False,water_energy
-Moyar_pondage,water_moyar_pondage,2880.0,1440.0,False,water_energy
+Moyar_pondage,water_moyar_pondage,2592.0,1296.0,False,water_energy
 Pykara_downstream,water_pykara_downstream,1000000000000.0,0.0,False,water_energy
 Papanasam_reservoir,water_papanasam_reservoir,38195.882999999994,19097.941499999997,False,water_energy
 Servalar_reservoir,water_servalar_reservoir,3819.5882999999994,1909.7941499999997,False,water_energy

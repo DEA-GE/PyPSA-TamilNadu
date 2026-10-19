@@ -76,6 +76,7 @@ SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_targe
 RESERVOIR_MAX_HOURS = 720.0
 HYDRO_ASSET_REGISTRY = SOURCE_DIR / "hydro_asset_registry.csv"
 HYDRO_RECONCILIATION = SOURCE_DIR / "hydro_fleet_reconciliation.csv"
+HYDRO_TECHNICAL_PARAMETERS = SOURCE_DIR / "hydro_technical_parameters.csv"
 CEA_MONTHLY_HYDRO_GENERATION = (
     SOURCE_DIR / "cea_hydro_monthly_generation_FY2025_26.csv"
 )
@@ -161,6 +162,65 @@ PERIYAR_OBSERVED_RELEASE_CAPACITY_MW = 500.0
 def slugify(value: object) -> str:
     text = unicodedata.normalize("NFKD", str(value)).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-zA-Z0-9]+", "_", text).strip("_").lower()
+
+
+def read_hydro_technical_parameters() -> pd.DataFrame:
+    """Read unit-level hydro corrections and public technical provenance."""
+    frame = pd.read_csv(HYDRO_TECHNICAL_PARAMETERS)
+    required = {
+        "component_id", "asset_id", "model_carrier", "p_nom_mw",
+        "operational_status", "source_url", "source_note",
+    }
+    missing = required - set(frame.columns)
+    if missing:
+        raise ValueError(
+            f"Hydro technical parameter file is missing columns: {sorted(missing)}"
+        )
+    if frame["component_id"].duplicated().any():
+        duplicates = frame.loc[
+            frame["component_id"].duplicated(keep=False), "component_id"
+        ].tolist()
+        raise ValueError(f"Duplicate hydro technical component IDs: {duplicates}")
+    frame["p_nom_mw"] = pd.to_numeric(frame["p_nom_mw"], errors="raise")
+    if frame["p_nom_mw"].le(0).any():
+        raise ValueError("Hydro technical p_nom values must be positive")
+    if frame[["component_id", "asset_id", "model_carrier", "source_url"]].isna().any().any():
+        raise ValueError("Hydro technical identity, carrier and source fields are required")
+    return frame
+
+
+def apply_hydro_technical_overrides(
+    generators: pd.DataFrame,
+    storage: pd.DataFrame,
+    metadata: pd.DataFrame,
+    parameters: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Apply reviewed unit ratings/classification before spatial allocation."""
+    generators = generators.copy()
+    storage = storage.copy()
+    metadata = metadata.copy()
+
+    for row in parameters.itertuples(index=False):
+        generator_match = generators["name"].eq(row.component_id)
+        storage_match = storage["name"].eq(row.component_id)
+        match_count = int(generator_match.sum() + storage_match.sum())
+        if match_count != 1:
+            raise ValueError(
+                f"Hydro technical component {row.component_id!r} must match exactly "
+                f"one source component, found {match_count}"
+            )
+        target = generators if generator_match.any() else storage
+        target_mask = generator_match if generator_match.any() else storage_match
+        target.loc[target_mask, "p_nom"] = float(row.p_nom_mw)
+        target.loc[target_mask, "carrier"] = str(row.model_carrier)
+
+        metadata_match = metadata["component_id"].eq(row.component_id)
+        if metadata_match.sum() != 1:
+            raise ValueError(
+                f"Hydro technical component {row.component_id!r} must match one metadata row"
+            )
+        metadata.loc[metadata_match, "capacity_mw"] = float(row.p_nom_mw)
+    return generators, storage, metadata
 
 
 def read_area_mapping() -> dict[str, str]:
@@ -1274,7 +1334,7 @@ def build_hydraulic_cascades(
     )
     add_asset_turbines("pykara", pyk, "Coimbatore", glen, "individual Pykara Store", "pykara_turbine", "Official Pykara units share one first-pass hydraulic stage; no 61.2 MW grouped reference is used.")
     add_asset_turbines("pykara_ultimate", glen, "Coimbatore", moy, "Pykara group forebay", "pushep_turbine")
-    add_asset_turbines("moyar", moy, "Coimbatore", sink, "Pykara/Moyar group pondage", "moyar_turbine", "Official Moyar units share one first-pass hydraulic stage; no 38 MW reference is used.")
+    add_asset_turbines("moyar", moy, "Coimbatore", sink, "Pykara/Moyar group pondage", "moyar_turbine", "Official Moyar 3x12 MW units share one first-pass hydraulic stage.")
     links.append({"name": "moyar_pondage_bypass_release", "bus0": moy, "bus1": sink,
                   "p_nom": pus_mw + moy_mw, "p_min_pu": 0.0, "efficiency": 1.0,
                   "carrier": "water_spill", "marginal_cost": WATER_SPILL_MARGINAL_COST})
@@ -1930,7 +1990,6 @@ def build_hydro_capacity_validation(
         "sholayar": 109.0,
         "kundah": 585.0,
         "pykara": 61.2,
-        "moyar": 38.0,
     }
     rows: list[dict[str, object]] = []
     if len(turbine_audit):
@@ -2044,6 +2103,43 @@ def main() -> None:
     original_storage = pd.read_csv(BASE_MODEL / "storage_units.csv")
     district_allocations, district_allocation_export = read_district_allocations(
         metadata, district_to_area
+    )
+    hydro_technical_parameters = read_hydro_technical_parameters()
+    source_nameplate = pd.concat(
+        [
+            original_generators[["name", "p_nom"]],
+            original_storage[["name", "p_nom"]],
+        ],
+        ignore_index=True,
+    ).set_index("name")["p_nom"]
+    hydro_technical_capacity_adjustment_mw = float(
+        sum(
+            float(row.p_nom_mw) - float(source_nameplate.at[row.component_id])
+            for row in hydro_technical_parameters.itertuples(index=False)
+        )
+    )
+    original_generators, original_storage, metadata = apply_hydro_technical_overrides(
+        original_generators,
+        original_storage,
+        metadata,
+        hydro_technical_parameters,
+    )
+    reviewed_hydro_capacity = hydro_technical_parameters.set_index("component_id")[
+        "p_nom_mw"
+    ]
+    reviewed_allocation = district_allocation_export["component_id"].isin(
+        reviewed_hydro_capacity.index
+    )
+    district_allocation_export.loc[
+        reviewed_allocation, "original_capacity_mw"
+    ] = district_allocation_export.loc[reviewed_allocation, "component_id"].map(
+        reviewed_hydro_capacity
+    )
+    district_allocation_export.loc[
+        reviewed_allocation, "allocated_capacity_mw"
+    ] = (
+        district_allocation_export.loc[reviewed_allocation, "original_capacity_mw"]
+        * district_allocation_export.loc[reviewed_allocation, "allocation_share"]
     )
 
     source_generators = original_generators.loc[
@@ -2337,6 +2433,10 @@ def main() -> None:
     )
     hydro_capacity_validation.to_csv(OUTPUT_DIR / "hydro_capacity_validation.csv", index=False)
     shutil.copy2(HYDRO_RECONCILIATION, OUTPUT_DIR / "hydro_fleet_reconciliation.csv")
+    shutil.copy2(
+        HYDRO_TECHNICAL_PARAMETERS,
+        OUTPUT_DIR / "hydro_technical_parameters.csv",
+    )
     hydro_asset_audit.to_csv(OUTPUT_DIR / "hydro_asset_audit.csv", index=False)
     network = pd.read_csv(BASE_MODEL / "network.csv")
     network.loc[0, "name"] = (
@@ -2455,9 +2555,13 @@ def main() -> None:
     )
     excluded_off_grid_capacity_mw = EXPECTED_EXCLUDED_OFF_GRID_CAPACITY_MW
     withheld_export_capacity_mw = float(tn_export_allocations.capacity_withheld_from_tn_mw.sum())
+    corrected_july_2026_total_mw = (
+        EXPECTED_JULY_2026_TOTAL_CAPACITY_MW
+        + hydro_technical_capacity_adjustment_mw
+    )
     if not np.isclose(
         modeled_total_mw + unassigned_total_mw + excluded_off_grid_capacity_mw + withheld_export_capacity_mw,
-        EXPECTED_JULY_2026_TOTAL_CAPACITY_MW,
+        corrected_july_2026_total_mw,
     ):
         raise AssertionError(
             "Modeled capacity plus excluded off-grid and unassigned capacities "
@@ -2496,9 +2600,19 @@ def main() -> None:
                 "treatment": "excluded from TN demand-serving generators",
             },
             {
-                "item": "july_2026_comparison_total",
+                "item": "source_july_2026_comparison_total",
                 "capacity_mw": EXPECTED_JULY_2026_TOTAL_CAPACITY_MW,
-                "treatment": "reconciled total",
+                "treatment": "source total before reviewed hydro corrections",
+            },
+            {
+                "item": "reviewed_hydro_technical_correction",
+                "capacity_mw": hydro_technical_capacity_adjustment_mw,
+                "treatment": "Moyar corrected from 40 MW to official 36 MW",
+            },
+            {
+                "item": "july_2026_comparison_total",
+                "capacity_mw": corrected_july_2026_total_mw,
+                "treatment": "reconciled total after reviewed hydro corrections",
             },
         ]
     ).to_csv(OUTPUT_DIR / "capacity_reconciliation_2026_07.csv", index=False)
