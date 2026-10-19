@@ -387,7 +387,11 @@ def _hydro_targets_at(
 
 
 def _add_hydro_terminal_targets(
-    network: pypsa.Network, committed: pd.DatetimeIndex, targets: pd.DataFrame,
+    network: pypsa.Network,
+    committed: pd.DatetimeIndex,
+    targets: pd.DataFrame,
+    *,
+    name_suffix: str = "",
 ) -> None:
     """Price violations outside quality-based terminal storage bands."""
     if targets.empty:
@@ -410,12 +414,12 @@ def _add_hydro_terminal_targets(
         shortfalls = model.add_variables(
             lower=0,
             coords=[component_index],
-            name=f"{kind}-hydro_shortfall",
+            name=f"{kind}-hydro_shortfall{name_suffix}",
         )
         excesses = model.add_variables(
             lower=0,
             coords=[component_index],
-            name=f"{kind}-hydro_excess",
+            name=f"{kind}-hydro_excess{name_suffix}",
         )
         for component, row in component_targets.iterrows():
             capacity = (float(frame.at[component, "p_nom"]) * float(frame.at[component, "max_hours"])
@@ -434,26 +438,32 @@ def _add_hydro_terminal_targets(
             state = variables.sel({dimension: component, "snapshot": terminal})
             model.add_constraints(
                 state + shortfall >= lower,
-                name=f"GlobalConstraint-HydroLower-{component}",
+                name=f"GlobalConstraint-HydroLower-{component}{name_suffix}",
             )
             model.add_constraints(
                 state - excess <= upper,
-                name=f"GlobalConstraint-HydroUpper-{component}",
+                name=f"GlobalConstraint-HydroUpper-{component}{name_suffix}",
             )
             penalty = penalty + HYDRO_SLACK_COST[quality] * (shortfall + excess)
     if not isinstance(penalty, int):
         model.add_objective(model.objective.expression + penalty, overwrite=True)
 
 
-def _hydro_terminal_error(network: pypsa.Network, targets: pd.DataFrame) -> tuple[float, float]:
+def _hydro_terminal_error(
+    network: pypsa.Network,
+    targets: pd.DataFrame,
+    *,
+    snapshot: pd.Timestamp | None = None,
+) -> tuple[float, float]:
     """Return the total and largest MWh violation of committed-end bands."""
+    snapshot = network.snapshots[-1] if snapshot is None else snapshot
     violations = []
     for component, row in targets.iterrows():
         if component in network.storage_units.index:
-            state = float(network.storage_units_t.state_of_charge.iloc[-1][component])
+            state = float(network.storage_units_t.state_of_charge.at[snapshot, component])
             capacity = float(network.storage_units.at[component, "p_nom"] * network.storage_units.at[component, "max_hours"])
         elif component in network.stores.index:
-            state = float(network.stores_t.e.iloc[-1][component])
+            state = float(network.stores_t.e.at[snapshot, component])
             capacity = float(network.stores.at[component, "e_nom"])
         else:
             continue
@@ -996,6 +1006,205 @@ def _window_metrics(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> dict
     ].sum(axis=1)
     output.index.name = "date"
     return output
+
+
+def _annual_constraint_periods(
+    snapshots: pd.DatetimeIndex, cascade_targets: pd.DataFrame,
+) -> list[pd.DatetimeIndex]:
+    """Return the build-defined rolling weeks as periods within one annual solve."""
+    periods = []
+    for start in cascade_targets.index.get_level_values("week_start").unique():
+        weekly = cascade_targets.xs(start, level="week_start")
+        if weekly.week_days.nunique() != 1:
+            raise ValueError(f"Inconsistent CEA target week length for {start.date()}")
+        period = snapshots[
+            (snapshots >= start)
+            & (snapshots < start + pd.Timedelta(days=int(weekly.week_days.iloc[0])))
+        ]
+        if period.normalize().nunique() != int(weekly.week_days.iloc[0]):
+            raise ValueError(f"Annual horizon does not cover CEA target week {start.date()}")
+        periods.append(period)
+    return periods
+
+
+def run_annual_no_uc(
+    base_network: pypsa.Network,
+    observed: pd.DataFrame,
+    oil_gas_budget: pd.DataFrame,
+    *,
+    solver_name: str,
+    solver_threads: int,
+    simplex_strategy: int | None = None,
+) -> tuple[pd.DataFrame, dict, pypsa.Network]:
+    """Solve all annual snapshots as one continuous no-unit-commitment LP.
+
+    This keeps the operational constraints used by the rolling workflow, but
+    adds them to a single chronological optimisation model.  There are no
+    weekly state hand-offs or look-ahead hours in this formulation.
+    """
+    snapshots = pd.DatetimeIndex(base_network.snapshots)
+    if not snapshots.is_monotonic_increasing or snapshots.has_duplicates:
+        raise ValueError("Network snapshots must be unique and chronological")
+    if len(snapshots) != 8_760:
+        raise ValueError(f"Annual mode requires the complete 8,760-hour horizon, got {len(snapshots)}")
+    if base_network.generators.committable.any():
+        raise ValueError("Annual mode requires UNIT_COMMITMENT = 'none'")
+    if BIOMASS_ENERGY_CONSTRAINT not in base_network.global_constraints.index:
+        raise ValueError(f"The model is missing {BIOMASS_ENERGY_CONSTRAINT!r}; rebuild it first")
+
+    cascade_targets = _cascade_generation_targets()
+    constraint_periods = _annual_constraint_periods(snapshots, cascade_targets)
+    biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
+    small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
+    small_hydro_units = base_network.generators.index[
+        base_network.generators.carrier.eq("small_hydro")
+    ]
+    if not len(small_hydro_units):
+        raise ValueError("Small-hydro targets require small_hydro generators")
+    observed_soc, hydro_parameters, monthly_soc, hydro_input_hash = _hydro_storage_inputs()
+
+    network = base_network.copy()
+    # The source profile is a placeholder. The period-energy constraints below
+    # are the operating evidence, so dispatch remains available at nameplate.
+    network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+    measured_store_targets = _measured_store_targets(
+        observed_soc, hydro_parameters, network
+    )
+    _add_measured_water_balance(network, measured_store_targets)
+    # Replace annual-only target equalities with the same month-prorated weekly
+    # equalities used in rolling solves. Their periods are constraints inside
+    # this one model, rather than optimisation boundaries.
+    network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
+    if SMALL_HYDRO_ENERGY_CONSTRAINT in network.global_constraints.index:
+        network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
+    _prepare_topology_for_pandas3(network)
+    network.storage_units.loc[:, "cyclic_state_of_charge"] = False
+    if len(network.stores):
+        network.stores.loc[:, "e_cyclic"] = False
+    _set_initial_state(network, None, "none")
+    opening = _hydro_targets_at(
+        snapshots[0], observed_soc, hydro_parameters, monthly_soc, initial=True
+    )
+    for component, row in opening.iterrows():
+        if component in network.storage_units.index:
+            network.storage_units.at[component, "state_of_charge_initial"] = row.target_mwh
+        elif component in network.stores.index:
+            network.stores.at[component, "e_initial"] = row.target_mwh
+
+    dates = snapshots.normalize().unique()
+    gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
+    if gas_targets.isna().any():
+        raise ValueError("Missing oil/gas target in annual horizon")
+    if OIL_GAS_BUDGET_CONSTRAINT in network.global_constraints.index:
+        network.global_constraints.at[OIL_GAS_BUDGET_CONSTRAINT, "constant"] = float(
+            gas_targets.sum()
+        )
+    prepare_nuclear_targets(network)
+    terminal_targets = [
+        (period[-1], _hydro_targets_at(period[-1], observed_soc, hydro_parameters, monthly_soc))
+        for period in constraint_periods
+    ]
+
+    def extra_functionality(
+        active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex,
+    ) -> None:
+        _add_daily_targets(active_network, active_snapshots, gas_targets)
+        _add_exact_measured_storage(
+            active_network, active_snapshots, measured_store_targets
+        )
+        for period, (terminal, targets) in zip(constraint_periods, terminal_targets):
+            _add_weekly_cascade_targets(active_network, period, cascade_targets)
+            _add_committed_biomass_target(
+                active_network, period, biomass_monthly_targets_mwh
+            )
+            _add_committed_small_hydro_target(
+                active_network, period, small_hydro_monthly_targets_mwh
+            )
+            _add_hydro_terminal_targets(
+                active_network,
+                period,
+                targets,
+                name_suffix=f"-{terminal:%Y%m%d}",
+            )
+
+    print(
+        f"Solving annual no-UC LP: {snapshots[0].date()} to {snapshots[-1].date()} "
+        f"({len(snapshots)} snapshots) ...",
+        flush=True,
+    )
+    reset_highs_global_scheduler()
+    with _SolveResourceMonitor() as resources:
+        started = time.perf_counter()
+        status, condition = network.optimize(
+            solver_name=solver_name,
+            solver_options=highs_solver_options(
+                "none", None, solver_threads, simplex_strategy
+            ),
+            extra_functionality=extra_functionality,
+            include_objective_constant=False,
+        )
+        runtime = time.perf_counter() - started
+    if status != "ok" or condition != "optimal":
+        raise RuntimeError(
+            f"Annual no-UC solve failed: status={status}, condition={condition}"
+        )
+
+    modeled = _window_metrics(network, snapshots)
+    water_balance = _measured_water_balance_daily(network, measured_store_targets)
+    kodayar_balance = _upper_kodayar_daily_balance(network)
+    kodayar_residual = float(kodayar_balance.balance_residual_mwh_equiv.abs().max())
+    if kodayar_residual > 1e-3:
+        raise RuntimeError(f"Upper Kodayar water-balance residual is {kodayar_residual:.6g} MWh")
+    measured_error = float(water_balance.opening_error_mwh.abs().max())
+    if measured_error > 1e-3:
+        raise RuntimeError(f"Measured storage opening error is {measured_error:.6g} MWh")
+    terminal_errors = [
+        _hydro_terminal_error(network, targets, snapshot=terminal)
+        for terminal, targets in terminal_targets
+    ]
+    residual = float(network.buses_t.p.sum(axis=1).abs().max())
+    loading = (
+        float(network.links_t.p0.abs().div(network.links.p_nom, axis=1).max().max() * 100)
+        if len(network.links)
+        else 0.0
+    )
+    gas_deviation = modeled["oil_gas"].mul(1_000.0).sub(gas_targets)
+    nuclear_deviation = modeled["nuclear"].mul(1_000.0).sub(
+        observed["nuclear"].reindex(dates)
+    )
+    validation = {
+        "model_version": CHECKPOINT_MODEL_VERSION,
+        "pypsa_version": pypsa.__version__,
+        "hydro_input_hash": hydro_input_hash,
+        "unit_commitment": "none",
+        "formulation": "single 8,760-hour no-unit-commitment LP",
+        "snapshots_solved": len(snapshots),
+        "full_horizon_snapshots": len(snapshots),
+        "complete": True,
+        "solver_status": str(status),
+        "solver_condition": str(condition),
+        "all_solver_statuses_ok": True,
+        "solver_threads": solver_threads,
+        "simplex_strategy": simplex_strategy,
+        "constraint_periods": len(constraint_periods),
+        "max_abs_gas_target_deviation_mwh": float(gas_deviation.abs().max()),
+        "max_abs_nuclear_target_deviation_mwh": float(nuclear_deviation.abs().max()),
+        "max_hydro_terminal_band_violation_mwh": max(
+            (maximum for _, maximum in terminal_errors), default=0.0
+        ),
+        "measured_storage_max_error_mwh": measured_error,
+        "upper_kodayar_balance_max_residual_mwh": kodayar_residual,
+        "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
+        "max_abs_nodal_residual_mw": residual,
+        "max_corridor_loading_pct": loading,
+        "solver_runtime_seconds": runtime,
+        "process_cpu_seconds": resources.cpu_seconds,
+        "average_cpu_cores": resources.cpu_seconds / runtime if runtime > 0 else None,
+        "peak_cpu_cores_sampled": resources.peak_cpu_cores_sampled,
+        "peak_process_rss_mb_sampled": resources.peak_rss_bytes / 1_000_000,
+        "peak_process_threads_sampled": resources.peak_threads,
+    }
+    return modeled, validation, network
 
 
 def run_rolling_year(
