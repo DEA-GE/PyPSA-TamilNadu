@@ -1,4 +1,4 @@
-"""Unified daily, monthly, selected-week, peak-week, and rolling-year runner."""
+"""Unified daily, monthly, selected-week, annual, and rolling-year runner."""
 
 from __future__ import annotations
 
@@ -40,6 +40,7 @@ from run_9ba_rolling import (
     BIOMASS_ENERGY_CONSTRAINT,
     CHECKPOINT_MODEL_VERSION,
     SMALL_HYDRO_ENERGY_CONSTRAINT,
+    run_annual_no_uc,
     run_rolling_year,
 )
 
@@ -281,13 +282,16 @@ def _normalise_mode(run_mode: str) -> str:
         "peak_week": "peak",
         "selected_weeks": "selected_weeks",
         "weeks": "selected_weeks",
+        "annual": "annual",
+        "full_year": "annual",
         "rolling": "rolling",
         "rolling_year": "rolling",
     }
     mode = aliases.get(str(run_mode).strip().lower())
     if mode is None:
         raise ValueError(
-            "RUN_MODE must be 'daily', 'monthly', 'peak', 'selected_weeks', or 'rolling'."
+            "RUN_MODE must be 'daily', 'monthly', 'peak', 'selected_weeks', "
+            "'annual', or 'rolling'."
         )
     return mode
 
@@ -349,8 +353,9 @@ def _dates_for_mode(
         _ensure_available(dates, available)
         return dates, f"peak_{start:%Y-%m-%d}"
 
-    if mode == "rolling":
-        return available, f"rolling_{available[0]:%Y-%m-%d}_{available[-1]:%Y-%m-%d}"
+    if mode in {"annual", "rolling"}:
+        prefix = "annual" if mode == "annual" else "rolling"
+        return available, f"{prefix}_{available[0]:%Y-%m-%d}_{available[-1]:%Y-%m-%d}"
 
     reference = pd.Timestamp(reference_date).normalize()
     if mode == "daily":
@@ -1425,12 +1430,15 @@ def run_selection(
     ``peak`` means the continuous seven-day period containing the annual maximum
     hourly demand. ``selected_weeks`` solves user-supplied seven-day periods
     independently with configurable warm-up and look-ahead. Monthly runs use
-    independent daily solves. ``rolling`` solves the full year in seven-day steps.
+    independent daily solves. ``annual`` solves the full year as one no-UC LP.
+    ``rolling`` solves the full year in seven-day steps.
     """
     mode = _normalise_mode(run_mode)
     unit_commitment = str(unit_commitment).strip().lower()
     if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+    if mode == "annual" and unit_commitment != "none":
+        raise ValueError("RUN_MODE = 'annual' requires UNIT_COMMITMENT = 'none'.")
     if isinstance(solver_threads, str):
         if solver_threads.strip().casefold() != "default":
             raise ValueError("solver_threads must be 'Default' or an integer from 1 to 8")
@@ -1443,8 +1451,8 @@ def run_selection(
         parallel_workers = 2
     # Validate early, before loading the relatively large annual network.
     highs_solver_options(unit_commitment, mip_rel_gap, solver_threads, simplex_strategy)
-    if simplex_strategy is not None and mode != "rolling":
-        raise ValueError("simplex_strategy override is supported for rolling runs only")
+    if simplex_strategy is not None and mode not in {"annual", "rolling"}:
+        raise ValueError("simplex_strategy override is supported for annual and rolling runs only")
     if (
         isinstance(parallel_workers, bool)
         or not isinstance(parallel_workers, int)
@@ -1474,9 +1482,9 @@ def run_selection(
     # Daily and peak diagnostic modes deliberately leave biomass unconstrained.
     # Selected weeks replace the native annual constraint with an exact,
     # retained-week proportional target inside each independent optimization.
-    if mode != "rolling" and BIOMASS_ENERGY_CONSTRAINT in base_network.global_constraints.index:
+    if mode not in {"annual", "rolling"} and BIOMASS_ENERGY_CONSTRAINT in base_network.global_constraints.index:
         base_network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
-    if mode != "rolling" and SMALL_HYDRO_ENERGY_CONSTRAINT in base_network.global_constraints.index:
+    if mode not in {"annual", "rolling"} and SMALL_HYDRO_ENERGY_CONSTRAINT in base_network.global_constraints.index:
         base_network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
     total_load = base_network.loads_t.p_set.sum(axis=1)
     available = pd.DatetimeIndex(total_load.index).normalize().unique().sort_values()
@@ -1503,7 +1511,16 @@ def run_selection(
     capacity_comparison = _installed_capacity_comparison(base_network)
     output_dir.mkdir(parents=True, exist_ok=True)
     capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
-    if mode == "rolling":
+    if mode == "annual":
+        modeled, validation, solved_network = run_annual_no_uc(
+            base_network,
+            observed,
+            oil_gas_budget,
+            solver_name=solver_name,
+            solver_threads=solver_threads,
+            simplex_strategy=simplex_strategy,
+        )
+    elif mode == "rolling":
         modeled, validation, solved_network = run_rolling_year(
             base_network,
             observed,

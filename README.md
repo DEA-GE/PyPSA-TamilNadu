@@ -113,7 +113,7 @@ RESUME = True
 
 | Parameter | How to set it |
 | --- | --- |
-| `RUN_MODE` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, or `rolling`. The modes and their output behavior are described below. |
+| `RUN_MODE` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, `annual`, or `rolling`. The modes and their output behavior are described below. |
 | `REFERENCE_DATE` | Use a date in `YYYY-MM-DD` format within 1 April 2025–31 March 2026. `daily` runs that date; `monthly` runs every day in its month. It is ignored for the other modes. |
 | `WEEK_STARTS` | For `selected_weeks` only, supply one or more first days of seven-day test periods as `YYYY-MM-DD` strings. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
 | `WARMUP_DAYS`, `LOOKAHEAD_DAYS` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
@@ -122,11 +122,11 @@ RESUME = True
 | `RUN_NAME` | Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
 | `SOLVER_NAME` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
 | `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `relaxed` and `none` use parallel simplex when more than one thread is selected. |
-| `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
+| `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
 | `MIP_REL_GAP` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
-| `ROLLING_TIME_LIMIT` | For `rolling` only, set a positive number of seconds per window or `None` for no time limit. It applies to both MIP and LP solves; LP windows must still reach optimality. |
+| `ROLLING_TIME_LIMIT` | For `rolling` only, set a positive number of seconds per window or `None` for no time limit. It applies to both MIP and LP solves; LP windows must still reach optimality. It does not apply to `annual`. |
 | `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
-| `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, or peak runs. Use a new `RUN_NAME` when changing study assumptions. |
+| `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `RUN_NAME` when changing study assumptions. |
 
 ### Run modes and results
 
@@ -136,12 +136,14 @@ RESUME = True
 | `monthly` | Each day in the month of `REFERENCE_DATE`, solved separately | Commitment and storage state do not carry between days. |
 | `peak` | The continuous Monday–Sunday week containing the annual maximum hourly demand | One 168-hour solve. |
 | `selected_weeks` | Each seven-day period in `WEEK_STARTS`, with configured warm-up and look-ahead | Each period is independent; observed reservoir levels constrain its boundaries. |
+| `annual` | All 8,760 hours in one continuous no-unit-commitment LP | No rolling boundaries or look-ahead. Daily and build-defined weekly operating targets remain constraints inside the one model. Requires `UNIT_COMMITMENT = "none"`. |
 | `rolling` | All 8,760 hours in consecutive windows; seven days accepted and one day used for look-ahead | Commitment, dispatch history, and storage state carry between windows. |
 
 Every mode enforces exact daily oil-and-gas and nuclear generation targets and
 writes comparison tables, validation, and a plot. Daily and peak runs also save
 a solved network in their run folder; selected weeks save one network per week,
-and rolling runs save retained checkpoints. Output goes under
+and rolling runs save retained checkpoints. Annual and short continuous runs save
+one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
 date or period and has a `_relaxed_uc` or `_none_uc` suffix when applicable.
 The notebook prints the exact path after each run. No mode introduces equipment
