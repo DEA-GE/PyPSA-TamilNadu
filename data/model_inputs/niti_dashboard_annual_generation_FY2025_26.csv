@@ -1,0 +1,10 @@
+carrier,parameter,generation_mu,generation_gwh,period_start,period_end,source
+coal,Coal - Generation (in MU),65299.01,65299.01,2025-04-01,2026-03-31,NITI Dashboard
+oil_gas,Oil & Gas - Generation (in MU),1244.73,1244.73,2025-04-01,2026-03-31,NITI Dashboard
+nuclear,Nuclear - Generation (in MU),15683.96,15683.96,2025-04-01,2026-03-31,NITI Dashboard
+hydro,Hydro - Generation (in MU),5589.67,5589.67,2025-04-01,2026-03-31,NITI Dashboard
+solar,Solar - Generation (in MU),19690.99,19690.99,2025-04-01,2026-03-31,NITI Dashboard
+wind,Wind - Generation (in MU),24200.81,24200.81,2025-04-01,2026-03-31,NITI Dashboard
+small_hydro,Small-Hydro - Generation (in MU),307.56,307.56,2025-04-01,2026-03-31,NITI Dashboard
+bio_power,Bio Power - Generation (in MU),194.01,194.01,2025-04-01,2026-03-31,NITI Dashboard
+comparable_total,Total,132210.74,132210.74,2025-04-01,2026-03-31,NITI Dashboard

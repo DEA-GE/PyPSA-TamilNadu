@@ -1,0 +1,68 @@
+financial_year,direction,plant_location_state,beneficiary_state,channel,confidence,energy_GWh,signed_GWh
+FY2025-26,export,Tamil Nadu,Andhra Pradesh,ISGS/LTA,verified,1607.5570975000028,-1607.5570975000028
+FY2025-26,export,Tamil Nadu,Bihar,ISGS/LTA,verified,170.3581649999994,-170.3581649999994
+FY2025-26,export,Tamil Nadu,Bihar,TGNA,verified,21.960000000000452,-21.960000000000452
+FY2025-26,export,Tamil Nadu,Chhattisgarh,GNA,verified,0.5040000000000003,-0.5040000000000003
+FY2025-26,export,Tamil Nadu,Chhattisgarh,TGNA,verified,0.3360000000000002,-0.3360000000000002
+FY2025-26,export,Tamil Nadu,Goa,TGNA,verified,25.378192499999532,-25.378192499999532
+FY2025-26,export,Tamil Nadu,Haryana,TGNA,verified,103.8772800000028,-103.8772800000028
+FY2025-26,export,Tamil Nadu,Karnataka,ISGS/LTA,verified,7470.545189999971,-7470.545189999971
+FY2025-26,export,Tamil Nadu,Kerala,ISGS/LTA,verified,3849.068667500021,-3849.068667500021
+FY2025-26,export,Tamil Nadu,Maharashtra,GNA,verified,254.94999999999465,-254.94999999999465
+FY2025-26,export,Tamil Nadu,Punjab,GNA,verified,4.0322125,-4.0322125
+FY2025-26,export,Tamil Nadu,Punjab,TGNA,verified,85.96778749999999,-85.96778749999999
+FY2025-26,export,Tamil Nadu,Rajasthan,GNA,verified,57.34999999999995,-57.34999999999995
+FY2025-26,export,Tamil Nadu,Rajasthan,TGNA,verified,54.25,-54.25
+FY2025-26,export,Tamil Nadu,Telangana,ISGS/LTA,verified,1764.4110024999966,-1764.4110024999966
+FY2025-26,export,Tamil Nadu,Unknown,GNA,probable_not_verified,8.304000000000222,-8.304000000000222
+FY2025-26,export,Tamil Nadu,Uttarakhand,GNA,verified,5.999999999999793,-5.999999999999793
+FY2025-26,export,Tamil Nadu,West Bengal,GNA,verified,1.8524999999999905,-1.8524999999999905
+FY2025-26,export,Tamil Nadu,West Bengal,TGNA,verified,26.30030000000008,-26.30030000000008
+FY2025-26,export,Unknown,Andhra Pradesh,GNA,probable_not_verified,12.504000000000053,-12.504000000000053
+FY2025-26,export,Unknown,Assam,TGNA,probable_not_verified,0.4000000000000001,-0.4000000000000001
+FY2025-26,export,Unknown,Bihar,GNA,probable_not_verified,11.44999999999999,-11.44999999999999
+FY2025-26,export,Unknown,Bihar,TGNA,probable_not_verified,41.0075549999995,-41.0075549999995
+FY2025-26,export,Unknown,Chhattisgarh,GNA,probable_not_verified,1.2500000000000009,-1.2500000000000009
+FY2025-26,export,Unknown,Chhattisgarh,TGNA,probable_not_verified,9.699074999999981,-9.699074999999981
+FY2025-26,export,Unknown,Delhi,GNA,probable_not_verified,0.5249999999999999,-0.5249999999999999
+FY2025-26,export,Unknown,Delhi,TGNA,probable_not_verified,58.15726499999854,-58.15726499999854
+FY2025-26,export,Unknown,Goa,TGNA,probable_not_verified,1.4879999999998916,-1.4879999999998916
+FY2025-26,export,Unknown,Gujarat,GNA,probable_not_verified,30.340999999999962,-30.340999999999962
+FY2025-26,export,Unknown,Gujarat,TGNA,probable_not_verified,17.468000000000433,-17.468000000000433
+FY2025-26,export,Unknown,Haryana,TGNA,probable_not_verified,2.3000000000000007,-2.3000000000000007
+FY2025-26,export,Unknown,Jharkhand,TGNA,probable_not_verified,0.7999999999999998,-0.7999999999999998
+FY2025-26,export,Unknown,Maharashtra,TGNA,probable_not_verified,12.849340000000485,-12.849340000000485
+FY2025-26,export,Unknown,Odisha,GNA,probable_not_verified,1.55,-1.55
+FY2025-26,export,Unknown,Odisha,TGNA,probable_not_verified,2.2979999999999983,-2.2979999999999983
+FY2025-26,export,Unknown,Punjab,GNA,probable_not_verified,5.36099999999996,-5.36099999999996
+FY2025-26,export,Unknown,Punjab,TGNA,probable_not_verified,7.9340000000001325,-7.9340000000001325
+FY2025-26,export,Unknown,Rajasthan,GNA,probable_not_verified,47.5479999999994,-47.5479999999994
+FY2025-26,export,Unknown,Rajasthan,TGNA,probable_not_verified,19.485999999999567,-19.485999999999567
+FY2025-26,export,Unknown,Unknown,DAM,probable_not_verified,2975.779262499995,-2975.779262499995
+FY2025-26,export,Unknown,Unknown,GNA,probable_not_verified,52.85750000000074,-52.85750000000074
+FY2025-26,export,Unknown,Unknown,RTM,probable_not_verified,4259.247732499999,-4259.247732499999
+FY2025-26,export,Unknown,Unknown,TGNA,probable_not_verified,14.838600000000014,-14.838600000000014
+FY2025-26,export,Unknown,Uttar Pradesh,GNA,probable_not_verified,342.68097500000164,-342.68097500000164
+FY2025-26,export,Unknown,Uttar Pradesh,TGNA,probable_not_verified,1.4140000000000028,-1.4140000000000028
+FY2025-26,export,Unknown,Uttarakhand,GNA,probable_not_verified,6.480000000000023,-6.480000000000023
+FY2025-26,export,Unknown,West Bengal,GNA,probable_not_verified,10.689999999999833,-10.689999999999833
+FY2025-26,export,Unknown,West Bengal,TGNA,probable_not_verified,43.34750000000082,-43.34750000000082
+FY2025-26,import,Andhra Pradesh,Tamil Nadu,ISGS/LTA,verified,1259.0301949999969,1259.0301949999969
+FY2025-26,import,Bihar,Tamil Nadu,ISGS/LTA,verified,41.38729250000033,41.38729250000033
+FY2025-26,import,Chhattisgarh,Tamil Nadu,GNA,verified,10807.160342500054,10807.160342500054
+FY2025-26,import,Chhattisgarh,Tamil Nadu,TGNA,verified,1515.710417499981,1515.710417499981
+FY2025-26,import,Gujarat,Tamil Nadu,ISGS/LTA,verified,1283.5775275000065,1283.5775275000065
+FY2025-26,import,Karnataka,Tamil Nadu,ISGS/LTA,verified,1905.0690350000232,1905.0690350000232
+FY2025-26,import,Madhya Pradesh,Tamil Nadu,GNA,verified,10.79999999999992,10.79999999999992
+FY2025-26,import,Madhya Pradesh,Tamil Nadu,TGNA,verified,768.8935075000438,768.8935075000438
+FY2025-26,import,Maharashtra,Tamil Nadu,GNA,verified,1904.9439624999468,1904.9439624999468
+FY2025-26,import,Maharashtra,Tamil Nadu,TGNA,verified,92.64728999999727,92.64728999999727
+FY2025-26,import,Odisha,Tamil Nadu,ISGS/LTA,verified,3427.7247150000057,3427.7247150000057
+FY2025-26,import,Telangana,Tamil Nadu,ISGS/LTA,verified,3784.42127000005,3784.42127000005
+FY2025-26,import,Unknown,Tamil Nadu,DAM,unattributed,2600.1461049999994,2600.1461049999994
+FY2025-26,import,Unknown,Tamil Nadu,GDAM,unattributed,853.6544650000002,853.6544650000002
+FY2025-26,import,Unknown,Tamil Nadu,GNA,unattributed,3256.477424999993,3256.477424999993
+FY2025-26,import,Unknown,Tamil Nadu,REMC/RNW,unattributed,2077.483954999988,2077.483954999988
+FY2025-26,import,Unknown,Tamil Nadu,RTM,unattributed,1847.195317499999,1847.195317499999
+FY2025-26,import,Unknown,Tamil Nadu,TGNA,unattributed,10191.99388499999,10191.99388499999
+FY2025-26,import,West Bengal,Tamil Nadu,ISGS/LTA,verified,964.6138649999921,964.6138649999921

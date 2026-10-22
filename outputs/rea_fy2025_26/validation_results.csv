@@ -1,0 +1,266 @@
+scope,test,actual,expected,tolerance,status,note
+2025-04,composite_Sch_Total_identity:ALL,1.1368683772161613e-15,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-04,station_columns_to_lta:ISGS/LTA,7.51469997339882e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-04,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-04,bilateral_gross_to_composite_net:GNA,75.04075749999629,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-04,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=5,403,594.552500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-04,bilateral_gross_to_composite_net:TGNA,104.32965750046833,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-04,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,286,044.952500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-04,REMC_detail_to_composite_net:REMC/RNW,3.980527499996441,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-04,coverage:STATE_COMPOSITE:Tamil Nadu,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-04,coverage:PX_TAMIL_NADU,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-04,coverage:BILATERAL:import,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-04,coverage:BILATERAL:export,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-04,coverage:ISGS_STATION_WIDE,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-04,coverage:REMC_RNW,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-05,composite_Sch_Total_identity:ALL,3.035438567167148e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-05,station_columns_to_lta:ISGS/LTA,1.0027179087046534e-13,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-05,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-05,bilateral_gross_to_composite_net:GNA,65.00727749974862,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-05,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=5,397,086.935000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-05,bilateral_gross_to_composite_net:TGNA,76.3988150011046,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-05,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=3,377,130.740000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-05,REMC_detail_to_composite_net:REMC/RNW,5.813234999992289,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-05,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-05,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-05,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-05,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-05,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-05,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-06,composite_Sch_Total_identity:ALL,-3.5628833217060673e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-06,station_columns_to_lta:ISGS/LTA,7.09405867382884e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-06,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-06,bilateral_gross_to_composite_net:GNA,59.78010499988159,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-06,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,827,330.142500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-06,bilateral_gross_to_composite_net:TGNA,13.33232500002643,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-06,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=2,223,362.705000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-06,REMC_detail_to_composite_net:REMC/RNW,0.6606100000013555,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-06,coverage:STATE_COMPOSITE:Tamil Nadu,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-06,coverage:PX_TAMIL_NADU,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-06,coverage:BILATERAL:import,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-06,coverage:BILATERAL:export,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-06,coverage:ISGS_STATION_WIDE,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-06,coverage:REMC_RNW,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-07,composite_Sch_Total_identity:ALL,-2.4544810628412965e-15,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-07,station_columns_to_lta:ISGS/LTA,-1.4551915228366852e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-07,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-07,bilateral_gross_to_composite_net:GNA,73.2402200001884,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-07,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,929,311.812500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-07,bilateral_gross_to_composite_net:TGNA,20.744892499984303,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-07,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=2,836,540.760000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-07,REMC_detail_to_composite_net:REMC/RNW,2.0008850000023983,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-07,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-07,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-07,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-07,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-07,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-07,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,composite_Sch_Total_identity:ALL,-7.452302663857324e-15,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-08,station_columns_to_lta:ISGS/LTA,5.468336894409731e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-08,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-08,bilateral_gross_to_composite_net:GNA,63.13144499996338,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-08,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,476,894.802500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-08,bilateral_gross_to_composite_net:TGNA,14.792452499945568,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-08,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=1,437,079.245000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-08,REMC_detail_to_composite_net:REMC/RNW,2.395037500002161,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-08,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-08,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-09,composite_Sch_Total_identity:ALL,4.71467309637319e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-09,station_columns_to_lta:ISGS/LTA,4.348521542851813e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-09,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-09,bilateral_gross_to_composite_net:GNA,63.852450000029876,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-09,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=5,183,556.480000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-09,bilateral_gross_to_composite_net:TGNA,17.987602500002993,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-09,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=1,691,675.655000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-09,REMC_detail_to_composite_net:REMC/RNW,0.6022474999999474,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-09,coverage:STATE_COMPOSITE:Tamil Nadu,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-09,coverage:PX_TAMIL_NADU,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-09,coverage:BILATERAL:import,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-09,coverage:BILATERAL:export,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-09,coverage:ISGS_STATION_WIDE,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-09,coverage:REMC_RNW,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-10,composite_Sch_Total_identity:ALL,-5.822720083870082e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-10,station_columns_to_lta:ISGS/LTA,-3.092281986027956e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-10,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-10,bilateral_gross_to_composite_net:GNA,76.61163500040061,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-10,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,438,609.220000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-10,bilateral_gross_to_composite_net:TGNA,12.125094999991404,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-10,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=498,514.085000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-10,REMC_detail_to_composite_net:REMC/RNW,1.7285125000034895,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-10,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-10,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-10,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-10,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-10,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-10,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-11,composite_Sch_Total_identity:ALL,2.0463630789890885e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-11,station_columns_to_lta:ISGS/LTA,-4.615685611497611e-14,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-11,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-11,bilateral_gross_to_composite_net:GNA,78.26763500000129,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-11,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,513,074.212500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-11,bilateral_gross_to_composite_net:TGNA,21.47054750000882,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-11,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=819,246.915000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-11,REMC_detail_to_composite_net:REMC/RNW,2.775367499998822,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-11,coverage:STATE_COMPOSITE:Tamil Nadu,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-11,coverage:PX_TAMIL_NADU,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-11,coverage:BILATERAL:import,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-11,coverage:BILATERAL:export,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-11,coverage:ISGS_STATION_WIDE,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-11,coverage:REMC_RNW,2880.0,2880.0,0.0,PASS,15-minute timestamp coverage
+2025-12,composite_Sch_Total_identity:ALL,-4.592948243953288e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-12,station_columns_to_lta:ISGS/LTA,-1.9088020053459332e-13,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-12,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2025-12,bilateral_gross_to_composite_net:GNA,73.65017000010585,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-12,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,201,024.025000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-12,bilateral_gross_to_composite_net:TGNA,34.65778499999931,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-12,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=985,178.010000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-12,REMC_detail_to_composite_net:REMC/RNW,2.7173749999982135,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-12,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-12,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-12,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-12,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-12,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2025-12,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,composite_Sch_Total_identity:ALL,-1.4566126083082053e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-01,station_columns_to_lta:ISGS/LTA,-1.1709744285326451e-13,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-01,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-01,bilateral_gross_to_composite_net:GNA,92.69657000004963,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-01,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,748,854.940000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-01,bilateral_gross_to_composite_net:TGNA,30.57645000001071,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-01,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=1,134,162.145000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-01,REMC_detail_to_composite_net:REMC/RNW,0.9044225000006918,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-01,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-01,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-02,composite_Sch_Total_identity:ALL,-3.132072379230522e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-02,station_columns_to_lta:ISGS/LTA,-1.7416823538951576e-13,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-02,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-02,bilateral_gross_to_composite_net:GNA,78.7910250003406,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-02,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=5,250,519.282500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-02,bilateral_gross_to_composite_net:TGNA,51.636175000052845,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-02,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=2,063,272.442500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-02,REMC_detail_to_composite_net:REMC/RNW,0.39391250000021216,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-02,coverage:STATE_COMPOSITE:Tamil Nadu,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-02,coverage:PX_TAMIL_NADU,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-02,coverage:BILATERAL:import,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-02,coverage:BILATERAL:export,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-02,coverage:ISGS_STATION_WIDE,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-02,coverage:REMC_RNW,2688.0,2688.0,0.0,PASS,15-minute timestamp coverage
+2026-03,composite_Sch_Total_identity:ALL,2.955857780762017e-14,0.0,0.01,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-03,station_columns_to_lta:ISGS/LTA,-8.753886504564434e-15,0.0,0.01,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-03,PX_detail_to_composite:DAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:DAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:RTM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:RTM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:GDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:GDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:HPDAM:import,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite:HPDAM:export,0.0,0.0,0.01,PASS,PX detail disaggregates the same composite market position
+2026-03,bilateral_gross_to_composite_net:GNA,85.71780000017543,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-03,bilateral_detail_to_rea_application_aggregate:GNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=5,534,231.992500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-03,bilateral_gross_to_composite_net:TGNA,103.2297875012091,0.0,0.01,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-03,bilateral_detail_to_rea_application_aggregate:TGNA,,0.0,0.01,REFERENCE_ONLY,"rea.csv raw aggregate=4,174,201.592500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-03,REMC_detail_to_composite_net:REMC/RNW,0.8381925000007868,0.0,0.01,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-03,coverage:STATE_COMPOSITE:Tamil Nadu,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,coverage:PX_TAMIL_NADU,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,coverage:BILATERAL:import,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,coverage:BILATERAL:export,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,coverage:ISGS_STATION_WIDE,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,coverage:REMC_RNW,2976.0,2976.0,0.0,PASS,15-minute timestamp coverage
+2026-03,March_regression:Sch_Total,7167.7364175,7167.736,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:lta,3585.0613425,3585.061,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:GNA_net,1923.1895075000002,1923.19,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:TGNA_net,2303.84196,2303.842,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:REMC_net,145.2774,145.277,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:loss,-138.54029500000001,-138.54,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:DAM_net,-148.97695000000002,-148.977,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:RTM_net,-570.3844225,-570.384,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:GDAM_net,68.26787499999999,68.268,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:HPDAM_net,0.0,0.0,0.02,PASS,Instruction-document value used only as a regression check
+2026-03,March_regression:tneb_imp_gross,4448.091055001386,4448.091,0.05,PASS,Gross sch control; intentionally not forced to composite net
+2026-03,March_regression:tneb_exp_gross,32.11200000000138,32.112,0.05,PASS,Gross sch control; intentionally not forced to composite net
+FY2025-26,expected_selected_slots,35040,35040.0,0.0,PASS,calendar days × 96 blocks

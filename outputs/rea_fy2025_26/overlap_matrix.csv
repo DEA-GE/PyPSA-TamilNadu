@@ -1,0 +1,8 @@
+parent_family,child_family,relationship,additive_together,accepted_representation,evidence_test
+STATE_COMPOSITE_SCHEDULE,STATE_COMPOSITE_SCHEDULE.station_columns,station columns sum to lta,False,station columns,block-level station sum minus lta
+STATE_COMPOSITE_SCHEDULE.market_columns,PX_STATE_DETAIL,same state-level DAM/RTM/GDAM/HPDAM positions,False,PX_STATE_DETAIL,block-level product/direction identity
+STATE_COMPOSITE_SCHEDULE.GNA_TGNA,GNA_TGNA_STATE_VIEW,net composite vs gross application schedules at different boundaries,False,GNA_TGNA_STATE_VIEW,monthly gross/net/loss residual
+GNA_TGNA_APPLICATION_AGGREGATE,GNA_TGNA_STATE_VIEW,application aggregate vs 15-minute state perspective,False,GNA_TGNA_STATE_VIEW,application-id crosswalk and monthly energy
+ISGS_STATION_WIDE,STATE_COMPOSITE_SCHEDULE.station_columns,station total vs beneficiary allocations,False,beneficiary station columns,station/day/month allocation residual
+PX_STATE_DETAIL,PX_GENERATOR_SALE_ATTRIBUTION,pooled state market positions vs generator sale evidence,False,PX_STATE_DETAIL; generator rows attribution-only,reported as unresolved buyer/seller matching
+STATE_COMPOSITE_SCHEDULE.REMC,REMC_TRANSACTION_DETAIL/RNW_TRANSACTION_DETAIL,renewable net parent vs transaction details,False,deduplicated transaction detail,application/block dedup and monthly net residual

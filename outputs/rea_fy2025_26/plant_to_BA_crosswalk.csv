@@ -1,0 +1,20 @@
+generator_id,generator_name,plant_location_state,plant_district,longitude,latitude,tn_BA,mapping_method,mapping_evidence
+arkayenergytn,ARKAY Energy Ltd,Tamil Nadu,Theni,,,Madurai,plant point-in-polygon,Prayas TN Records row 7003 / source CSV row 13633: M/s. ARKAY Energy Ltd; Theni
+coastgen,Coastal Energen Pvt Ltd,Tamil Nadu,Thoothukudi,,,Tirunelveli,verified district-to-BA mapping,"Coastal Energen: Melamaruthur, Thoothukudi, Tamil Nadu"
+eidparrypugalur,EID Parry India Ltd Pugalur,Tamil Nadu,Karur,,,Trichy,plant point-in-polygon,PlantInfo row 232: EID Parry India Ltd. Tamil Nadu Karur; Karur
+ilfs,IL&FS Tamil Nadu Power Company Ltd,Tamil Nadu,Cuddalore,,,Villupuram,verified district-to-BA mapping,"IL&FS Tamil Nadu Power Company: Cuddalore, Tamil Nadu"
+kamachiltdtn,Kamachi Steels Ltd,Tamil Nadu,Tirunelveli,,,Tirunelveli,plant point-in-polygon,Prayas TN Records row 2298 / source CSV row 8928: KAMACHI STEELS LTD.; Tirunelveli
+kknpp,Kudankulam Nuclear Power Project I,Tamil Nadu,Tirunelveli,77.712,8.169,Tirunelveli,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+kknppu2,Kudankulam Nuclear Power Project II,Tamil Nadu,Tirunelveli,77.712,8.169,Tirunelveli,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+maps,Madras Atomic Power Station,Tamil Nadu,Chengalpattu,80.175,12.557,Chennai South,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+nlc21,Neyveli TPS II Stage I,Tamil Nadu,Cuddalore,79.4757,11.5927,Villupuram,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+nlc22,Neyveli TPS II Stage II,Tamil Nadu,Cuddalore,79.4757,11.5927,Villupuram,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+nlc2exp,Neyveli TPS II Expansion,Tamil Nadu,Cuddalore,79.4416,11.5576,Villupuram,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+nlcexp,Neyveli TPS I Expansion,Tamil Nadu,Cuddalore,79.4476,11.5927,Villupuram,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+nntpp,Neyveli New Thermal Power Project,Tamil Nadu,Cuddalore,79.5014,11.5486,Villupuram,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+ntpl,NLC Tamil Nadu Power Ltd Tuticorin,Tamil Nadu,Thoothukudi,78.1711,8.7604,Tirunelveli,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry
+opgpgplu2tn,OPG Power Generation Private Ltd Unit 2,Tamil Nadu,Thiruvallur,,,Chennai North,plant point-in-polygon,PlantInfo row 45: OPG Power Generation Private Ltd.; Thiruvallur
+opgpgplu4tn,OPG Power Generation Private Ltd Unit 4,Tamil Nadu,Thiruvallur,,,Chennai North,plant point-in-polygon,PlantInfo row 45: OPG Power Generation Private Ltd.; Thiruvallur
+opgpgunit1tn,OPG Power Generation Private Ltd Unit 1,Tamil Nadu,Thiruvallur,,,Chennai North,plant point-in-polygon,PlantInfo row 45: OPG Power Generation Private Ltd.; Thiruvallur
+tulsyannecltd,Tulsyan NEC Limited,Tamil Nadu,Thiruvallur,,,Chennai North,plant point-in-polygon,PlantInfo row 50: Tulsyan NEC Limited; Thiruvallur
+vallur,NTECL Vallur STPS,Tamil Nadu,Thiruvallur,80.278,13.257,Chennai North,plant point-in-polygon,TamilNadu_9BAs.gpkg; data/model_inputs/Balancing_areas.txt; project plant registry

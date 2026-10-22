@@ -1,0 +1,10 @@
+category,direction,ledger_scope,energy_GWh,row_groups,interpretation
+verified,import,approved,27765.979420000098,267,approved energy; geography confidence category
+verified,export,approved,15504.698394999985,506,approved energy; geography confidence category
+probable_not_verified,import,approved,0.0,0,approved energy; geography confidence category
+probable_not_verified,export,approved,8000.0558049999945,132,approved energy; geography confidence category
+unattributed,import,approved,20826.95115249997,903,approved energy; geography confidence category
+unattributed,export,approved,0.0,0,approved energy; geography confidence category
+potential_overlap,not additive,excluded/unresolved,1462.7216200000098,24,not included in approved totals
+missing_source_coverage,not additive,excluded/unresolved,0.0,0,not included in approved totals
+source_parse_error,not additive,excluded/unresolved,0.0,0,not included in approved totals

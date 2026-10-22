@@ -50,6 +50,7 @@ class AnalysisBundle:
 def analyze_run(
     run: AnalysisRun,
     observed_daily: pd.DataFrame | None = None,
+    observed_monthly: pd.DataFrame | None = None,
     observed_annual: pd.DataFrame | None = None,
     observed_capacity: pd.DataFrame | None = None,
 ) -> AnalysisBundle:
@@ -95,7 +96,9 @@ def analyze_run(
     if run.run_type == "rolling" or len(run.networks) > 1:
         tables["boundary_handoffs"] = boundary_handoff_metrics(run)
     if len(run.snapshots) >= 28 * 24:
-        tables["monthly_generation"] = monthly_generation_comparison(run, observed_daily)
+        tables["monthly_generation"] = monthly_generation_comparison(
+            run, observed_daily, observed_monthly
+        )
         monthly_seasonality = monthly_resource_seasonality(run, observed_daily)
         tables["monthly_resource_seasonality"] = monthly_seasonality
         tables["seasonality_summary"] = seasonality_summary(monthly_seasonality)

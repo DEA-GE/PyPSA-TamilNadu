@@ -33,6 +33,7 @@ from run_9ba_weekly_days_2025_26 import (
     SUMMARY_CATEGORIES,
     read_observed_annual_generation,
     read_observed_generation,
+    read_niti_observed_daily_generation,
     read_oil_gas_budget,
     solve_day,
 )
@@ -1295,7 +1296,7 @@ def _write_outputs(
 
     annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
     annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
-    uses_outlook_annual = dates.equals(pd.date_range(annual_start, annual_end, freq="D"))
+    uses_annual_benchmark = dates.equals(pd.date_range(annual_start, annual_end, freq="D"))
 
     comparison_rows = []
     for carrier in COMPARISON_CATEGORIES:
@@ -1317,7 +1318,25 @@ def _write_outputs(
     summary_rows = []
     for carrier in SUMMARY_CATEGORIES:
         modeled_total = float(modeled_period[carrier].sum())
-        if uses_outlook_annual and carrier in observed_annual.index:
+        if uses_annual_benchmark and carrier == "comparable_total":
+            # The NITI Dashboard Total includes the separately reported small
+            # hydro and bio-power rows. Daily source totals omit those rows,
+            # so retain the daily six-technology total everywhere else.
+            modeled_total = float(
+                modeled_period[
+                    [
+                        "coal",
+                        "oil_gas",
+                        "nuclear",
+                        "hydro",
+                        "solar",
+                        "wind",
+                        "small_hydro",
+                        "bio_power",
+                    ]
+                ].sum().sum()
+            )
+        if uses_annual_benchmark and carrier in observed_annual.index:
             observed_total = float(observed_annual.at[carrier, "generation_gwh"])
             observed_source = str(observed_annual.at[carrier, "source"])
             observed_period_label = f"{annual_start.date()} to {annual_end.date()}"
@@ -1501,6 +1520,7 @@ def run_selection(
         label = f"{label}_{unit_commitment}_uc"
 
     observed = read_observed_generation()
+    comparison_observed = read_niti_observed_daily_generation()
     observed_annual = read_observed_annual_generation()
     oil_gas_budget = read_oil_gas_budget(observed)
     missing_observed = dates.difference(observed.index)
@@ -1584,7 +1604,7 @@ def run_selection(
         mode,
         dates,
         modeled,
-        observed,
+        comparison_observed,
         observed_annual,
         validation,
         output_dir,

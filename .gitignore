@@ -23,3 +23,17 @@ results/*
 
 # Generated model profiles
 /model/TamilNadu9BAs_profiles_2025_2026/
+# Raw NITI Dashboard exports are consolidated into the tracked FY2025-26 inputs.
+/data/source/NITI dashboard/Daily generation Tamil Nadu/Generation_Metatable_Data_*.csv
+/data/source/NITI dashboard/monhtly generation tamil nadu/Generation_Metatable_Data_*.csv
+
+# REA source archives are large raw inputs and should not be committed.
+/data/source/REA data/*.zip
+
+# REA scratch partitions and large row-level intermediates are reproducible.
+/outputs/rea_fy2025_26/_parts/
+/outputs/rea_fy2025_26/*.parquet
+/outputs/rea_fy2025_26/raw_to_canonical_crosswalk.csv
+
+# Linked worktrees are local development state, never repository content.
+/.worktrees/

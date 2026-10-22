@@ -1,0 +1,11 @@
+financial_year,tn_BA,export_load_increase_GWh,import_supply_adjustment_GWh,export_adjustment_sign,import_adjustment_sign,mapping_status,profile_status
+FY2025-26,Chennai North,2756.160192500002,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,Chennai South,267.2844350000002,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,Coimbatore,0.0,-0.0,positive Load,negative fixed Load / exogenous supply,no evidenced adjustment,annual only; no hourly profile invented
+FY2025-26,Erode,0.0,-0.0,positive Load,negative fixed Load / exogenous supply,no evidenced adjustment,annual only; no hourly profile invented
+FY2025-26,Madurai,3.750000000000037,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,Tirunelveli,7673.051874999981,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,Trichy,10.151999999999632,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,Vellore,0.0,-0.0,positive Load,negative fixed Load / exogenous supply,no evidenced adjustment,annual only; no hourly profile invented
+FY2025-26,Villupuram,4802.603892500005,-0.0,positive Load,negative fixed Load / exogenous supply,verified plant point or documented district mapping,annual only; no hourly profile invented
+FY2025-26,UNALLOCATED_TN,7991.751804999994,-48592.93057250007,positive Load if/when origin BA is evidenced,negative fixed Load / exogenous supply if/when receiving BA is evidenced,not allocated; source archives do not establish a nine-BA node,annual only; no hourly profile invented

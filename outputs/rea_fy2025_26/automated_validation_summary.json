@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "checks": {
+    "all_12_months_present": true,
+    "coverage_has_72_critical_rows": true,
+    "all_critical_coverage_passes": true,
+    "no_validation_failures": true,
+    "all_12_march_regressions_pass": true,
+    "no_source_parse_errors": true,
+    "canonical_rows_partition": true,
+    "monthly_annual_import_conservation": true,
+    "monthly_annual_export_conservation": true,
+    "import_sign_positive": true,
+    "export_sign_negative": true,
+    "verified_tn_exports_have_ba": true
+  },
+  "parquet_rows": {
+    "canonical_schedules.parquet": 3780893,
+    "deduplicated_ledger.parquet": 3142811,
+    "excluded_ledger_rows.parquet": 638082
+  },
+  "approved_energy_GWh": {
+    "export": 23504.75419999998,
+    "import": 48592.93057250007
+  },
+  "duplicate_report_rows": 0,
+  "coverage_status_counts": {
+    "PASS": 72
+  },
+  "validation_status_counts": {
+    "PASS": 205,
+    "EXPLAIN": 36,
+    "REFERENCE_ONLY": 24
+  },
+  "unresolved_by_category": [
+    {
+      "category": "potential_overlap",
+      "rows": 24,
+      "energy_GWh": 1462.7216200000096
+    },
+    {
+      "category": "probable_not_verified",
+      "rows": 94,
+      "energy_GWh": 8000.055805
+    },
+    {
+      "category": "unattributed",
+      "rows": 144,
+      "energy_GWh": 20826.9511525
+    }
+  ]
+}

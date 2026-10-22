@@ -230,17 +230,19 @@ at rolling boundaries; absent monthly data create no rolling target.
 
 ## Observed generation and network geography
 
-`data/model_inputs/tamil_nadu_outlook_annual_generation_FY2025_26.csv`
-contains the authoritative FY2025-26 annual historical generation totals from
-the Tamil Nadu Outlook. Standardized full-year result analysis uses these
-values for its annual `generation_comparison` table. Because the Outlook
-values contain no daily chronology, monthly and partial-period comparisons
-continue to use the daily generation workbook described below.
+`data/model_inputs/niti_dashboard_annual_generation_FY2025_26.csv` contains
+the authoritative FY2025-26 annual historical generation totals supplied from
+the NITI Dashboard. Standardized full-year result analysis and full-year run
+summaries use these values for annual `generation_comparison` tables. Because
+the NITI Dashboard totals contain no daily chronology, monthly and
+partial-period comparisons continue to use the daily generation workbook
+described below.
 
-The Outlook values are reported in MU, where 1 MU = 1 GWh, so the CSV stores
-the same numeric values in its `generation_gwh` column. Small hydro and bio-
-power are aggregated into the `other_res` comparison category, and
-`comparable_total` uses the supplied Outlook total.
+The NITI Dashboard values are reported in MU, where 1 MU = 1 GWh, so the CSV
+stores the same numeric values in `generation_mu` and `generation_gwh`. Annual
+comparisons retain the separate small-hydro (307.56 GWh) and bio-power (194.01
+GWh) rows; `comparable_total` is the supplied and reconciled NITI total of
+132,210.74 GWh.
 
 `data/model_inputs/tamil_nadu_outlook_installed_capacity.json` contains the
 Outlook's historical installed-capacity categories and shares, including

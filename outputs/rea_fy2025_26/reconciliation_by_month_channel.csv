@@ -1,0 +1,181 @@
+month,test,channel,detail_import_GWh,detail_export_GWh,detail_net_GWh,control_total_GWh,residual_GWh,max_abs_block_residual_MW,status,note
+2025-04,PX_detail_to_composite,DAM:import,178.66961999999936,0.0,178.66961999999936,178.66961999999936,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,DAM:export,0.0,30.82119250000011,-30.82119250000011,30.82119250000011,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,RTM:import,98.67102250000028,0.0,98.67102250000028,98.67102250000028,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,RTM:export,0.0,460.22991500000217,-460.22991500000217,460.22991500000217,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,GDAM:import,79.44595249999925,0.0,79.44595249999925,79.44595249999925,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-04,REMC_detail_to_composite_net,REMC/RNW,205.53141749999642,0.0,205.53141749999642,201.55088999999998,3.980527499996441,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-04,bilateral_detail_to_rea_application_aggregate,GNA,1984.0845874999973,12.670000000000904,1971.4145874999963,,,,REFERENCE_ONLY,"rea.csv raw aggregate=5,403,594.552500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-04,bilateral_detail_to_rea_application_aggregate,TGNA,2652.1331100004622,45.4877999999936,2606.6453100004687,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,286,044.952500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-04,bilateral_gross_to_composite_net,GNA,1984.0845874999973,12.670000000000904,1971.4145874999963,1896.37383,75.04075749999629,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-04,bilateral_gross_to_composite_net,TGNA,2652.1331100004622,45.4877999999936,2606.6453100004687,2502.3156525000004,104.32965750046833,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-04,composite_Sch_Total_identity,ALL,,,,7589.067915,1.1368683772161613e-15,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-04,station_columns_to_lta,ISGS/LTA,,,,3227.5350200000003,7.51469997339882e-14,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-05,PX_detail_to_composite,DAM:import,212.83548000000002,0.0,212.83548000000002,212.83548000000002,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,DAM:export,0.0,160.83247750000024,-160.83247750000024,160.83247750000024,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,RTM:import,90.69199999999987,0.0,90.69199999999987,90.69199999999987,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,RTM:export,0.0,633.8603624999956,-633.8603624999956,633.8603624999956,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,GDAM:import,69.30454999999994,0.0,69.30454999999994,69.30454999999994,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-05,REMC_detail_to_composite_net,REMC/RNW,272.02679999999225,0.0,272.02679999999225,266.21356499999996,5.813234999992289,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-05,bilateral_detail_to_rea_application_aggregate,GNA,1847.1291224997487,7.434000000000065,1839.6951224997488,,,,REFERENCE_ONLY,"rea.csv raw aggregate=5,397,086.935000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-05,bilateral_detail_to_rea_application_aggregate,TGNA,2058.4666550010907,85.41199999998568,1973.054655001105,,,,REFERENCE_ONLY,"rea.csv raw aggregate=3,377,130.740000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-05,bilateral_gross_to_composite_net,GNA,1847.1291224997487,7.434000000000065,1839.6951224997488,1774.6878450000002,65.00727749974862,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-05,bilateral_gross_to_composite_net,TGNA,2058.4666550010907,85.41199999998568,1973.054655001105,1896.6558400000004,76.3988150011046,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-05,composite_Sch_Total_identity,ALL,,,,6403.351275,3.035438567167148e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-05,station_columns_to_lta,ISGS/LTA,,,,2977.901215,1.0027179087046534e-13,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-06,PX_detail_to_composite,DAM:import,181.08369250000084,0.0,181.08369250000084,181.08369250000084,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,DAM:export,0.0,370.8765774999994,-370.8765774999994,370.8765774999994,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,RTM:import,114.33864500000034,0.0,114.33864500000034,114.33864500000034,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,RTM:export,0.0,340.65490249999885,-340.65490249999885,340.65490249999885,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,GDAM:import,51.44400499999994,0.0,51.44400499999994,51.44400499999994,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-06,REMC_detail_to_composite_net,REMC/RNW,139.21174750000134,0.0,139.21174750000134,138.55113749999998,0.6606100000013555,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-06,bilateral_detail_to_rea_application_aggregate,GNA,1766.6926874998824,47.255712500000676,1719.4369749998816,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,827,330.142500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-06,bilateral_detail_to_rea_application_aggregate,TGNA,393.17656249999834,247.40468749997189,145.77187500002645,,,,REFERENCE_ONLY,"rea.csv raw aggregate=2,223,362.705000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-06,bilateral_gross_to_composite_net,GNA,1766.6926874998824,47.255712500000676,1719.4369749998816,1659.65687,59.78010499988159,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-06,bilateral_gross_to_composite_net,TGNA,393.17656249999834,247.40468749997189,145.77187500002645,132.43955000000003,13.33232500002643,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-06,composite_Sch_Total_identity,ALL,,,,4559.8275025,-3.5628833217060673e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-06,station_columns_to_lta,ISGS/LTA,,,,3082.871145,7.09405867382884e-14,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-07,PX_detail_to_composite,DAM:import,181.81177249999982,0.0,181.81177249999982,181.81177249999982,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,DAM:export,0.0,343.73772499999967,-343.73772499999967,343.73772499999967,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,RTM:import,240.90832500000036,0.0,240.90832500000036,240.90832500000036,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,RTM:export,0.0,249.95375000000175,-249.95375000000175,249.95375000000175,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,GDAM:import,45.48536749999986,0.0,45.48536749999986,45.48536749999986,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-07,REMC_detail_to_composite_net,REMC/RNW,170.58484250000242,0.0,170.58484250000242,168.58395750000003,2.0008850000023983,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-07,bilateral_detail_to_rea_application_aggregate,GNA,1925.791585000181,227.18599999999248,1698.6055850001885,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,929,311.812500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-07,bilateral_detail_to_rea_application_aggregate,TGNA,547.0699799999826,91.8467999999983,455.22317999998427,,,,REFERENCE_ONLY,"rea.csv raw aggregate=2,836,540.760000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-07,bilateral_gross_to_composite_net,GNA,1925.791585000181,227.18599999999248,1698.6055850001885,1625.365365,73.2402200001884,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-07,bilateral_gross_to_composite_net,TGNA,547.0699799999826,91.8467999999983,455.22317999998427,434.47828749999996,20.744892499984303,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-07,composite_Sch_Total_identity,ALL,,,,4768.750492499999,-2.4544810628412965e-15,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-07,station_columns_to_lta,ISGS/LTA,,,,2757.861225,-1.4551915228366852e-14,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-08,PX_detail_to_composite,DAM:import,215.22444999999973,0.0,215.22444999999973,215.22444999999973,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,DAM:export,0.0,398.95332999999647,-398.95332999999647,398.95332999999647,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,RTM:import,216.69811499999952,0.0,216.69811499999952,216.69811499999952,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,RTM:export,0.0,296.39052250000015,-296.39052250000015,296.39052250000015,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,GDAM:import,56.664319999999925,0.0,56.664319999999925,56.664319999999925,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-08,REMC_detail_to_composite_net,REMC/RNW,191.04040250000216,0.0,191.04040250000216,188.645365,2.395037500002161,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-08,bilateral_detail_to_rea_application_aggregate,GNA,1692.9480499999527,209.65929999998903,1483.2887499999636,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,476,894.802500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-08,bilateral_detail_to_rea_application_aggregate,TGNA,389.20663499994754,28.720267500001967,360.4863674999456,,,,REFERENCE_ONLY,"rea.csv raw aggregate=1,437,079.245000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-08,bilateral_gross_to_composite_net,GNA,1692.9480499999527,209.65929999998903,1483.2887499999636,1420.1573050000002,63.13144499996338,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-08,bilateral_gross_to_composite_net,TGNA,389.20663499994754,28.720267500001967,360.4863674999456,345.693915,14.792452499945568,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-08,composite_Sch_Total_identity,ALL,,,,4351.52432,-7.452302663857324e-15,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-08,station_columns_to_lta,ISGS/LTA,,,,2689.032565,5.468336894409731e-14,1.3642420526593924e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-09,PX_detail_to_composite,DAM:import,197.76060000000018,0.0,197.76060000000018,197.76060000000018,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,DAM:export,0.0,369.5982725000014,-369.5982725000014,369.5982725000014,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,RTM:import,136.89940499999992,0.0,136.89940499999992,136.89940499999992,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,RTM:export,0.0,281.65612500000225,-281.65612500000225,281.65612500000225,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,GDAM:import,62.8455725,0.0,62.8455725,62.8455725,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-09,REMC_detail_to_composite_net,REMC/RNW,151.09522749999994,0.0,151.09522749999994,150.49298,0.6022474999999474,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-09,bilateral_detail_to_rea_application_aggregate,GNA,1860.5370550000102,201.35242499998034,1659.18463000003,,,,REFERENCE_ONLY,"rea.csv raw aggregate=5,183,556.480000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-09,bilateral_detail_to_rea_application_aggregate,TGNA,528.2949775000028,17.621999999999794,510.672977500003,,,,REFERENCE_ONLY,"rea.csv raw aggregate=1,691,675.655000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-09,bilateral_gross_to_composite_net,GNA,1860.5370550000102,201.35242499998034,1659.18463000003,1595.33218,63.852450000029876,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-09,bilateral_gross_to_composite_net,TGNA,528.2949775000028,17.621999999999794,510.672977500003,492.685375,17.987602500002993,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-09,composite_Sch_Total_identity,ALL,,,,4516.1040475,4.71467309637319e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-09,station_columns_to_lta,ISGS/LTA,,,,2607.5428125,4.348521542851813e-14,9.094947017729282e-13,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-10,PX_detail_to_composite,DAM:import,230.52908499999978,0.0,230.52908499999978,230.52908499999978,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,DAM:export,0.0,271.2575624999981,-271.2575624999981,271.2575624999981,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,RTM:import,224.70624499999983,0.0,224.70624499999983,224.70624499999983,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,RTM:export,0.0,248.1808575000004,-248.1808575000004,248.1808575000004,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,GDAM:import,92.1825074999999,0.0,92.1825074999999,92.1825074999999,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-10,REMC_detail_to_composite_net,REMC/RNW,188.5512100000035,0.0,188.5512100000035,186.8226975,1.7285125000034895,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-10,bilateral_detail_to_rea_application_aggregate,GNA,2093.8926350004026,67.71500000000229,2026.1776350004004,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,438,609.220000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-10,bilateral_detail_to_rea_application_aggregate,TGNA,328.8574974999912,4.251999999999754,324.60549749999143,,,,REFERENCE_ONLY,"rea.csv raw aggregate=498,514.085000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-10,bilateral_gross_to_composite_net,GNA,2093.8926350004026,67.71500000000229,2026.1776350004004,1949.5659999999998,76.61163500040061,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-10,bilateral_gross_to_composite_net,TGNA,328.8574974999912,4.251999999999754,324.60549749999143,312.4804025,12.125094999991404,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-10,composite_Sch_Total_identity,ALL,,,,5441.7941875,-5.822720083870082e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-10,station_columns_to_lta,ISGS/LTA,,,,3063.24709,-3.092281986027956e-14,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-11,PX_detail_to_composite,DAM:import,327.18733249999946,0.0,327.18733249999946,327.18733249999946,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,DAM:export,0.0,110.24571999999965,-110.24571999999965,110.24571999999965,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,RTM:import,188.4541725000008,0.0,188.4541725000008,188.4541725000008,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,RTM:export,0.0,133.89860500000134,-133.89860500000134,133.89860500000134,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,GDAM:import,90.83366999999988,0.0,90.83366999999988,90.83366999999988,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-11,REMC_detail_to_composite_net,REMC/RNW,204.15802499999882,0.0,204.15802499999882,201.3826575,2.775367499998822,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-11,bilateral_detail_to_rea_application_aggregate,GNA,2013.1295325000008,11.624999999999607,2001.5045325000012,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,513,074.212500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-11,bilateral_detail_to_rea_application_aggregate,TGNA,548.2596375000088,0.0,548.2596375000088,,,,REFERENCE_ONLY,"rea.csv raw aggregate=819,246.915000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-11,bilateral_gross_to_composite_net,GNA,2013.1295325000008,11.624999999999607,2001.5045325000012,1923.2368975,78.26763500000129,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-11,bilateral_gross_to_composite_net,TGNA,548.2596375000088,0.0,548.2596375000088,526.78909,21.47054750000882,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-11,composite_Sch_Total_identity,ALL,,,,5993.6503925,2.0463630789890885e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-11,station_columns_to_lta,ISGS/LTA,,,,3085.9285175,-4.615685611497611e-14,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2025-12,PX_detail_to_composite,DAM:import,296.47398999999933,0.0,296.47398999999933,296.47398999999933,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,DAM:export,0.0,79.00138500000136,-79.00138500000136,79.00138500000136,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,RTM:import,236.4958375000002,0.0,236.4958375000002,236.4958375000002,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,RTM:export,0.0,130.80748249999942,-130.80748249999942,130.80748249999942,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,GDAM:import,80.22543999999999,0.0,80.22543999999999,80.22543999999999,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2025-12,REMC_detail_to_composite_net,REMC/RNW,174.12425499999821,0.0,174.12425499999821,171.40688,2.7173749999982135,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2025-12,bilateral_detail_to_rea_application_aggregate,GNA,1789.2987175001053,13.422999999999726,1775.8757175001056,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,201,024.025000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-12,bilateral_detail_to_rea_application_aggregate,TGNA,828.3113374999991,2.0459999999999665,826.2653374999992,,,,REFERENCE_ONLY,"rea.csv raw aggregate=985,178.010000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2025-12,bilateral_gross_to_composite_net,GNA,1789.2987175001053,13.422999999999726,1775.8757175001056,1702.2255474999997,73.65017000010585,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-12,bilateral_gross_to_composite_net,TGNA,828.3113374999991,2.0459999999999665,826.2653374999992,791.6075524999999,34.65778499999931,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2025-12,composite_Sch_Total_identity,ALL,,,,6145.498509999999,-4.592948243953288e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2025-12,station_columns_to_lta,ISGS/LTA,,,,3189.5467125000005,-1.9088020053459332e-13,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-01,PX_detail_to_composite,DAM:import,254.43960999999928,0.0,254.43960999999928,254.43960999999928,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,DAM:export,0.0,211.35043499999878,-211.35043499999878,211.35043499999878,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,RTM:import,153.16523249999992,0.0,153.16523249999992,153.16523249999992,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,RTM:export,0.0,303.7345024999996,-303.7345024999996,303.7345024999996,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,GDAM:import,74.32251749999982,0.0,74.32251749999982,74.32251749999982,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-01,REMC_detail_to_composite_net,REMC/RNW,115.7745850000007,0.0,115.7745850000007,114.8701625,0.9044225000006918,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-01,bilateral_detail_to_rea_application_aggregate,GNA,1943.2360600000504,16.370000000001035,1926.8660600000494,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,748,854.940000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-01,bilateral_detail_to_rea_application_aggregate,TGNA,638.6820400000106,0.47799999999999887,638.2040400000107,,,,REFERENCE_ONLY,"rea.csv raw aggregate=1,134,162.145000 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-01,bilateral_gross_to_composite_net,GNA,1943.2360600000504,16.370000000001035,1926.8660600000494,1834.1694899999998,92.69657000004963,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-01,bilateral_gross_to_composite_net,TGNA,638.6820400000106,0.47799999999999887,638.2040400000107,607.6275899999999,30.57645000001071,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-01,composite_Sch_Total_identity,ALL,,,,5877.4026575,-1.4566126083082053e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-01,station_columns_to_lta,ISGS/LTA,,,,3497.618265,-1.1709744285326451e-13,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-02,PX_detail_to_composite,DAM:import,153.58325000000002,0.0,153.58325000000002,153.58325000000002,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,DAM:export,0.0,309.580412499998,-309.580412499998,309.580412499998,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,RTM:import,61.5334100000003,0.0,61.5334100000003,61.5334100000003,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,RTM:export,0.0,524.8633775000034,-524.8633775000034,524.8633775000034,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,GDAM:import,82.63268750000015,0.0,82.63268750000015,82.63268750000015,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-02,REMC_detail_to_composite_net,REMC/RNW,119.26985000000023,0.0,119.26985000000023,118.87593750000002,0.39391250000021216,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-02,bilateral_detail_to_rea_application_aggregate,GNA,1962.1004400003412,22.164750000000463,1939.9356900003409,,,,REFERENCE_ONLY,"rea.csv raw aggregate=5,250,519.282500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-02,bilateral_detail_to_rea_application_aggregate,TGNA,1288.7536700000537,15.55034000000078,1273.203330000053,,,,REFERENCE_ONLY,"rea.csv raw aggregate=2,063,272.442500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-02,bilateral_gross_to_composite_net,GNA,1962.1004400003412,22.164750000000463,1939.9356900003409,1861.1446650000003,78.7910250003406,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-02,bilateral_gross_to_composite_net,TGNA,1288.7536700000537,15.55034000000078,1273.203330000053,1221.5671550000002,51.636175000052845,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-02,composite_Sch_Total_identity,ALL,,,,5794.2206625,-3.132072379230522e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-02,station_columns_to_lta,ISGS/LTA,,,,3243.0581825,-1.7416823538951576e-13,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent
+2026-03,PX_detail_to_composite,DAM:import,170.5472225000001,0.0,170.5472225000001,170.5472225000001,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,DAM:export,0.0,319.52417249999917,-319.52417249999917,319.52417249999917,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,RTM:import,84.63290749999996,0.0,84.63290749999996,84.63290749999996,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,RTM:export,0.0,655.0173299999971,-655.0173299999971,655.0173299999971,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,GDAM:import,68.26787500000012,0.0,68.26787500000012,68.26787500000012,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,GDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,HPDAM:import,0.0,0.0,0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,PX_detail_to_composite,HPDAM:export,0.0,0.0,-0.0,0.0,0.0,0.0,PASS,PX detail disaggregates the same composite market position
+2026-03,REMC_detail_to_composite_net,REMC/RNW,146.1155925000008,0.0,146.1155925000008,145.2774,0.8381925000007868,,EXPLAIN,Transaction detail deduplicated; residual may reflect schedule basis/scope
+2026-03,bilateral_detail_to_rea_application_aggregate,GNA,2028.2823075001759,19.375000000000323,2008.9073075001756,,,,REFERENCE_ONLY,"rea.csv raw aggregate=5,534,231.992500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-03,bilateral_detail_to_rea_application_aggregate,TGNA,2419.8087475012103,12.737000000001059,2407.0717475012093,,,,REFERENCE_ONLY,"rea.csv raw aggregate=4,174,201.592500 after provisional MWh conversion; unit/boundary is not independently established and it covers all regional applications, so no numerical reconciliation is asserted"
+2026-03,bilateral_gross_to_composite_net,GNA,2028.2823075001759,19.375000000000323,2008.9073075001756,1923.1895075000002,85.71780000017543,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-03,bilateral_gross_to_composite_net,TGNA,2419.8087475012103,12.737000000001059,2407.0717475012093,2303.84196,103.2297875012091,,EXPLAIN,Residual retained: gross application sch and composite net use different boundaries/loss treatment
+2026-03,composite_Sch_Total_identity,ALL,,,,7167.7364175,2.955857780762017e-14,3.637978807091713e-12,PASS,Sch_Total = lta + GNA_net + TGNA_net + market nets + REMC net + loss
+2026-03,station_columns_to_lta,ISGS/LTA,,,,3585.0613425,-8.753886504564434e-15,1.8189894035458565e-12,PASS,Beneficiary station columns are the accepted allocation detail; lta is parent

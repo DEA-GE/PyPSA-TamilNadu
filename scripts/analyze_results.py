@@ -14,6 +14,7 @@ from results_analysis import (
     load_observed_annual_generation,
     load_observed_capacity,
     load_observed_generation,
+    load_observed_monthly_generation,
 )
 
 
@@ -29,9 +30,12 @@ def main() -> None:
 
     run = load_analysis_run(args.result)
     observed = None if args.no_observed else load_observed_generation()
+    observed_monthly = None if args.no_observed else load_observed_monthly_generation()
     observed_annual = None if args.no_observed else load_observed_annual_generation()
     observed_capacity = None if args.no_observed else load_observed_capacity()
-    bundle = analyze_run(run, observed, observed_annual, observed_capacity)
+    bundle = analyze_run(
+        run, observed, observed_monthly, observed_annual, observed_capacity
+    )
 
     print(f"Run type: {run.run_type}")
     print(f"Period: {run.snapshots[0]} to {run.snapshots[-1]}")

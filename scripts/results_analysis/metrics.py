@@ -93,17 +93,13 @@ def generation_comparison(
     result = generation_by_carrier(run).rename(
         columns={"generation_gwh": "modeled_generation_gwh"}
     )
-    # Keep the comparison taxonomy aligned with the annual Outlook input.
+    # Keep the comparison taxonomy aligned with the annual NITI Dashboard input.
     # Model dispatch is stored in MWh and generation_by_carrier converts it to
     # GWh (1 MU = 1 GWh) before these aggregates are formed.
     if {"bio_power", "small_hydro"}.intersection(result.index):
         result.loc["other_res", "modeled_generation_gwh"] = result.reindex(
             ["bio_power", "small_hydro"], fill_value=0.0
         )["modeled_generation_gwh"].sum()
-    comparable_carriers = ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
-    result.loc["comparable_total", "modeled_generation_gwh"] = result.reindex(
-        comparable_carriers, fill_value=0.0
-    )["modeled_generation_gwh"].sum()
     dates = pd.DatetimeIndex(run.snapshots.normalize().unique())
     annual_match = False
     if observed_annual is not None and not observed_annual.empty:
@@ -112,6 +108,19 @@ def generation_comparison(
         expected_dates = pd.date_range(period_start, period_end, freq="D")
         annual_match = dates.equals(expected_dates)
     if annual_match:
+        comparable_carriers = [
+            "coal",
+            "oil_gas",
+            "nuclear",
+            "hydro",
+            "solar",
+            "wind",
+            "small_hydro",
+            "bio_power",
+        ]
+        result.loc["comparable_total", "modeled_generation_gwh"] = result.reindex(
+            comparable_carriers, fill_value=0.0
+        )["modeled_generation_gwh"].sum()
         result["observed_generation_gwh"] = observed_annual["generation_gwh"].reindex(
             result.index
         )
@@ -120,6 +129,12 @@ def generation_comparison(
             f"{period_start.date()} to {period_end.date()}"
         )
     elif observed_daily is not None:
+        daily_comparable_carriers = [
+            "coal", "oil_gas", "nuclear", "hydro", "solar", "wind", "other_res"
+        ]
+        result.loc["comparable_total", "modeled_generation_gwh"] = result.reindex(
+            daily_comparable_carriers, fill_value=0.0
+        )["modeled_generation_gwh"].sum()
         observed = observed_daily.reindex(dates).sum(min_count=1)
         result["observed_generation_gwh"] = observed.reindex(result.index)
         result["observed_source"] = "daily historical generation"
@@ -458,16 +473,27 @@ def system_metrics(run: AnalysisRun) -> pd.DataFrame:
 
 
 def monthly_generation_comparison(
-    run: AnalysisRun, observed_daily: pd.DataFrame | None
+    run: AnalysisRun,
+    observed_daily: pd.DataFrame | None,
+    observed_monthly: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     modeled = generation_by_carrier_timeseries(run).resample("MS").sum() / 1_000.0
     modeled.index.name = "month"
     modeled_long = modeled.rename_axis(columns="carrier").stack().rename("modeled_gwh").to_frame()
-    if observed_daily is None:
+    if observed_monthly is not None:
+        observed = observed_monthly.reindex(columns=modeled.columns)
+        observed.index.name = "month"
+        observed_long = observed.rename_axis(columns="carrier").stack().rename(
+            "observed_gwh"
+        )
+    elif observed_daily is not None:
+        observed = observed_daily.reindex(columns=modeled.columns).resample("MS").sum()
+        observed.index.name = "month"
+        observed_long = observed.rename_axis(columns="carrier").stack().rename(
+            "observed_gwh"
+        )
+    else:
         return modeled_long.reset_index().set_index(["month", "carrier"])
-    observed = observed_daily.reindex(columns=modeled.columns).resample("MS").sum()
-    observed.index.name = "month"
-    observed_long = observed.rename_axis(columns="carrier").stack().rename("observed_gwh")
     result = modeled_long.join(observed_long, how="left")
     result["difference_gwh"] = result.modeled_gwh - result.observed_gwh
     result["difference_pct"] = 100.0 * result.difference_gwh / result.observed_gwh.replace(0.0, np.nan)

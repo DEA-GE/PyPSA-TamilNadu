@@ -42,11 +42,17 @@ OBSERVED_FILE = (
     / "source"
     / "TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx"
 )
-OUTLOOK_ANNUAL_GENERATION_FILE = (
+NITI_DASHBOARD_ANNUAL_GENERATION_FILE = (
     ROOT
     / "data"
     / "model_inputs"
-    / "tamil_nadu_outlook_annual_generation_FY2025_26.csv"
+    / "niti_dashboard_annual_generation_FY2025_26.csv"
+)
+NITI_DASHBOARD_DAILY_GENERATION_FILE = (
+    ROOT
+    / "data"
+    / "model_inputs"
+    / "niti_dashboard_tamil_nadu_generation_FY2025_26.csv"
 )
 DEFAULT_OUTPUT_DIR = ROOT / "results" / "weekly_days"
 OIL_GAS_BUDGET_FILE = MODEL_DIR / "oil_gas_daily_energy_budget.csv"
@@ -100,6 +106,8 @@ PLOT_LABELS = {
     "other_res": "Other RES (small hydro + bio-power)",
     "comparable_total": "Comparable total",
 }
+
+NITI_CARRIER_MAP = {"oil-gas": "oil_gas", "other-res": "other_res"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -181,37 +189,114 @@ def read_observed_generation() -> pd.DataFrame:
     return observed
 
 
+def read_niti_observed_daily_generation() -> pd.DataFrame:
+    """Load official NITI Dashboard daily FY2025-26 generation totals.
+
+    Plant-level NITI records are summed by date and reporting carrier. The
+    dashboard does not provide separate daily bio-power or small-hydro rows;
+    its reported ``other-res`` category is retained as published.
+    """
+    raw = pd.read_csv(NITI_DASHBOARD_DAILY_GENERATION_FILE, parse_dates=["date"])
+    required = {
+        "source",
+        "state",
+        "date",
+        "fiscal_year",
+        "frequency",
+        "generation_gwh",
+    }
+    missing = required - set(raw.columns)
+    if missing:
+        raise ValueError(
+            f"{NITI_DASHBOARD_DAILY_GENERATION_FILE} is missing columns: {sorted(missing)}"
+        )
+    daily = raw.loc[
+        raw["frequency"].eq("daily") & raw["fiscal_year"].eq("2025-26")
+    ].copy()
+    if not daily["state"].eq("Tamil Nadu").all():
+        raise ValueError("NITI daily generation input must contain Tamil Nadu only")
+    daily["carrier"] = daily["source"].replace(NITI_CARRIER_MAP)
+    observed = daily.pivot_table(
+        index="date", columns="carrier", values="generation_gwh", aggfunc="sum"
+    ).sort_index()
+    observed.index = pd.DatetimeIndex(observed.index, name="date")
+    expected_dates = pd.date_range(FY_START, FY_END, freq="D", name="date")
+    if not observed.index.equals(expected_dates):
+        raise ValueError("NITI daily generation does not cover every FY2025-26 date")
+    for carrier in ("bio_power", "small_hydro"):
+        observed[carrier] = np.nan
+    comparable = [
+        "coal",
+        "oil_gas",
+        "nuclear",
+        "hydro",
+        "solar",
+        "wind",
+        "other_res",
+    ]
+    if observed.reindex(columns=comparable).isna().all().any():
+        missing_carriers = observed.reindex(columns=comparable).columns[
+            observed.reindex(columns=comparable).isna().all()
+        ].tolist()
+        raise ValueError(f"NITI daily generation is missing carriers: {missing_carriers}")
+    observed["comparable_total"] = observed[comparable].sum(axis=1, min_count=1)
+    return observed
+
+
 def read_observed_annual_generation() -> pd.DataFrame:
-    """Load authoritative Tamil Nadu Outlook FY2025-26 generation totals."""
+    """Load authoritative NITI Dashboard FY2025-26 generation totals.
+
+    The dashboard reports MU; one MU equals one GWh, so the input preserves
+    the reported value in both ``generation_mu`` and ``generation_gwh``.
+    """
     observed = pd.read_csv(
-        OUTLOOK_ANNUAL_GENERATION_FILE,
+        NITI_DASHBOARD_ANNUAL_GENERATION_FILE,
         parse_dates=["period_start", "period_end"],
     )
-    required = {"carrier", "generation_gwh", "period_start", "period_end", "source"}
+    required = {
+        "carrier",
+        "generation_mu",
+        "generation_gwh",
+        "period_start",
+        "period_end",
+        "source",
+    }
     missing = required - set(observed.columns)
     if missing:
         raise ValueError(
-            f"{OUTLOOK_ANNUAL_GENERATION_FILE} is missing columns: {sorted(missing)}"
+            f"{NITI_DASHBOARD_ANNUAL_GENERATION_FILE} is missing columns: {sorted(missing)}"
         )
     if observed["carrier"].duplicated().any():
         duplicates = observed.loc[observed["carrier"].duplicated(), "carrier"].tolist()
         raise ValueError(f"Duplicate annual observed carriers: {duplicates}")
     if observed["generation_gwh"].isna().any() or observed["generation_gwh"].lt(0).any():
         raise ValueError("Annual observed generation must be non-negative and complete")
+    if not np.allclose(observed["generation_mu"], observed["generation_gwh"], atol=1e-9):
+        raise ValueError("NITI Dashboard annual MU values must equal their GWh values")
     if observed["period_start"].nunique() != 1 or observed["period_end"].nunique() != 1:
         raise ValueError("Annual observed generation rows must use one common period")
     observed = observed.set_index("carrier").sort_index()
-    comparable = ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
-    missing_carriers = set(comparable) - set(observed.index)
+    comparable = [
+        "coal",
+        "oil_gas",
+        "nuclear",
+        "hydro",
+        "solar",
+        "wind",
+        "small_hydro",
+        "bio_power",
+    ]
+    missing_carriers = set(comparable + ["comparable_total"]) - set(observed.index)
     if missing_carriers:
         raise ValueError(
             f"Annual observed generation is missing carriers: {sorted(missing_carriers)}"
         )
-    observed.loc["comparable_total", "generation_gwh"] = observed.loc[
-        comparable, "generation_gwh"
-    ].sum()
-    for column in ["period_start", "period_end", "source"]:
-        observed.loc["comparable_total", column] = observed.iloc[0][column]
+    expected_total = observed.loc[comparable, "generation_gwh"].sum()
+    reported_total = observed.at["comparable_total", "generation_gwh"]
+    if not np.isclose(reported_total, expected_total, atol=1e-6):
+        raise ValueError(
+            "NITI Dashboard annual Total does not reconcile to its technology rows"
+        )
     return observed
 
 

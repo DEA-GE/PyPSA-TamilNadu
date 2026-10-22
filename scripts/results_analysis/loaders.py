@@ -135,7 +135,11 @@ def load_analysis_run(path: str | Path) -> AnalysisRun:
 
     networks = tuple(pypsa.Network(source) for source in source_files)
     metadata = _read_metadata(result_dir, source_files)
-    run_type = str(metadata.get("mode") or _infer_run_type(result_dir, len(networks)))
+    run_type = str(
+        metadata.get("run_mode")
+        or metadata.get("mode")
+        or _infer_run_type(result_dir, len(networks))
+    )
     return AnalysisRun(
         result_dir=result_dir,
         run_type=run_type,
@@ -146,16 +150,70 @@ def load_analysis_run(path: str | Path) -> AnalysisRun:
 
 
 def load_observed_generation() -> pd.DataFrame:
-    """Load the model's canonical FY2025-26 observed daily generation table."""
-    from run_9ba_weekly_days_2025_26 import read_observed_generation
+    """Load official NITI Dashboard daily FY2025-26 generation benchmarks."""
+    from run_9ba_weekly_days_2025_26 import read_niti_observed_daily_generation
 
-    observed = read_observed_generation().copy()
+    observed = read_niti_observed_daily_generation().copy()
     observed.index = pd.DatetimeIndex(observed.index)
     return observed.sort_index()
 
 
+def load_observed_monthly_generation() -> pd.DataFrame:
+    """Load monthly FY2025-26 benchmarks, including separate RES series.
+
+    The NITI monthly dashboard export does not identify bio-power or small
+    hydro. Those two categories are supplied by the corresponding Tamil Nadu
+    Outlook monthly benchmark files and merged here so monthly comparisons can
+    retain the separate categories without changing the daily benchmark.
+    """
+    model_inputs = Path(__file__).resolve().parents[2] / "data" / "model_inputs"
+    source = model_inputs / "niti_dashboard_tamil_nadu_monthly_generation_FY2025_26.csv"
+    raw = pd.read_csv(source, parse_dates=["month_start"])
+    required = {"source", "state", "fiscal_year", "month_start", "generation_gwh"}
+    missing = required - set(raw.columns)
+    if missing:
+        raise ValueError(f"{source} is missing columns: {sorted(missing)}")
+    if not raw["state"].eq("Tamil Nadu").all() or not raw["fiscal_year"].eq(
+        "2025-26"
+    ).all():
+        raise ValueError("NITI monthly generation input must contain Tamil Nadu FY2025-26 only")
+    raw["carrier"] = raw["source"].replace(
+        {"oil-gas": "oil_gas", "other-res": "other_res"}
+    )
+    observed = raw.pivot_table(
+        index="month_start", columns="carrier", values="generation_gwh", aggfunc="sum"
+    ).sort_index()
+    observed.index = pd.DatetimeIndex(observed.index, name="month")
+    expected_months = pd.date_range("2025-04-01", "2026-03-01", freq="MS", name="month")
+    if not observed.index.equals(expected_months):
+        raise ValueError("NITI monthly generation does not cover every FY2025-26 month")
+    for carrier, filename in (
+        ("bio_power", "tamil_nadu_bio_power_monthly_generation_FY2025_26.csv"),
+        ("small_hydro", "tamil_nadu_small_hydro_monthly_generation_FY2025_26.csv"),
+    ):
+        supplemental_source = model_inputs / filename
+        supplemental = pd.read_csv(supplemental_source, parse_dates=["month"])
+        required_supplemental = {"month", "generation_gwh"}
+        missing_supplemental = required_supplemental - set(supplemental.columns)
+        if missing_supplemental:
+            raise ValueError(
+                f"{supplemental_source} is missing columns: {sorted(missing_supplemental)}"
+            )
+        supplemental_index = pd.DatetimeIndex(supplemental["month"], name="month")
+        if not supplemental_index.equals(expected_months):
+            raise ValueError(
+                f"{supplemental_source.name} does not cover every FY2025-26 month"
+            )
+        observed[carrier] = pd.to_numeric(
+            supplemental.set_axis(supplemental_index)["generation_gwh"],
+            errors="coerce",
+        ).to_numpy()
+    observed["comparable_total"] = observed.sum(axis=1, min_count=1)
+    return observed
+
+
 def load_observed_annual_generation() -> pd.DataFrame:
-    """Load authoritative Tamil Nadu Outlook annual generation benchmarks."""
+    """Load authoritative NITI Dashboard annual generation benchmarks."""
     from run_9ba_weekly_days_2025_26 import read_observed_annual_generation
 
     return read_observed_annual_generation()

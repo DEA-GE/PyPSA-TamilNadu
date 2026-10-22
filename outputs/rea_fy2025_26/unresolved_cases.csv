@@ -1,0 +1,263 @@
+month,category,channel,source_path,energy_GWh,detail
+2025-04,potential_overlap,ISGS/LTA,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_sch_pondichery.csv,67.37724499999861,Quantified from canonical rows
+2025-04,potential_overlap,ISGS/LTA,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_sch_pondichery.csv,66.27867750000232,Quantified from canonical rows
+2025-04,probable_not_verified,DAM,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_px_tamilnadu.csv,23.529049999999998,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,DAM,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_px_tamilnadu.csv,7.2921425,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,GNA,reaapr25f.zip!apr1-15.zip!Zip_Data/tneb_exp.csv,4.335,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,GNA,reaapr25f.zip!apr16-30.zip!Zip_Data/tneb_exp.csv,8.335,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,RTM,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_px_tamilnadu.csv,313.261015,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,RTM,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_px_tamilnadu.csv,146.9689,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,TGNA,reaapr25f.zip!apr1-15.zip!Zip_Data/tneb_exp.csv,16.5,Quantified from geography-corrected approved ledger
+2025-04,probable_not_verified,TGNA,reaapr25f.zip!apr16-30.zip!Zip_Data/tneb_exp.csv,16.85,Quantified from geography-corrected approved ledger
+2025-04,unattributed,DAM,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_px_tamilnadu.csv,87.73343750000001,Quantified from geography-corrected approved ledger
+2025-04,unattributed,DAM,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_px_tamilnadu.csv,90.9361825,Quantified from geography-corrected approved ledger
+2025-04,unattributed,GDAM,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_px_tamilnadu.csv,40.89705,Quantified from geography-corrected approved ledger
+2025-04,unattributed,GDAM,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_px_tamilnadu.csv,38.548902500000004,Quantified from geography-corrected approved ledger
+2025-04,unattributed,GNA,reaapr25f.zip!apr1-15.zip!Zip_Data/tneb_imp.csv,223.55426,Quantified from geography-corrected approved ledger
+2025-04,unattributed,GNA,reaapr25f.zip!apr16-30.zip!Zip_Data/tneb_imp.csv,185.29985250000001,Quantified from geography-corrected approved ledger
+2025-04,unattributed,REMC/RNW,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_remc_schedule.csv,101.07284750000001,Quantified from geography-corrected approved ledger
+2025-04,unattributed,REMC/RNW,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_remc_schedule.csv,104.45857000000001,Quantified from geography-corrected approved ledger
+2025-04,unattributed,RTM,reaapr25f.zip!apr1-15.zip!Zip_Data/commercial_px_tamilnadu.csv,44.640370000000004,Quantified from geography-corrected approved ledger
+2025-04,unattributed,RTM,reaapr25f.zip!apr16-30.zip!Zip_Data/commercial_px_tamilnadu.csv,54.0306525,Quantified from geography-corrected approved ledger
+2025-04,unattributed,TGNA,reaapr25f.zip!apr1-15.zip!Zip_Data/tneb_imp.csv,1027.3495875,Quantified from geography-corrected approved ledger
+2025-04,unattributed,TGNA,reaapr25f.zip!apr16-30.zip!Zip_Data/tneb_imp.csv,1057.95289,Quantified from geography-corrected approved ledger
+2025-05,potential_overlap,ISGS/LTA,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_sch_pondichery.csv,61.62812999999878,Quantified from canonical rows
+2025-05,potential_overlap,ISGS/LTA,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_sch_pondichery.csv,64.95287250000136,Quantified from canonical rows
+2025-05,probable_not_verified,DAM,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,4.5295825,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,DAM,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,156.302895,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,GNA,may25f.zip!1-150525 (2).zip!Zip_Data/tneb_exp.csv,2.164,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,GNA,may25f.zip!16-310525 (2).zip!Zip_Data/tneb_exp.csv,5.27,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,RTM,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,195.1278625,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,RTM,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,438.7325,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,TGNA,may25f.zip!1-150525 (2).zip!Zip_Data/tneb_exp.csv,28.400000000000002,Quantified from geography-corrected approved ledger
+2025-05,probable_not_verified,TGNA,may25f.zip!16-310525 (2).zip!Zip_Data/tneb_exp.csv,48.3995,Quantified from geography-corrected approved ledger
+2025-05,unattributed,DAM,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,104.2674775,Quantified from geography-corrected approved ledger
+2025-05,unattributed,DAM,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,108.5680025,Quantified from geography-corrected approved ledger
+2025-05,unattributed,GDAM,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,34.2023925,Quantified from geography-corrected approved ledger
+2025-05,unattributed,GDAM,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,35.102157500000004,Quantified from geography-corrected approved ledger
+2025-05,unattributed,GNA,may25f.zip!1-150525 (2).zip!Zip_Data/tneb_imp.csv,177.62309,Quantified from geography-corrected approved ledger
+2025-05,unattributed,GNA,may25f.zip!16-310525 (2).zip!Zip_Data/tneb_imp.csv,189.25629,Quantified from geography-corrected approved ledger
+2025-05,unattributed,REMC/RNW,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_remc_schedule.csv,126.569115,Quantified from geography-corrected approved ledger
+2025-05,unattributed,REMC/RNW,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_remc_schedule.csv,145.457685,Quantified from geography-corrected approved ledger
+2025-05,unattributed,RTM,may25f.zip!1-150525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,48.146675,Quantified from geography-corrected approved ledger
+2025-05,unattributed,RTM,may25f.zip!16-310525 (2).zip!Zip_Data/commercial_px_tamilnadu.csv,42.545325,Quantified from geography-corrected approved ledger
+2025-05,unattributed,TGNA,may25f.zip!1-150525 (2).zip!Zip_Data/tneb_imp.csv,928.3419375000001,Quantified from geography-corrected approved ledger
+2025-05,unattributed,TGNA,may25f.zip!16-310525 (2).zip!Zip_Data/tneb_imp.csv,694.2847175,Quantified from geography-corrected approved ledger
+2025-06,potential_overlap,ISGS/LTA,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_sch_pondichery.csv,70.09385750000384,Quantified from canonical rows
+2025-06,potential_overlap,ISGS/LTA,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_sch_pondichery.csv,72.16244999999978,Quantified from canonical rows
+2025-06,probable_not_verified,DAM,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_px_tamilnadu.csv,173.4794475,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,DAM,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_px_tamilnadu.csv,197.39713,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,GNA,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/tneb_exp.csv,28.876,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,GNA,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/tneb_exp.csv,14.3475,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,RTM,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_px_tamilnadu.csv,181.2362175,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,RTM,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_px_tamilnadu.csv,159.418685,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,TGNA,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/tneb_exp.csv,30.500765,Quantified from geography-corrected approved ledger
+2025-06,probable_not_verified,TGNA,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/tneb_exp.csv,16.258855,Quantified from geography-corrected approved ledger
+2025-06,unattributed,DAM,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_px_tamilnadu.csv,78.0179975,Quantified from geography-corrected approved ledger
+2025-06,unattributed,DAM,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_px_tamilnadu.csv,103.065695,Quantified from geography-corrected approved ledger
+2025-06,unattributed,GDAM,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_px_tamilnadu.csv,25.702715,Quantified from geography-corrected approved ledger
+2025-06,unattributed,GDAM,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_px_tamilnadu.csv,25.74129,Quantified from geography-corrected approved ledger
+2025-06,unattributed,GNA,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/tneb_imp.csv,77.46609000000001,Quantified from geography-corrected approved ledger
+2025-06,unattributed,GNA,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/tneb_imp.csv,76.05659750000001,Quantified from geography-corrected approved ledger
+2025-06,unattributed,REMC/RNW,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_remc_schedule.csv,80.4001475,Quantified from geography-corrected approved ledger
+2025-06,unattributed,REMC/RNW,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_remc_schedule.csv,58.8116,Quantified from geography-corrected approved ledger
+2025-06,unattributed,RTM,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/commercial_px_tamilnadu.csv,43.5052075,Quantified from geography-corrected approved ledger
+2025-06,unattributed,RTM,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/commercial_px_tamilnadu.csv,70.8334375,Quantified from geography-corrected approved ledger
+2025-06,unattributed,TGNA,reajune25f.zip!june25f.zip!01-15june25.zip!Zip_Data/tneb_imp.csv,155.679105,Quantified from geography-corrected approved ledger
+2025-06,unattributed,TGNA,reajune25f.zip!june25f.zip!16-30june25.zip!Zip_Data/tneb_imp.csv,217.6369575,Quantified from geography-corrected approved ledger
+2025-07,potential_overlap,ISGS/LTA,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_sch_pondichery.csv,63.776975000001954,Quantified from canonical rows
+2025-07,potential_overlap,ISGS/LTA,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_sch_pondichery.csv,64.04467500000342,Quantified from canonical rows
+2025-07,probable_not_verified,DAM,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,176.1344375,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,DAM,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,167.6032875,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,GNA,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/tneb_exp.csv,81.84,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,GNA,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/tneb_exp.csv,87.996,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,RTM,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,90.4563375,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,RTM,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,159.4974125,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,TGNA,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/tneb_exp.csv,12.6128,Quantified from geography-corrected approved ledger
+2025-07,probable_not_verified,TGNA,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/tneb_exp.csv,13.824,Quantified from geography-corrected approved ledger
+2025-07,unattributed,DAM,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,88.7469175,Quantified from geography-corrected approved ledger
+2025-07,unattributed,DAM,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,93.06485500000001,Quantified from geography-corrected approved ledger
+2025-07,unattributed,GDAM,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,21.163442500000002,Quantified from geography-corrected approved ledger
+2025-07,unattributed,GDAM,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,24.321925,Quantified from geography-corrected approved ledger
+2025-07,unattributed,GNA,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/tneb_imp.csv,113.7874925,Quantified from geography-corrected approved ledger
+2025-07,unattributed,GNA,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/tneb_imp.csv,118.59165250000001,Quantified from geography-corrected approved ledger
+2025-07,unattributed,REMC/RNW,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_remc_schedule.csv,67.66932,Quantified from geography-corrected approved ledger
+2025-07,unattributed,REMC/RNW,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_remc_schedule.csv,102.91552250000001,Quantified from geography-corrected approved ledger
+2025-07,unattributed,RTM,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,123.261925,Quantified from geography-corrected approved ledger
+2025-07,unattributed,RTM,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/commercial_px_tamilnadu.csv,117.6464,Quantified from geography-corrected approved ledger
+2025-07,unattributed,TGNA,july25f.zip!july25.zip!1-15july25f.zip!Zip_Data/tneb_imp.csv,323.46713750000004,Quantified from geography-corrected approved ledger
+2025-07,unattributed,TGNA,july25f.zip!july25.zip!16-31july25f.zip!Zip_Data/tneb_imp.csv,181.6678925,Quantified from geography-corrected approved ledger
+2025-08,potential_overlap,ISGS/LTA,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_sch_pondichery.csv,49.037747500002055,Quantified from canonical rows
+2025-08,potential_overlap,ISGS/LTA,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_sch_pondichery.csv,61.84200500000237,Quantified from canonical rows
+2025-08,probable_not_verified,DAM,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_px_tamilnadu.csv,170.4545025,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,DAM,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_px_tamilnadu.csv,228.4988275,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,GNA,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/tneb_exp.csv,49.402,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,GNA,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/tneb_exp.csv,53.500800000000005,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,RTM,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_px_tamilnadu.csv,127.44946,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,RTM,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_px_tamilnadu.csv,168.94106250000002,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,TGNA,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/tneb_exp.csv,4.325,Quantified from geography-corrected approved ledger
+2025-08,probable_not_verified,TGNA,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/tneb_exp.csv,5.524075,Quantified from geography-corrected approved ledger
+2025-08,unattributed,DAM,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_px_tamilnadu.csv,85.346645,Quantified from geography-corrected approved ledger
+2025-08,unattributed,DAM,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_px_tamilnadu.csv,129.877805,Quantified from geography-corrected approved ledger
+2025-08,unattributed,GDAM,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_px_tamilnadu.csv,27.8222925,Quantified from geography-corrected approved ledger
+2025-08,unattributed,GDAM,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_px_tamilnadu.csv,28.8420275,Quantified from geography-corrected approved ledger
+2025-08,unattributed,GNA,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/tneb_imp.csv,82.48127500000001,Quantified from geography-corrected approved ledger
+2025-08,unattributed,GNA,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/tneb_imp.csv,97.161795,Quantified from geography-corrected approved ledger
+2025-08,unattributed,REMC/RNW,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_remc_schedule.csv,116.384155,Quantified from geography-corrected approved ledger
+2025-08,unattributed,REMC/RNW,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_remc_schedule.csv,74.6562475,Quantified from geography-corrected approved ledger
+2025-08,unattributed,RTM,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/commercial_px_tamilnadu.csv,97.27672,Quantified from geography-corrected approved ledger
+2025-08,unattributed,RTM,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/commercial_px_tamilnadu.csv,119.421395,Quantified from geography-corrected approved ledger
+2025-08,unattributed,TGNA,reaaug25f.zip!aug25.zip!01-150825.zip!Zip_Data/tneb_imp.csv,192.9734475,Quantified from geography-corrected approved ledger
+2025-08,unattributed,TGNA,reaaug25f.zip!aug25.zip!16-310825.zip!Zip_Data/tneb_imp.csv,138.87233750000001,Quantified from geography-corrected approved ledger
+2025-09,potential_overlap,ISGS/LTA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_sch_pondichery.csv,56.05091000000279,Quantified from canonical rows
+2025-09,potential_overlap,ISGS/LTA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_sch_pondichery.csv,63.84234250000575,Quantified from canonical rows
+2025-09,probable_not_verified,DAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_px_tamilnadu.csv,137.6461925,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,DAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_px_tamilnadu.csv,231.95208,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,GNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/tneb_exp.csv,52.069,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,GNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/tneb_exp.csv,51.808425,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,RTM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_px_tamilnadu.csv,116.2865625,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,RTM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_px_tamilnadu.csv,165.3695625,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,TGNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/tneb_exp.csv,6.0,Quantified from geography-corrected approved ledger
+2025-09,probable_not_verified,TGNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/tneb_exp.csv,6.072,Quantified from geography-corrected approved ledger
+2025-09,unattributed,DAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_px_tamilnadu.csv,107.3299275,Quantified from geography-corrected approved ledger
+2025-09,unattributed,DAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_px_tamilnadu.csv,90.4306725,Quantified from geography-corrected approved ledger
+2025-09,unattributed,GDAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_px_tamilnadu.csv,31.660980000000002,Quantified from geography-corrected approved ledger
+2025-09,unattributed,GDAM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_px_tamilnadu.csv,31.1845925,Quantified from geography-corrected approved ledger
+2025-09,unattributed,GNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/tneb_imp.csv,94.92468000000001,Quantified from geography-corrected approved ledger
+2025-09,unattributed,GNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/tneb_imp.csv,94.738125,Quantified from geography-corrected approved ledger
+2025-09,unattributed,REMC/RNW,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_remc_schedule.csv,75.47866,Quantified from geography-corrected approved ledger
+2025-09,unattributed,REMC/RNW,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_remc_schedule.csv,75.6165675,Quantified from geography-corrected approved ledger
+2025-09,unattributed,RTM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/commercial_px_tamilnadu.csv,79.4804775,Quantified from geography-corrected approved ledger
+2025-09,unattributed,RTM,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/commercial_px_tamilnadu.csv,57.4189275,Quantified from geography-corrected approved ledger
+2025-09,unattributed,TGNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/01.09-15.09.zip!Zip_Data/tneb_imp.csv,308.6208025,Quantified from geography-corrected approved ledger
+2025-09,unattributed,TGNA,reasep25f.zip!reasep25f/reasep25f.zip!01.09.25-30.09.25/16.09-30.09.zip!Zip_Data/tneb_imp.csv,115.039225,Quantified from geography-corrected approved ledger
+2025-10,potential_overlap,ISGS/LTA,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_sch_pondichery.csv,64.37606500000105,Quantified from canonical rows
+2025-10,potential_overlap,ISGS/LTA,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_sch_pondichery.csv,54.467320000001365,Quantified from canonical rows
+2025-10,probable_not_verified,DAM,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,131.25144,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,DAM,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,140.0061225,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,GNA,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/tneb_exp.csv,7.2,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,GNA,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/tneb_exp.csv,1.44,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,RTM,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,69.92895,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,RTM,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,178.25190750000002,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,TGNA,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/tneb_exp.csv,2.076,Quantified from geography-corrected approved ledger
+2025-10,probable_not_verified,TGNA,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/tneb_exp.csv,2.176,Quantified from geography-corrected approved ledger
+2025-10,unattributed,DAM,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,110.5661,Quantified from geography-corrected approved ledger
+2025-10,unattributed,DAM,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,119.962985,Quantified from geography-corrected approved ledger
+2025-10,unattributed,GDAM,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,42.5183525,Quantified from geography-corrected approved ledger
+2025-10,unattributed,GDAM,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,49.664155,Quantified from geography-corrected approved ledger
+2025-10,unattributed,GNA,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/tneb_imp.csv,188.22926,Quantified from geography-corrected approved ledger
+2025-10,unattributed,GNA,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/tneb_imp.csv,225.668125,Quantified from geography-corrected approved ledger
+2025-10,unattributed,REMC/RNW,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_remc_schedule.csv,89.4076325,Quantified from geography-corrected approved ledger
+2025-10,unattributed,REMC/RNW,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_remc_schedule.csv,99.1435775,Quantified from geography-corrected approved ledger
+2025-10,unattributed,RTM,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,140.58496,Quantified from geography-corrected approved ledger
+2025-10,unattributed,RTM,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/commercial_px_tamilnadu.csv,84.121285,Quantified from geography-corrected approved ledger
+2025-10,unattributed,TGNA,reaoct25f.zip!reaoct25f/reaoct25f/01.10.25-15.10.25 data files.zip!Zip_Data/tneb_imp.csv,169.13361,Quantified from geography-corrected approved ledger
+2025-10,unattributed,TGNA,reaoct25f.zip!reaoct25f/reaoct25f/16.10.25-31.10.25 data files.zip!Zip_Data/tneb_imp.csv,139.9550875,Quantified from geography-corrected approved ledger
+2025-11,potential_overlap,ISGS/LTA,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_sch_pondichery.csv,49.731272499997566,Quantified from canonical rows
+2025-11,potential_overlap,ISGS/LTA,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_sch_pondichery.csv,47.09775500000093,Quantified from canonical rows
+2025-11,probable_not_verified,DAM,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,72.3201725,Quantified from geography-corrected approved ledger
+2025-11,probable_not_verified,DAM,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,37.9255475,Quantified from geography-corrected approved ledger
+2025-11,probable_not_verified,GNA,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/tneb_exp.csv,5.8125,Quantified from geography-corrected approved ledger
+2025-11,probable_not_verified,GNA,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/tneb_exp.csv,5.8125,Quantified from geography-corrected approved ledger
+2025-11,probable_not_verified,RTM,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,39.840047500000004,Quantified from geography-corrected approved ledger
+2025-11,probable_not_verified,RTM,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,94.0585575,Quantified from geography-corrected approved ledger
+2025-11,unattributed,DAM,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,173.97567,Quantified from geography-corrected approved ledger
+2025-11,unattributed,DAM,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,153.21166250000002,Quantified from geography-corrected approved ledger
+2025-11,unattributed,GDAM,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,40.961980000000004,Quantified from geography-corrected approved ledger
+2025-11,unattributed,GDAM,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,49.87169,Quantified from geography-corrected approved ledger
+2025-11,unattributed,GNA,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/tneb_imp.csv,151.9367,Quantified from geography-corrected approved ledger
+2025-11,unattributed,GNA,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/tneb_imp.csv,152.7255825,Quantified from geography-corrected approved ledger
+2025-11,unattributed,REMC/RNW,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_remc_schedule.csv,107.0784275,Quantified from geography-corrected approved ledger
+2025-11,unattributed,REMC/RNW,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_remc_schedule.csv,97.0795975,Quantified from geography-corrected approved ledger
+2025-11,unattributed,RTM,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,124.68869000000001,Quantified from geography-corrected approved ledger
+2025-11,unattributed,RTM,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/commercial_px_tamilnadu.csv,63.765482500000005,Quantified from geography-corrected approved ledger
+2025-11,unattributed,TGNA,reanov25f.zip!reanov25f/01.11.25-15.11.25.zip!Zip_Data/tneb_imp.csv,274.233525,Quantified from geography-corrected approved ledger
+2025-11,unattributed,TGNA,reanov25f.zip!reanov25f/16.11.25-30.11.25.zip!Zip_Data/tneb_imp.csv,192.9773625,Quantified from geography-corrected approved ledger
+2025-12,potential_overlap,ISGS/LTA,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,48.98073249999895,Quantified from canonical rows
+2025-12,potential_overlap,ISGS/LTA,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,59.18100749999938,Quantified from canonical rows
+2025-12,probable_not_verified,DAM,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,37.533465,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,DAM,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,41.46792,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,GNA,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/tneb_exp.csv,6.495,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,GNA,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/tneb_exp.csv,6.928,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,RTM,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,82.49706,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,RTM,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,48.3104225,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,TGNA,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/tneb_exp.csv,0.99,Quantified from geography-corrected approved ledger
+2025-12,probable_not_verified,TGNA,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/tneb_exp.csv,1.056,Quantified from geography-corrected approved ledger
+2025-12,unattributed,DAM,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,145.6554525,Quantified from geography-corrected approved ledger
+2025-12,unattributed,DAM,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,150.8185375,Quantified from geography-corrected approved ledger
+2025-12,unattributed,GDAM,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,46.102495,Quantified from geography-corrected approved ledger
+2025-12,unattributed,GDAM,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,34.122945,Quantified from geography-corrected approved ledger
+2025-12,unattributed,GNA,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/tneb_imp.csv,96.58542750000001,Quantified from geography-corrected approved ledger
+2025-12,unattributed,GNA,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/tneb_imp.csv,105.86982750000001,Quantified from geography-corrected approved ledger
+2025-12,unattributed,REMC/RNW,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,91.0079875,Quantified from geography-corrected approved ledger
+2025-12,unattributed,REMC/RNW,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,83.1162675,Quantified from geography-corrected approved ledger
+2025-12,unattributed,RTM,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,70.02005,Quantified from geography-corrected approved ledger
+2025-12,unattributed,RTM,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,166.4757875,Quantified from geography-corrected approved ledger
+2025-12,unattributed,TGNA,reafdec25.zip!reafdec25/reafdec25/01.12.25 to 15.12.25 Data Files.zip!Zip_Data/tneb_imp.csv,313.6865225,Quantified from geography-corrected approved ledger
+2025-12,unattributed,TGNA,reafdec25.zip!reafdec25/reafdec25/16.12.25 to 31.12.25 Data Files.zip!Zip_Data/tneb_imp.csv,427.42087,Quantified from geography-corrected approved ledger
+2026-01,potential_overlap,ISGS/LTA,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,56.80835749999874,Quantified from canonical rows
+2026-01,potential_overlap,ISGS/LTA,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,68.63814499999806,Quantified from canonical rows
+2026-01,probable_not_verified,DAM,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,46.031127500000004,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,DAM,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,165.3193075,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,GNA,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/tneb_exp.csv,6.25,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,GNA,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/tneb_exp.csv,10.120000000000001,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,RTM,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,96.37650000000001,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,RTM,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,207.3580025,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,TGNA,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/tneb_exp.csv,0.266,Quantified from geography-corrected approved ledger
+2026-01,probable_not_verified,TGNA,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/tneb_exp.csv,0.212,Quantified from geography-corrected approved ledger
+2026-01,unattributed,DAM,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,150.526395,Quantified from geography-corrected approved ledger
+2026-01,unattributed,DAM,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,103.91321500000001,Quantified from geography-corrected approved ledger
+2026-01,unattributed,GDAM,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,31.7987125,Quantified from geography-corrected approved ledger
+2026-01,unattributed,GDAM,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,42.523805,Quantified from geography-corrected approved ledger
+2026-01,unattributed,GNA,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/tneb_imp.csv,137.73655250000002,Quantified from geography-corrected approved ledger
+2026-01,unattributed,GNA,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/tneb_imp.csv,105.3632075,Quantified from geography-corrected approved ledger
+2026-01,unattributed,REMC/RNW,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,52.6984225,Quantified from geography-corrected approved ledger
+2026-01,unattributed,REMC/RNW,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,63.0761625,Quantified from geography-corrected approved ledger
+2026-01,unattributed,RTM,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,108.6837075,Quantified from geography-corrected approved ledger
+2026-01,unattributed,RTM,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,44.481525,Quantified from geography-corrected approved ledger
+2026-01,unattributed,TGNA,reafjan26.zip!reafjan26/01.01.26-15.01.26 Data Files.zip!Zip_Data/tneb_imp.csv,331.0048325,Quantified from geography-corrected approved ledger
+2026-01,unattributed,TGNA,reafjan26.zip!reafjan26/16.01.26-31.01.26 Data Files.zip!Zip_Data/tneb_imp.csv,243.00823250000002,Quantified from geography-corrected approved ledger
+2026-02,potential_overlap,ISGS/LTA,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_sch_pondichery.csv,62.419585000000346,Quantified from canonical rows
+2026-02,potential_overlap,ISGS/LTA,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_sch_pondichery.csv,54.7110399999995,Quantified from canonical rows
+2026-02,probable_not_verified,DAM,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,192.0612725,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,DAM,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,117.51914000000001,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,GNA,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/tneb_exp.csv,12.53175,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,GNA,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/tneb_exp.csv,9.633000000000001,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,RTM,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,318.562835,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,RTM,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,206.3005425,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,TGNA,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/tneb_exp.csv,7.406540000000001,Quantified from geography-corrected approved ledger
+2026-02,probable_not_verified,TGNA,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/tneb_exp.csv,8.1438,Quantified from geography-corrected approved ledger
+2026-02,unattributed,DAM,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,88.8125125,Quantified from geography-corrected approved ledger
+2026-02,unattributed,DAM,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,64.7707375,Quantified from geography-corrected approved ledger
+2026-02,unattributed,GDAM,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,46.38786,Quantified from geography-corrected approved ledger
+2026-02,unattributed,GDAM,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,36.2448275,Quantified from geography-corrected approved ledger
+2026-02,unattributed,GNA,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/tneb_imp.csv,141.13701,Quantified from geography-corrected approved ledger
+2026-02,unattributed,GNA,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/tneb_imp.csv,128.2476,Quantified from geography-corrected approved ledger
+2026-02,unattributed,REMC/RNW,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_remc_schedule.csv,60.982905,Quantified from geography-corrected approved ledger
+2026-02,unattributed,REMC/RNW,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_remc_schedule.csv,58.286945,Quantified from geography-corrected approved ledger
+2026-02,unattributed,RTM,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,35.106815,Quantified from geography-corrected approved ledger
+2026-02,unattributed,RTM,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/commercial_px_tamilnadu.csv,26.426595,Quantified from geography-corrected approved ledger
+2026-02,unattributed,TGNA,reafeb26f.zip!reafeb26f/1-15feb2026_final.zip!Zip_Data/tneb_imp.csv,474.35555750000003,Quantified from geography-corrected approved ledger
+2026-02,unattributed,TGNA,reafeb26f.zip!reafeb26f/16-28feb2026_final.zip!Zip_Data/tneb_imp.csv,472.8528825,Quantified from geography-corrected approved ledger
+2026-03,potential_overlap,ISGS/LTA,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,61.9603549999933,Quantified from canonical rows
+2026-03,potential_overlap,ISGS/LTA,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_sch_pondichery.csv,73.26209749999745,Quantified from canonical rows
+2026-03,probable_not_verified,DAM,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,136.764185,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,DAM,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,182.7599875,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,GNA,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/tneb_exp.csv,9.375,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,GNA,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/tneb_exp.csv,10.0,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,RTM,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,304.534335,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,RTM,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,350.482995,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,TGNA,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/tneb_exp.csv,2.0220000000000002,Quantified from geography-corrected approved ledger
+2026-03,probable_not_verified,TGNA,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/tneb_exp.csv,3.872,Quantified from geography-corrected approved ledger
+2026-03,unattributed,DAM,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,74.341565,Quantified from geography-corrected approved ledger
+2026-03,unattributed,DAM,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,96.2056575,Quantified from geography-corrected approved ledger
+2026-03,unattributed,GDAM,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,30.409100000000002,Quantified from geography-corrected approved ledger
+2026-03,unattributed,GDAM,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,37.858775,Quantified from geography-corrected approved ledger
+2026-03,unattributed,GNA,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/tneb_imp.csv,146.45074,Quantified from geography-corrected approved ledger
+2026-03,unattributed,GNA,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/tneb_imp.csv,145.5861925,Quantified from geography-corrected approved ledger
+2026-03,unattributed,REMC/RNW,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,72.0485175,Quantified from geography-corrected approved ledger
+2026-03,unattributed,REMC/RNW,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_remc_schedule.csv,74.067075,Quantified from geography-corrected approved ledger
+2026-03,unattributed,RTM,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,35.9386125,Quantified from geography-corrected approved ledger
+2026-03,unattributed,RTM,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/commercial_px_tamilnadu.csv,48.694295000000004,Quantified from geography-corrected approved ledger
+2026-03,unattributed,TGNA,reamar26f.zip!reamar26f/01.03.2026-15.03.2026 Data Files.zip!Zip_Data/tneb_imp.csv,801.11636,Quantified from geography-corrected approved ledger
+2026-03,unattributed,TGNA,reamar26f.zip!reamar26f/16.03.2026-31.03.2026 Data Files.zip!Zip_Data/tneb_imp.csv,1010.363005,Quantified from geography-corrected approved ledger
