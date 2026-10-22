@@ -1,0 +1,9 @@
+direction,gateway,resolved_GWh,allocation_share,routing_basis
+import,Andhra Pradesh,5043.451465,0.18164140326946912,Andhra Pradesh/Telangana southern gateway
+import,Karnataka,6338.7949075,0.22829358228703894,Karnataka direct plus Talcher-Kolar eastern proxy
+import,Kerala,0.0,0.0,Kerala direct gateway
+import,Western Region,16383.7330475,0.5900650144434919,Raigarh-Pugalur western/northern gateway proxy
+export,Andhra Pradesh,3371.9681,0.21748040588054277,Andhra Pradesh/Telangana southern gateway
+export,Karnataka,7691.016155,0.4960442285984886,Karnataka direct plus Talcher-Kolar eastern proxy
+export,Kerala,3849.0686675,0.24825176017233969,Kerala direct gateway
+export,Western Region,592.6454725,0.038223605348628904,Raigarh-Pugalur western/northern gateway proxy

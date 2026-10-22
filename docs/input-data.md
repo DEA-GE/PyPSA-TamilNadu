@@ -22,12 +22,30 @@ an explicit `snapshot` timestamp.
 | Hydro assets and observations | `data/model_inputs/hydro_asset_registry.csv`, `data/model_inputs/hydro_fleet_reconciliation.csv`, `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` | `model/hydro_reservoir_parameters.csv`, `model/hydro_reservoir_inflow.csv`, `model/hydro_observed_soc.csv` |
 | Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/global_constraints.csv` |
 | Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx` | `model/buses.csv`, `model/lines.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
-| Signed interstate purchases | `data/model_inputs/interstate_signed_flows.csv` (transcribed from `TamilNadu_Interstate_Flows.xlsx`) | `model/loads.csv`, `model/loads-p_set.csv`, `model/links-p_min_pu.csv`, `model/links-p_max_pu.csv`, `model/interstate_signed_flows.csv` |
+| FY2025-26 REA imports and exports | `data/model_inputs/rea_interstate_hourly_flows_FY2025_26.csv`, `rea_interstate_gateway_shares_FY2025_26.csv`, `rea_interstate_source_audit_FY2025_26.csv` | `model/loads.csv`, `model/loads-p_set.csv`, `model/interstate_flow_audit.csv`, `model/interstate_flow_reconciliation.csv` |
 | In-state stations' Tamil Nadu capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/generators.csv`, `model/tn_export_capacity_allocations.csv`, `model/capacity_reconciliation_2026_07.csv` |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
 single-node input set, not a second supported network.
+
+The REA hourly input is produced from the deduplicated transaction ledger with
+`python scripts/prepare_rea_interstate_flows.py --ledger <ledger.parquet>`.
+Resolved imports use the generating plant's mapped state and resolved exports
+use the beneficiary state. State routes are then grouped into the four modeled
+external gateways. Records that remain unresolved are retained as a separate
+hourly total, not relabeled as verified. The model builder allocates that total
+by direction-specific resolved-flow shares and preserves the result under the
+`unresolved_distributed` measure. Imports and exports are never netted before
+allocation.
+
+Both measures are fixed loads at the external buses: imports have negative
+`p_set` and exports positive `p_set`. Existing directional grid links enforce
+gateway capacity and carry the exchange, but no `links-p_min_pu.csv` or
+`links-p_max_pu.csv` schedule is written. This allows the network to select the
+parallel link used within a gateway. The audit output records every hourly
+gateway value, the original share, available capacity, any capacity-driven
+redistribution, and an explicit non-verified status for distributed flows.
 
 The grid is imported with PyPSA's `Network.import_from_excel()` API. To replace
 only the grid in an already-built model (without rebuilding generation, demand,
