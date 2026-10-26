@@ -1,0 +1,37 @@
+# Supported Python stack for the PyPSA 1.4.0 model.
+# Python 3.11+ is required by PyPSA 1.4.0.
+pypsa==1.4.0
+
+# PyPSA 1.4.0 requires pandas >=3.0.  NumPy 1.x is retained because the
+# project uses the NumPy-1-compatible PyArrow 18 line.
+pandas>=3.0,<4
+numpy>=1.26,<2
+pyarrow>=15,<19
+scipy>=1.13,<2
+xarray>=2024.10,<2027
+netCDF4>=1.7,<2
+linopy>=0.9,<1
+highspy>=1.8,<2
+
+# PyPSA plotting and network dependencies, made explicit for reproducibility.
+geopandas>=1.0,<2
+shapely>=2,<3
+matplotlib>=3.8,<4
+plotly>=5,<7
+pydeck>=0.6,<1
+seaborn>=0.13,<1
+networkx>=3,<4
+rapidfuzz>=3.9,<4
+deprecation>=2,<3
+validators>=0.35,<1
+platformdirs>=4,<5
+
+# Repository scripts, notebooks, tests, and data-preparation utilities.
+openpyxl>=3.1,<4
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+jupyterlab>=4,<5
+psutil>=5.9,<8
+Markdown>=3.5,<4
+tabulate>=0.9,<1
+pytest>=8,<10

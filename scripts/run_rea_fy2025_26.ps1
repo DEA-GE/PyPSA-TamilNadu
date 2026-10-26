@@ -16,7 +16,7 @@ if (-not $Python) {
         if (Test-Path -LiteralPath $condaCandidate) {
             $Python = $condaCandidate
         } else {
-            throw "No usable Python was found. Pass -Python with an environment containing requirements-rea.txt."
+            throw "No usable Python was found. Pass -Python with an environment containing requirements.txt."
         }
     }
 }

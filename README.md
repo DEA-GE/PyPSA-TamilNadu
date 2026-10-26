@@ -40,15 +40,7 @@ If `python` is not on your path, use the Python executable from your environment
    ```powershell
    python -m venv .venv
    .venv\Scripts\Activate.ps1
-   python -m pip install pypsa==1.4.0 highspy pandas openpyxl matplotlib jupyterlab xarray psutil Markdown tabulate
-   ```
-
-   If you also regenerate upstream data, install the packages for those
-   scripts:
-
-   ```powershell
-   python -m pip install requests beautifulsoup4  # scrape_tn_reservoirs.py
-   python -m pip install geopandas requests       # build_enhanced_workbook.py
+   python -m pip install -r requirements.txt
    ```
 
 2. Use the checked-in `model/` network, or rebuild it after changing inputs:
