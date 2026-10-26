@@ -282,15 +282,6 @@ unserved_energy__tirunelveli,Tirunelveli,8360.032338233974,0.0,1.0,,inf,unserved
 unserved_energy__trichy,Trichy,12099.889211605832,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__vellore,Vellore,12108.872054376143,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 unserved_energy__villupuram,Villupuram,10186.543701530078,0.0,1.0,,inf,unserved_energy,100000.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_ramagundam_stages_i_ii,Andhra Pradesh,470.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_ramagundam_stage_iii,Andhra Pradesh,118.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_talcher_stage_ii,Western Region,477.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_simhadri_stage_ii,Andhra Pradesh,197.7,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_kudgi_stage_i,Karnataka,300.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_kaiga_units_1_2,Karnataka,105.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-central_cgs_kaiga_units_3_4,Karnataka,91.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-medium_term_meenakshi_energy,Andhra Pradesh,300.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
-medium_term_vedanta_chhattisgarh,Western Region,200.0,0.0,1.0,0.0,inf,market_import,6500.0,False,0.0,0.0,0.0,0.0,1.0,0.0,,,,
 additional_2026_07__diesel_samayanallur__unit_01,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_02,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_03,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4

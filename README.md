@@ -40,15 +40,7 @@ If `python` is not on your path, use the Python executable from your environment
    ```powershell
    python -m venv .venv
    .venv\Scripts\Activate.ps1
-   python -m pip install pypsa==1.4.0 highspy pandas openpyxl matplotlib jupyterlab xarray psutil Markdown tabulate
-   ```
-
-   If you also regenerate upstream data, install the packages for those
-   scripts:
-
-   ```powershell
-   python -m pip install requests beautifulsoup4  # scrape_tn_reservoirs.py
-   python -m pip install geopandas requests       # build_enhanced_workbook.py
+   python -m pip install -r requirements.txt
    ```
 
 2. Use the checked-in `model/` network, or rebuild it after changing inputs:
@@ -354,13 +346,21 @@ primarily reflecting OSM-backed solar and wind allocation. Inspect
 district-level source table and `model/component_metadata.csv` for each
 PyPSA component's assigned bus, method, confidence, and allocation share.
 `model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
-Interstate imports are represented by source-specific generators at external
-grid buses, using Tamil Nadu's allocated capacity and the modeled inbound
-interconnector links. Their marginal cost is 6,500 INR/MWh. The Telangana and
-Odisha sources use the Andhra Pradesh and Western Region buses, respectively,
-as specified study proxies. The former 6,727 MW statewide direct-injection
-import proxy has been removed. Unserved energy remains split using demand
-energy shares and is not reported as installed plant.
+Interstate exchange uses the audited FY2025-26 SRPC REA schedules. Hourly
+resolved flows retain their mapped external gateway. Hourly unresolved imports
+and exports are distributed separately across Andhra Pradesh, Karnataka,
+Kerala, and Western Region in proportion to the corresponding direction's
+annual resolved flow. If a provisional allocation exceeds remaining gateway
+capacity, the excess is redistributed across the other positive-share
+gateways. The model keeps `resolved` and `unresolved_distributed` as separate
+load carriers and audit measures. Imports are negative external demand and
+exports are positive external demand. These loads fix total exchange at each
+external bus, while the grid chooses the split among parallel links; individual
+interconnector links are not fixed. See `model/interstate_flow_audit.csv` for
+the hourly values, shares, capacity limits, and redistribution flags. The
+former dispatchable import-entitlement generators are not included, avoiding
+double counting. Unserved energy remains split using demand energy shares and
+is not reported as installed plant.
 
 The July-2026 overlay adds 563.9895 MW to the modeled fleet: 211.70 MW diesel,
 212.33 MW solar, and 139.9595 MW wind. Project evidence locates the diesel

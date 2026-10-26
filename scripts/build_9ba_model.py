@@ -32,8 +32,8 @@ PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
 # installed capacity) before they are assigned to generator p_max_pu.
 SOLAR_AVAILABILITY_MULTIPLIER = 0.7174
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
-INTERSTATE_IMPORT_FILE = SOURCE_DIR / "interstate_import_generators.csv"
-INTERSTATE_IMPORT_MARGINAL_COST = 6_500.0  # INR/MWh (6.5 INR/kWh)
+REA_INTERSTATE_HOURLY_FLOW_FILE = SOURCE_DIR / "rea_interstate_hourly_flows_FY2025_26.csv"
+REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_FY2025_26.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
@@ -1614,74 +1614,6 @@ def allocate_mechanisms(
     return pd.DataFrame(output_rows, columns=mechanisms.columns), pd.DataFrame(metadata_rows)
 
 
-def build_interstate_import_generators(
-    buses: pd.DataFrame, generator_columns: pd.Index
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Build source-specific imports at neighboring-region grid buses."""
-    imports = pd.read_csv(INTERSTATE_IMPORT_FILE)
-    required = {
-        "name", "plant_name", "source_type", "state", "bus",
-        "tn_capacity_mw", "source_reference", "notes",
-    }
-    missing = sorted(required - set(imports.columns))
-    if missing:
-        raise ValueError(f"Interstate import input is missing columns: {missing}")
-    if imports["name"].duplicated().any():
-        raise ValueError("Interstate import generator names must be unique")
-    imports["tn_capacity_mw"] = pd.to_numeric(
-        imports["tn_capacity_mw"], errors="raise"
-    )
-    if imports["tn_capacity_mw"].isna().any() or (imports["tn_capacity_mw"] <= 0).any():
-        raise ValueError("Interstate import capacities must be positive MW values")
-    unknown_buses = sorted(set(imports["bus"]) - set(buses["name"]))
-    if unknown_buses:
-        raise ValueError(f"Interstate imports refer to unknown grid buses: {unknown_buses}")
-
-    rows: list[dict[str, object]] = []
-    metadata_rows: list[dict[str, object]] = []
-    for record in imports.to_dict("records"):
-        capacity = float(record["tn_capacity_mw"])
-        row: dict[str, object] = {
-            "name": record["name"],
-            "bus": record["bus"],
-            "p_nom": capacity,
-            "p_min_pu": 0.0,
-            "p_max_pu": 1.0,
-            "p_init": 0.0,
-            "e_sum_max": np.inf,
-            "carrier": "market_import",
-            "marginal_cost": INTERSTATE_IMPORT_MARGINAL_COST,
-            "committable": False,
-            "start_up_cost": 0.0,
-            "shut_down_cost": 0.0,
-            "min_up_time": 0,
-            "min_down_time": 0,
-            "up_time_before": 1,
-            "down_time_before": 0,
-        }
-        rows.append(row)
-        metadata_rows.append({
-            "component_type": "Generator",
-            "component_id": record["name"],
-            "original_component_id": record["name"],
-            "source": record["source_type"],
-            "plant_name": record["plant_name"],
-            "state": record["state"],
-            "bus": record["bus"],
-            "allocation_method": "Tamil Nadu capacity entitlement at external grid bus",
-            "allocation_share": 1.0,
-            "original_capacity_mw": capacity,
-            "capacity_mw": capacity,
-            "source_reference": record["source_reference"],
-            "notes": record["notes"],
-        })
-    generators = pd.DataFrame(rows).reindex(columns=generator_columns)
-    metadata = pd.DataFrame(metadata_rows)
-    if not np.isclose(imports["tn_capacity_mw"].sum(), 2_258.7):
-        raise AssertionError("Interstate import capacities do not sum to the documented 2,258.7 MW")
-    return generators, metadata
-
-
 def read_additional_capacity(
     district_to_area: dict[str, str],
 ) -> pd.DataFrame:
@@ -1888,6 +1820,198 @@ def build_loads(demand: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Da
     if not np.allclose(time_series.sum(axis=1), base_load, atol=1e-6):
         raise AssertionError("Balancing-area loads do not preserve state demand")
     return pd.DataFrame(loads), time_series, allocation
+
+
+def build_interstate_flow_loads(
+    buses: pd.DataFrame, grid_links: pd.DataFrame, snapshots: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Place audited REA flows at external buses without fixing individual links.
+
+    Resolved flows retain their audited gateway. Each hourly unresolved total
+    is distributed using direction-specific annual resolved-flow shares. A
+    capacity-aware water-filling pass redistributes amounts that do not fit at
+    a gateway. The two measures remain distinct for later review.
+    """
+    gateway_order = ("Andhra Pradesh", "Karnataka", "Kerala", "Western Region")
+    directions = ("import", "export")
+    measures = ("resolved", "unresolved_distributed")
+    expected_gwh = {
+        ("import", "resolved"): 27_765.9794200001,
+        ("import", "unresolved_distributed"): 20_826.9511525,
+        ("export", "resolved"): 15_504.698395,
+        ("export", "unresolved_distributed"): 8_000.055805,
+    }
+    if len(snapshots) != 8_760:
+        raise ValueError("REA interstate flows require the complete 8,760-hour FY2025-26 model")
+
+    flows = pd.read_csv(REA_INTERSTATE_HOURLY_FLOW_FILE, parse_dates=["snapshot"])
+    shares = pd.read_csv(REA_INTERSTATE_GATEWAY_SHARE_FILE)
+    required_flow = {"snapshot", "direction", "measure", "gateway", "flow_MW"}
+    required_share = {"direction", "gateway", "allocation_share"}
+    if missing := sorted(required_flow - set(flows.columns)):
+        raise ValueError(f"REA hourly-flow input is missing columns: {missing}")
+    if missing := sorted(required_share - set(shares.columns)):
+        raise ValueError(f"REA gateway-share input is missing columns: {missing}")
+    model_snapshots = pd.to_datetime(snapshots, errors="raise")
+    if not flows["direction"].isin(directions).all():
+        raise ValueError("REA flow directions must be import or export")
+    if not flows["measure"].isin(["resolved", "unresolved_total"]).all():
+        raise ValueError("REA source measures must be resolved or unresolved_total")
+    if flows["flow_MW"].isna().any() or flows["flow_MW"].lt(0.0).any():
+        raise ValueError("REA hourly flows must be finite and non-negative")
+    if set(flows["snapshot"].unique()) != set(model_snapshots):
+        raise ValueError("REA hourly-flow snapshots do not match the model snapshots")
+    if set(shares["gateway"]) != set(gateway_order):
+        raise ValueError("REA allocation shares must cover the four external gateways")
+    if not np.allclose(shares.groupby("direction")["allocation_share"].sum(), 1.0):
+        raise ValueError("REA allocation shares must sum to one for each direction")
+    unknown_buses = sorted(set(gateway_order) - set(buses["name"]))
+    if unknown_buses:
+        raise ValueError(f"REA gateways are absent from the network buses: {unknown_buses}")
+
+    gateway_set = set(gateway_order)
+    capacities: dict[tuple[str, str], float] = {}
+    for direction in directions:
+        for gateway in gateway_order:
+            if direction == "import":
+                mask = grid_links["bus0"].eq(gateway) & ~grid_links["bus1"].isin(gateway_set)
+            else:
+                mask = grid_links["bus1"].eq(gateway) & ~grid_links["bus0"].isin(gateway_set)
+            links = grid_links.loc[mask]
+            capacities[(direction, gateway)] = float(
+                (pd.to_numeric(links["p_nom"], errors="raise")
+                 * pd.to_numeric(links["p_max_pu"], errors="raise")).sum()
+            )
+            if capacities[(direction, gateway)] <= 0.0:
+                raise ValueError(f"No {direction} capacity found for gateway {gateway}")
+
+    resolved = flows.loc[flows["measure"].eq("resolved")].pivot_table(
+        index="snapshot", columns=["direction", "gateway"], values="flow_MW",
+        aggfunc="sum", fill_value=0.0,
+    ).reindex(model_snapshots, fill_value=0.0)
+    unresolved = flows.loc[flows["measure"].eq("unresolved_total")].pivot_table(
+        index="snapshot", columns="direction", values="flow_MW",
+        aggfunc="sum", fill_value=0.0,
+    ).reindex(model_snapshots, fill_value=0.0)
+    share_lookup = shares.set_index(["direction", "gateway"])["allocation_share"]
+
+    allocated: dict[tuple[str, str], np.ndarray] = {}
+    initial_allocation: dict[tuple[str, str], np.ndarray] = {}
+    redistribution: dict[tuple[str, str], np.ndarray] = {}
+    limited: dict[tuple[str, str], np.ndarray] = {}
+    for direction in directions:
+        direction_shares = np.array([
+            float(share_lookup.loc[(direction, gateway)]) for gateway in gateway_order
+        ])
+        direction_capacities = np.array([
+            capacities[(direction, gateway)] for gateway in gateway_order
+        ])
+        resolved_values = np.column_stack([
+            resolved.get((direction, gateway), pd.Series(0.0, index=model_snapshots)).to_numpy()
+            for gateway in gateway_order
+        ])
+        if (resolved_values > direction_capacities + 1e-6).any():
+            row, column = np.argwhere(resolved_values > direction_capacities + 1e-6)[0]
+            raise ValueError(
+                f"Resolved {direction} flow exceeds {gateway_order[column]} capacity at "
+                f"{model_snapshots[row]}"
+            )
+        unresolved_values = unresolved.get(
+            direction, pd.Series(0.0, index=model_snapshots)
+        ).to_numpy()
+        initial = unresolved_values[:, None] * direction_shares[None, :]
+        result = np.zeros_like(initial)
+        for hour, total in enumerate(unresolved_values):
+            remaining_capacity = np.maximum(direction_capacities - resolved_values[hour], 0.0)
+            remaining = float(total)
+            active = (direction_shares > 0.0) & (remaining_capacity > 1e-9)
+            while remaining > 1e-7 and active.any():
+                weights = direction_shares * active
+                proposal = remaining * weights / weights.sum()
+                addition = np.minimum(proposal, remaining_capacity - result[hour])
+                addition = np.maximum(addition, 0.0)
+                result[hour] += addition
+                remaining -= float(addition.sum())
+                active = (direction_shares > 0.0) & (
+                    remaining_capacity - result[hour] > 1e-9
+                )
+            if remaining > 1e-5:
+                raise ValueError(
+                    f"Cannot place {remaining:.6f} MW of unresolved {direction} flow at "
+                    f"{model_snapshots[hour]} after applying gateway capacities"
+                )
+        if not np.allclose(result.sum(axis=1), unresolved_values, atol=1e-5):
+            raise AssertionError(f"Unresolved {direction} allocation does not conserve hourly flow")
+        for column, gateway in enumerate(gateway_order):
+            allocated[(direction, gateway)] = result[:, column]
+            initial_allocation[(direction, gateway)] = initial[:, column]
+            redistribution[(direction, gateway)] = result[:, column] - initial[:, column]
+            limited[(direction, gateway)] = ~np.isclose(
+                result[:, column], initial[:, column], atol=1e-7
+            )
+
+    load_rows: list[dict[str, str]] = []
+    profile_data: dict[str, np.ndarray] = {}
+    audit_rows: list[pd.DataFrame] = []
+    for direction in directions:
+        sign = -1.0 if direction == "import" else 1.0
+        unresolved_total = unresolved.get(
+            direction, pd.Series(0.0, index=model_snapshots)
+        ).to_numpy()
+        for gateway in gateway_order:
+            resolved_values = resolved.get(
+                (direction, gateway), pd.Series(0.0, index=model_snapshots)
+            ).to_numpy()
+            for measure in measures:
+                values = resolved_values if measure == "resolved" else allocated[(direction, gateway)]
+                load_name = f"interstate_{measure}_{direction}_{slugify(gateway)}"
+                load_rows.append({
+                    "name": load_name, "bus": gateway,
+                    "carrier": f"interstate_exchange_{measure}",
+                })
+                profile_data[load_name] = sign * values
+                audit_rows.append(pd.DataFrame({
+                    "snapshot": model_snapshots, "direction": direction,
+                    "measure": measure, "gateway": gateway, "load_name": load_name,
+                    "flow_MW": values, "external_load_p_set_MW": sign * values,
+                    "allocation_share": float(share_lookup.loc[(direction, gateway)]),
+                    "gateway_capacity_MW": capacities[(direction, gateway)],
+                    "resolved_flow_MW": resolved_values,
+                    "unresolved_total_MW": unresolved_total,
+                    "pre_capacity_allocation_MW": (
+                        np.zeros(len(model_snapshots)) if measure == "resolved"
+                        else initial_allocation[(direction, gateway)]
+                    ),
+                    "capacity_redistribution_MW": (
+                        np.zeros(len(model_snapshots)) if measure == "resolved"
+                        else redistribution[(direction, gateway)]
+                    ),
+                    "capacity_limited": (
+                        np.zeros(len(model_snapshots), dtype=bool) if measure == "resolved"
+                        else limited[(direction, gateway)]
+                    ),
+                    "status": (
+                        "audited_resolved" if measure == "resolved"
+                        else "unresolved_distributed_not_verified"
+                    ),
+                }))
+
+    loads = pd.DataFrame(load_rows)
+    profiles = pd.DataFrame(profile_data, index=pd.RangeIndex(len(model_snapshots)))
+    audit = pd.concat(audit_rows, ignore_index=True)
+    annual = audit.groupby(["direction", "measure"])["flow_MW"].sum() / 1_000.0
+    for key, expected in expected_gwh.items():
+        if not np.isclose(float(annual.loc[key]), expected, atol=1e-6):
+            raise AssertionError(
+                f"REA {key} annual energy changed: expected {expected}, got {annual.loc[key]}"
+            )
+    combined = audit.groupby(["snapshot", "direction", "gateway"])["flow_MW"].sum()
+    for (snapshot, direction, gateway), flow in combined.items():
+        if flow > capacities[(direction, gateway)] + 1e-6:
+            raise AssertionError(
+                f"Combined {direction} flow exceeds {gateway} capacity at {snapshot}"
+            )
+    return loads, profiles, audit
 
 
 def placeholder_profiles(
@@ -2168,15 +2292,6 @@ def main() -> None:
     generator_metadata = pd.concat(
         [generator_metadata, mechanism_metadata], ignore_index=True, sort=False
     )
-    interstate_imports, interstate_import_metadata = build_interstate_import_generators(
-        grid_buses, original_generators.columns
-    )
-    if set(interstate_imports["name"]) & set(generators["name"]):
-        raise AssertionError("Interstate import generator names duplicate existing generators")
-    generators = pd.concat([generators, interstate_imports], ignore_index=True)
-    generator_metadata = pd.concat(
-        [generator_metadata, interstate_import_metadata], ignore_index=True, sort=False
-    )
     storage, storage_metadata = allocate_source_components(
         original_storage, metadata, "StorageUnit", district_allocations
     )
@@ -2216,9 +2331,18 @@ def main() -> None:
         sort=False,
     )
 
-    loads, load_time_series, demand_allocation = build_loads(demand)
     snapshots_table = pd.read_csv(BASE_MODEL / "snapshots.csv")
     snapshots = snapshots_table["snapshot"]
+    loads, load_time_series, demand_allocation = build_loads(demand)
+    (
+        interstate_flow_loads,
+        interstate_flow_profiles,
+        interstate_flow_audit,
+    ) = build_interstate_flow_loads(
+        grid_buses, grid_links, snapshots
+    )
+    loads = pd.concat([loads, interstate_flow_loads], ignore_index=True)
+    load_time_series = pd.concat([load_time_series, interstate_flow_profiles], axis=1)
     oil_gas_budget = read_oil_gas_energy_budget()
     nuclear_budget = read_oil_gas_energy_budget("Nuclear")
     cascade_generation_targets = build_cascade_generation_calibration(
@@ -2417,6 +2541,21 @@ def main() -> None:
     }
     nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
     tn_export_allocations.to_csv(OUTPUT_DIR / "tn_export_capacity_allocations.csv", index=False)
+    interstate_flow_audit.to_csv(OUTPUT_DIR / "interstate_flow_audit.csv", index=False)
+    interstate_flow_reconciliation = interstate_flow_audit.groupby(
+        ["direction", "measure", "gateway", "status"], as_index=False
+    ).agg(
+        energy_GWh=("flow_MW", lambda values: values.sum() / 1_000.0),
+        peak_MW=("flow_MW", "max"),
+        nonzero_hours=("flow_MW", lambda values: int((values > 1e-9).sum())),
+        capacity_limited_hours=("capacity_limited", "sum"),
+        net_capacity_redistribution_GWh=(
+            "capacity_redistribution_MW", lambda values: values.sum() / 1_000.0
+        ),
+    )
+    interstate_flow_reconciliation.to_csv(
+        OUTPUT_DIR / "interstate_flow_reconciliation.csv", index=False
+    )
     reservoir_inflow_audit.to_csv(
         OUTPUT_DIR / "hydro_reservoir_inflow.csv", index=False, date_format="%Y-%m-%d"
     )
@@ -2455,6 +2594,11 @@ def main() -> None:
     pd.concat([grid_links.reindex(columns=link_columns), hydraulic_links.reindex(columns=link_columns)], ignore_index=True).to_csv(
         OUTPUT_DIR / "links.csv", index=False
     )
+    # The external-bus loads fix total gateway exchange while allowing the
+    # network to choose among parallel interconnector links.
+    (OUTPUT_DIR / "links-p_min_pu.csv").unlink(missing_ok=True)
+    (OUTPUT_DIR / "links-p_max_pu.csv").unlink(missing_ok=True)
+    (OUTPUT_DIR / "interstate_signed_flows.csv").unlink(missing_ok=True)
     grid_lines.to_csv(OUTPUT_DIR / "lines.csv", index=False)
     grid_metadata.to_csv(
         OUTPUT_DIR / "transmission_capacity_metadata.csv", index=False

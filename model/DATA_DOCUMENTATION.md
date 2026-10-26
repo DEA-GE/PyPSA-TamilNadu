@@ -22,16 +22,23 @@ To replace only the transmission network from the active Excel input, run
 | Files | Meaning |
 | --- | --- |
 | `buses.csv`, `lines.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
-| `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand, availability, and simple-reservoir inflow |
+| `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand including external-bus exchange, generator availability, and simple-reservoir inflow |
 | `global_constraints.csv`, `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv` | Annual equality constraints and observed daily energy targets |
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
-| `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv` | Hydro assumptions and validation, corridor ratings, and capacity reconciliation |
+| `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv`, `interstate_flow_audit.csv`, `interstate_flow_reconciliation.csv` | Hydro assumptions and validation, corridor ratings, capacity reconciliation, and hourly/annual REA flow audits |
 
-Interstate imports use plant-specific generator records at external grid buses.
-The model represents 2,258.7 MW of Tamil Nadu allocations and contracts at a
-6,500 INR/MWh marginal cost. Telangana and Odisha sources are mapped to the
-Andhra Pradesh and Western Region buses, respectively, as study proxies. The
-previous 6,727 MW aggregate direct-injection import proxy is removed.
+FY2025-26 SRPC REA imports and exports are fixed hourly loads at four external
+buses. Imports use negative `p_set` and exports positive `p_set`. Audited
+resolved flows and proportionally allocated unresolved flows are separate load
+carriers and separate measures in `interstate_flow_audit.csv`; the latter are
+explicitly labeled `unresolved_distributed_not_verified`. Allocation uses each
+direction's annual resolved-flow gateway shares. A capacity-aware redistribution
+step moves only provisional flow when its initial gateway lacks headroom and
+fails the build if the total cannot be placed. The existing grid links carry
+these boundary injections or withdrawals, but their hourly minimum and maximum
+flows are not fixed, allowing parallel paths to be selected by the network.
+The former dispatchable import-entitlement generators remain removed to avoid
+double counting.
 
 The four listed in-state thermal stations with allocations to other states are
 derated to their Tamil Nadu shares before spatial allocation. Their out-of-state

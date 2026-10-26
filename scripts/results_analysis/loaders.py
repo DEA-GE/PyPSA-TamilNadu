@@ -5,10 +5,21 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
 import pypsa
+
+
+def _is_dual_sidecar(path: Path) -> bool:
+    """Return whether *path* stores solver duals rather than a solved network."""
+    return path.name.casefold().endswith(".duals.nc")
+
+
+def _primal_network_files(paths: Iterable[Path]) -> list[Path]:
+    """Sort solved-network files while excluding adjacent solver-dual files."""
+    return sorted(path for path in paths if not _is_dual_sidecar(path))
 
 
 @dataclass(frozen=True)
@@ -111,6 +122,8 @@ def load_analysis_run(path: str | Path) -> AnalysisRun:
     if requested.is_file():
         if requested.suffix.casefold() != ".nc":
             raise ValueError("A result file must be a PyPSA .nc network")
+        if _is_dual_sidecar(requested):
+            raise ValueError("A .duals.nc sidecar is not a solved PyPSA network")
         result_dir = requested.parent
         source_files = [requested]
     else:
@@ -120,9 +133,11 @@ def load_analysis_run(path: str | Path) -> AnalysisRun:
         if solved_network.exists():
             source_files = [solved_network]
         elif checkpoint_dir.exists():
-            source_files = sorted(checkpoint_dir.glob("window_*.nc"))
+            source_files = _primal_network_files(
+                checkpoint_dir.glob("window_*.nc")
+            )
         else:
-            direct_networks = sorted(result_dir.glob("*.nc"))
+            direct_networks = _primal_network_files(result_dir.glob("*.nc"))
             if len(direct_networks) == 1:
                 source_files = direct_networks
             else:

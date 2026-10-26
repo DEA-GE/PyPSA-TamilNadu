@@ -563,6 +563,8 @@ def seasonality_fit(monthly: pd.DataFrame) -> pd.DataFrame:
         if modeled_name not in monthly or observed_name not in monthly:
             continue
         pair = monthly[[modeled_name, observed_name]].dropna()
+        if pair.empty:
+            continue
         rows.append(
             {
                 "carrier": carrier,
