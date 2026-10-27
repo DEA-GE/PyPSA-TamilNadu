@@ -288,10 +288,12 @@ represent the corresponding export flows. The generated audit is
 `model/tn_export_capacity_allocations.csv`.
 
 `data/model_inputs/Balancing_areas.txt` is a Markdown-style table mapping 38
-districts to the nine bus names. `data/model_inputs/Grid_capacity.txt` is a
-tab-separated table of 18 area-to-area corridors and stated MW values or
-ranges. The builder uses a range midpoint when needed, then applies a 0.50
-availability factor. It writes bidirectional, lossless `Link`s, with nominal
-and effective ratings recorded in
-`model/transmission_capacity_metadata.csv`. These are transport limits; they
-do not represent AC power flow or reactive power.
+districts to the nine bus names. The authoritative grid workbook supplies 18
+internal AC `Line` corridors and 24 directional interstate `Link`s. During
+optimization, internal active-power losses are approximated from the imported
+line resistance with two linear tangent segments. Interstate links use 97%
+efficiency, following CEA's 3% interstate-import planning loss assumption, and
+the FY2025-26 TNERC short-term transmission charge of Rs 241.81/MWh. Internal
+line flow has a separate Rs 1/MWh numerical routing tie-breaker; it is not a
+regulated tariff. Ratings and provenance are recorded in
+`model/transmission_capacity_metadata.csv`. Reactive power is not modeled.

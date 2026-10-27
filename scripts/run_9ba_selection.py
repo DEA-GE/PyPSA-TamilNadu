@@ -45,6 +45,10 @@ from run_9ba_rolling import (
     run_rolling_year,
 )
 from results_analysis.loaders import load_observed_capacity
+from transmission_assumptions import (
+    TRANSMISSION_LOSSES,
+    add_transmission_flow_cost,
+)
 
 
 DEFAULT_NETWORK = MODEL_DIR
@@ -634,6 +638,7 @@ def _solve_peak_week(
                 ).sum() == float(target),
                 name=f"daily_oil_gas_energy_{date:%Y_%m_%d}",
             )
+        add_transmission_flow_cost(active_network, active_snapshots)
 
     print(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...", flush=True)
     started = time.perf_counter()
@@ -644,6 +649,7 @@ def _solve_peak_week(
             unit_commitment, mip_rel_gap, solver_threads
         ),
         extra_functionality=extra_functionality,
+        transmission_losses=TRANSMISSION_LOSSES,
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
     )
@@ -1098,6 +1104,7 @@ def _solve_selected_weeks(
                     expression = store_e.sel({store_dim: monthly_stores, "snapshot": snapshot})
                     active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
                     active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
+            add_transmission_flow_cost(active_network, active_snapshots)
 
         print(
             f"Solving selected week {position}/{len(starts)}: {start.date()} to "
@@ -1113,6 +1120,7 @@ def _solve_selected_weeks(
                 unit_commitment, mip_rel_gap, solver_threads
             ),
             extra_functionality=extra_functionality,
+            transmission_losses=TRANSMISSION_LOSSES,
             include_objective_constant=False,
             linearized_unit_commitment=unit_commitment == "relaxed",
         )

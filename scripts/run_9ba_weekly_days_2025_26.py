@@ -30,6 +30,10 @@ import pypsa
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
+from transmission_assumptions import (
+    TRANSMISSION_LOSSES,
+    add_transmission_flow_cost,
+)
 
 configure_for_pypsa_124()
 
@@ -438,7 +442,11 @@ def solve_day(
     reset_highs_global_scheduler()
     status, condition = network.optimize(
         solver_name=solver,
-        extra_functionality=add_nuclear_targets,
+        extra_functionality=lambda n, s: (
+            add_nuclear_targets(n, s),
+            add_transmission_flow_cost(n, s),
+        ),
+        transmission_losses=TRANSMISSION_LOSSES,
         solver_options=solver_options,
         include_objective_constant=False,
         linearized_unit_commitment=linearized_unit_commitment,

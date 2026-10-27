@@ -15,6 +15,11 @@ import numpy as np
 import pandas as pd
 import pypsa
 
+from transmission_assumptions import (
+    INTERSTATE_FLOW_COST_PER_MWH,
+    interconnector_efficiency,
+)
+
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
 
@@ -268,10 +273,12 @@ def read_grid() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
         links = links.loc[links["active"].fillna(False).astype(bool)].copy()
     links = links.reindex(columns=[
         "name", "bus0", "bus1", "carrier", "p_nom", "p_min_pu",
-        "p_max_pu", "marginal_cost", "length", "kind", "direction", "pair",
+        "p_max_pu", "marginal_cost", "efficiency", "length", "kind", "direction", "pair",
         "p_nom_n1", "largest_circuit_mw", "n_circuits", "circuits_by_kv",
         "x_equivalent_ohm", "line_ids",
     ])
+    links["marginal_cost"] = INTERSTATE_FLOW_COST_PER_MWH
+    links["efficiency"] = interconnector_efficiency(links["length"])
 
     if len(lines) != 18:
         raise ValueError(f"Expected 18 active internal grid lines, found {len(lines)}")
