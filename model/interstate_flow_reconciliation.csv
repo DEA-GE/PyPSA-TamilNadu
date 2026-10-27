@@ -1,17 +1,17 @@
-direction,measure,gateway,status,energy_GWh,peak_MW,nonzero_hours,capacity_limited_hours,net_capacity_redistribution_GWh
-export,resolved,Andhra Pradesh,audited_resolved,3371.9681,1249.005,8736,0,0.0
-export,resolved,Karnataka,audited_resolved,7691.016155000001,1854.9325,8760,0,0.0
-export,resolved,Kerala,audited_resolved,3849.0686675000006,735.41,8760,0,0.0
-export,resolved,Western Region,audited_resolved,592.6454725,270.08000000000004,3937,0,0.0
-export,unresolved_distributed,Andhra Pradesh,unresolved_distributed_not_verified,1739.8553835383918,1551.998352372126,8760,0,2.763971274077903e-13
-export,unresolved_distributed,Karnataka,unresolved_distributed_not_verified,3968.381510536087,3539.9043071099654,8760,0,6.340528102555254e-13
-export,unresolved_distributed,Kerala,unresolved_distributed_not_verified,1986.0279350681935,1771.5909679356616,8760,0,3.1755398310906457e-13
-export,unresolved_distributed,Western Region,unresolved_distributed_not_verified,305.7909758573277,272.7738725822466,8760,0,4.9430570747688307e-14
-import,resolved,Andhra Pradesh,audited_resolved,5043.451465,845.7,8757,0,0.0
-import,resolved,Karnataka,audited_resolved,6338.7949075,1357.485,8760,0,0.0
-import,resolved,Kerala,audited_resolved,0.0,0.0,0,0,0.0
-import,resolved,Western Region,audited_resolved,16383.733047500002,3337.18,8760,0,0.0
-import,unresolved_distributed,Andhra Pradesh,unresolved_distributed_not_verified,3783.55889422588,1248.012316143564,8760,14,0.5222610610935381
-import,unresolved_distributed,Karnataka,unresolved_distributed_not_verified,4755.315683591165,1568.5476838564364,8760,14,0.65639686976649
-import,unresolved_distributed,Kerala,unresolved_distributed_not_verified,0.0,0.0,0,0,0.0
-import,unresolved_distributed,Western Region,unresolved_distributed_not_verified,12288.076574682958,3993.197127769671,8760,14,-1.1786579308566811
+direction,measure,gateway,status,energy_GWh,modeled_energy_GWh,peak_MW,modeled_peak_MW,nonzero_hours,modeled_nonzero_hours,capacity_limited_hours,net_capacity_redistribution_GWh
+export,resolved,Andhra Pradesh,audited_resolved,3371.9681,3371.9681,1249.005,1249.005,8736,8736,0,0.0
+export,resolved,Karnataka,audited_resolved,7691.016155,7691.016155,1854.9325,1854.9325,8760,8760,0,0.0
+export,resolved,Kerala,audited_resolved,3849.0686675,3849.0686675,735.41,735.41,8760,8760,0,0.0
+export,resolved,Western Region,audited_resolved,592.6454724999999,592.6454724999999,270.08000000000004,270.08000000000004,3937,3937,0,0.0
+export,unresolved_distributed,Andhra Pradesh,unresolved_distributed_not_verified,1739.855383538392,1739.855383538392,1551.998352372126,1551.998352372126,8760,8760,0,2.763971274077903e-13
+export,unresolved_distributed,Karnataka,unresolved_distributed_not_verified,3968.381510536087,3968.381510536087,3539.9043071099654,3539.9043071099654,8760,8760,0,6.340528102555254e-13
+export,unresolved_distributed,Kerala,unresolved_distributed_not_verified,1986.0279350681935,1986.0279350681935,1771.5909679356616,1771.5909679356616,8760,8760,0,3.1755398310906457e-13
+export,unresolved_distributed,Western Region,unresolved_distributed_not_verified,305.7909758573277,305.7909758573277,272.7738725822466,272.7738725822466,8760,8760,0,4.9430570747688307e-14
+import,resolved,Andhra Pradesh,audited_resolved,5043.451465,5043.451465,845.7,845.7,8757,8757,0,0.0
+import,resolved,Karnataka,audited_resolved,6338.794907500001,6338.794907500001,1357.485,1357.485,8760,8760,0,0.0
+import,resolved,Kerala,audited_resolved,0.0,0.0,0.0,0.0,0,0,0,0.0
+import,resolved,Western Region,audited_resolved,16383.733047500002,16383.733047500002,3337.18,3337.18,8760,8760,0,0.0
+import,unresolved_distributed,Andhra Pradesh,unresolved_distributed_excluded_from_model,3783.55889422588,0.0,1248.012316143564,0.0,8760,0,14,0.5222610610935381
+import,unresolved_distributed,Karnataka,unresolved_distributed_excluded_from_model,4755.315683591165,0.0,1568.5476838564364,0.0,8760,0,14,0.65639686976649
+import,unresolved_distributed,Kerala,unresolved_distributed_excluded_from_model,0.0,0.0,0.0,0.0,0,0,0,0.0
+import,unresolved_distributed,Western Region,unresolved_distributed_excluded_from_model,12288.076574682957,0.0,3993.197127769671,0.0,8760,0,14,-1.1786579308566811

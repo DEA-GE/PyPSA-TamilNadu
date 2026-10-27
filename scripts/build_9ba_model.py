@@ -27,10 +27,11 @@ AREA_FILE = SOURCE_DIR / "Balancing_areas.txt"
 GRID_WORKBOOK = SOURCE_DIR / "TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx"
 DEMAND_WORKBOOK = SOURCE_DIR / "tamil_nadu_balancing_area_demand.xlsx"
 PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
-# Empirical calibration of solar availability against the observed FY2025-26
-# statewide generation.  This scales the solar capacity-factor profiles (not
-# installed capacity) before they are assigned to generator p_max_pu.
-SOLAR_AVAILABILITY_MULTIPLIER = 0.7174
+# Empirical calibration of solar availability against the NITI Dashboard's
+# observed FY2025-26 statewide generation: 19,690.99 GWh observed divided by
+# 21,163.90 GWh of unscaled profile potential.  This scales the solar
+# capacity-factor profiles (not installed capacity) before generator p_max_pu.
+SOLAR_AVAILABILITY_MULTIPLIER = 0.9304
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 REA_INTERSTATE_HOURLY_FLOW_FILE = SOURCE_DIR / "rea_interstate_hourly_flows_FY2025_26.csv"
 REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_FY2025_26.csv"
@@ -134,9 +135,9 @@ TERMINAL_WATER_SINK_CAPACITY_MWH = 1.0e12
 # non-generating reservoir release whenever the electrical system can accept it.
 # Spill remains available when required by observed SOC boundaries or hydraulics.
 WATER_SPILL_MARGINAL_COST = 0.01  # currency units per MWh of released water
-# Small operating-cost tie-breaker so solar is curtailed before zero-cost wind
-# when both are otherwise equally useful to the dispatch.
-SOLAR_CURTAILMENT_PREFERENCE_COST = 1.0  # currency units per MWh
+# Equal operating costs leave wind-versus-solar curtailment allocation to the
+# optimizer and avoid imposing a technology preference.
+SOLAR_CURTAILMENT_PREFERENCE_COST = 0.0  # currency units per MWh
 # No source in the current data package states the Papanasam--Servalar tunnel
 # rating. Keep the provisional water-equivalent rating explicit and easy to
 # replace when a surveyed value becomes available. The transfer Link itself
@@ -1827,10 +1828,11 @@ def build_interstate_flow_loads(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Place audited REA flows at external buses without fixing individual links.
 
-    Resolved flows retain their audited gateway. Each hourly unresolved total
-    is distributed using direction-specific annual resolved-flow shares. A
-    capacity-aware water-filling pass redistributes amounts that do not fit at
-    a gateway. The two measures remain distinct for later review.
+    Resolved flows retain their audited gateway. Unresolved exports are
+    distributed using direction-specific annual resolved-flow shares, with a
+    capacity-aware water-filling pass for amounts that do not fit at a gateway.
+    Unresolved imports are retained in the audit but excluded from the model so
+    that only confirmed imports affect dispatch.
     """
     gateway_order = ("Andhra Pradesh", "Karnataka", "Kerala", "Western Region")
     directions = ("import", "export")
@@ -1965,15 +1967,25 @@ def build_interstate_flow_loads(
             for measure in measures:
                 values = resolved_values if measure == "resolved" else allocated[(direction, gateway)]
                 load_name = f"interstate_{measure}_{direction}_{slugify(gateway)}"
-                load_rows.append({
-                    "name": load_name, "bus": gateway,
-                    "carrier": f"interstate_exchange_{measure}",
-                })
-                profile_data[load_name] = sign * values
+                included_in_model = not (
+                    direction == "import" and measure == "unresolved_distributed"
+                )
+                if included_in_model:
+                    load_rows.append({
+                        "name": load_name, "bus": gateway,
+                        "carrier": f"interstate_exchange_{measure}",
+                    })
+                    profile_data[load_name] = sign * values
                 audit_rows.append(pd.DataFrame({
                     "snapshot": model_snapshots, "direction": direction,
-                    "measure": measure, "gateway": gateway, "load_name": load_name,
-                    "flow_MW": values, "external_load_p_set_MW": sign * values,
+                    "measure": measure, "gateway": gateway,
+                    "load_name": load_name if included_in_model else "",
+                    "flow_MW": values,
+                    "modeled_flow_MW": values if included_in_model else np.zeros(len(values)),
+                    "external_load_p_set_MW": (
+                        sign * values if included_in_model else np.zeros(len(values))
+                    ),
+                    "included_in_model": included_in_model,
                     "allocation_share": float(share_lookup.loc[(direction, gateway)]),
                     "gateway_capacity_MW": capacities[(direction, gateway)],
                     "resolved_flow_MW": resolved_values,
@@ -1992,7 +2004,11 @@ def build_interstate_flow_loads(
                     ),
                     "status": (
                         "audited_resolved" if measure == "resolved"
-                        else "unresolved_distributed_not_verified"
+                        else (
+                            "unresolved_distributed_not_verified"
+                            if included_in_model
+                            else "unresolved_distributed_excluded_from_model"
+                        )
                     ),
                 }))
 
@@ -2005,7 +2021,7 @@ def build_interstate_flow_loads(
             raise AssertionError(
                 f"REA {key} annual energy changed: expected {expected}, got {annual.loc[key]}"
             )
-    combined = audit.groupby(["snapshot", "direction", "gateway"])["flow_MW"].sum()
+    combined = audit.groupby(["snapshot", "direction", "gateway"])["modeled_flow_MW"].sum()
     for (snapshot, direction, gateway), flow in combined.items():
         if flow > capacities[(direction, gateway)] + 1e-6:
             raise AssertionError(
@@ -2546,8 +2562,13 @@ def main() -> None:
         ["direction", "measure", "gateway", "status"], as_index=False
     ).agg(
         energy_GWh=("flow_MW", lambda values: values.sum() / 1_000.0),
+        modeled_energy_GWh=("modeled_flow_MW", lambda values: values.sum() / 1_000.0),
         peak_MW=("flow_MW", "max"),
+        modeled_peak_MW=("modeled_flow_MW", "max"),
         nonzero_hours=("flow_MW", lambda values: int((values > 1e-9).sum())),
+        modeled_nonzero_hours=(
+            "modeled_flow_MW", lambda values: int((values > 1e-9).sum())
+        ),
         capacity_limited_hours=("capacity_limited", "sum"),
         net_capacity_redistribution_GWh=(
             "capacity_redistribution_MW", lambda values: values.sum() / 1_000.0

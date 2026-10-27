@@ -347,14 +347,15 @@ district-level source table and `model/component_metadata.csv` for each
 PyPSA component's assigned bus, method, confidence, and allocation share.
 `model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
 Interstate exchange uses the audited FY2025-26 SRPC REA schedules. Hourly
-resolved flows retain their mapped external gateway. Hourly unresolved imports
-and exports are distributed separately across Andhra Pradesh, Karnataka,
-Kerala, and Western Region in proportion to the corresponding direction's
-annual resolved flow. If a provisional allocation exceeds remaining gateway
-capacity, the excess is redistributed across the other positive-share
-gateways. The model keeps `resolved` and `unresolved_distributed` as separate
-load carriers and audit measures. Imports are negative external demand and
-exports are positive external demand. These loads fix total exchange at each
+resolved flows retain their mapped external gateway. Only these confirmed
+imports are included in the model; unresolved imports remain in the audit with
+zero modeled flow. Hourly unresolved exports are distributed across Andhra
+Pradesh, Karnataka, Kerala, and Western Region in proportion to annual resolved
+export flow. If a provisional export allocation exceeds remaining gateway
+capacity, the excess is redistributed across the other positive-share gateways.
+The model keeps `resolved` and `unresolved_distributed` as separate audit
+measures. Imports are negative external demand and exports are positive external
+demand. These loads fix total exchange at each
 external bus, while the grid chooses the split among parallel links; individual
 interconnector links are not fixed. See `model/interstate_flow_audit.csv` for
 the hourly values, shares, capacity limits, and redistribution flags. The

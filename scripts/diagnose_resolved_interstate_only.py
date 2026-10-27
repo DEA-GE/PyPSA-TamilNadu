@@ -1,4 +1,4 @@
-"""Temporary rolling LP diagnostic excluding distributed unresolved REA flows."""
+"""Temporary rolling LP diagnostic excluding remaining unresolved REA exports."""
 
 from __future__ import annotations
 
@@ -34,21 +34,20 @@ def main() -> None:
     columns = network.loads.index[
         network.loads.index.str.startswith("interstate_unresolved_distributed_")
     ]
-    if len(columns) != 8 or not set(columns).issubset(network.loads_t.p_set.columns):
-        raise ValueError("Expected eight distributed interstate load profiles")
+    if len(columns) != 4 or not set(columns).issubset(network.loads_t.p_set.columns):
+        raise ValueError("Expected four distributed interstate export profiles")
     original = network.loads_t.p_set.loc[:, columns].copy()
     import_columns = columns[columns.str.contains("_import_")]
     export_columns = columns[columns.str.contains("_export_")]
-    removed_import_gwh = -float(original[import_columns].sum().sum()) / 1000
+    if len(import_columns):
+        raise ValueError("Unresolved imports should already be excluded from the model")
     removed_export_gwh = float(original[export_columns].sum().sum()) / 1000
-    if not np.isclose(removed_import_gwh, 20826.9511525, atol=1e-5):
-        raise ValueError(f"Unexpected distributed import total: {removed_import_gwh}")
     if not np.isclose(removed_export_gwh, 8000.055805, atol=1e-5):
         raise ValueError(f"Unexpected distributed export total: {removed_export_gwh}")
     network.loads_t.p_set.loc[:, columns] = 0.0
     print(
-        f"Zeroed distributed imports {removed_import_gwh:.3f} GWh and "
-        f"exports {removed_export_gwh:.3f} GWh; resolved flows retained.",
+        f"Unresolved imports were already excluded; zeroed distributed exports "
+        f"{removed_export_gwh:.3f} GWh; resolved flows retained.",
         flush=True,
     )
     observed = read_observed_generation()

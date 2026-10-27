@@ -34,18 +34,21 @@ The REA hourly input is produced from the deduplicated transaction ledger with
 Resolved imports use the generating plant's mapped state and resolved exports
 use the beneficiary state. State routes are then grouped into the four modeled
 external gateways. Records that remain unresolved are retained as a separate
-hourly total, not relabeled as verified. The model builder allocates that total
-by direction-specific resolved-flow shares and preserves the result under the
-`unresolved_distributed` measure. Imports and exports are never netted before
-allocation.
+hourly total, not relabeled as verified. Unresolved imports are excluded from
+the modeled loads, so modeled imports contain only confirmed `resolved`
+records; their source energy remains visible in the audit with zero modeled
+flow. Unresolved exports are allocated by resolved export-flow shares and
+preserved under the `unresolved_distributed` measure. Imports and exports are
+never netted.
 
-Both measures are fixed loads at the external buses: imports have negative
-`p_set` and exports positive `p_set`. Existing directional grid links enforce
+Included measures are fixed loads at the external buses: confirmed imports have
+negative `p_set` and exports positive `p_set`. Existing directional grid links
+enforce
 gateway capacity and carry the exchange, but no `links-p_min_pu.csv` or
 `links-p_max_pu.csv` schedule is written. This allows the network to select the
 parallel link used within a gateway. The audit output records every hourly
 gateway value, the original share, available capacity, any capacity-driven
-redistribution, and an explicit non-verified status for distributed flows.
+redistribution, and explicit included/excluded status for distributed flows.
 
 The grid is imported with PyPSA's `Network.import_from_excel()` API. To replace
 only the grid in an already-built model (without rebuilding generation, demand,
@@ -262,10 +265,10 @@ comparisons retain the separate small-hydro (307.56 GWh) and bio-power (194.01
 GWh) rows; `comparable_total` is the supplied and reconciled NITI total of
 132,210.74 GWh.
 
-`data/model_inputs/tamil_nadu_outlook_installed_capacity.json` contains the
-Outlook's historical installed-capacity categories and shares, including
-bio-power and small hydro. The main run notebook exports and displays an
-`installed_capacity_comparison` table against the model fleet.
+`data/source/Capacity_Metatable_Data_Sept26.xlsx` contains the latest supplied
+Tamil Nadu installed-capacity benchmark. The analysis loader selects the latest
+dated Tamil Nadu row set (2026-27); the main run notebook and run scripts export
+and display an `installed_capacity_comparison` table against that benchmark.
 
 `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`
 has an `Electricity_Power_Generation_` sheet: `Parameter` and `State` identify
