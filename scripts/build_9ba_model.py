@@ -40,6 +40,8 @@ SOLAR_AVAILABILITY_MULTIPLIER = 0.9304
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 REA_INTERSTATE_HOURLY_FLOW_FILE = SOURCE_DIR / "rea_interstate_hourly_flows_FY2025_26.csv"
 REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_FY2025_26.csv"
+REA_PLANT_EXPORT_HOURLY_FILE = SOURCE_DIR / "rea_plant_export_hourly_FY2025_26.csv"
+REA_PLANT_EXPORT_AUDIT_FILE = SOURCE_DIR / "rea_plant_export_mapping_audit_FY2025_26.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 OBSERVED_GENERATION_FILE = (
     ROOT
@@ -616,6 +618,135 @@ def apply_tn_export_capacity_allocations(
     ):
         raise AssertionError("TN station export allocations do not match the documented totals")
     return adjusted, allocations
+
+
+def build_rea_plant_export_reservations(
+    generators: pd.DataFrame,
+    metadata: pd.DataFrame,
+    snapshots: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Reserve modeled plant capacity for verified REA export schedules.
+
+    Each matched REA plant receives one non-committable fixed-dispatch export
+    generator at its physical bus. Its nameplate is the plant's peak concurrent
+    export schedule. The same capacity is removed proportionally from the
+    plant's ordinary units, so total physical nameplate is conserved and the
+    reserved block cannot serve Tamil Nadu when it is not scheduled.
+    """
+    hourly = pd.read_csv(REA_PLANT_EXPORT_HOURLY_FILE, parse_dates=["snapshot"])
+    source_audit = pd.read_csv(REA_PLANT_EXPORT_AUDIT_FILE)
+    required = {
+        "snapshot", "generator_name", "flow_MW", "energy_MWh",
+    }
+    if missing := sorted(required - set(hourly.columns)):
+        raise ValueError(f"REA plant-export input is missing columns: {missing}")
+    model_snapshots = pd.DatetimeIndex(pd.to_datetime(snapshots, errors="raise"))
+    if not set(hourly["snapshot"]).issubset(set(model_snapshots)):
+        raise ValueError("REA plant-export schedules contain snapshots outside the model year")
+    if hourly["flow_MW"].isna().any() or hourly["flow_MW"].lt(0).any():
+        raise ValueError("REA plant-export schedules must be finite and non-negative")
+
+    adjusted = generators.copy()
+    expanded_metadata = metadata.copy()
+    fixed_profiles: dict[str, np.ndarray] = {}
+    audit_rows: list[dict[str, object]] = []
+    for plant_name, plant_rows in hourly.groupby("generator_name", sort=False):
+        audit_plant = source_audit.loc[
+            source_audit["generator_name"].eq(plant_name)
+            & source_audit["reservation_status"].eq("mapped_to_model_generator")
+        ]
+        component_text = audit_plant["component_ids"].dropna().drop_duplicates()
+        if len(component_text) != 1:
+            raise ValueError(f"REA plant {plant_name!r} has inconsistent component mappings")
+        component_ids = str(component_text.iloc[0]).split(";")
+        mask = adjusted["name"].isin(component_ids)
+        matched = adjusted.loc[mask].copy()
+        missing_components = sorted(set(component_ids) - set(matched["name"]))
+        if missing_components:
+            raise ValueError(f"REA plant {plant_name!r} lacks model components: {missing_components}")
+        if matched["bus"].nunique() != 1 or matched["carrier"].nunique() != 1:
+            raise ValueError(f"REA plant {plant_name!r} components must share one bus and carrier")
+
+        profile = (
+            plant_rows.groupby("snapshot", observed=True)["flow_MW"].sum()
+            .reindex(model_snapshots, fill_value=0.0)
+        )
+        peak_mw = float(profile.max())
+        plant_capacity_mw = float(matched["p_nom"].sum())
+        if peak_mw <= 0.0 or peak_mw > plant_capacity_mw + 1e-6:
+            raise ValueError(
+                f"REA export peak for {plant_name!r} is {peak_mw} MW against "
+                f"{plant_capacity_mw} MW modeled capacity"
+            )
+        retained_share = (plant_capacity_mw - peak_mw) / plant_capacity_mw
+        adjusted.loc[mask] = pd.DataFrame(
+            [scale_component(row, retained_share) for _, row in matched.iterrows()],
+            index=matched.index,
+        )
+
+        reservation_name = f"rea_export_reservation__{slugify(str(plant_name))}"
+        template = matched.iloc[0].copy()
+        template["name"] = reservation_name
+        template["p_nom"] = peak_mw
+        template["p_min_pu"] = 0.0
+        template["p_max_pu"] = 1.0
+        template["p_init"] = 0.0
+        template["committable"] = False
+        for field in [
+            "start_up_cost", "shut_down_cost", "min_up_time", "min_down_time",
+            "up_time_before", "down_time_before",
+        ]:
+            if field in template.index:
+                template[field] = 0.0
+        adjusted = pd.concat([adjusted, template.to_frame().T], ignore_index=True)
+        fixed_profiles[reservation_name] = profile.to_numpy() / peak_mw
+
+        meta_match = expanded_metadata.loc[
+            expanded_metadata["component_id"].isin(component_ids)
+        ]
+        if not meta_match.empty:
+            reservation_meta = meta_match.iloc[0].copy()
+            reservation_meta["component_id"] = reservation_name
+            reservation_meta["original_component_id"] = reservation_name
+            reservation_meta["capacity_mw"] = peak_mw
+            reservation_meta["allocation_method"] = "verified REA plant export schedule"
+            reservation_meta["allocation_confidence"] = "verified"
+            expanded_metadata = pd.concat(
+                [expanded_metadata, reservation_meta.to_frame().T], ignore_index=True
+            )
+
+        beneficiary_gwh = audit_plant.groupby(
+            "beneficiary_state", observed=True
+        )["energy_GWh"].sum()
+        audit_rows.append({
+            "rea_generator_name": plant_name,
+            "reservation_generator": reservation_name,
+            "component_ids": ";".join(component_ids),
+            "bus": str(matched["bus"].iloc[0]),
+            "carrier": str(matched["carrier"].iloc[0]),
+            "physical_capacity_mw": plant_capacity_mw,
+            "reserved_capacity_mw": peak_mw,
+            "remaining_tn_dispatchable_capacity_mw": plant_capacity_mw - peak_mw,
+            "scheduled_export_GWh": float(profile.sum() / 1_000.0),
+            "beneficiary_energy_GWh": ";".join(
+                f"{state}:{value:.6f}" for state, value in beneficiary_gwh.items()
+            ),
+            "status": "fixed_from_verified_rea_schedule",
+        })
+
+    numeric_columns = generators.select_dtypes(include=[np.number]).columns
+    for column in numeric_columns:
+        adjusted[column] = pd.to_numeric(adjusted[column], errors="raise")
+    fixed = pd.DataFrame(fixed_profiles, index=pd.RangeIndex(len(model_snapshots)))
+    audit = pd.DataFrame(audit_rows)
+    expected_mapped_gwh = float(source_audit.loc[
+        source_audit["reservation_status"].eq("mapped_to_model_generator"), "energy_GWh"
+    ].sum())
+    if not np.isclose(float(audit["scheduled_export_GWh"].sum()), expected_mapped_gwh):
+        raise AssertionError("Modeled plant reservations do not conserve mapped REA export energy")
+    if adjusted["name"].duplicated().any():
+        raise AssertionError("REA export reservation generator names are not unique")
+    return adjusted, expanded_metadata, fixed, audit
 
 
 def allocated_name(original: str, area: str, split: bool) -> str:
@@ -2292,18 +2423,14 @@ def main() -> None:
     source_generators = original_generators.loc[
         ~original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].copy()
-    source_generators, tn_export_allocations = apply_tn_export_capacity_allocations(
-        source_generators
+    # The four-station capacity allocation is retained as a historical audit
+    # reference only. Verified plant-level REA schedules below now determine
+    # export reservations, so the physical fleet is no longer derated to the
+    # Tamil Nadu ownership shares in this table.
+    tn_export_allocations = pd.read_csv(TN_EXPORT_CAPACITY_FILE)
+    tn_export_allocations["application_status"] = (
+        "reference_only_superseded_by_verified_rea_plant_schedules"
     )
-    # Keep source metadata in step with the derated generator nameplate so
-    # district allocation and conservation checks use TN-available capacity.
-    for _, allocation in tn_export_allocations.iterrows():
-        unit_mask = metadata["component_id"].astype(str).str.startswith(
-            str(allocation.component_prefix)
-        ) & metadata["component_type"].eq("Generator")
-        metadata.loc[unit_mask, "capacity_mw"] *= float(
-            allocation.applied_tn_capacity_ratio
-        )
     mechanisms = original_generators.loc[
         original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].copy()
@@ -2314,6 +2441,16 @@ def main() -> None:
     generators = pd.concat([generators, allocated_mechanisms], ignore_index=True)
     generator_metadata = pd.concat(
         [generator_metadata, mechanism_metadata], ignore_index=True, sort=False
+    )
+    snapshots_table = pd.read_csv(BASE_MODEL / "snapshots.csv")
+    snapshots = snapshots_table["snapshot"]
+    (
+        generators,
+        generator_metadata,
+        rea_export_reservation_profiles,
+        rea_export_reservation_audit,
+    ) = build_rea_plant_export_reservations(
+        generators, generator_metadata, snapshots
     )
     storage, storage_metadata = allocate_source_components(
         original_storage, metadata, "StorageUnit", district_allocations
@@ -2354,8 +2491,6 @@ def main() -> None:
         sort=False,
     )
 
-    snapshots_table = pd.read_csv(BASE_MODEL / "snapshots.csv")
-    snapshots = snapshots_table["snapshot"]
     loads, load_time_series, demand_allocation = build_loads(demand)
     (
         interstate_flow_loads,
@@ -2536,6 +2671,8 @@ def main() -> None:
     generator_profiles = build_generator_profiles(
         generators, expanded_metadata, area_profiles
     )
+    for name in rea_export_reservation_profiles.columns:
+        generator_profiles[name] = rea_export_reservation_profiles[name].to_numpy()
     # Monthly observed energy equalities supersede the inherited placeholder
     # profile for small hydro. Make its timing dispatchable up to nameplate.
     small_hydro_names = generators.loc[
@@ -2564,6 +2701,9 @@ def main() -> None:
     }
     nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
     tn_export_allocations.to_csv(OUTPUT_DIR / "tn_export_capacity_allocations.csv", index=False)
+    rea_export_reservation_audit.to_csv(
+        OUTPUT_DIR / "rea_plant_export_reservation_audit.csv", index=False
+    )
     interstate_flow_audit.to_csv(OUTPUT_DIR / "interstate_flow_audit.csv", index=False)
     interstate_flow_reconciliation = interstate_flow_audit.groupby(
         ["direction", "measure", "gateway", "status"], as_index=False
@@ -2638,6 +2778,7 @@ def main() -> None:
     pd.concat([
         water_inflow_profiles[["upper_kodayar_estimated_inflow"]],
         cascade_inflow_profiles,
+        rea_export_reservation_profiles,
     ], axis=1).to_csv(OUTPUT_DIR / "generators-p_min_pu.csv")
     storage.to_csv(OUTPUT_DIR / "storage_units.csv", index=False)
     stores.to_csv(OUTPUT_DIR / "stores.csv", index=False)
@@ -2726,7 +2867,9 @@ def main() -> None:
         ].sum()
     )
     excluded_off_grid_capacity_mw = EXPECTED_EXCLUDED_OFF_GRID_CAPACITY_MW
-    withheld_export_capacity_mw = float(tn_export_allocations.capacity_withheld_from_tn_mw.sum())
+    # REA-reserved blocks remain explicitly modeled at their physical plants;
+    # none of their nameplate is omitted from installed-capacity reconciliation.
+    withheld_export_capacity_mw = 0.0
     corrected_july_2026_total_mw = (
         EXPECTED_JULY_2026_TOTAL_CAPACITY_MW
         + hydro_technical_capacity_adjustment_mw
@@ -2767,9 +2910,9 @@ def main() -> None:
                 "treatment": "excluded off-grid capacity",
             },
             {
-                "item": "in_state_capacity_allocated_outside_tamil_nadu_or_unallocated",
+                "item": "in_state_capacity_omitted_for_external_allocations",
                 "capacity_mw": withheld_export_capacity_mw,
-                "treatment": "excluded from TN demand-serving generators",
+                "treatment": "none; verified REA export blocks remain modeled",
             },
             {
                 "item": "source_july_2026_comparison_total",

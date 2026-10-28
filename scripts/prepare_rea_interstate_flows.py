@@ -171,10 +171,74 @@ def prepare(ledger_path: Path, output_dir: Path) -> None:
             transaction_rows=("energy_GWh", "size"),
         ).reset_index()
     )
+
+    mapping_path = output_dir / "rea_plant_export_mapping.csv"
+    if not mapping_path.exists():
+        raise FileNotFoundError(f"Missing REA plant mapping: {mapping_path}")
+    plant_mapping = pd.read_csv(mapping_path)
+    required_mapping = {"rea_generator_name", "component_ids", "mapping_status"}
+    if missing := sorted(required_mapping - set(plant_mapping.columns)):
+        raise ValueError(f"REA plant mapping is missing columns: {missing}")
+    if plant_mapping["rea_generator_name"].duplicated().any():
+        raise ValueError("REA plant mapping names must be unique")
+
+    plant_exports = ledger.loc[
+        ledger["direction"].eq("export")
+        & ledger["measure"].eq("resolved")
+        & ledger["plant_location_state"].eq("Tamil Nadu")
+    ].copy()
+    mapped_names = set(plant_mapping["rea_generator_name"])
+    plant_exports["reservation_status"] = np.where(
+        plant_exports["generator_name"].isin(mapped_names),
+        "mapped_to_model_generator",
+        "unmatched_model_generator",
+    )
+    mapped_exports = plant_exports.loc[
+        plant_exports["reservation_status"].eq("mapped_to_model_generator")
+    ].merge(
+        plant_mapping,
+        left_on="generator_name",
+        right_on="rea_generator_name",
+        how="left",
+        validate="many_to_one",
+    )
+    plant_hourly = (
+        mapped_exports.groupby(
+            ["snapshot", "generator_name"],
+            observed=True,
+        )["energy_GWh"].sum().reset_index()
+    )
+    plant_hourly["flow_MW"] = plant_hourly["energy_GWh"] * 1_000.0
+    plant_hourly["energy_MWh"] = plant_hourly["energy_GWh"] * 1_000.0
+    plant_hourly = plant_hourly.drop(columns="energy_GWh")
+    plant_audit = (
+        plant_exports.groupby(
+            ["generator_name", "beneficiary_state", "reservation_status"],
+            observed=True,
+        ).agg(
+            energy_GWh=("energy_GWh", "sum"),
+            transaction_rows=("energy_GWh", "size"),
+        ).reset_index()
+    ).merge(
+        plant_mapping,
+        left_on="generator_name",
+        right_on="rea_generator_name",
+        how="left",
+        validate="many_to_one",
+    )
+    mapped_gwh = float(plant_audit.loc[
+        plant_audit["reservation_status"].eq("mapped_to_model_generator"), "energy_GWh"
+    ].sum())
+    if not np.isclose(float(plant_audit["energy_GWh"].sum()), EXPECTED_GWH[("export", "resolved")]):
+        raise AssertionError("Plant-level REA exports do not reconcile to resolved exports")
+    if mapped_gwh <= 0.99 * EXPECTED_GWH[("export", "resolved")]:
+        raise AssertionError("Less than 99% of resolved REA exports map to model generators")
     output_dir.mkdir(parents=True, exist_ok=True)
     hourly.to_csv(output_dir / "rea_interstate_hourly_flows_FY2025_26.csv", index=False)
     shares.to_csv(output_dir / "rea_interstate_gateway_shares_FY2025_26.csv", index=False)
     source_audit.to_csv(output_dir / "rea_interstate_source_audit_FY2025_26.csv", index=False)
+    plant_hourly.to_csv(output_dir / "rea_plant_export_hourly_FY2025_26.csv", index=False)
+    plant_audit.to_csv(output_dir / "rea_plant_export_mapping_audit_FY2025_26.csv", index=False)
     print(f"Prepared {len(hourly):,} hourly flow rows in {output_dir.resolve()}")
 
 

@@ -1,6 +1,6 @@
 bus,carrier,capacity_mw
 Chennai North,bio_power,5.570471036401016
-Chennai North,coal,4218.1
+Chennai North,coal,4677.5
 Chennai North,oil_gas,120.0
 Chennai North,solar,328.5621909700843
 Chennai North,wind,10.325
@@ -28,7 +28,7 @@ Madurai,small_hydro,3.35
 Madurai,solar,4030.9304035864147
 Madurai,wind,1227.2675
 Tirunelveli,bio_power,111.11080239448542
-Tirunelveli,coal,3462.0
+Tirunelveli,coal,4075.0
 Tirunelveli,hydro,152.0
 Tirunelveli,nuclear,2000.0
 Tirunelveli,small_hydro,17.3
@@ -43,7 +43,7 @@ Vellore,diesel,105.7
 Vellore,solar,164.079462514679
 Vellore,wind,196.0
 Villupuram,bio_power,319.6208296045471
-Villupuram,coal,3613.4
+Villupuram,coal,4840.0
 Villupuram,small_hydro,7.5
 Villupuram,solar,553.7379531670814
 Villupuram,wind,1.7168692760729778

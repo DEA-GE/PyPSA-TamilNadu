@@ -1,0 +1,16 @@
+rea_generator_name,component_ids,mapping_status,mapping_note
+Kudankulam Nuclear Power Project I,kudankulam_atomic_power_project__unit_01,verified_unit_match,REA stage I mapped to Kudankulam unit 1
+Kudankulam Nuclear Power Project II,kudankulam_atomic_power_project__unit_02,verified_unit_match,REA stage II mapped to Kudankulam unit 2
+NLC Tamil Nadu Power Ltd Tuticorin,tuticorin_joint_venture__unit_01;tuticorin_joint_venture__unit_02,verified_station_match,NTPL/NLC Tamil Nadu Power Ltd station name
+NTECL Vallur STPS,vallur_tpp__unit_01;vallur_tpp__unit_02;vallur_tpp__unit_03,verified_station_match,NTECL Vallur station name
+Neyveli TPS II Stage I,neyveli_tps_ii__unit_01;neyveli_tps_ii__unit_02;neyveli_tps_ii__unit_03,verified_stage_match,First three 210 MW TPS II units
+Neyveli TPS II Stage II,neyveli_tps_ii__unit_04;neyveli_tps_ii__unit_05;neyveli_tps_ii__unit_06;neyveli_tps_ii__unit_07,verified_stage_match,Four 210 MW TPS II stage II units
+Neyveli TPS I Expansion,neyveli_ext_tps_i__unit_01;neyveli_ext_tps_i__unit_02,verified_station_match,Neyveli expansion TPS I
+Neyveli TPS II Expansion,neyveli_ext_tps_ii__unit_01;neyveli_ext_tps_ii__unit_02,verified_station_match,Neyveli expansion TPS II
+Neyveli New Thermal Power Project,neyveli_new_tpp_neyveli_extension__unit_01;neyveli_new_tpp_neyveli_extension__unit_02,verified_station_match,Neyveli New Thermal/Neyveli Extension
+OPG Power Generation Private Ltd Unit 1,opg_power_generation_private_ltd__unit_01,verified_unit_match,REA unit number matches model unit
+OPG Power Generation Private Ltd Unit 2,opg_power_generation_private_ltd__unit_02,verified_unit_match,REA unit number matches model unit
+OPG Power Generation Private Ltd Unit 4,opg_power_generation_private_ltd__unit_04,verified_unit_match,REA unit number matches model unit
+Madras Atomic Power Station,madras_atomic_power_station__unit_01;madras_atomic_power_station__unit_02,verified_station_match,REA schedule is station-wide
+Tulsyan NEC Limited,tulsyan_nec_limited__unit_01;tulsyan_nec_limited__unit_02,verified_station_match,Exact station name match
+EID Parry India Ltd Pugalur,eid_parry_india_ltd_tamil_nadu_karur_22__unit_01,verified_location_match,Pugalur facility is the modeled Karur record
