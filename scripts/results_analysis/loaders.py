@@ -235,16 +235,43 @@ def load_observed_annual_generation() -> pd.DataFrame:
 
 
 def load_observed_capacity() -> pd.DataFrame:
-    """Load Tamil Nadu Outlook historical installed-capacity benchmarks."""
+    """Load the latest supplied Tamil Nadu installed-capacity benchmark.
+
+    The September 2026 capacity metatable contains a time series.  Select its
+    latest Tamil Nadu year rather than the older Tamil Nadu Outlook snapshot.
+    """
     source = (
         Path(__file__).resolve().parents[2]
         / "data"
-        / "model_inputs"
-        / "tamil_nadu_outlook_installed_capacity.json"
+        / "source"
+        / "Capacity_Metatable_Data_Sept26.xlsx"
     )
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    observed = pd.DataFrame(payload["categories"]).set_index("carrier")
-    if observed.index.duplicated().any():
-        raise ValueError("Tamil Nadu Outlook capacity categories must be unique")
-    observed["source"] = str(payload["source"])
+    raw = pd.read_excel(source, sheet_name="Capacity_Metatable_Data_Sheet")
+    required = {"Year", "State", "Source", "Capacity in MW"}
+    missing = required - set(raw.columns)
+    if missing:
+        raise ValueError(f"{source} is missing columns: {sorted(missing)}")
+    raw = raw.loc[raw["State"].eq("Tamil Nadu")].copy()
+    raw["year"] = pd.to_datetime(raw["Year"].astype(str).str[:4], errors="coerce")
+    raw = raw.loc[raw["year"].notna()]
+    if raw.empty:
+        raise ValueError(f"{source} contains no dated Tamil Nadu capacity rows")
+    latest_year = raw["year"].max()
+    raw = raw.loc[raw["year"].eq(latest_year)].copy()
+    raw["carrier"] = raw["Source"].astype(str).str.strip().str.lower().replace(
+        {"oil-gas": "oil_gas", "bio-power": "bio_power", "small-hydro": "small_hydro"}
+    )
+    observed = raw.groupby("carrier", sort=True)["Capacity in MW"].sum().to_frame(
+        "installed_capacity_mw"
+    )
+    observed["installed_capacity_mw"] = pd.to_numeric(
+        observed["installed_capacity_mw"], errors="raise"
+    )
+    observed.loc["total", "installed_capacity_mw"] = observed[
+        "installed_capacity_mw"
+    ].sum()
+    observed["source"] = (
+        f"{source} (Tamil Nadu, {latest_year.year}-{str(latest_year.year + 1)[-2:]})"
+    )
+    observed.index.name = "carrier"
     return observed.sort_index()

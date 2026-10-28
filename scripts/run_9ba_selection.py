@@ -44,6 +44,11 @@ from run_9ba_rolling import (
     run_annual_no_uc,
     run_rolling_year,
 )
+from results_analysis.loaders import load_observed_capacity
+from transmission_assumptions import (
+    TRANSMISSION_LOSSES,
+    add_transmission_flow_cost,
+)
 
 
 DEFAULT_NETWORK = MODEL_DIR
@@ -54,12 +59,6 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 # It is not expanded into a synthetic daily series.
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
-OUTLOOK_CAPACITY_FILE = (
-    MODEL_DIR.parent
-    / "data"
-    / "model_inputs"
-    / "tamil_nadu_outlook_installed_capacity.json"
-)
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
 RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
@@ -74,21 +73,15 @@ _SELECTED_WEEK_WORKER_CONTEXT: tuple | None = None
 
 
 def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
-    """Compare modeled nameplate capacity with Tamil Nadu Outlook categories."""
-    payload = json.loads(OUTLOOK_CAPACITY_FILE.read_text(encoding="utf-8"))
-    historical = pd.DataFrame(payload["categories"]).set_index("carrier")
-    if historical.index.duplicated().any():
-        raise ValueError("Tamil Nadu Outlook capacity categories must be unique")
-    if not np.isclose(historical.installed_capacity_mw.sum(), 43853.21, atol=1e-6):
-        raise ValueError("Tamil Nadu Outlook installed capacities do not reconcile")
-    if not np.isclose(historical.share_pct.sum(), 100.0, atol=0.02):
-        raise ValueError("Tamil Nadu Outlook capacity shares do not reconcile")
+    """Compare modeled nameplate capacity with the latest supplied benchmark."""
+    historical = load_observed_capacity()
 
     carrier = network.generators.carrier.astype(str).replace(
         {"hydro_run_of_river": "hydro", "market_import": "imports"}
     )
     modeled = network.generators.p_nom.groupby(carrier).sum()
     if len(network.storage_units):
+        modeled.loc["storage"] = network.storage_units.p_nom.sum()
         storage_carrier = network.storage_units.carrier.astype(str).replace(
             {"pumped_hydro": "hydro", "reservoir_hydro": "hydro"}
         )
@@ -102,6 +95,7 @@ def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
         modeled.loc["hydro"] = modeled.get("hydro", 0.0) + (
             hydro_turbines.p_nom * hydro_turbines.efficiency.fillna(1.0)
         ).sum()
+    modeled.loc["total"] = modeled.drop(index=["total", "storage"], errors="ignore").sum()
 
     result = historical.rename(
         columns={
@@ -116,9 +110,11 @@ def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
         result.modeled_capacity_mw - result.historical_capacity_mw
     )
     result["difference_pct"] = (
-        100.0 * result.difference_mw / result.historical_capacity_mw
+        100.0
+        * result.difference_mw
+        / result.historical_capacity_mw.replace(0.0, np.nan)
     )
-    result["historical_source"] = str(payload["source"])
+    result["historical_source"] = historical["source"].iloc[0]
     result.index.name = "carrier"
     return result
 
@@ -642,6 +638,7 @@ def _solve_peak_week(
                 ).sum() == float(target),
                 name=f"daily_oil_gas_energy_{date:%Y_%m_%d}",
             )
+        add_transmission_flow_cost(active_network, active_snapshots)
 
     print(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...", flush=True)
     started = time.perf_counter()
@@ -652,6 +649,7 @@ def _solve_peak_week(
             unit_commitment, mip_rel_gap, solver_threads
         ),
         extra_functionality=extra_functionality,
+        transmission_losses=TRANSMISSION_LOSSES,
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
     )
@@ -1106,6 +1104,7 @@ def _solve_selected_weeks(
                     expression = store_e.sel({store_dim: monthly_stores, "snapshot": snapshot})
                     active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
                     active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
+            add_transmission_flow_cost(active_network, active_snapshots)
 
         print(
             f"Solving selected week {position}/{len(starts)}: {start.date()} to "
@@ -1121,6 +1120,7 @@ def _solve_selected_weeks(
                 unit_commitment, mip_rel_gap, solver_threads
             ),
             extra_functionality=extra_functionality,
+            transmission_losses=TRANSMISSION_LOSSES,
             include_objective_constant=False,
             linearized_unit_commitment=unit_commitment == "relaxed",
         )

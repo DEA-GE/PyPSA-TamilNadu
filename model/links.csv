@@ -1,94 +1,94 @@
-name,bus0,bus1,carrier,p_nom,p_min_pu,p_max_pu,marginal_cost,length,kind,direction,pair,p_nom_n1,largest_circuit_mw,n_circuits,circuits_by_kv,x_equivalent_ohm,line_ids,bus2,efficiency,efficiency2
-HVDC Raigarh–Pugalur →,Coimbatore,Western Region,DC,6000.0,0.0,0.5,0.01,1765.0,HVDC,out of TN,HVDC Raigarh–Pugalur,0.0,6000.0,1.0,±800 kV HVDC,,L0548,,,
-HVDC Raigarh–Pugalur ←,Western Region,Coimbatore,DC,6000.0,0.0,1.0,0.01,1765.0,HVDC,into TN,HVDC Raigarh–Pugalur,0.0,6000.0,1.0,±800 kV HVDC,,L0548,,,
-HVDC Pugalur–Thrissur →,Coimbatore,Kerala,DC,2000.0,0.0,1.0,0.01,165.0,HVDC,out of TN,HVDC Pugalur–Thrissur,0.0,2000.0,1.0,±320 kV HVDC,,L0549,,,
-HVDC Pugalur–Thrissur ←,Kerala,Coimbatore,DC,2000.0,0.0,1.0,0.01,165.0,HVDC,into TN,HVDC Pugalur–Thrissur,0.0,2000.0,1.0,±320 kV HVDC,,L0549,,,
-Vellore–Andhra Pradesh (AC tie) →,Vellore,Andhra Pradesh,AC,17353.0,0.0,1.0,0.01,129.6,interstate AC tie,out of TN,Vellore–Andhra Pradesh (AC tie),12672.0,4681.0,7.0,765 kV ×2; 400 kV ×4; 220 kV ×1,1.771,L0001 L0002 L0021 L0022 L0047 L0048 L0513,,,
-Vellore–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Vellore,AC,17353.0,0.0,1.0,0.01,129.6,interstate AC tie,into TN,Vellore–Andhra Pradesh (AC tie),12672.0,4681.0,7.0,765 kV ×2; 400 kV ×4; 220 kV ×1,1.771,L0001 L0002 L0021 L0022 L0047 L0048 L0513,,,
-Vellore–Karnataka (AC tie) →,Vellore,Karnataka,AC,10115.0,0.0,1.0,0.01,120.9,interstate AC tie,out of TN,Vellore–Karnataka (AC tie),8071.0,2044.0,8.0,400 kV ×7; 220 kV ×1,4.0044,L0007 L0008 L0028 L0029 L0071 L0072 L0073 L0515,,,
-Vellore–Karnataka (AC tie) ←,Karnataka,Vellore,AC,10115.0,0.0,1.0,0.01,120.9,interstate AC tie,into TN,Vellore–Karnataka (AC tie),8071.0,2044.0,8.0,400 kV ×7; 220 kV ×1,4.0044,L0007 L0008 L0028 L0029 L0071 L0072 L0073 L0515,,,
-Tirunelveli–Kerala (AC tie) →,Tirunelveli,Kerala,AC,6558.0,0.0,1.0,0.01,143.4,interstate AC tie,out of TN,Tirunelveli–Kerala (AC tie),4879.0,1679.0,7.0,400 kV ×4; 220 kV ×2; 110 kV ×1,9.3846,L0080 L0081 L0135 L0136 L0516 L0523 L0524,,,
-Tirunelveli–Kerala (AC tie) ←,Kerala,Tirunelveli,AC,6558.0,0.0,1.0,0.01,143.4,interstate AC tie,into TN,Tirunelveli–Kerala (AC tie),4879.0,1679.0,7.0,400 kV ×4; 220 kV ×2; 110 kV ×1,9.3846,L0080 L0081 L0135 L0136 L0516 L0523 L0524,,,
-Chennai South–Andhra Pradesh (AC tie) →,Chennai South,Andhra Pradesh,AC,3079.0,0.0,1.0,0.01,157.7,interstate AC tie,out of TN,Chennai South–Andhra Pradesh (AC tie),2047.0,1032.0,3.0,400 kV ×3,15.129,L0020 L0045 L0046,,,
-Chennai South–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Chennai South,AC,3079.0,0.0,1.0,0.01,157.7,interstate AC tie,into TN,Chennai South–Andhra Pradesh (AC tie),2047.0,1032.0,3.0,400 kV ×3,15.129,L0020 L0045 L0046,,,
-Coimbatore–Kerala (AC tie) →,Coimbatore,Kerala,AC,2324.0,0.0,1.0,0.01,86.3,interstate AC tie,out of TN,Coimbatore–Kerala (AC tie),1292.0,1032.0,3.0,400 kV ×2; 230 kV ×1,12.5029,L0039 L0040 L0139,,,
-Coimbatore–Kerala (AC tie) ←,Kerala,Coimbatore,AC,2324.0,0.0,1.0,0.01,86.3,interstate AC tie,into TN,Coimbatore–Kerala (AC tie),1292.0,1032.0,3.0,400 kV ×2; 230 kV ×1,12.5029,L0039 L0040 L0139,,,
-Villupuram–Puducherry (AC tie) →,Villupuram,Puducherry,AC,1535.0,0.0,1.0,0.01,76.9,interstate AC tie,out of TN,Villupuram–Puducherry (AC tie),520.0,1015.0,3.0,400 kV ×1; 230 kV ×2,14.9707,L0055 L0155 L0156,,,
-Villupuram–Puducherry (AC tie) ←,Puducherry,Villupuram,AC,1535.0,0.0,1.0,0.01,76.9,interstate AC tie,into TN,Villupuram–Puducherry (AC tie),520.0,1015.0,3.0,400 kV ×1; 230 kV ×2,14.9707,L0055 L0155 L0156,,,
-Chennai South–Karnataka (AC tie) →,Chennai South,Karnataka,AC,1032.0,0.0,1.0,0.01,238.0,interstate AC tie,out of TN,Chennai South–Karnataka (AC tie),0.0,1032.0,1.0,400 kV ×1,73.2278,L0030,,,
-Chennai South–Karnataka (AC tie) ←,Karnataka,Chennai South,AC,1032.0,0.0,1.0,0.01,238.0,interstate AC tie,into TN,Chennai South–Karnataka (AC tie),0.0,1032.0,1.0,400 kV ×1,73.2278,L0030,,,
-Chennai South–Puducherry (AC tie) →,Chennai South,Puducherry,AC,1015.0,0.0,1.0,0.01,129.0,interstate AC tie,out of TN,Chennai South–Puducherry (AC tie),0.0,1015.0,1.0,400 kV ×1,42.828,L0062,,,
-Chennai South–Puducherry (AC tie) ←,Puducherry,Chennai South,AC,1015.0,0.0,1.0,0.01,129.0,interstate AC tie,into TN,Chennai South–Puducherry (AC tie),0.0,1015.0,1.0,400 kV ×1,42.828,L0062,,,
-Madurai–Kerala (AC tie) →,Madurai,Kerala,AC,260.0,0.0,1.0,0.01,133.0,interstate AC tie,out of TN,Madurai–Kerala (AC tie),0.0,260.0,1.0,230 kV ×1,160.6063,L0510,,,
-Madurai–Kerala (AC tie) ←,Kerala,Madurai,AC,260.0,0.0,1.0,0.01,133.0,interstate AC tie,into TN,Madurai–Kerala (AC tie),0.0,260.0,1.0,230 kV ×1,160.6063,L0510,,,
-Chennai North–Andhra Pradesh (AC tie) →,Chennai North,Andhra Pradesh,AC,249.0,0.0,1.0,0.01,49.0,interstate AC tie,out of TN,Chennai North–Andhra Pradesh (AC tie),0.0,249.0,1.0,220 kV ×1,64.6722,L0514,,,
-Chennai North–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Chennai North,AC,249.0,0.0,1.0,0.01,49.0,interstate AC tie,into TN,Chennai North–Andhra Pradesh (AC tie),0.0,249.0,1.0,220 kV ×1,64.6722,L0514,,,
-mettur_turbine__mettur_dam_hydroelectric_power_project__unit_01,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_dam_hydroelectric_power_project__unit_02,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_dam_hydroelectric_power_project__unit_03,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_dam_hydroelectric_power_project__unit_04,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_tunnel__unit_01,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_tunnel__unit_02,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_tunnel__unit_03,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_turbine__mettur_tunnel__unit_04,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_mettur_downstream,1.0,1.0
-mettur_observed_release,water_mettur_reservoir,water_mettur_downstream,water_spill,2500.0,0.0,,0.01,,,,,,,,,,,,1.0,
-periyar_turbine__periyar_hydroelectric_power_project__unit_01,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_periyar_downstream,1.0,1.0
-periyar_turbine__periyar_hydroelectric_power_project__unit_02,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_periyar_downstream,1.0,1.0
-periyar_turbine__periyar_hydroelectric_power_project__unit_03,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_periyar_downstream,1.0,1.0
-periyar_turbine__periyar_hydroelectric_power_project__unit_04,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_periyar_downstream,1.0,1.0
-periyar_observed_release,water_periyar_reservoir,water_periyar_downstream,water_spill,500.0,0.0,,0.01,,,,,,,,,,,,1.0,
-pap_parambikulam_to_thunacadavu,water_parambikulam,water_thunacadavu,water_transfer,33.333333333333336,0.0,,0.0,,,,,,,,,,,,1.0,
-pap_contour_aliyar_feeder_to_lower_aliyar,water_parambikulam,water_lower_aliyar,water_transfer,250.0,0.0,,0.0,,,,,,,,,,,,1.0,
-pap_parambikulam_observed_release,water_parambikulam,water_pap_downstream,water_spill,250.0,0.0,,0.01,,,,,,,,,,,,1.0,
-pap_sholayar_observed_release,water_sholayar,water_pap_downstream,water_spill,250.0,0.0,,0.01,,,,,,,,,,,,1.0,
-pap_lower_aliyar_outflow,water_lower_aliyar,water_pap_downstream,water_spill,250.0,0.0,,0.01,,,,,,,,,,,,1.0,
-pap_sarkarpathy_turbine__sarkarpathy_hydroelectric_power_project__unit_01,water_thunacadavu,Coimbatore,hydro_turbine,30.0,0.0,,0.0,,,,,,,,,,,water_lower_aliyar,1.0,1.0
-pap_sholayar_turbine__sholayar_i_power_house__unit_01,water_sholayar,Coimbatore,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_lower_aliyar,1.0,1.0
-pap_sholayar_turbine__sholayar_i_power_house__unit_02,water_sholayar,Coimbatore,hydro_turbine,42.0,0.0,,0.0,,,,,,,,,,,water_lower_aliyar,1.0,1.0
-pap_aliyar_turbine__aliyar_hydroelectric_power_project__unit_01,water_upper_aliyar,Coimbatore,hydro_turbine,60.0,0.0,,0.0,,,,,,,,,,,water_lower_aliyar,1.0,1.0
-kadamparai_generation__kadmparai_power_house__unit_01,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,,,,,,,,,,,water_upper_aliyar,1.0,1.0
-kadamparai_generation__kadmparai_power_house__unit_02,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,,,,,,,,,,,water_upper_aliyar,1.0,1.0
-kadamparai_generation__kadmparai_power_house__unit_03,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,,,,,,,,,,,water_upper_aliyar,1.0,1.0
-kadamparai_generation__kadmparai_power_house__unit_04,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,,,,,,,,,,,water_upper_aliyar,1.0,1.0
-kadamparai_pump,water_upper_aliyar,water_kadamparai,hydro_pump,400.0,0.0,,0.0,,,,,,,,,,,Coimbatore,0.81,-1.1111111111111112
-kodayar_I__kodayar_i_ii_power_house__unit_01,water_upper_kodayar,Tirunelveli,hydro_turbine,60.0,0.0,,0.0,,,,,,,,,,,water_kodayar_ii_forebay,1.0,1.0
-kodayar_II__kodayar_i_ii_power_house__unit_02,water_kodayar_ii_forebay,Tirunelveli,hydro_turbine,349.07776142610277,0.0,,0.0,,,,,,,,,,,water_kodayar_downstream,0.11458764899999999,1.0
-upper_kodayar_spill,water_upper_kodayar,water_kodayar_downstream,water_spill,211160.3041661858,0.0,,0.01,,,,,,,,,,,,1.0,
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_01,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_02,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_08,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_03,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_04,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_05,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_06,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_07,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_10,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_11,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_13,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_12,water_upper_bhavani,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_14,water_upper_bhavani,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_09,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_15,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_kundah_pondage,1.0,1.0
-parsons_valley_turbine__parson_s_valley_hydroelectric_power_project__unit_01,water_kundah_pondage,Coimbatore,hydro_turbine,30.0,0.0,,0.0,,,,,,,,,,,water_kundah_downstream,1.0,1.0
-kundah_pondage_bypass_release,water_kundah_pondage,water_kundah_downstream,water_spill,555.0,0.0,,0.01,,,,,,,,,,,,1.0,
-pykara_turbine__pykara_hydroelectric_power_project__unit_01,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pykara_turbine__pykara_hydroelectric_power_project__unit_02,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pykara_turbine__pykara_hydroelectric_power_project__unit_03,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pykara_turbine__pykara_hydroelectric_power_project__unit_04,water_pykara,Coimbatore,hydro_turbine,13.6,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pykara_turbine__pykara_hydroelectric_power_project__unit_05,water_pykara,Coimbatore,hydro_turbine,13.6,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pykara_turbine__pykara_hydroelectric_power_project__unit_06,water_pykara,Coimbatore,hydro_turbine,11.0,0.0,,0.0,,,,,,,,,,,water_glenmorgan_forebay,1.0,1.0
-pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_01,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
-pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_02,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
-pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_03,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,,,,,,,,,,,water_moyar_pondage,1.0,1.0
-moyar_turbine__moyar_power_house__unit_01,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
-moyar_turbine__moyar_power_house__unit_02,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
-moyar_turbine__moyar_power_house__unit_03,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,,,,,,,,,,,water_pykara_downstream,1.0,1.0
-moyar_pondage_bypass_release,water_moyar_pondage,water_pykara_downstream,water_spill,186.0,0.0,,0.01,,,,,,,,,,,,1.0,
-papanasam_servalar_transfer_tunnel,water_papanasam_reservoir,water_servalar_reservoir,water_transfer,20.0,0.0,,0.0,,,,,,,,,,,,1.0,
-papanasam_direct_release,water_papanasam_reservoir,water_papanasam_lower_pondage,water_transfer,100.0,0.0,,0.0,,,,,,,,,,,,1.0,
-papanasam_lower_pondage_bypass,water_papanasam_lower_pondage,water_papanasam_downstream_river,water_spill,100.0,0.0,,0.01,,,,,,,,,,,,1.0,
-servalar_turbine__servalar_small_hydro_project__unit_01,water_servalar_reservoir,Tirunelveli,hydro_turbine,20.0,0.0,,0.0,,,,,,,,,,,water_papanasam_lower_pondage,1.0,1.0
-papanasam_turbine__papanasam_hydroelectric_power_project__unit_01,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,,,,,,,,,,,water_papanasam_downstream_river,1.0,1.0
-papanasam_turbine__papanasam_hydroelectric_power_project__unit_02,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,,,,,,,,,,,water_papanasam_downstream_river,1.0,1.0
-papanasam_turbine__papanasam_hydroelectric_power_project__unit_03,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,,,,,,,,,,,water_papanasam_downstream_river,1.0,1.0
-papanasam_turbine__papanasam_hydroelectric_power_project__unit_04,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,,,,,,,,,,,water_papanasam_downstream_river,1.0,1.0
+name,bus0,bus1,carrier,p_nom,p_min_pu,p_max_pu,marginal_cost,efficiency,length,kind,direction,pair,p_nom_n1,largest_circuit_mw,n_circuits,circuits_by_kv,x_equivalent_ohm,line_ids,bus2,efficiency2
+HVDC Raigarh–Pugalur →,Coimbatore,Western Region,DC,6000.0,0.0,0.5,241.81,0.97,1765.0,HVDC,out of TN,HVDC Raigarh–Pugalur,0.0,6000.0,1.0,±800 kV HVDC,,L0548,,
+HVDC Raigarh–Pugalur ←,Western Region,Coimbatore,DC,6000.0,0.0,1.0,241.81,0.97,1765.0,HVDC,into TN,HVDC Raigarh–Pugalur,0.0,6000.0,1.0,±800 kV HVDC,,L0548,,
+HVDC Pugalur–Thrissur →,Coimbatore,Kerala,DC,2000.0,0.0,1.0,241.81,0.97,165.0,HVDC,out of TN,HVDC Pugalur–Thrissur,0.0,2000.0,1.0,±320 kV HVDC,,L0549,,
+HVDC Pugalur–Thrissur ←,Kerala,Coimbatore,DC,2000.0,0.0,1.0,241.81,0.97,165.0,HVDC,into TN,HVDC Pugalur–Thrissur,0.0,2000.0,1.0,±320 kV HVDC,,L0549,,
+Vellore–Andhra Pradesh (AC tie) →,Vellore,Andhra Pradesh,AC,17353.0,0.0,1.0,241.81,0.97,129.6,interstate AC tie,out of TN,Vellore–Andhra Pradesh (AC tie),12672.0,4681.0,7.0,765 kV ×2; 400 kV ×4; 220 kV ×1,1.771,L0001 L0002 L0021 L0022 L0047 L0048 L0513,,
+Vellore–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Vellore,AC,17353.0,0.0,1.0,241.81,0.97,129.6,interstate AC tie,into TN,Vellore–Andhra Pradesh (AC tie),12672.0,4681.0,7.0,765 kV ×2; 400 kV ×4; 220 kV ×1,1.771,L0001 L0002 L0021 L0022 L0047 L0048 L0513,,
+Vellore–Karnataka (AC tie) →,Vellore,Karnataka,AC,10115.0,0.0,1.0,241.81,0.97,120.9,interstate AC tie,out of TN,Vellore–Karnataka (AC tie),8071.0,2044.0,8.0,400 kV ×7; 220 kV ×1,4.0044,L0007 L0008 L0028 L0029 L0071 L0072 L0073 L0515,,
+Vellore–Karnataka (AC tie) ←,Karnataka,Vellore,AC,10115.0,0.0,1.0,241.81,0.97,120.9,interstate AC tie,into TN,Vellore–Karnataka (AC tie),8071.0,2044.0,8.0,400 kV ×7; 220 kV ×1,4.0044,L0007 L0008 L0028 L0029 L0071 L0072 L0073 L0515,,
+Tirunelveli–Kerala (AC tie) →,Tirunelveli,Kerala,AC,6558.0,0.0,1.0,241.81,0.97,143.4,interstate AC tie,out of TN,Tirunelveli–Kerala (AC tie),4879.0,1679.0,7.0,400 kV ×4; 220 kV ×2; 110 kV ×1,9.3846,L0080 L0081 L0135 L0136 L0516 L0523 L0524,,
+Tirunelveli–Kerala (AC tie) ←,Kerala,Tirunelveli,AC,6558.0,0.0,1.0,241.81,0.97,143.4,interstate AC tie,into TN,Tirunelveli–Kerala (AC tie),4879.0,1679.0,7.0,400 kV ×4; 220 kV ×2; 110 kV ×1,9.3846,L0080 L0081 L0135 L0136 L0516 L0523 L0524,,
+Chennai South–Andhra Pradesh (AC tie) →,Chennai South,Andhra Pradesh,AC,3079.0,0.0,1.0,241.81,0.97,157.7,interstate AC tie,out of TN,Chennai South–Andhra Pradesh (AC tie),2047.0,1032.0,3.0,400 kV ×3,15.129,L0020 L0045 L0046,,
+Chennai South–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Chennai South,AC,3079.0,0.0,1.0,241.81,0.97,157.7,interstate AC tie,into TN,Chennai South–Andhra Pradesh (AC tie),2047.0,1032.0,3.0,400 kV ×3,15.129,L0020 L0045 L0046,,
+Coimbatore–Kerala (AC tie) →,Coimbatore,Kerala,AC,2324.0,0.0,1.0,241.81,0.97,86.3,interstate AC tie,out of TN,Coimbatore–Kerala (AC tie),1292.0,1032.0,3.0,400 kV ×2; 230 kV ×1,12.5029,L0039 L0040 L0139,,
+Coimbatore–Kerala (AC tie) ←,Kerala,Coimbatore,AC,2324.0,0.0,1.0,241.81,0.97,86.3,interstate AC tie,into TN,Coimbatore–Kerala (AC tie),1292.0,1032.0,3.0,400 kV ×2; 230 kV ×1,12.5029,L0039 L0040 L0139,,
+Villupuram–Puducherry (AC tie) →,Villupuram,Puducherry,AC,1535.0,0.0,1.0,241.81,0.97,76.9,interstate AC tie,out of TN,Villupuram–Puducherry (AC tie),520.0,1015.0,3.0,400 kV ×1; 230 kV ×2,14.9707,L0055 L0155 L0156,,
+Villupuram–Puducherry (AC tie) ←,Puducherry,Villupuram,AC,1535.0,0.0,1.0,241.81,0.97,76.9,interstate AC tie,into TN,Villupuram–Puducherry (AC tie),520.0,1015.0,3.0,400 kV ×1; 230 kV ×2,14.9707,L0055 L0155 L0156,,
+Chennai South–Karnataka (AC tie) →,Chennai South,Karnataka,AC,1032.0,0.0,1.0,241.81,0.97,238.0,interstate AC tie,out of TN,Chennai South–Karnataka (AC tie),0.0,1032.0,1.0,400 kV ×1,73.2278,L0030,,
+Chennai South–Karnataka (AC tie) ←,Karnataka,Chennai South,AC,1032.0,0.0,1.0,241.81,0.97,238.0,interstate AC tie,into TN,Chennai South–Karnataka (AC tie),0.0,1032.0,1.0,400 kV ×1,73.2278,L0030,,
+Chennai South–Puducherry (AC tie) →,Chennai South,Puducherry,AC,1015.0,0.0,1.0,241.81,0.97,129.0,interstate AC tie,out of TN,Chennai South–Puducherry (AC tie),0.0,1015.0,1.0,400 kV ×1,42.828,L0062,,
+Chennai South–Puducherry (AC tie) ←,Puducherry,Chennai South,AC,1015.0,0.0,1.0,241.81,0.97,129.0,interstate AC tie,into TN,Chennai South–Puducherry (AC tie),0.0,1015.0,1.0,400 kV ×1,42.828,L0062,,
+Madurai–Kerala (AC tie) →,Madurai,Kerala,AC,260.0,0.0,1.0,241.81,0.97,133.0,interstate AC tie,out of TN,Madurai–Kerala (AC tie),0.0,260.0,1.0,230 kV ×1,160.6063,L0510,,
+Madurai–Kerala (AC tie) ←,Kerala,Madurai,AC,260.0,0.0,1.0,241.81,0.97,133.0,interstate AC tie,into TN,Madurai–Kerala (AC tie),0.0,260.0,1.0,230 kV ×1,160.6063,L0510,,
+Chennai North–Andhra Pradesh (AC tie) →,Chennai North,Andhra Pradesh,AC,249.0,0.0,1.0,241.81,0.97,49.0,interstate AC tie,out of TN,Chennai North–Andhra Pradesh (AC tie),0.0,249.0,1.0,220 kV ×1,64.6722,L0514,,
+Chennai North–Andhra Pradesh (AC tie) ←,Andhra Pradesh,Chennai North,AC,249.0,0.0,1.0,241.81,0.97,49.0,interstate AC tie,into TN,Chennai North–Andhra Pradesh (AC tie),0.0,249.0,1.0,220 kV ×1,64.6722,L0514,,
+mettur_turbine__mettur_dam_hydroelectric_power_project__unit_01,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_dam_hydroelectric_power_project__unit_02,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_dam_hydroelectric_power_project__unit_03,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_dam_hydroelectric_power_project__unit_04,water_mettur_reservoir,Erode,hydro_turbine,12.5,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_tunnel__unit_01,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_tunnel__unit_02,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_tunnel__unit_03,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_turbine__mettur_tunnel__unit_04,water_mettur_reservoir,Erode,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_mettur_downstream,1.0
+mettur_observed_release,water_mettur_reservoir,water_mettur_downstream,water_spill,2500.0,0.0,,0.01,1.0,,,,,,,,,,,,
+periyar_turbine__periyar_hydroelectric_power_project__unit_01,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_periyar_downstream,1.0
+periyar_turbine__periyar_hydroelectric_power_project__unit_02,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_periyar_downstream,1.0
+periyar_turbine__periyar_hydroelectric_power_project__unit_03,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_periyar_downstream,1.0
+periyar_turbine__periyar_hydroelectric_power_project__unit_04,water_periyar_reservoir,Madurai,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_periyar_downstream,1.0
+periyar_observed_release,water_periyar_reservoir,water_periyar_downstream,water_spill,500.0,0.0,,0.01,1.0,,,,,,,,,,,,
+pap_parambikulam_to_thunacadavu,water_parambikulam,water_thunacadavu,water_transfer,33.333333333333336,0.0,,0.0,1.0,,,,,,,,,,,,
+pap_contour_aliyar_feeder_to_lower_aliyar,water_parambikulam,water_lower_aliyar,water_transfer,250.0,0.0,,0.0,1.0,,,,,,,,,,,,
+pap_parambikulam_observed_release,water_parambikulam,water_pap_downstream,water_spill,250.0,0.0,,0.01,1.0,,,,,,,,,,,,
+pap_sholayar_observed_release,water_sholayar,water_pap_downstream,water_spill,250.0,0.0,,0.01,1.0,,,,,,,,,,,,
+pap_lower_aliyar_outflow,water_lower_aliyar,water_pap_downstream,water_spill,250.0,0.0,,0.01,1.0,,,,,,,,,,,,
+pap_sarkarpathy_turbine__sarkarpathy_hydroelectric_power_project__unit_01,water_thunacadavu,Coimbatore,hydro_turbine,30.0,0.0,,0.0,1.0,,,,,,,,,,,water_lower_aliyar,1.0
+pap_sholayar_turbine__sholayar_i_power_house__unit_01,water_sholayar,Coimbatore,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_lower_aliyar,1.0
+pap_sholayar_turbine__sholayar_i_power_house__unit_02,water_sholayar,Coimbatore,hydro_turbine,42.0,0.0,,0.0,1.0,,,,,,,,,,,water_lower_aliyar,1.0
+pap_aliyar_turbine__aliyar_hydroelectric_power_project__unit_01,water_upper_aliyar,Coimbatore,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_lower_aliyar,1.0
+kadamparai_generation__kadmparai_power_house__unit_01,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,1.0,,,,,,,,,,,water_upper_aliyar,1.0
+kadamparai_generation__kadmparai_power_house__unit_02,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,1.0,,,,,,,,,,,water_upper_aliyar,1.0
+kadamparai_generation__kadmparai_power_house__unit_03,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,1.0,,,,,,,,,,,water_upper_aliyar,1.0
+kadamparai_generation__kadmparai_power_house__unit_04,water_kadamparai,Coimbatore,hydro_turbine,100.0,0.0,,0.0,1.0,,,,,,,,,,,water_upper_aliyar,1.0
+kadamparai_pump,water_upper_aliyar,water_kadamparai,hydro_pump,400.0,0.0,,0.0,0.81,,,,,,,,,,,Coimbatore,-1.1111111111111112
+kodayar_I__kodayar_i_ii_power_house__unit_01,water_upper_kodayar,Tirunelveli,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_kodayar_ii_forebay,1.0
+kodayar_II__kodayar_i_ii_power_house__unit_02,water_kodayar_ii_forebay,Tirunelveli,hydro_turbine,349.0777614261028,0.0,,0.0,0.1145876489999999,,,,,,,,,,,water_kodayar_downstream,1.0
+upper_kodayar_spill,water_upper_kodayar,water_kodayar_downstream,water_spill,211160.3041661858,0.0,,0.01,1.0,,,,,,,,,,,,
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_01,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_02,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_08,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_03,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_04,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_05,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_06,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_07,water_upper_bhavani,Coimbatore,hydro_turbine,35.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_10,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_11,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_13,water_upper_bhavani,Coimbatore,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_12,water_upper_bhavani,Coimbatore,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_14,water_upper_bhavani,Coimbatore,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_09,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_15,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
+parsons_valley_turbine__parson_s_valley_hydroelectric_power_project__unit_01,water_kundah_pondage,Coimbatore,hydro_turbine,30.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_downstream,1.0
+kundah_pondage_bypass_release,water_kundah_pondage,water_kundah_downstream,water_spill,555.0,0.0,,0.01,1.0,,,,,,,,,,,,
+pykara_turbine__pykara_hydroelectric_power_project__unit_01,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pykara_turbine__pykara_hydroelectric_power_project__unit_02,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pykara_turbine__pykara_hydroelectric_power_project__unit_03,water_pykara,Coimbatore,hydro_turbine,7.0,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pykara_turbine__pykara_hydroelectric_power_project__unit_04,water_pykara,Coimbatore,hydro_turbine,13.6,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pykara_turbine__pykara_hydroelectric_power_project__unit_05,water_pykara,Coimbatore,hydro_turbine,13.6,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pykara_turbine__pykara_hydroelectric_power_project__unit_06,water_pykara,Coimbatore,hydro_turbine,11.0,0.0,,0.0,1.0,,,,,,,,,,,water_glenmorgan_forebay,1.0
+pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_01,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_moyar_pondage,1.0
+pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_02,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_moyar_pondage,1.0
+pushep_turbine__pykara_ultimate_hydroelectric_power_project__unit_03,water_glenmorgan_forebay,Coimbatore,hydro_turbine,50.0,0.0,,0.0,1.0,,,,,,,,,,,water_moyar_pondage,1.0
+moyar_turbine__moyar_power_house__unit_01,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,1.0,,,,,,,,,,,water_pykara_downstream,1.0
+moyar_turbine__moyar_power_house__unit_02,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,1.0,,,,,,,,,,,water_pykara_downstream,1.0
+moyar_turbine__moyar_power_house__unit_03,water_moyar_pondage,Coimbatore,hydro_turbine,12.0,0.0,,0.0,1.0,,,,,,,,,,,water_pykara_downstream,1.0
+moyar_pondage_bypass_release,water_moyar_pondage,water_pykara_downstream,water_spill,186.0,0.0,,0.01,1.0,,,,,,,,,,,,
+papanasam_servalar_transfer_tunnel,water_papanasam_reservoir,water_servalar_reservoir,water_transfer,20.0,0.0,,0.0,1.0,,,,,,,,,,,,
+papanasam_direct_release,water_papanasam_reservoir,water_papanasam_lower_pondage,water_transfer,100.0,0.0,,0.0,1.0,,,,,,,,,,,,
+papanasam_lower_pondage_bypass,water_papanasam_lower_pondage,water_papanasam_downstream_river,water_spill,100.0,0.0,,0.01,1.0,,,,,,,,,,,,
+servalar_turbine__servalar_small_hydro_project__unit_01,water_servalar_reservoir,Tirunelveli,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_papanasam_lower_pondage,1.0
+papanasam_turbine__papanasam_hydroelectric_power_project__unit_01,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,1.0,,,,,,,,,,,water_papanasam_downstream_river,1.0
+papanasam_turbine__papanasam_hydroelectric_power_project__unit_02,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,1.0,,,,,,,,,,,water_papanasam_downstream_river,1.0
+papanasam_turbine__papanasam_hydroelectric_power_project__unit_03,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,1.0,,,,,,,,,,,water_papanasam_downstream_river,1.0
+papanasam_turbine__papanasam_hydroelectric_power_project__unit_04,water_papanasam_lower_pondage,Tirunelveli,hydro_turbine,8.0,0.0,,0.0,1.0,,,,,,,,,,,water_papanasam_downstream_river,1.0

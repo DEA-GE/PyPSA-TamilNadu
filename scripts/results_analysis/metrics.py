@@ -63,6 +63,7 @@ def generation_by_carrier(run: AnalysisRun) -> pd.DataFrame:
         .sum()
     )
     capacity = generator_capacity.add(storage_capacity, fill_value=0.0)
+    capacity.loc["storage"] = storage_capacity.sum()
     turbine_links = run.base.links.loc[
         run.base.links.carrier.astype(str).eq("hydro_turbine")
     ]
@@ -71,6 +72,7 @@ def generation_by_carrier(run: AnalysisRun) -> pd.DataFrame:
             turbine_links.p_nom * turbine_links.efficiency.fillna(1.0)
         ).sum()
         capacity.loc["hydro"] = capacity.get("hydro", 0.0) + hydro_link_capacity
+    capacity.loc["total"] = capacity.drop(index=["total", "storage"], errors="ignore").sum()
     result = pd.DataFrame(
         {
             "capacity_mw": capacity.reindex(energy.index).fillna(0.0),
@@ -189,10 +191,12 @@ def installed_capacity_by_area(run: AnalysisRun) -> pd.DataFrame:
 def installed_capacity_comparison(
     run: AnalysisRun, observed_capacity: pd.DataFrame | None
 ) -> pd.DataFrame:
-    """Compare model capacity with historical Tamil Nadu Outlook categories."""
+    """Compare model capacity with the supplied existing-capacity benchmark."""
     modeled = generation_by_carrier(run)[["capacity_mw"]].rename(
         columns={"capacity_mw": "modeled_capacity_mw"}
     )
+    modeled.loc["storage"] = float(run.base.storage_units.p_nom.sum())
+    modeled.loc["total"] = modeled.drop(index=["total", "storage"], errors="ignore").sum()
     if observed_capacity is None:
         return modeled
     result = modeled.reindex(observed_capacity.index).join(
@@ -210,8 +214,10 @@ def installed_capacity_comparison(
     result["difference_mw"] = (
         result.modeled_capacity_mw - result.historical_capacity_mw
     )
-    result["difference_pct"] = (
-        100.0 * result.difference_mw / result.historical_capacity_mw
+    result["difference_pct"] = np.where(
+        result.historical_capacity_mw.eq(0.0),
+        np.nan,
+        100.0 * result.difference_mw / result.historical_capacity_mw,
     )
     result.index.name = "carrier"
     return result

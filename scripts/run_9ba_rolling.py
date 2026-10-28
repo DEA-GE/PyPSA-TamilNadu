@@ -32,6 +32,10 @@ from nuclear_energy_targets import (
     prepare_nuclear_targets,
 )
 from run_9ba_weekly_days_2025_26 import MODEL_DIR, OIL_GAS_BUDGET_CONSTRAINT
+from transmission_assumptions import (
+    TRANSMISSION_LOSSES,
+    add_transmission_flow_cost,
+)
 
 configure_for_pypsa_124()
 
@@ -39,7 +43,7 @@ BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "pap-aliyar-feeder-v5"
+CHECKPOINT_MODEL_VERSION = "transmission-losses-v6"
 SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
@@ -1126,6 +1130,7 @@ def run_annual_no_uc(
                 targets,
                 name_suffix=f"-{terminal:%Y%m%d}",
             )
+        add_transmission_flow_cost(active_network, active_snapshots)
 
     print(
         f"Solving annual no-UC LP: {snapshots[0].date()} to {snapshots[-1].date()} "
@@ -1141,6 +1146,7 @@ def run_annual_no_uc(
                 "none", None, solver_threads, simplex_strategy
             ),
             extra_functionality=extra_functionality,
+            transmission_losses=TRANSMISSION_LOSSES,
             include_objective_constant=False,
         )
         runtime = time.perf_counter() - started
@@ -1394,11 +1400,13 @@ def run_rolling_year(
                         n, committed, small_hydro_monthly_targets_mwh
                     ),
                     _add_hydro_terminal_targets(n, committed, terminal_targets),
+                    add_transmission_flow_cost(n, s),
                     _add_exact_measured_storage(n, s, measured_store_targets),
                     _add_relaxed_boundary_constraints(n, previous)
                     if unit_commitment == "relaxed"
                     else None,
                 ),
+                transmission_losses=TRANSMISSION_LOSSES,
                 include_objective_constant=False,
                 linearized_unit_commitment=unit_commitment == "relaxed",
                 assign_all_duals=True,

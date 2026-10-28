@@ -273,11 +273,11 @@ commitment or storage analysis.
 - Nine electrical buses use the balancing-area names in
   `data/model_inputs/Balancing_areas.txt`; additional water-energy buses model
   reservoir and cascade hydraulics.
-- The 18 grid corridors in `data/model_inputs/Grid_capacity.txt` are modeled as lossless,
-  bidirectional PyPSA `Link` components. Each stated MW capacity has a fixed
-  50% availability factor, so the modeled bidirectional rating is 50% of the
-  stated value in every snapshot. Nominal and effective capacities are retained
-  in `model/transmission_capacity_metadata.csv`.
+- The authoritative grid workbook supplies 18 internal AC `Line` corridors and
+  24 directional interstate `Link`s. Internal losses are approximated from line
+  resistance during optimization; interstate links deliver 97% of sending-end
+  power. Ratings and source metadata are retained in
+  `model/transmission_capacity_metadata.csv`.
 - The model retains all 8,760 hourly snapshots from 1 April 2025 through
   31 March 2026.
 - Installed nameplate capacity is updated to the 31 July 2026 comparison
@@ -347,14 +347,15 @@ district-level source table and `model/component_metadata.csv` for each
 PyPSA component's assigned bus, method, confidence, and allocation share.
 `model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
 Interstate exchange uses the audited FY2025-26 SRPC REA schedules. Hourly
-resolved flows retain their mapped external gateway. Hourly unresolved imports
-and exports are distributed separately across Andhra Pradesh, Karnataka,
-Kerala, and Western Region in proportion to the corresponding direction's
-annual resolved flow. If a provisional allocation exceeds remaining gateway
-capacity, the excess is redistributed across the other positive-share
-gateways. The model keeps `resolved` and `unresolved_distributed` as separate
-load carriers and audit measures. Imports are negative external demand and
-exports are positive external demand. These loads fix total exchange at each
+resolved flows retain their mapped external gateway. Only these confirmed
+imports are included in the model; unresolved imports remain in the audit with
+zero modeled flow. Hourly unresolved exports are distributed across Andhra
+Pradesh, Karnataka, Kerala, and Western Region in proportion to annual resolved
+export flow. If a provisional export allocation exceeds remaining gateway
+capacity, the excess is redistributed across the other positive-share gateways.
+The model keeps `resolved` and `unresolved_distributed` as separate audit
+measures. Imports are negative external demand and exports are positive external
+demand. These loads fix total exchange at each
 external bus, while the grid chooses the split among parallel links; individual
 interconnector links are not fixed. See `model/interstate_flow_audit.csv` for
 the hourly values, shares, capacity limits, and redistribution flags. The
@@ -545,11 +546,29 @@ not interchangeable.
 
 ## Important limitations
 
-The grid is a transport model because only corridor capacities were supplied;
-it does not enforce AC Kirchhoff voltage laws or calculate reactive power.
-Capacity ranges are approximate and losses are zero. Geographically
+The grid uses a linearized AC formulation and does not calculate reactive
+power. Active-power losses on passive AC lines are approximated from imported
+resistance with two linear tangent segments and should be validated against
+TNERC's 3.81% TANTRANSCO energy-balance assumption. Directional interstate
+links use the CEA planning assumption of 3% losses and TNERC's FY2025-26
+short-term transmission charge of 241.81 currency units/MWh. Internal AC-line
+flows carry a 1 currency-unit/MWh numerical tie-breaker rather than repeating
+the system-level access charge on every line in a multi-line path. Capacity
+ranges remain approximate. Geographically
 unspecified plant allocation and synthetic area demand should be replaced
 when stronger spatial data are available.
+
+The transmission assumptions use the following Indian regulatory sources:
+
+- TNERC's FY2025-26 TANTRANSCO order sets short-term transmission charges at
+  Rs 241.81/MW/hour (numerically Rs 241.81/MWh):
+  <https://tnerc.tn.gov.in/Orders/files/TO-Intra-Stat010720251711.pdf>.
+- TNERC's 2022 TANGEDCO energy balance carries a 3.81% TANTRANSCO transmission
+  loss assumption through FY2025-26.
+- CEA's *20th Electric Power Survey*, Volume I, section 1.4.6 assumes 3% losses
+  on electricity imported through the interstate grid:
+  <https://cea.nic.in/wp-content/uploads/ps___lf/2023/02/Volume_I_Report_of_20th_Electric_Power_Survey.pdf>.
+
 The provisional July-2026 capacity overlay must likewise be replaced when a
 district-level commissioning register becomes available.
 The full-year mixed-integer problem is large; use a shorter-horizon runner for

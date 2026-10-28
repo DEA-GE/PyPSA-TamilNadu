@@ -1,14 +1,17 @@
 {
-  "source": "Tamil Nadu Outlook",
+  "source": "Existing capacity tied up as on 31.03.2026",
   "capacity_unit": "MW",
   "categories": [
-    {"carrier": "bio_power", "installed_capacity_mw": 1046.62, "share_pct": 2.39},
-    {"carrier": "small_hydro", "installed_capacity_mw": 123.05, "share_pct": 0.28},
-    {"carrier": "wind", "installed_capacity_mw": 11863.12, "share_pct": 27.05},
-    {"carrier": "solar", "installed_capacity_mw": 10983.44, "share_pct": 25.05},
-    {"carrier": "hydro", "installed_capacity_mw": 2178.2, "share_pct": 4.97},
-    {"carrier": "nuclear", "installed_capacity_mw": 2440.0, "share_pct": 5.56},
-    {"carrier": "oil_gas", "installed_capacity_mw": 1056.28, "share_pct": 2.41},
-    {"carrier": "coal", "installed_capacity_mw": 14162.5, "share_pct": 32.30}
+    {"carrier": "coal", "installed_capacity_mw": 15869.0},
+    {"carrier": "oil_gas", "installed_capacity_mw": 739.0},
+    {"carrier": "bio_power", "installed_capacity_mw": 891.0},
+    {"carrier": "hydro", "installed_capacity_mw": 1866.0},
+    {"carrier": "nuclear", "installed_capacity_mw": 1677.0},
+    {"carrier": "solar", "installed_capacity_mw": 12750.0},
+    {"carrier": "wind", "installed_capacity_mw": 9483.0},
+    {"carrier": "fdre_re_rtc", "installed_capacity_mw": 0.0},
+    {"carrier": "dre", "installed_capacity_mw": 1623.0},
+    {"carrier": "total", "installed_capacity_mw": 45299.0},
+    {"carrier": "storage", "installed_capacity_mw": 400.0}
   ]
 }
