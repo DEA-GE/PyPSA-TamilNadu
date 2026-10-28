@@ -2111,7 +2111,7 @@ def build_interstate_flow_loads(
                 if included_in_model:
                     load_rows.append({
                         "name": load_name, "bus": gateway,
-                        "carrier": f"interstate_exchange_{measure}",
+                        "carrier": "electricity",
                     })
                     profile_data[load_name] = sign * values
                 audit_rows.append(pd.DataFrame({

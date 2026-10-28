@@ -55,10 +55,7 @@ def test_model_uses_only_confirmed_imports() -> None:
     assert not interstate["name"].str.startswith(
         "interstate_unresolved_distributed_import_"
     ).any()
-    assert set(interstate["carrier"]) == {
-        "interstate_exchange_resolved",
-        "interstate_exchange_unresolved_distributed",
-    }
+    assert set(interstate["carrier"]) == {"electricity"}
     reconciliation = pd.read_csv(MODEL / "interstate_flow_reconciliation.csv")
     reconciled = reconciliation.groupby(["direction", "measure"])["energy_GWh"].sum()
     for key, expected in EXPECTED_GWH.items():
