@@ -1,0 +1,84 @@
+direction,inclusion_basis,dataset_status,counterparty_state,external_gateway,tn_BA,channel,energy_GWh,transaction_rows
+export,resolved_export_external,verified_resolved,Andhra Pradesh,Andhra Pradesh,Chennai North,ISGS/LTA,403.5933,22137
+export,resolved_export_external,verified_resolved,Andhra Pradesh,Andhra Pradesh,Chennai South,ISGS/LTA,50.1564575,26253
+export,resolved_export_external,verified_resolved,Andhra Pradesh,Andhra Pradesh,Tirunelveli,ISGS/LTA,445.16891499999997,30918
+export,resolved_export_external,verified_resolved,Andhra Pradesh,Andhra Pradesh,Villupuram,ISGS/LTA,708.638425,139379
+export,resolved_export_external,verified_resolved,Bihar,Karnataka,Chennai North,ISGS/LTA,41.704184999999995,9657
+export,resolved_export_external,verified_resolved,Bihar,Karnataka,Chennai North,TGNA,21.959999999999997,2928
+export,resolved_export_external,verified_resolved,Bihar,Karnataka,Chennai South,ISGS/LTA,3.3203,8802
+export,resolved_export_external,verified_resolved,Bihar,Karnataka,Tirunelveli,ISGS/LTA,68.51403,16364
+export,resolved_export_external,verified_resolved,Bihar,Karnataka,Villupuram,ISGS/LTA,56.81965,45659
+export,resolved_export_external,verified_resolved,Chhattisgarh,Western Region,Tirunelveli,GNA,0.504,168
+export,resolved_export_external,verified_resolved,Chhattisgarh,Western Region,Tirunelveli,TGNA,0.336,112
+export,resolved_export_external,verified_resolved,Goa,Western Region,Chennai North,TGNA,18.5351925,2970
+export,resolved_export_external,verified_resolved,Goa,Western Region,Tirunelveli,TGNA,1.395,1116
+export,resolved_export_external,verified_resolved,Goa,Western Region,Trichy,TGNA,5.448,2724
+export,resolved_export_external,verified_resolved,Haryana,Western Region,Chennai North,TGNA,103.87728000000001,5728
+export,resolved_export_external,verified_resolved,Karnataka,Karnataka,Chennai North,ISGS/LTA,831.7847375,29095
+export,resolved_export_external,verified_resolved,Karnataka,Karnataka,Chennai South,ISGS/LTA,90.19180250000001,26253
+export,resolved_export_external,verified_resolved,Karnataka,Karnataka,Tirunelveli,ISGS/LTA,4128.5416275,83083
+export,resolved_export_external,verified_resolved,Karnataka,Karnataka,Villupuram,ISGS/LTA,2420.0270225,156165
+export,resolved_export_external,verified_resolved,Kerala,Kerala,Chennai North,ISGS/LTA,318.25225,22900
+export,resolved_export_external,verified_resolved,Kerala,Kerala,Chennai South,ISGS/LTA,67.4040975,26253
+export,resolved_export_external,verified_resolved,Kerala,Kerala,Tirunelveli,ISGS/LTA,2172.0259450000003,75139
+export,resolved_export_external,verified_resolved,Kerala,Kerala,Villupuram,ISGS/LTA,1291.386375,148241
+export,resolved_export_external,verified_resolved,Maharashtra,Western Region,Chennai North,GNA,254.95,6804
+export,resolved_export_external,verified_resolved,Punjab,Western Region,Chennai North,GNA,4.0322125,132
+export,resolved_export_external,verified_resolved,Punjab,Western Region,Chennai North,TGNA,85.9677875,2753
+export,resolved_export_external,verified_resolved,Rajasthan,Western Region,Chennai North,GNA,57.349999999999994,4216
+export,resolved_export_external,verified_resolved,Rajasthan,Western Region,Chennai North,TGNA,54.25,1736
+export,resolved_export_external,verified_resolved,Telangana,Andhra Pradesh,Chennai North,ISGS/LTA,531.3004475,26463
+export,resolved_export_external,verified_resolved,Telangana,Andhra Pradesh,Chennai South,ISGS/LTA,56.211777500000004,26253
+export,resolved_export_external,verified_resolved,Telangana,Andhra Pradesh,Tirunelveli,ISGS/LTA,851.1663575,58630
+export,resolved_export_external,verified_resolved,Telangana,Andhra Pradesh,Villupuram,ISGS/LTA,325.73242,108761
+export,resolved_export_external,verified_resolved,Uttarakhand,Western Region,Chennai North,GNA,6.0,1920
+export,resolved_export_external,verified_resolved,West Bengal,Karnataka,Chennai North,GNA,1.8525,380
+export,resolved_export_external,verified_resolved,West Bengal,Karnataka,Chennai North,TGNA,20.7503,1580
+export,resolved_export_external,verified_resolved,West Bengal,Karnataka,Madurai,TGNA,3.75,600
+export,resolved_export_external,verified_resolved,West Bengal,Karnataka,Tirunelveli,TGNA,1.8,600
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Andhra Pradesh,Andhra Pradesh,UNALLOCATED_TN,GNA,20.1815,2244
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Andhra Pradesh,Andhra Pradesh,UNALLOCATED_TN,TGNA,13.5156,200
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Assam,Western Region,UNALLOCATED_TN,TGNA,0.4,16
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Bihar,Karnataka,UNALLOCATED_TN,GNA,11.450000000000001,172
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Bihar,Karnataka,UNALLOCATED_TN,TGNA,41.007555,8018
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Chhattisgarh,Western Region,UNALLOCATED_TN,GNA,1.25,200
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Chhattisgarh,Western Region,UNALLOCATED_TN,TGNA,11.022075,2402
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,DVC Territory (Jharkhand/West Bengal),UNALLOCATED_EXTERNAL,Tirunelveli,GNA,3.6,2880
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,DVC Territory (Jharkhand/West Bengal),UNALLOCATED_EXTERNAL,Trichy,GNA,4.704000000000001,2688
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,DVC Territory (Jharkhand/West Bengal),UNALLOCATED_EXTERNAL,UNALLOCATED_TN,GNA,44.730000000000004,21576
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Delhi,Western Region,UNALLOCATED_TN,GNA,0.525,28
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Delhi,Western Region,UNALLOCATED_TN,TGNA,58.157265,9946
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Goa,Western Region,UNALLOCATED_TN,TGNA,1.488,2976
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Gujarat,Western Region,UNALLOCATED_TN,GNA,30.791,8660
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Gujarat,Western Region,UNALLOCATED_TN,TGNA,17.468,8792
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Haryana,Western Region,UNALLOCATED_TN,TGNA,2.3000000000000003,32
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Jharkhand,Western Region,UNALLOCATED_TN,TGNA,0.8,26
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Maharashtra,Western Region,UNALLOCATED_TN,TGNA,12.849340000000002,4194
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Odisha,Karnataka,UNALLOCATED_TN,GNA,1.55,40
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Odisha,Karnataka,UNALLOCATED_TN,TGNA,2.298,308
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Punjab,Western Region,UNALLOCATED_TN,GNA,5.361,1850
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Punjab,Western Region,UNALLOCATED_TN,TGNA,7.934,3968
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Rajasthan,Western Region,UNALLOCATED_TN,GNA,47.548,9372
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Rajasthan,Western Region,UNALLOCATED_TN,TGNA,19.486,3414
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Uttar Pradesh,Western Region,UNALLOCATED_TN,GNA,342.680975,6828
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Uttar Pradesh,Western Region,UNALLOCATED_TN,TGNA,1.414,556
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,Uttarakhand,Western Region,UNALLOCATED_TN,GNA,6.48,2880
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,West Bengal,Karnataka,UNALLOCATED_TN,GNA,10.690000000000001,536
+export,resolved_tn_export_register,resolved_flow_plant_unattributed,West Bengal,Karnataka,UNALLOCATED_TN,TGNA,43.3475,11556
+export,verified_puducherry_exception,verified_puducherry_exception,Puducherry,Puducherry,Chennai North,ISGS/LTA,96.71047,19080
+export,verified_puducherry_exception,verified_puducherry_exception,Puducherry,Puducherry,Chennai South,ISGS/LTA,20.787972500000002,26253
+export,verified_puducherry_exception,verified_puducherry_exception,Puducherry,Puducherry,Tirunelveli,ISGS/LTA,548.75326,68644
+export,verified_puducherry_exception,verified_puducherry_exception,Puducherry,Puducherry,Villupuram,ISGS/LTA,796.4699175,145482
+import,resolved_import,verified_resolved,Andhra Pradesh,Andhra Pradesh,UNALLOCATED_TN,ISGS/LTA,1259.030195,31397
+import,resolved_import,verified_resolved,Bihar,Karnataka,UNALLOCATED_TN,ISGS/LTA,41.3872925,35040
+import,resolved_import,verified_resolved,Chhattisgarh,Western Region,UNALLOCATED_TN,GNA,10807.160342500001,199401
+import,resolved_import,verified_resolved,Chhattisgarh,Western Region,UNALLOCATED_TN,TGNA,1515.7104175,81759
+import,resolved_import,verified_resolved,Gujarat,Western Region,UNALLOCATED_TN,ISGS/LTA,1283.5775275,67726
+import,resolved_import,verified_resolved,Karnataka,Karnataka,UNALLOCATED_TN,ISGS/LTA,1905.069035,28101
+import,resolved_import,verified_resolved,Madhya Pradesh,Western Region,UNALLOCATED_TN,GNA,10.8,864
+import,resolved_import,verified_resolved,Madhya Pradesh,Western Region,UNALLOCATED_TN,TGNA,768.8935075,39977
+import,resolved_import,verified_resolved,Maharashtra,Western Region,UNALLOCATED_TN,GNA,1904.9439625,70069
+import,resolved_import,verified_resolved,Maharashtra,Western Region,UNALLOCATED_TN,TGNA,92.64729,8343
+import,resolved_import,verified_resolved,Odisha,Karnataka,UNALLOCATED_TN,ISGS/LTA,3427.724715,69391
+import,resolved_import,verified_resolved,Telangana,Andhra Pradesh,UNALLOCATED_TN,ISGS/LTA,3784.4212700000003,94862
+import,resolved_import,verified_resolved,West Bengal,Karnataka,UNALLOCATED_TN,ISGS/LTA,964.613865,35040

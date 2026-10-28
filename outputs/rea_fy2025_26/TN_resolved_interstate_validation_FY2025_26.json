@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "transaction_rows": 2260659,
+  "duplicate_dedup_keys": 0,
+  "resolved_import_GWh": 27765.97942,
+  "resolved_export_external_GWh": 15504.698395,
+  "verified_puducherry_exception_GWh": 1462.7216199999998,
+  "newly_resolved_tn_export_register_GWh": 765.02881,
+  "total_export_including_puducherry_GWh": 17732.448825,
+  "remaining_unresolved_export_GWh": 7235.026995,
+  "unresolved_rows_included_without_resolution_rule": 0
+}

@@ -102,3 +102,36 @@ def test_hourly_conservation_signs_and_gateway_capacity() -> None:
 
     assert not (MODEL / "links-p_min_pu.csv").exists()
     assert not (MODEL / "links-p_max_pu.csv").exists()
+
+
+def test_verified_rea_plant_exports_are_reserved_without_changing_flow_totals() -> None:
+    source_audit = pd.read_csv(
+        INPUT / "rea_plant_export_mapping_audit_FY2025_26.csv"
+    )
+    source_totals = source_audit.groupby("reservation_status")["energy_GWh"].sum()
+    assert np.isclose(source_totals["mapped_to_model_generator"], 15_496.913395)
+    assert np.isclose(source_totals["unmatched_model_generator"], 7.785)
+    assert np.isclose(source_totals.sum(), EXPECTED_GWH[("export", "resolved")])
+
+    audit = pd.read_csv(MODEL / "rea_plant_export_reservation_audit.csv")
+    assert len(audit) == 15
+    assert set(audit["status"]) == {"fixed_from_verified_rea_schedule"}
+    assert np.isclose(audit["scheduled_export_GWh"].sum(), 15_496.913395)
+    assert (audit["reserved_capacity_mw"] <= audit["physical_capacity_mw"]).all()
+    assert (audit["remaining_tn_dispatchable_capacity_mw"] >= 0.0).all()
+
+    generators = pd.read_csv(MODEL / "generators.csv").set_index("name")
+    minimum = pd.read_csv(MODEL / "generators-p_min_pu.csv", index_col=0)
+    maximum = pd.read_csv(MODEL / "generators-p_max_pu.csv", index_col=0)
+    reservation_names = audit["reservation_generator"]
+    assert set(reservation_names).issubset(generators.index)
+    assert np.allclose(minimum[reservation_names], maximum[reservation_names])
+    scheduled_gwh = minimum[reservation_names].mul(
+        generators.loc[reservation_names, "p_nom"].to_numpy(), axis=1
+    ).sum().sum() / 1_000.0
+    assert np.isclose(scheduled_gwh, 15_496.913395)
+
+    legacy = pd.read_csv(MODEL / "tn_export_capacity_allocations.csv")
+    assert set(legacy["application_status"]) == {
+        "reference_only_superseded_by_verified_rea_plant_schedules"
+    }

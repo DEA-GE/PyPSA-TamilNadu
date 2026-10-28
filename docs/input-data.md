@@ -23,7 +23,8 @@ an explicit `snapshot` timestamp.
 | Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/global_constraints.csv` |
 | Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx` | `model/buses.csv`, `model/lines.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
 | FY2025-26 REA imports and exports | `data/model_inputs/rea_interstate_hourly_flows_FY2025_26.csv`, `rea_interstate_gateway_shares_FY2025_26.csv`, `rea_interstate_source_audit_FY2025_26.csv` | `model/loads.csv`, `model/loads-p_set.csv`, `model/interstate_flow_audit.csv`, `model/interstate_flow_reconciliation.csv` |
-| In-state stations' Tamil Nadu capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/generators.csv`, `model/tn_export_capacity_allocations.csv`, `model/capacity_reconciliation_2026_07.csv` |
+| Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
+| Historical four-station capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/tn_export_capacity_allocations.csv` (reference only) |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -40,6 +41,18 @@ records; their source energy remains visible in the audit with zero modeled
 flow. Unresolved exports are allocated by resolved export-flow shares and
 preserved under the `unresolved_distributed` measure. Imports and exports are
 never netted.
+
+Verified exports with a named Tamil Nadu generator are also prepared at plant
+level. Fifteen REA plant labels map to modeled units and cover 15,496.913 GWh
+of the 15,504.698 GWh resolved export total. The remaining 7.785 GWh from
+Kamachi Steels and ARKAY Energy stays explicitly unmatched because those plants
+are absent from the model inventory. For every matched plant, the builder
+reserves capacity equal to its peak concurrent REA export schedule and creates
+a fixed-dispatch generator at the plant's physical balancing-area bus. The same
+nameplate is removed from the ordinary plant units, conserving physical
+capacity while preventing unused reserved capacity from serving Tamil Nadu.
+The existing gateway export loads are unchanged, so the reservation does not
+double count interstate energy.
 
 Included measures are fixed loads at the external buses: confirmed imports have
 negative `p_set` and exports positive `p_set`. Existing directional grid links
@@ -282,10 +295,10 @@ matching for oil and gas or nuclear is an imposed calibration condition.
 
 `data/model_inputs/tn_export_capacity_allocations.csv` records four thermal
 stations physically in Tamil Nadu whose full capacity is not allocated to
-Tamil Nadu. The builder derates those units to their stated TN shares before
-district allocation; nuclear capacity is not derated. The model does not
-represent the corresponding export flows. The generated audit is
-`model/tn_export_capacity_allocations.csv`.
+Tamil Nadu. It is retained for comparison, but no longer derates the modeled
+fleet. Verified plant-level REA schedules supersede that four-station proxy and
+also cover nuclear, additional Neyveli stages, OPG, Tulsyan, and EID Parry.
+The generated reference copy is `model/tn_export_capacity_allocations.csv`.
 
 `data/model_inputs/Balancing_areas.txt` is a Markdown-style table mapping 38
 districts to the nine bus names. The authoritative grid workbook supplies 18
