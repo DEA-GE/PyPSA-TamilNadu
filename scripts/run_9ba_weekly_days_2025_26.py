@@ -495,7 +495,14 @@ def solve_day(
         "solver_status": status,
         "termination_condition": condition,
         "runtime_seconds": runtime_seconds,
-        "max_nodal_residual_mw": float(network.buses_t.p.sum(axis=1).abs().max()),
+        # With transmission losses, bus injections sum to the line losses
+        # (p0 + p1), so subtract them to get the true system imbalance.
+        "max_nodal_residual_mw": float(
+            (
+                network.buses_t.p.sum(axis=1)
+                - (network.lines_t.p0 + network.lines_t.p1).sum(axis=1)
+            ).abs().max()
+        ),
         "max_corridor_loading_pct": float(100.0 * link_loading.max().max()),
         "most_loaded_corridor": str(link_loading.max().idxmax()),
     }
@@ -613,13 +620,11 @@ def main() -> None:
     observed = read_observed_generation()
     oil_gas_budget = read_oil_gas_budget(observed)
     annual_network = pypsa.Network(MODEL_DIR)
-    electrical_buses = annual_network.buses.index[
+    balancing_areas = annual_network.buses.index[
         annual_network.buses.carrier.eq("AC")
+        & annual_network.buses.kind.eq("TN balancing area")
     ]
-    transmission_links = annual_network.links.index[
-        annual_network.links.carrier.eq("AC")
-    ]
-    if len(electrical_buses) != 9 or len(transmission_links) != 18:
+    if len(balancing_areas) != 9 or len(annual_network.lines) != 18:
         raise ValueError("The input is not the expected intact 9BA network")
     if not annual_network.generators.committable.any():
         raise ValueError("The 9BA model contains no unit commitment")
