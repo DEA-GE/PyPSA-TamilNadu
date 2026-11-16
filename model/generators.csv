@@ -285,18 +285,18 @@ unserved_energy__villupuram,Villupuram,10186.543701530078,0.0,1.0,,inf,unserved_
 rea_export_reservation__kudankulam_nuclear_power_project_i,Tirunelveli,373.92,0.0,1.0,0.0,inf,nuclear,800.0,False,0.0,0.0,0.0,0.0,0.0,0.0,,,,
 rea_export_reservation__kudankulam_nuclear_power_project_ii,Tirunelveli,391.88,0.0,1.0,0.0,inf,nuclear,800.0,False,0.0,0.0,0.0,0.0,0.0,0.0,,,,
 rea_export_reservation__madras_atomic_power_station,Chennai South,43.06,0.0,1.0,0.0,inf,nuclear,800.0,False,0.0,0.0,0.0,0.0,0.0,0.0,,,,
-rea_export_reservation__nlc_tamil_nadu_power_ltd_tuticorin,Tirunelveli,812.13,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__ntecl_vallur_stps,Chennai North,843.5500000000001,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__neyveli_new_thermal_power_project,Villupuram,367.455,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__neyveli_tps_i_expansion,Villupuram,245.84750000000005,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__neyveli_tps_ii_stage_i,Villupuram,262.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__neyveli_tps_ii_stage_ii,Villupuram,366.95,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__opg_power_generation_private_ltd_unit_1,Chennai North,72.54,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__opg_power_generation_private_ltd_unit_4,Chennai North,169.49999999999997,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__neyveli_tps_ii_expansion,Villupuram,229.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__opg_power_generation_private_ltd_unit_2,Chennai North,72.54,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__tulsyan_nec_limited,Chennai North,55.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,0.6,0.6,0.55,0.55
-rea_export_reservation__eid_parry_india_ltd_pugalur,Trichy,8.0,0.0,1.0,0.0,inf,bio_power,4512.5,False,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.5,0.5
+rea_export_reservation__nlc_tamil_nadu_power_ltd_tuticorin,Tirunelveli,812.13,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__ntecl_vallur_stps,Chennai North,843.5500000000001,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__neyveli_new_thermal_power_project,Villupuram,367.455,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__neyveli_tps_i_expansion,Villupuram,245.84750000000005,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__neyveli_tps_ii_stage_i,Villupuram,262.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__neyveli_tps_ii_stage_ii,Villupuram,366.95,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__opg_power_generation_private_ltd_unit_1,Chennai North,72.54,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__opg_power_generation_private_ltd_unit_4,Chennai North,169.49999999999997,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__neyveli_tps_ii_expansion,Villupuram,229.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__opg_power_generation_private_ltd_unit_2,Chennai North,72.54,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__tulsyan_nec_limited,Chennai North,55.0,0.0,1.0,0.0,inf,coal,3087.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.55,0.55
+rea_export_reservation__eid_parry_india_ltd_pugalur,Trichy,8.0,0.0,1.0,0.0,inf,bio_power,4512.5,False,0.0,0.0,0.0,0.0,0.0,0.0,,,0.5,0.5
 additional_2026_07__diesel_samayanallur__unit_01,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_02,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4
 additional_2026_07__diesel_samayanallur__unit_03,Madurai,15.142857142857142,0.4,0.9,0.0,inf,diesel,6025.0,True,17929.452678085134,17929.452678085134,2.0,2.0,0.0,2.0,1.0,1.0,0.4,0.4

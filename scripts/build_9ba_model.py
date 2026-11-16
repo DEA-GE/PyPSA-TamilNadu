@@ -701,6 +701,12 @@ def build_rea_plant_export_reservations(
         ]:
             if field in template.index:
                 template[field] = 0.0
+        # Dispatch is pinned to the REA schedule, so the parent units' ramp
+        # limits must not apply: they would make the fixed schedule infeasible
+        # from p_init = 0 and wherever the schedule itself steps faster.
+        for field in ["ramp_limit_up", "ramp_limit_down"]:
+            if field in template.index:
+                template[field] = np.nan
         adjusted = pd.concat([adjusted, template.to_frame().T], ignore_index=True)
         fixed_profiles[reservation_name] = profile.to_numpy() / peak_mw
 

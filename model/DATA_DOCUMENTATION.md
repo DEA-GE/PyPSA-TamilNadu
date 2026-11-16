@@ -70,8 +70,8 @@ changed deliberately.
 Small hydro is treated identically using a 307,560 MWh annual total from the
 twelve Tamil Nadu Outlook monthly values. Its previous placeholder availability
 profile is relaxed to nameplate because that profile cannot supply the observed
-monthly energy; weekly equality constraints determine energy while the model
-optimizes its daily and hourly timing.
+monthly energy; the month-prorated period equalities determine energy while
+the model optimizes its daily and hourly timing.
 
 The [input data guide](../docs/input-data.md) maps each source and prepared
 input to its model output and explains units, timestamp alignment, provenance,
