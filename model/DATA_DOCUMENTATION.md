@@ -23,7 +23,7 @@ To replace only the transmission network from the active Excel input, run
 | --- | --- |
 | `buses.csv`, `lines.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
 | `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand including external-bus exchange, generator availability, and simple-reservoir inflow |
-| `global_constraints.csv`, `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv` | Annual equality constraints and observed daily energy targets |
+| `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv`, `*_energy_*_summary.csv` | Observed daily energy targets and annual target summaries (applied by the run scripts, not as PyPSA GlobalConstraints) |
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
 | `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv`, `interstate_flow_audit.csv`, `interstate_flow_reconciliation.csv` | Hydro assumptions and validation, corridor ratings, capacity reconciliation, and hourly/annual REA flow audits |
 
@@ -46,18 +46,19 @@ The four listed in-state thermal stations with allocations to other states are
 derated to their Tamil Nadu shares before spatial allocation. Their out-of-state
 and unlisted/unallocated capacity is not represented as a TN-serving generator
 or as an explicit export flow. Nuclear retains its full nameplate capacity and
-uses observed FY2025-26 daily and annual generation equality targets.
+uses observed FY2025-26 daily generation equality targets.
 
-The network includes annual oil-and-gas, nuclear, and bio-power generation
-equality constraints. For a shorter solve, use the runners described in the
-[repository README](../README.md#how-to-run); they adjust the
-constraints for the chosen period. Directly optimizing a subset of snapshots
-without adjusting the annual constraints is not a valid short-run example.
+The network files carry no energy targets (no `global_constraints.csv`), so any
+subset of snapshots can be optimized directly, but without calibration to
+observed generation. The runners described in the
+[repository README](../README.md#how-to-run) apply the observed targets over the
+exact period solved (`scripts/period_energy_targets.py`): oil-and-gas and
+nuclear per day; bio-power and small hydro as month-prorated equalities.
 
-The bio-power equality totals 194,010 MWh from the twelve Tamil Nadu Outlook
-FY2025-26 monthly values. Rolling and selected-week runners replace the annual
-constraint with a month-prorated equality for each accepted week, leaving the
-daily and hourly generation pattern free for the optimizer.
+The bio-power targets total 194,010 MWh from the twelve Tamil Nadu Outlook
+FY2025-26 monthly values. Each monthly total is spread uniformly over the
+month's hours; each solved period receives its share as one equality, leaving
+the daily and hourly generation pattern free for the optimizer.
 
 Explicitly off-grid capacity is excluded from the supported model. In
 particular, the 75.91 MW off-grid solar category and the 27.57 MW off-grid

@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-TARGET = "observed_fy2025_26_nuclear_generation_target"
 BUDGET = Path(__file__).resolve().parents[1] / "model" / "nuclear_daily_energy_budget.csv"
 
 
@@ -31,12 +30,6 @@ def add_nuclear_targets(network, snapshots):
             dispatch.sel({generator_dim: units, "snapshot": hours}) * weights
         ).sum()
         network.model.add_constraints(expression, "==", float(budget.at[date, "daily_energy_target_mwh"]), name=f"NuclearDailyTarget-{date:%Y%m%d}")
-
-
-def prepare_nuclear_targets(network):
-    budget = pd.read_csv(BUDGET, parse_dates=["date"]).set_index("date")
-    dates = network.snapshots.normalize().unique()
-    network.global_constraints.at[TARGET, "constant"] = budget.loc[dates, "daily_energy_target_mwh"].sum()
 
 
 def validate_nuclear_targets(network):

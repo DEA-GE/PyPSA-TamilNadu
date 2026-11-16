@@ -78,9 +78,11 @@ EXPECTED_UNLISTED_EXPORT_ALLOCATION_MW = 777.4
 EXPECTED_JULY_2026_TOTAL_CAPACITY_MW = 48_380.41
 FY_START = pd.Timestamp("2025-04-01")
 FY_END = pd.Timestamp("2026-03-31")
-OIL_GAS_BUDGET_CONSTRAINT = "observed_fy2025_26_oil_gas_generation_target"
-BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
-SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
+# How the run scripts apply the observed energy targets (no GlobalConstraints).
+OIL_GAS_TARGET_APPLICATION = "daily equality for each solved day (oil_gas_daily_energy_budget.csv)"
+MONTHLY_TARGET_APPLICATION = (
+    "equality over each solved period; monthly total spread uniformly over the month's hours"
+)
 RESERVOIR_MAX_HOURS = 720.0
 HYDRO_ASSET_REGISTRY = SOURCE_DIR / "hydro_asset_registry.csv"
 HYDRO_RECONCILIATION = SOURCE_DIR / "hydro_fleet_reconciliation.csv"
@@ -135,9 +137,10 @@ KODAYAR_II_ASSUMED_MWH_PER_MCFT = (
     MCFT_M_HEAD_TO_MWH * HYDRO_DEFAULT_HEAD_M * HYDRO_DEFAULT_EFFICIENCY
 )
 MCM_TO_MCFT = 35.3146667214886
-# PyPSA Store capacities must be finite. This value makes terminal river sinks
-# effectively unbounded relative to any possible annual hydro discharge.
-TERMINAL_WATER_SINK_CAPACITY_MWH = 1.0e12
+# Terminal river sinks are unbounded. PyPSA (>=1.4 verified) treats an infinite
+# fixed e_nom as having no upper energy bound and drops that constraint row,
+# avoiding the large right-hand side a finite placeholder (e.g. 1e12) adds.
+TERMINAL_WATER_SINK_CAPACITY_MWH = np.inf
 # Small positive tie-breaker that prefers useful turbine discharge over
 # non-generating reservoir release whenever the electrical system can accept it.
 # Spill remains available when required by observed SOC boundaries or hydraulics.
@@ -1202,7 +1205,9 @@ def build_hydraulic_cascades(
     ):
         bus = f"water_{slugify(name)}"
         buses.add(bus)
-        stores.append({"name": name, "bus": bus, "e_nom": e_nom, "e_initial": e_nom * initial_fraction,
+        # Guard 0 * inf = NaN for unbounded sinks that start empty.
+        e_initial = 0.0 if initial_fraction == 0 else e_nom * initial_fraction
+        stores.append({"name": name, "bus": bus, "e_nom": e_nom, "e_initial": e_initial,
                        "e_cyclic": False, "carrier": "water_energy"})
         metadata.append({"reservoir_id": name, "pypsa_component": name, "p_nom_mw": np.nan,
                          "e_nom_mwh": e_nom, "energy_capacity_method": capacity_method or "observed_or_documented_proxy",
@@ -1303,7 +1308,7 @@ def build_hydraulic_cascades(
         )
         downstream = add_store(
             f"{store_name.removesuffix('_reservoir')}_downstream",
-            plant_e + release_capacity * len(snapshots), 0.0,
+            TERMINAL_WATER_SINK_CAPACITY_MWH, 0.0,
             "downstream_sink", "medium",
             "Terminal sink for turbine discharge, irrigation release, and spill.",
             initial_method="zero", terminal_method="none", resolution="none",
@@ -1347,7 +1352,7 @@ def build_hydraulic_cascades(
     )
     pap_sink = add_store(
         "PAP_downstream",
-        sark_e + shol_e + aliyar_e + PAP_OBSERVED_RELEASE_CAPACITY_MW * len(snapshots),
+        TERMINAL_WATER_SINK_CAPACITY_MWH,
         0.0,
         "downstream_sink", "medium",
         "Terminal sink for non-generating PAP irrigation releases, spill, and lower-pondage outflow.",
@@ -1433,9 +1438,10 @@ def build_hydraulic_cascades(
     # be objective-neutral.
     links.append({
         "name": "upper_kodayar_spill", "bus0": kod_upper, "bus1": kod_down,
-        # No surveyed spillway rating is available. One reservoir-equivalent
-        # per hour is a finite non-binding hydraulic cap for this formulation.
-        "p_nom": kod_e,
+        # No surveyed spillway rating is available. p_nom is set after the
+        # inflow series is built: the peak hourly estimated inflow (see
+        # set_upper_kodayar_spill_capacity).
+        "p_nom": np.nan,
         "p_min_pu": 0.0, "efficiency": 1.0, "carrier": "water_spill",
         "marginal_cost": WATER_SPILL_MARGINAL_COST,
     })
@@ -1505,7 +1511,7 @@ def build_hydraulic_cascades(
     )
     downstream = add_store(
         "Papanasam_downstream_river",
-        pap_e + pap_mw * len(snapshots),
+        TERMINAL_WATER_SINK_CAPACITY_MWH,
         0.0,
         "downstream_sink", "medium",
         "Terminal water sink for Papanasam PH discharge; no seasonal or weekly-neutral SOC target.",
@@ -1567,6 +1573,27 @@ def build_hydraulic_cascades(
         pd.DataFrame(metadata),
         pd.DataFrame(turbine_audit),
     )
+
+
+def set_upper_kodayar_spill_capacity(
+    hydraulic_links: pd.DataFrame, water_inflow_generators: pd.DataFrame,
+) -> pd.DataFrame:
+    """Cap Upper Kodayar spill at the peak hourly estimated inflow.
+
+    The inflow is mandatory and Upper Kodayar has no storage targets, so spill
+    only ever needs to pass incoming water. Spilling the full inflow keeps the
+    level unchanged in any hour, so this cap cannot make the model infeasible.
+    """
+    spill = hydraulic_links["name"].eq("upper_kodayar_spill")
+    inflow = water_inflow_generators["name"].eq("upper_kodayar_estimated_inflow")
+    if spill.sum() != 1 or inflow.sum() != 1:
+        raise ValueError("Expected one Upper Kodayar spill Link and one estimated inflow")
+    peak_mw = float(water_inflow_generators.loc[inflow, "p_nom"].iloc[0])
+    if not np.isfinite(peak_mw) or peak_mw <= 0:
+        raise ValueError("Upper Kodayar peak inflow must be positive and finite")
+    hydraulic_links = hydraulic_links.copy()
+    hydraulic_links.loc[spill, "p_nom"] = peak_mw
+    return hydraulic_links
 
 
 def build_water_inflow_generators(
@@ -2564,6 +2591,7 @@ def main() -> None:
     water_inflow_generators, water_inflow_profiles, kodayar_inflow_audit = build_water_inflow_generators(
         water_buses, snapshots, float(store_sizes["Upper_Kodayar"])
     )
+    hydraulic_links = set_upper_kodayar_spill_capacity(hydraulic_links, water_inflow_generators)
     cascade_inflow_generators, cascade_inflow_profiles, cascade_inflow_audit = build_inferred_cascade_inflows(
         water_buses, snapshots, cascade_generation_targets
     )
@@ -2628,9 +2656,11 @@ def main() -> None:
     )
     if biomass_capacity_mw <= 0:
         raise ValueError("Cannot apply a biomass target without bio_power generators")
-    # Tamil Nadu Outlook reports monthly bio-power generation. The annual
-    # global constraint keeps direct full-year solves consistent; rolling and
-    # selected-week solves replace it with month-prorated weekly equalities.
+    # Observed energy targets are not written as PyPSA GlobalConstraints: one
+    # fixed constant cannot follow the solved period. The run scripts apply
+    # them over the exact days solved (scripts/period_energy_targets.py).
+    # Tamil Nadu Outlook reports monthly bio-power and small-hydro generation,
+    # spread uniformly over the hours of each month.
     biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
     biomass_annual_target_mwh = float(biomass_monthly_targets_mwh.sum())
     small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
@@ -2640,31 +2670,6 @@ def main() -> None:
     )
     if small_hydro_capacity_mw <= 0:
         raise ValueError("Cannot apply a small-hydro target without small_hydro generators")
-    global_constraints = pd.DataFrame(
-        [
-            {
-                "name": OIL_GAS_BUDGET_CONSTRAINT,
-                "type": "operational_limit",
-                "carrier_attribute": "oil_gas",
-                "sense": "==",
-                "constant": oil_gas_annual_target_mwh,
-            },
-            {
-                "name": BIOMASS_ENERGY_CONSTRAINT,
-                "type": "operational_limit",
-                "carrier_attribute": "bio_power",
-                "sense": "==",
-                "constant": biomass_annual_target_mwh,
-            },
-            {
-                "name": SMALL_HYDRO_ENERGY_CONSTRAINT,
-                "type": "operational_limit",
-                "carrier_attribute": "small_hydro",
-                "sense": "==",
-                "constant": small_hydro_annual_target_mwh,
-            },
-        ]
-    )
     area_profiles = placeholder_profiles(
         areas, snapshots, generators, expanded_metadata
     )
@@ -2694,11 +2699,9 @@ def main() -> None:
     ] = SOLAR_CURTAILMENT_PREFERENCE_COST
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    global_constraints.loc[len(global_constraints)] = {
-        "name": "observed_fy2025_26_nuclear_generation_target",
-        "type": "operational_limit", "carrier_attribute": "nuclear",
-        "sense": "==", "constant": nuclear_budget.daily_energy_target_mwh.sum(),
-    }
+    # Earlier builds wrote annual energy GlobalConstraints; a stale file would
+    # still be imported by PyPSA and make part-year solves infeasible.
+    (OUTPUT_DIR / "global_constraints.csv").unlink(missing_ok=True)
     nuclear_budget.to_csv(OUTPUT_DIR / "nuclear_daily_energy_budget.csv", index=False, date_format="%Y-%m-%d")
     tn_export_allocations.to_csv(OUTPUT_DIR / "tn_export_capacity_allocations.csv", index=False)
     rea_export_reservation_audit.to_csv(
@@ -2790,7 +2793,6 @@ def main() -> None:
         OUTPUT_DIR / "hydro_cascade_inferred_inflow.csv", index=False, date_format="%Y-%m-%d"
     )
     snapshots_table.to_csv(OUTPUT_DIR / "snapshots.csv", index=False)
-    global_constraints.to_csv(OUTPUT_DIR / "global_constraints.csv", index=False)
     oil_gas_budget.to_csv(
         OUTPUT_DIR / "oil_gas_daily_energy_budget.csv",
         index=False,
@@ -2803,7 +2805,7 @@ def main() -> None:
                 "fiscal_year": "FY2025-26",
                 "observed_generation_mu": oil_gas_annual_target_mwh / 1_000.0,
                 "annual_energy_target_mwh": oil_gas_annual_target_mwh,
-                "constraint_name": OIL_GAS_BUDGET_CONSTRAINT,
+                "applied_in_run_scripts": OIL_GAS_TARGET_APPLICATION,
                 "constraint_sense": "==",
             }
         ]
@@ -2815,7 +2817,7 @@ def main() -> None:
                 "fiscal_year": "FY2025-26",
                 "installed_capacity_mw": biomass_capacity_mw,
                 "annual_energy_target_mwh": biomass_annual_target_mwh,
-                "constraint_name": BIOMASS_ENERGY_CONSTRAINT,
+                "applied_in_run_scripts": MONTHLY_TARGET_APPLICATION,
                 "constraint_sense": "==",
             }
         ]
@@ -2827,7 +2829,7 @@ def main() -> None:
                 "fiscal_year": "FY2025-26",
                 "installed_capacity_mw": small_hydro_capacity_mw,
                 "annual_energy_target_mwh": small_hydro_annual_target_mwh,
-                "constraint_name": SMALL_HYDRO_ENERGY_CONSTRAINT,
+                "applied_in_run_scripts": MONTHLY_TARGET_APPLICATION,
                 "constraint_sense": "==",
             }
         ]
@@ -2969,16 +2971,11 @@ def main() -> None:
     print(f"Wrote {len(generators)} generators, including {len(committable)} committable records")
     print(f"Wrote {len(storage)} storage units")
     print(
-        "Applied observed oil-and-gas energy equality target: "
-        f"{oil_gas_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
-    )
-    print(
-        "Applied observed bio-power energy equality target: "
-        f"{biomass_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
-    )
-    print(
-        "Applied observed small-hydro energy equality target: "
-        f"{small_hydro_annual_target_mwh / 1_000.0:,.2f} MU over FY2025-26"
+        "Observed energy targets (applied per solved period by the run scripts): "
+        f"oil/gas {oil_gas_annual_target_mwh / 1_000.0:,.2f} MU, "
+        f"bio-power {biomass_annual_target_mwh / 1_000.0:,.2f} MU, "
+        f"small hydro {small_hydro_annual_target_mwh / 1_000.0:,.2f} MU, "
+        f"nuclear {nuclear_budget.daily_energy_target_mwh.sum() / 1_000.0:,.2f} MU over FY2025-26"
     )
     print(
         "Applied July 2026 capacity overlay: "

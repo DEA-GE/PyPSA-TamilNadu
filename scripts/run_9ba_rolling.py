@@ -29,9 +29,9 @@ from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_
 from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
-    prepare_nuclear_targets,
 )
-from run_9ba_weekly_days_2025_26 import MODEL_DIR, OIL_GAS_BUDGET_CONSTRAINT
+from period_energy_targets import drop_native_energy_targets
+from run_9ba_weekly_days_2025_26 import MODEL_DIR
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -39,12 +39,10 @@ from transmission_assumptions import (
 
 configure_for_pypsa_124()
 
-BIOMASS_ENERGY_CONSTRAINT = "observed_fy2025_26_bio_power_generation_target"
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "transmission-losses-v6"
-SMALL_HYDRO_ENERGY_CONSTRAINT = "observed_fy2025_26_small_hydro_generation_target"
+CHECKPOINT_MODEL_VERSION = "period-energy-targets-transmission-losses-v7"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
 # wider bands than direct Agriculture measurements. Slack costs use the same
@@ -161,7 +159,7 @@ def _add_measured_water_balance(network: pypsa.Network, measured: pd.DataFrame) 
         network.add("Carrier", "water_balance_adjustment")
     network.add("Bus", WATER_BALANCE_SINK, carrier="water_energy")
     network.add("Store", WATER_BALANCE_SINK, bus=WATER_BALANCE_SINK,
-                e_nom=1_000_000_000.0, e_initial=0.0, e_cyclic=False,
+                e_nom=np.inf, e_initial=0.0, e_cyclic=False,
                 carrier="water_energy")
     for component in measured.columns:
         bus = str(network.stores.at[component, "bus"])
@@ -1053,8 +1051,6 @@ def run_annual_no_uc(
         raise ValueError(f"Annual mode requires the complete 8,760-hour horizon, got {len(snapshots)}")
     if base_network.generators.committable.any():
         raise ValueError("Annual mode requires UNIT_COMMITMENT = 'none'")
-    if BIOMASS_ENERGY_CONSTRAINT not in base_network.global_constraints.index:
-        raise ValueError(f"The model is missing {BIOMASS_ENERGY_CONSTRAINT!r}; rebuild it first")
 
     cascade_targets = _cascade_generation_targets()
     constraint_periods = _annual_constraint_periods(snapshots, cascade_targets)
@@ -1075,12 +1071,10 @@ def run_annual_no_uc(
         observed_soc, hydro_parameters, network
     )
     _add_measured_water_balance(network, measured_store_targets)
-    # Replace annual-only target equalities with the same month-prorated weekly
-    # equalities used in rolling solves. Their periods are constraints inside
-    # this one model, rather than optimisation boundaries.
-    network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
-    if SMALL_HYDRO_ENERGY_CONSTRAINT in network.global_constraints.index:
-        network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
+    # Energy targets are added in extra_functionality: oil/gas and nuclear per
+    # day, bio-power and small hydro as month-prorated weekly equalities. Their
+    # periods are constraints inside this one model, not optimisation boundaries.
+    drop_native_energy_targets(network)
     _prepare_topology_for_pandas3(network)
     network.storage_units.loc[:, "cyclic_state_of_charge"] = False
     if len(network.stores):
@@ -1099,11 +1093,6 @@ def run_annual_no_uc(
     gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
     if gas_targets.isna().any():
         raise ValueError("Missing oil/gas target in annual horizon")
-    if OIL_GAS_BUDGET_CONSTRAINT in network.global_constraints.index:
-        network.global_constraints.at[OIL_GAS_BUDGET_CONSTRAINT, "constant"] = float(
-            gas_targets.sum()
-        )
-    prepare_nuclear_targets(network)
     terminal_targets = [
         (period[-1], _hydro_targets_at(period[-1], observed_soc, hydro_parameters, monthly_soc))
         for period in constraint_periods
@@ -1245,10 +1234,6 @@ def run_rolling_year(
     if not snapshots.is_monotonic_increasing or snapshots.has_duplicates:
         raise ValueError("Network snapshots must be unique and chronological")
     cascade_targets = _cascade_generation_targets()
-    if BIOMASS_ENERGY_CONSTRAINT not in base_network.global_constraints.index:
-        raise ValueError(
-            f"The model is missing {BIOMASS_ENERGY_CONSTRAINT!r}; rebuild it first"
-        )
     biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
     small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
     small_hydro_units = base_network.generators.index[
@@ -1344,11 +1329,9 @@ def run_rolling_year(
 
         network = base_network.copy(snapshots=active)
         _add_measured_water_balance(network, measured_store_targets)
-        # Replace the native global constraint with a committed-snapshot
-        # constraint below. Native constraints cover the look-ahead day too.
-        network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
-        if SMALL_HYDRO_ENERGY_CONSTRAINT in network.global_constraints.index:
-            network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
+        # Energy targets are added in extra_functionality: oil/gas and nuclear
+        # for every solved day, bio-power and small hydro for committed days only.
+        drop_native_energy_targets(network)
         # Keep topology construction explicit before optimization so slack-bus
         # assignment cannot encounter read-only views from copied static data.
         _prepare_topology_for_pandas3(network)
@@ -1369,9 +1352,6 @@ def run_rolling_year(
         gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
         if gas_targets.isna().any():
             raise ValueError(f"Missing oil/gas target in window starting {start.date()}")
-        if OIL_GAS_BUDGET_CONSTRAINT in network.global_constraints.index:
-            network.global_constraints.at[OIL_GAS_BUDGET_CONSTRAINT, "constant"] = float(gas_targets.sum())
-        prepare_nuclear_targets(network)
 
         print(
             f"Solving window {number}/{len(starts)}: {start.date()} to "

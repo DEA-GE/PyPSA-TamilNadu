@@ -26,10 +26,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pypsa
+import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
-from nuclear_energy_targets import prepare_nuclear_targets, add_nuclear_targets, validate_nuclear_targets
+from nuclear_energy_targets import add_nuclear_targets, generator_dimension, validate_nuclear_targets
+from period_energy_targets import (
+    add_prorated_monthly_targets,
+    drop_native_energy_targets,
+    period_target_deviation_mwh,
+)
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -60,7 +66,6 @@ NITI_DASHBOARD_DAILY_GENERATION_FILE = (
 )
 DEFAULT_OUTPUT_DIR = ROOT / "results" / "weekly_days"
 OIL_GAS_BUDGET_FILE = MODEL_DIR / "oil_gas_daily_energy_budget.csv"
-OIL_GAS_BUDGET_CONSTRAINT = "observed_fy2025_26_oil_gas_generation_target"
 FY_START = pd.Timestamp("2025-04-01")
 FY_END = pd.Timestamp("2026-03-31")
 
@@ -420,14 +425,31 @@ def solve_day(
         raise ValueError(f"Expected 24 snapshots for {day.date()}, found {len(snapshots)}")
 
     network = annual_network.copy(snapshots=snapshots)
-    prepare_nuclear_targets(network)
-    if OIL_GAS_BUDGET_CONSTRAINT not in network.global_constraints.index:
-        raise ValueError(
-            f"The model is missing {OIL_GAS_BUDGET_CONSTRAINT!r}"
+    drop_native_energy_targets(network)
+    period_targets: dict[str, float] = {}
+
+    def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
+        add_nuclear_targets(active_network, active_snapshots)
+        dispatch = active_network.model["Generator-p"]
+        gas_units = active_network.generators.index[active_network.generators.carrier.eq("oil_gas")]
+        weights = xr.DataArray(
+            active_network.snapshot_weightings.generators.reindex(active_snapshots),
+            dims="snapshot",
+            coords={"snapshot": active_snapshots},
         )
-    network.global_constraints.at[
-        OIL_GAS_BUDGET_CONSTRAINT, "constant"
-    ] = oil_gas_daily_target_mwh
+        gas_energy = (
+            dispatch.sel({generator_dimension(dispatch): gas_units, "snapshot": active_snapshots})
+            * weights
+        ).sum()
+        active_network.model.add_constraints(
+            gas_energy == oil_gas_daily_target_mwh,
+            name=f"daily_oil_gas_energy_{day:%Y_%m_%d}",
+        )
+        period_targets.update(
+            add_prorated_monthly_targets(active_network, active_snapshots, f"{day:%Y%m%d}")
+        )
+        add_transmission_flow_cost(active_network, active_snapshots)
+
     # A positive down_time_before already defines these units as initially off;
     # p_init is redundant in that case and PyPSA explicitly ignores it.
     initially_down = (
@@ -442,10 +464,7 @@ def solve_day(
     reset_highs_global_scheduler()
     status, condition = network.optimize(
         solver_name=solver,
-        extra_functionality=lambda n, s: (
-            add_nuclear_targets(n, s),
-            add_transmission_flow_cost(n, s),
-        ),
+        extra_functionality=extra_functionality,
         transmission_losses=TRANSMISSION_LOSSES,
         solver_options=solver_options,
         include_objective_constant=False,
@@ -457,6 +476,7 @@ def solve_day(
 
     energy = carrier_energy_mu(network)
     nuclear_target_deviation_mwh = validate_nuclear_targets(network)
+    period_deviation = period_target_deviation_mwh(network, network.snapshots, period_targets)
     link_loading = network.links_t.p0.abs().div(network.links.p_nom, axis=1)
     result = {
         "date": day,
@@ -467,6 +487,10 @@ def solve_day(
             1_000.0 * float(energy["oil_gas"]) - oil_gas_daily_target_mwh
         ),
         "nuclear_target_deviation_mwh": nuclear_target_deviation_mwh,
+        "bio_power_target_mwh": period_targets["bio_power"],
+        "bio_power_target_deviation_mwh": period_deviation["bio_power"],
+        "small_hydro_target_mwh": period_targets["small_hydro"],
+        "small_hydro_target_deviation_mwh": period_deviation["small_hydro"],
         "objective": float(network.objective),
         "solver_status": status,
         "termination_condition": condition,

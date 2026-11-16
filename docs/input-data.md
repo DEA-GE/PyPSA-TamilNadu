@@ -20,7 +20,7 @@ an explicit `snapshot` timestamp.
 | Plant capacities and technologies | `data/source/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx`, `PlantInfo` and `District Allocation`; `data/build_template/generators.csv` | `model/generators.csv`, `model/storage_units.csv`, `model/component_metadata.csv` |
 | July 2026 capacity additions | `data/model_inputs/additional_capacity_2026_07.csv` | `model/additional_capacity_2026_07.csv`, `model/capacity_reconciliation_2026_07.csv` |
 | Hydro assets and observations | `data/model_inputs/hydro_asset_registry.csv`, `data/model_inputs/hydro_fleet_reconciliation.csv`, `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` | `model/hydro_reservoir_parameters.csv`, `model/hydro_reservoir_inflow.csv`, `model/hydro_observed_soc.csv` |
-| Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/global_constraints.csv` |
+| Observed generation and energy targets | `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx` | `model/oil_gas_daily_energy_budget.csv`, `model/nuclear_daily_energy_budget.csv`, `model/oil_gas_energy_budget_summary.csv` |
 | Area boundaries and grid | `data/model_inputs/Balancing_areas.txt`, `data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx` | `model/buses.csv`, `model/lines.csv`, `model/links.csv`, `model/transmission_capacity_metadata.csv` |
 | FY2025-26 REA imports and exports | `data/model_inputs/rea_interstate_hourly_flows_FY2025_26.csv`, `rea_interstate_gateway_shares_FY2025_26.csv`, `rea_interstate_source_audit_FY2025_26.csv` | `model/loads.csv`, `model/loads-p_set.csv`, `model/interstate_flow_audit.csv`, `model/interstate_flow_reconciliation.csv` |
 | Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
@@ -286,11 +286,10 @@ and display an `installed_capacity_comparison` table against that benchmark.
 `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`
 has an `Electricity_Power_Generation_` sheet: `Parameter` and `State` identify
 rows, and daily date columns contain generation in MU (1 MU = 1,000 MWh).
-The Tamil Nadu oil-and-gas and nuclear rows supply daily and annual equality
-targets. The same workbook is used for comparisons with coal, hydro, solar,
+The Tamil Nadu oil-and-gas and nuclear rows supply daily equality targets. The same workbook is used for comparisons with coal, hydro, solar,
 wind, and total generation; it is **observed generation**, not an hourly
-availability profile. See the two `model/*_daily_energy_budget.csv` files and
-`model/global_constraints.csv` for the processed targets. Exact target
+availability profile. See the two `model/*_daily_energy_budget.csv` files for
+the processed targets; the run scripts apply them for each solved day. Exact target
 matching for oil and gas or nuclear is an imposed calibration condition.
 
 `data/model_inputs/tn_export_capacity_allocations.csv` records four thermal

@@ -53,7 +53,7 @@ kadamparai_generation__kadmparai_power_house__unit_04,water_kadamparai,Coimbator
 kadamparai_pump,water_upper_aliyar,water_kadamparai,hydro_pump,400.0,0.0,,0.0,0.81,,,,,,,,,,,Coimbatore,-1.1111111111111112
 kodayar_I__kodayar_i_ii_power_house__unit_01,water_upper_kodayar,Tirunelveli,hydro_turbine,60.0,0.0,,0.0,1.0,,,,,,,,,,,water_kodayar_ii_forebay,1.0
 kodayar_II__kodayar_i_ii_power_house__unit_02,water_kodayar_ii_forebay,Tirunelveli,hydro_turbine,349.0777614261028,0.0,,0.0,0.1145876489999999,,,,,,,,,,,water_kodayar_downstream,1.0
-upper_kodayar_spill,water_upper_kodayar,water_kodayar_downstream,water_spill,211160.3041661858,0.0,,0.01,1.0,,,,,,,,,,,,
+upper_kodayar_spill,water_upper_kodayar,water_kodayar_downstream,water_spill,431.89199840234323,0.0,,0.01,1.0,,,,,,,,,,,,
 kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_01,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
 kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_02,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0
 kundah_turbine__kundah_i_to_v_hydroelectric_power_project__unit_08,water_upper_bhavani,Coimbatore,hydro_turbine,20.0,0.0,,0.0,1.0,,,,,,,,,,,water_kundah_pondage,1.0

@@ -17,18 +17,21 @@ import pypsa
 import xarray as xr
 
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
-from bio_power_targets import bio_power_energy_target_mwh
+from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
 from small_hydro_targets import small_hydro_energy_target_mwh
 
 from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
-    prepare_nuclear_targets,
+)
+from period_energy_targets import (
+    add_prorated_monthly_targets,
+    drop_native_energy_targets,
+    period_target_deviation_mwh,
 )
 from run_9ba_weekly_days_2025_26 import (
     COMPARISON_CATEGORIES,
     MODEL_DIR,
-    OIL_GAS_BUDGET_CONSTRAINT,
     PLOT_LABELS,
     SUMMARY_CATEGORIES,
     read_observed_annual_generation,
@@ -38,9 +41,7 @@ from run_9ba_weekly_days_2025_26 import (
     solve_day,
 )
 from run_9ba_rolling import (
-    BIOMASS_ENERGY_CONSTRAINT,
     CHECKPOINT_MODEL_VERSION,
-    SMALL_HYDRO_ENERGY_CONSTRAINT,
     run_annual_no_uc,
     run_rolling_year,
 )
@@ -588,6 +589,8 @@ def _solve_independent_days(
         "all_solver_statuses_ok": bool(all(item == "optimal" for item in conditions)),
         "max_abs_gas_target_deviation_mwh": float(modeled["oil_gas_target_deviation_mwh"].abs().max()),
         "max_abs_nuclear_target_deviation_mwh": float(modeled["nuclear_target_deviation_mwh"].abs().max()),
+        "max_abs_bio_power_target_deviation_mwh": float(modeled["bio_power_target_deviation_mwh"].abs().max()),
+        "max_abs_small_hydro_target_deviation_mwh": float(modeled["small_hydro_target_deviation_mwh"].abs().max()),
         "max_abs_nodal_residual_mw": float(modeled["max_nodal_residual_mw"].max()),
         "max_link_loading_pct": float(modeled["max_corridor_loading_pct"].max()),
         "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
@@ -613,11 +616,8 @@ def _solve_peak_week(
     network = base_network.copy(snapshots=snapshots)
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
     gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
-
-    gas_constraint = OIL_GAS_BUDGET_CONSTRAINT
-    if gas_constraint in network.global_constraints.index:
-        network.global_constraints.at[gas_constraint, "constant"] = float(gas_targets.sum())
-    prepare_nuclear_targets(network)
+    drop_native_energy_targets(network)
+    period_targets: dict[str, float] = {}
 
     committable = network.generators.index[network.generators.committable]
     if len(committable):
@@ -626,6 +626,9 @@ def _solve_peak_week(
 
     def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
         add_nuclear_targets(active_network, active_snapshots)
+        period_targets.update(
+            add_prorated_monthly_targets(active_network, active_snapshots, f"peak-{dates[0]:%Y%m%d}")
+        )
         dispatch = active_network.model["Generator-p"]
         generator_dim = generator_dimension(dispatch)
         for date, target in gas_targets.items():
@@ -660,6 +663,7 @@ def _solve_peak_week(
     modeled = _carrier_energy_by_day(network)
     gas_deviation = modeled["oil_gas"].reindex(dates).mul(1000.0).sub(gas_targets)
     nuclear_deviation = modeled["nuclear"].reindex(dates).sub(observed["nuclear"].reindex(dates)).mul(1000.0)
+    period_deviation = period_target_deviation_mwh(network, network.snapshots, period_targets)
     residual = network.buses_t.p.sum(axis=1).abs().max()
     if len(network.links):
         loading = network.links_t.p0.abs().div(network.links.p_nom).max().max() * 100.0
@@ -672,6 +676,10 @@ def _solve_peak_week(
         "solver_condition": str(condition),
         "max_abs_gas_target_deviation_mwh": float(gas_deviation.abs().max()),
         "max_abs_nuclear_target_deviation_mwh": float(nuclear_deviation.abs().max()),
+        "bio_power_target_mwh": period_targets["bio_power"],
+        "max_abs_bio_power_target_deviation_mwh": abs(period_deviation["bio_power"]),
+        "small_hydro_target_mwh": period_targets["small_hydro"],
+        "max_abs_small_hydro_target_deviation_mwh": abs(period_deviation["small_hydro"]),
         "max_abs_nodal_residual_mw": float(residual),
         "max_link_loading_pct": float(loading),
         "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
@@ -860,12 +868,10 @@ def _solve_selected_weeks(
             )
 
         network = base_network.copy(snapshots=snapshots)
-        # The native operational limit covers every active snapshot, including
-        # warm-up and look-ahead days. Replace it with a retained-week target
-        # below so each independent seven-day run receives exactly its
-        # proportional share of the annual CEA biomass energy target.
-        if BIOMASS_ENERGY_CONSTRAINT in network.global_constraints.index:
-            network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
+        # Energy targets are added below for the exact days they cover:
+        # bio-power and small hydro over the retained week only, oil/gas and
+        # nuclear for every solved day.
+        drop_native_energy_targets(network)
         reservoir_units = network.storage_units.index[
             network.storage_units.carrier.eq("hydro")
             & network.storage_units.p_min_pu.ge(0.0)
@@ -952,11 +958,6 @@ def _solve_selected_weeks(
         gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(active_dates)
         if gas_targets.isna().any():
             raise ValueError(f"Missing oil/gas targets for week starting {start.date()}.")
-        if OIL_GAS_BUDGET_CONSTRAINT in network.global_constraints.index:
-            network.global_constraints.at[OIL_GAS_BUDGET_CONSTRAINT, "constant"] = float(
-                gas_targets.sum()
-            )
-        prepare_nuclear_targets(network)
 
         gas_units = network.generators.index[network.generators.carrier.eq("oil_gas")]
         biomass_units = network.generators.index[
@@ -1490,21 +1491,12 @@ def run_selection(
         f"Loaded network from {load_source} in {time.perf_counter() - load_started:.2f} s.",
         flush=True,
     )
-    biomass_annual_target_mwh: float | None = None
-    full_horizon_weight: float | None = None
-    if BIOMASS_ENERGY_CONSTRAINT in base_network.global_constraints.index:
-        biomass_annual_target_mwh = float(
-            base_network.global_constraints.at[BIOMASS_ENERGY_CONSTRAINT, "constant"]
-        )
-        full_horizon_weight = float(base_network.snapshot_weightings.generators.sum())
+    biomass_annual_target_mwh = float(read_bio_power_monthly_targets().sum())
+    full_horizon_weight = float(base_network.snapshot_weightings.generators.sum())
 
-    # Daily and peak diagnostic modes deliberately leave biomass unconstrained.
-    # Selected weeks replace the native annual constraint with an exact,
-    # retained-week proportional target inside each independent optimization.
-    if mode not in {"annual", "rolling"} and BIOMASS_ENERGY_CONSTRAINT in base_network.global_constraints.index:
-        base_network.remove("GlobalConstraint", BIOMASS_ENERGY_CONSTRAINT)
-    if mode not in {"annual", "rolling"} and SMALL_HYDRO_ENERGY_CONSTRAINT in base_network.global_constraints.index:
-        base_network.remove("GlobalConstraint", SMALL_HYDRO_ENERGY_CONSTRAINT)
+    # Every mode adds its energy targets for the exact period it solves; an
+    # older model build may still carry annual GlobalConstraints.
+    drop_native_energy_targets(base_network)
     total_load = base_network.loads_t.p_set.sum(axis=1)
     available = pd.DatetimeIndex(total_load.index).normalize().unique().sort_values()
     if mode == "selected_weeks":
@@ -1557,10 +1549,6 @@ def run_selection(
             max_windows=max_windows,
         )
     elif mode == "selected_weeks":
-        if biomass_annual_target_mwh is None or full_horizon_weight is None:
-            raise ValueError(
-                f"The model is missing {BIOMASS_ENERGY_CONSTRAINT!r}; rebuild it first."
-            )
         modeled, validation, solved_network = _solve_selected_weeks(
             base_network,
             selected_starts,

@@ -75,11 +75,12 @@ If `python` is not on your path, use the Python executable from your environment
    `validation.json` and `daily_generation_comparison.png` there. The folder
    also contains CSV comparisons and `solved_network.nc`.
 
-The loaded `model/` network has annual generation equality constraints. Use
-the notebook runner for short periods: calling
-`network.optimize(snapshots=network.snapshots[:24])` directly retains the
-annual targets and is not a valid one-day run. The runner applies the daily gas
-and nuclear targets and handles the bio-power constraint for the selected mode.
+The loaded `model/` network carries no energy targets, so
+`network.optimize(snapshots=network.snapshots[:24])` is feasible but is not
+calibrated to observed generation. Use the notebook runner for calibrated runs:
+every mode applies the observed oil-and-gas and nuclear targets for each solved
+day, and the bio-power and small-hydro targets over the solved period
+(`scripts/period_energy_targets.py`).
 
 ### Notebook parameters
 
@@ -257,8 +258,8 @@ folder, for example `results/run_results/peak_2025-07-07/baseline/` when
 
 July 2025 can be evaluated with `python scripts/run_9ba_month.py`. The script
 solves all 31 complete days as independent 24-hour unit-commitment problems,
-covering all 744 July hours at a 1% MIP tolerance. It enforces each day's gas
-and nuclear equality targets and writes validation results, daily and monthly
+covering all 744 July hours at a 1% MIP tolerance. It enforces each day's gas,
+nuclear, bio-power and small-hydro equality targets and writes validation results, daily and monthly
 comparison tables, and a comparison plot under `results/monthly/2025_07/`.
 
 A continuous 744-hour formulation was also attempted, but its approximately
@@ -395,51 +396,48 @@ balancing-area load profiles.
 ## Oil-and-gas energy budget
 
 The observed FY2025-26 daily generation workbook reports 1,241.45 MU
-(1,241,450 MWh) of Tamil Nadu oil-and-gas generation. The model represents
-this as one aggregate PyPSA `operational_limit` equality constraint applying
-to all `oil_gas` generators. Full-year optimization must therefore produce
-exactly the observed annual oil-and-gas energy total.
+(1,241,450 MWh) of Tamil Nadu oil-and-gas generation.
 
 `model/oil_gas_daily_energy_budget.csv` records all 365 observed daily values,
-each day's share of the annual total, and its exact MWh target. The weekly-day
-runner applies the selected date's equality target. The peak-week notebook
-applies all seven daily equality targets as well as their aggregate weekly
-target. The annual constraint and its 1,241,450 MWh constant are exported in
-`model/global_constraints.csv`; the source reconciliation is in
+each day's share of the annual total, and its exact MWh target. Every runner
+mode applies one equality per solved day across all `oil_gas` generators, so a
+full-year solve reproduces the annual total exactly. The targets are not stored
+as PyPSA `GlobalConstraint`s: a single fixed constant cannot follow the solved
+period. The source reconciliation is in
 `model/oil_gas_energy_budget_summary.csv`.
 
 ## Nuclear energy targets
 
-Nuclear also uses an annual generation equality from the observed workbook,
-with exact daily targets enforced in the weekly-day runner and peak-week
-notebook. Targets are exported in `model/nuclear_daily_energy_budget.csv`.
+Nuclear uses exact daily generation targets from the observed workbook,
+enforced for every solved day in all runner modes. Targets are exported in
+`model/nuclear_daily_energy_budget.csv`.
 The inherited constant 61.2% nuclear output is replaced with a 0–100%
 nameplate dispatch range to permit those targets. Hourly output and plant
 allocation remain optimized; daily energy matching does not validate their
 hourly schedules. Gas and nuclear comparison errors are calibrated by design.
 Custom solve workflows must use `scripts/nuclear_energy_targets.py` to apply
-daily targets and adjust the annual equality for their selected dates.
+the daily targets for their selected dates.
 
 ## Bio-power energy targets
 
 The Tamil Nadu Outlook FY2025-26 monthly bio-power generation values are kept
 in `data/model_inputs/tamil_nadu_bio_power_monthly_generation_FY2025_26.csv`.
-They total 194.01 GWh. Rolling and selected-week solves impose one exact energy
-equality on all `bio_power` generators for each accepted week. A week wholly
-inside one month receives seven days of that month's total; a week crossing a
-month boundary receives the corresponding daily share from both months.
-Hourly and daily dispatch within the week remain optimization decisions. The
-full-year network retains a 194,010 MWh aggregate equality for direct annual
-solves.
+They total 194.01 GWh. Each monthly total is spread uniformly over the hours
+of its month. Rolling and selected-week solves impose one exact energy
+equality on all `bio_power` generators for each accepted week; daily, monthly
+(independent-day) and peak-week solves impose one equality over the solved
+period. A week wholly inside one month receives seven days of that month's
+total; a week crossing a month boundary receives the corresponding daily share
+from both months. Hourly and daily dispatch within the period remain
+optimization decisions.
 
 Small hydro uses the same method. Its twelve Tamil Nadu Outlook values are in
 `data/model_inputs/tamil_nadu_small_hydro_monthly_generation_FY2025_26.csv`
-and total 307.56 GWh. Rolling and selected-week solves impose a month-prorated
-weekly equality across all `small_hydro` generators. Because the inherited
+and total 307.56 GWh. Every runner mode imposes a month-prorated equality
+across all `small_hydro` generators over the same periods as bio-power. Because the inherited
 placeholder availability profile cannot supply the observed energy, these
 solves make small hydro dispatchable between zero and nameplate; the weekly
-energy is fixed while its hourly and daily timing remains optimized. Rebuilding
-the model writes the corresponding 307,560 MWh annual equality as well.
+energy is fixed while its hourly and daily timing remains optimized.
 
 ## Reservoir hydro and seasonal inflow
 
