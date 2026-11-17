@@ -99,7 +99,7 @@ PARALLEL_WORKERS = "Default"  # backend default; rolling runs still use one effe
 MIP_REL_GAP = 0.01
 UNIT_COMMITMENT = "relaxed"
 RUN_NAME = "relaxed_lp"
-ROLLING_TIME_LIMIT = None
+ROLLING_TIME_LIMIT = "Default"
 ROLLING_MAX_TIME_LIMIT_MIP_GAP = 0.10
 RESUME = True
 ```
@@ -114,10 +114,10 @@ RESUME = True
 | `UNIT_COMMITMENT` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `MIP_REL_GAP` applies only to `full`. |
 | `RUN_NAME` | Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
 | `SOLVER_NAME` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
-| `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `relaxed` and `none` use parallel simplex when more than one thread is selected. |
+| `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
 | `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
 | `MIP_REL_GAP` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
-| `ROLLING_TIME_LIMIT` | For `rolling` only, set a positive number of seconds per window or `None` for no time limit. It applies to both MIP and LP solves; LP windows must still reach optimality. It does not apply to `annual`. |
+| `ROLLING_TIME_LIMIT` | For `rolling` only. `"Default"` sets a per-attempt limit by `UNIT_COMMITMENT`: 300 s for `none`, 2,400 s for `relaxed` (provisional), 1,800 s for `full`. A positive number of seconds overrides it; `None` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `None` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
 | `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
 | `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `RUN_NAME` when changing study assumptions. |
 

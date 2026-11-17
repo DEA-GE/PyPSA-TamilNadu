@@ -16,7 +16,11 @@ import pandas as pd
 import pypsa
 import xarray as xr
 
-from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
+from highs_solver_options import (
+    DEFAULT_ROLLING_TIME_LIMIT_SECONDS,
+    highs_solver_options,
+    reset_highs_global_scheduler,
+)
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
 from small_hydro_targets import small_hydro_energy_target_mwh
 
@@ -1438,7 +1442,7 @@ def run_selection(
     parallel_workers: int | str = "Default",
     unit_commitment: str = "full",
     run_name: str = "baseline",
-    rolling_time_limit: float | None = 1800,
+    rolling_time_limit: float | str | None = "Default",
     rolling_max_time_limit_mip_gap: float = 0.05,
     network_path: str | Path = DEFAULT_NETWORK,
     results_root: str | Path = DEFAULT_RESULTS_ROOT,
@@ -1469,6 +1473,16 @@ def run_selection(
         if parallel_workers.strip().casefold() != "default":
             raise ValueError("parallel_workers must be 'Default' or a positive integer")
         parallel_workers = 2
+    if isinstance(rolling_time_limit, str):
+        if rolling_time_limit.strip().casefold() != "default":
+            raise ValueError("rolling_time_limit must be 'Default', a positive number of seconds, or None")
+        rolling_time_limit = DEFAULT_ROLLING_TIME_LIMIT_SECONDS[unit_commitment]
+    if mode == "rolling" and rolling_time_limit is None:
+        print(
+            "ROLLING_TIME_LIMIT is None: windows run without a time limit, so a "
+            "stalled solve cannot be retried automatically.",
+            flush=True,
+        )
     # Validate early, before loading the relatively large annual network.
     highs_solver_options(unit_commitment, mip_rel_gap, solver_threads, simplex_strategy)
     if simplex_strategy is not None and mode not in {"annual", "rolling"}:

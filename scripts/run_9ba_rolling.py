@@ -22,7 +22,12 @@ import pypsa
 import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
-from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
+from highs_solver_options import (
+    NON_RETRYABLE_CONDITIONS,
+    highs_solver_options,
+    reset_highs_global_scheduler,
+    solve_attempts,
+)
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
 
@@ -1202,6 +1207,68 @@ def run_annual_no_uc(
     return modeled, validation, network
 
 
+def _assess_solve(
+    network: pypsa.Network,
+    status: str,
+    condition: str,
+    unit_commitment: str,
+    max_time_limit_mip_gap: float,
+) -> dict[str, object]:
+    """Decide whether a solve is acceptable and collect HiGHS diagnostics.
+
+    LP windows must be optimal. A time-limited integer window is accepted
+    when its finite MIP gap does not exceed ``max_time_limit_mip_gap``.
+    """
+    report = getattr(getattr(network.model, "solver", None), "report", None)
+    reported_mip_gap = getattr(report, "mip_gap", None)
+    solver_model = getattr(network.model, "solver_model", None)
+    # Linopy normally exposes this via ``solver.report``. Query the native
+    # HiGHS model as a fallback, since a time-limited solve can leave the
+    # wrapper report empty in some PyPSA/Linopy combinations.
+    if unit_commitment == "full" and reported_mip_gap is None:
+        try:
+            reported_mip_gap = solver_model.getInfo().mip_gap
+        except (AttributeError, RuntimeError):
+            pass
+    mip_gap = (
+        float(reported_mip_gap)
+        if unit_commitment == "full"
+        and reported_mip_gap is not None
+        and np.isfinite(reported_mip_gap)
+        else None
+    )
+    accepted_time_limit = (
+        unit_commitment == "full"
+        and status == "ok"
+        and condition == "time_limit"
+        and mip_gap is not None
+        and mip_gap <= max_time_limit_mip_gap
+    )
+    accepted_solution = status == "ok" and (condition == "optimal" or accepted_time_limit)
+    native_status = None
+    native_info = None
+    if not accepted_solution and solver_model is not None:
+        try:
+            native_status = solver_model.modelStatusToString(solver_model.getModelStatus())
+            info = solver_model.getInfo()
+            native_info = {
+                "primal_solution_status": str(info.primal_solution_status),
+                "dual_solution_status": str(info.dual_solution_status),
+                "simplex_iteration_count": info.simplex_iteration_count,
+                "ipm_iteration_count": info.ipm_iteration_count,
+            }
+        except (AttributeError, RuntimeError):
+            pass
+    return {
+        "reported_mip_gap": reported_mip_gap,
+        "mip_gap": mip_gap,
+        "accepted_time_limit": accepted_time_limit,
+        "accepted_solution": accepted_solution,
+        "native_status": native_status,
+        "native_info": native_info,
+    }
+
+
 def run_rolling_year(
     base_network: pypsa.Network,
     observed: pd.DataFrame,
@@ -1359,93 +1426,85 @@ def run_rolling_year(
             f"{len(active) - len(committed)} look-ahead hours)",
             flush=True,
         )
-        solver_options = highs_solver_options(
-            unit_commitment, mip_rel_gap, solver_threads, simplex_strategy
+        attempts = solve_attempts(
+            unit_commitment, mip_rel_gap, solver_threads, simplex_strategy, time_limit
         )
-        if time_limit is not None:
-            solver_options["time_limit"] = time_limit
-        reset_highs_global_scheduler()
+        attempt_log: list[str] = []
+        # A solve (even an unaccepted one) writes custom-constraint duals back
+        # as GlobalConstraint rows; a retry must start from the original set,
+        # or PyPSA's consistency check rejects those rows.
+        original_global_constraints = network.global_constraints.index.copy()
         with _SolveResourceMonitor() as resources:
             started = time.perf_counter()
-            status, condition = network.optimize(
-                solver_name=solver_name,
-                solver_options=solver_options,
-                extra_functionality=lambda n, s: (
-                    _add_daily_targets(n, s, gas_targets),
-                    _add_weekly_cascade_targets(n, committed, cascade_targets),
-                    _add_committed_biomass_target(
-                        n, committed, biomass_monthly_targets_mwh
+            for attempt_number, (attempt_label, solver_options) in enumerate(attempts, start=1):
+                added = network.global_constraints.index.difference(original_global_constraints)
+                if len(added):
+                    network.remove("GlobalConstraint", added)
+                reset_highs_global_scheduler()
+                attempt_started = time.perf_counter()
+                status, condition = network.optimize(
+                    solver_name=solver_name,
+                    solver_options=solver_options,
+                    extra_functionality=lambda n, s: (
+                        _add_daily_targets(n, s, gas_targets),
+                        _add_weekly_cascade_targets(n, committed, cascade_targets),
+                        _add_committed_biomass_target(
+                            n, committed, biomass_monthly_targets_mwh
+                        ),
+                        _add_committed_small_hydro_target(
+                            n, committed, small_hydro_monthly_targets_mwh
+                        ),
+                        _add_hydro_terminal_targets(n, committed, terminal_targets),
+                        add_transmission_flow_cost(n, s),
+                        _add_exact_measured_storage(n, s, measured_store_targets),
+                        _add_relaxed_boundary_constraints(n, previous)
+                        if unit_commitment == "relaxed"
+                        else None,
                     ),
-                    _add_committed_small_hydro_target(
-                        n, committed, small_hydro_monthly_targets_mwh
-                    ),
-                    _add_hydro_terminal_targets(n, committed, terminal_targets),
-                    add_transmission_flow_cost(n, s),
-                    _add_exact_measured_storage(n, s, measured_store_targets),
-                    _add_relaxed_boundary_constraints(n, previous)
-                    if unit_commitment == "relaxed"
-                    else None,
-                ),
-                transmission_losses=TRANSMISSION_LOSSES,
-                include_objective_constant=False,
-                linearized_unit_commitment=unit_commitment == "relaxed",
-                assign_all_duals=True,
-            )
-            runtime = time.perf_counter() - started
-        report = getattr(getattr(network.model, "solver", None), "report", None)
-        reported_mip_gap = getattr(report, "mip_gap", None)
-        # Linopy normally exposes this via ``solver.report``. Query the native
-        # HiGHS model as a fallback, since a time-limited solve can leave the
-        # wrapper report empty in some PyPSA/Linopy combinations.
-        if unit_commitment == "full" and reported_mip_gap is None:
-            solver_model = getattr(network.model, "solver_model", None)
-            try:
-                reported_mip_gap = solver_model.getInfo().mip_gap
-            except (AttributeError, RuntimeError):
-                pass
-        mip_gap = (
-            float(reported_mip_gap)
-            if unit_commitment == "full"
-            and reported_mip_gap is not None
-            and np.isfinite(reported_mip_gap)
-            else None
-        )
-        accepted_time_limit = (
-            unit_commitment == "full"
-            and status == "ok"
-            and condition == "time_limit"
-            and mip_gap is not None
-            and mip_gap <= max_time_limit_mip_gap
-        )
-        accepted_solution = status == "ok" and (
-            condition == "optimal" or accepted_time_limit
-        )
-        if not accepted_solution:
-            solver_model = getattr(network.model, "solver_model", None)
-            native_status = None
-            native_info = None
-            if solver_model is not None:
-                try:
-                    native_status = solver_model.modelStatusToString(
-                        solver_model.getModelStatus()
+                    transmission_losses=TRANSMISSION_LOSSES,
+                    include_objective_constant=False,
+                    linearized_unit_commitment=unit_commitment == "relaxed",
+                    assign_all_duals=True,
+                )
+                assessment = _assess_solve(
+                    network, status, condition, unit_commitment, max_time_limit_mip_gap
+                )
+                attempt_log.append(
+                    f"{attempt_label}: {condition} in "
+                    f"{time.perf_counter() - attempt_started:.0f} s"
+                )
+                if assessment["accepted_solution"] or str(condition) in NON_RETRYABLE_CONDITIONS:
+                    break
+                if attempt_number < len(attempts):
+                    print(
+                        f"Window {number}/{len(starts)}: attempt {attempt_number} "
+                        f"({attempt_label}) ended with {condition} "
+                        f"({assessment['native_info']}); retrying with "
+                        f"{attempts[attempt_number][0]}.",
+                        flush=True,
                     )
-                    info = solver_model.getInfo()
-                    native_info = {
-                        "primal_solution_status": str(info.primal_solution_status),
-                        "dual_solution_status": str(info.dual_solution_status),
-                        "simplex_iteration_count": info.simplex_iteration_count,
-                        "ipm_iteration_count": info.ipm_iteration_count,
-                    }
-                except (AttributeError, RuntimeError):
-                    pass
+            runtime = time.perf_counter() - started
+        mip_gap = assessment["mip_gap"]
+        accepted_time_limit = assessment["accepted_time_limit"]
+        accepted_solution = assessment["accepted_solution"]
+        if not accepted_solution:
             raise RuntimeError(
-                f"Window {number} failed: status={status}, condition={condition}, "
-                f"HiGHS status={native_status}, HiGHS info={native_info}, "
-                f"reported_mip_gap={reported_mip_gap}, accepted_mip_gap={mip_gap}. "
+                f"Window {number} failed after {len(attempt_log)} attempt(s) "
+                f"[{'; '.join(attempt_log)}]: status={status}, condition={condition}, "
+                f"HiGHS status={assessment['native_status']}, "
+                f"HiGHS info={assessment['native_info']}, "
+                f"reported_mip_gap={assessment['reported_mip_gap']}, "
+                f"accepted_mip_gap={mip_gap}. "
                 "Time-limited integer windows require a finite MIP gap "
                 f"no greater than {max_time_limit_mip_gap:.1%}; LP windows "
                 "must reach optimality. "
                 "Completed checkpoints can be resumed."
+            )
+        if len(attempt_log) > 1:
+            print(
+                f"Window {number}/{len(starts)} solved on attempt "
+                f"{len(attempt_log)}: {'; '.join(attempt_log)}.",
+                flush=True,
             )
         if accepted_time_limit:
             print(
@@ -1530,8 +1589,11 @@ def run_rolling_year(
             "max_time_limit_mip_gap": (
                 max_time_limit_mip_gap if unit_commitment == "full" else None
             ),
-            "solver_threads": solver_threads,
+            "solver_threads": solver_options.get("threads", solver_threads),
+            "lp_solver": solver_options.get("solver"),
             "simplex_strategy": solver_options.get("simplex_strategy"),
+            "solve_attempts": len(attempt_log),
+            "solve_attempt_log": "; ".join(attempt_log),
             "runtime_seconds": runtime,
             "process_cpu_seconds": resources.cpu_seconds,
             "average_cpu_cores": resources.cpu_seconds / runtime if runtime > 0 else None,
