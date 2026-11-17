@@ -273,8 +273,13 @@ def analyze(run, out):
     fleet_daily = pd.DataFrame({"modeled_gwh": modeled, "observed_gwh": observed})
     fleet_daily["pumped_generation_gwh"] = group_daily.kadmparai
     pump_names = l.index[l.carrier.eq("hydro_pump")]
-    # Positive p2 is electrical consumption for this three-port pump.
-    pump = data["p2"][pump_names].sum(axis=1)
+    # Pump electrical consumption is the positive flow at the port that sits on
+    # an electrical bus: p0 since the pump takes power on bus0, p2 for runs
+    # built before that change (water on bus0, electricity on bus2).
+    pump = sum(
+        data["p0" if not str(l.at[name, "bus0"]).startswith("water_") else "p2"][name]
+        for name in pump_names
+    )
     fleet_daily["pumping_consumption_gwh"] = pump.resample("D").sum() / 1000
     fleet_daily["conventional_excluding_pumped_gwh"] = modeled - group_daily.kadmparai
     fleet_daily["net_hydro_gwh"] = modeled - fleet_daily.pumping_consumption_gwh

@@ -190,7 +190,22 @@ official inventory, not from reservoir volume. The builder uses simple
 non-pumping `StorageUnit`s for some plants, run-of-river generators for
 others, and water `Store`s plus turbine, pump, or transfer `Link`s for
 cascades such as PAP, Kodayar, Kundah, Pykara/Moyar, and
-Papanasam/Servalar. Kadamparai has separate pump and generation links.
+Papanasam/Servalar. Each water `Store` is measured in the electricity its own
+plant would generate from the stored volume, so every turbine `Link` has
+efficiency 1.0 and its `p_nom` equals the official electrical MW. Kadamparai
+has separate pump and generation links. Its upper Store holds an assumed six
+hours of full output (2,400 MWh). The pump takes up to 400 MW of electricity
+on `bus0`, stores 0.81 MWh of later generation per MWh pumped (0.90 pump ×
+0.90 turbine), and withdraws the same water volume from Upper Aliyar, so
+pumping loses electricity but not water. Kadamparai's dam is on the Kadamparai
+river, so it also has natural inflow, which is not observed. Its estimate
+(`kadamparai_calibration_inflow`) is CEA's FY2025-26 Kadamparai generation
+(258 GWh) minus the generation the model itself produces from pumped water
+(`KADAMPARAI_MODELED_PUMPED_GENERATION_GWH` in the build script, calibrated on
+a full-year rolling run without unit commitment), spread over the year in
+proportion to CEA's monthly Kadamparai generation. Modeled annual Kadamparai
+generation therefore approximates the CEA total. Recalibrate the constant if
+pumping behaviour changes, for example with unit commitment enabled.
 
 `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` is the model-ready daily
 observation table: one `date`/`reservoir` row with storage and full capacity
@@ -248,8 +263,11 @@ Upper Kodayar's storage capacity uses its published 98.66 MCM volume. The
 Kodayar-I conversion uses TANGEDCO's [16.5 cubic feet per kWh turbine water
 consumption](https://tenders.bhel.com/sites/default/files/TCCSCT2159-2024-07-29-04%3A00%3A36.pdf),
 equivalent to 60.606 MWh per M.cft in the model. Kodayar-II retains a provisional
-100 m stage head, so its electrical conversion is separate while its water
-discharge preserves volume. Pechiparai flow remains a scenario estimate, not an
+100 m stage head (6.94 MWh per M.cft), so the Kodayar-II forebay is measured in
+Kodayar-II MWh: Kodayar-I discharge enters it at 0.1146 MWh per Upper Kodayar
+MWh, which preserves the water volume. The Kodayar-II turbine therefore has
+`p_nom` 40 MW and efficiency 1.0, and the weekly CEA Kodayar target counts
+its electrical output rather than its water use. Pechiparai flow remains a scenario estimate, not an
 Upper Kodayar inflow or storage measurement. The Kodayar-II forebay retains its
 own balance; Kodayar-II discharge reaches a terminal downstream sink rather
 than filling a small artificial pond. The terminal sink has an effectively
@@ -258,6 +276,23 @@ Rolling runs audit the daily upper balance
 in `upper_kodayar_balance.csv`.
 Other proxy storage, such as Upper Aliyar's Parambikulam profile, remains a soft
 boundary guide and never becomes an exact observation.
+Upper Aliyar is a dam on the Aliyar headwaters, upstream of the Aliyar
+reservoir, and the lower reservoir of the Kadamparai pumped-storage plant. The
+60 MW Aliyar power house uses the fall between Upper and Lower Aliyar
+([PAP project description](https://parambikulam.in/?p=214)); Parambikulam
+water reaches only the lower Aliyar dam, through the Contour and Aliyar Feeder
+canals ([IAMWARM Aliyar sub-basin plan](https://iamwarm.gov.in/iamwarm/old/dpr-pdf/Aliyar.pdf)).
+Upper Aliyar has no flow or storage observation, so its natural inflow
+(`upper_aliyar_calibration_inflow`) is estimated from Aliyar's CEA monthly
+generation, 174.31 GWh in FY2025-26, delivered uniformly within each rolling
+week and recorded in `model/hydro_cascade_inferred_inflow.csv`. Pumping
+returns the water it takes, so this is the least inflow consistent with the
+observed generation; unobserved spill is not included. The inflow is
+mandatory, and a spill link (`upper_aliyar_spill`, sized to the combined peak
+of the Upper Aliyar and Kadamparai inflows, since Kadamparai discharges into
+Upper Aliyar) releases surplus water to Lower Aliyar. Without this inflow, Upper Aliyar held
+only its assumed starting water and ran dry by July, which stopped Kadamparai
+from pumping for the rest of the year.
 Rolling runs pass modeled state between adjacent windows. If
 `model/hydro_monthly_stored_energy.csv` is present, its values are interpolated
 at rolling boundaries; absent monthly data create no rolling target.

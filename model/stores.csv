@@ -9,9 +9,9 @@ Sholayar,water_sholayar,35042.986476,17521.493238,False,water_energy
 Upper_Aliyar,water_upper_aliyar,93434.07452399998,46717.03726199999,False,water_energy
 Lower_Aliyar,water_lower_aliyar,93434.07452399998,46717.03726199999,False,water_energy
 PAP_downstream,water_pap_downstream,inf,0.0,False,water_energy
-Kadamparai,water_kadamparai,2666.6666666666665,1333.3333333333333,False,water_energy
+Kadamparai,water_kadamparai,2400.0,1200.0,False,water_energy
 Upper_Kodayar,water_upper_kodayar,211160.3041661858,105580.1520830929,False,water_energy
-Kodayar_II_forebay,water_kodayar_ii_forebay,21116.03041661858,10558.01520830929,False,water_energy
+Kodayar_II_forebay,water_kodayar_ii_forebay,2419.6362816528135,1209.8181408264068,False,water_energy
 Kodayar_downstream,water_kodayar_downstream,inf,0.0,False,water_energy
 Upper_Bhavani,water_upper_bhavani,399600.0,199800.0,False,water_energy
 Kundah_pondage,water_kundah_pondage,39960.0,19980.0,False,water_energy
