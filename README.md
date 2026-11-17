@@ -285,19 +285,24 @@ commitment or storage analysis.
   vintage through `data/model_inputs/additional_capacity_2026_07.csv`. Demand
   and renewable profiles remain FY2025-26, so this is a capacity-vintage
   overlay rather than a historical FY2025-26 fleet snapshot.
-- Coal, oil and gas, and bio-power generators retain the statewide build
-  template's commitment flags, start/shut-down costs, minimum up/down times,
-  and ramp limits. Some geographically unspecified aggregate bio-power records are
-  split across areas, so each allocated part is independently committable.
+- Only coal units are committable. They retain the statewide build template's
+  start/shut-down costs, minimum stable output, minimum up/down times and ramp
+  limits. Oil and gas, diesel and bio-power units are dispatched without
+  commitment decisions (`restrict_unit_commitment` in
+  `scripts/build_9ba_model.py`): minimum stable output, start/shut-down costs
+  and minimum up/down times are removed, so each unit can dispatch anywhere
+  between zero and its available capacity. Their output is still bounded by
+  the observed oil/gas and bio-power energy targets. This removes about
+  two-thirds of the unit-commitment variables and constraints.
 - Explicitly off-grid capacity is excluded from the modeled fleet. This removes
   the 75.91 MW off-grid solar category and the 27.57 MW off-grid waste-to-energy
   (bio-power) category; the remaining generators are grid-connected or treated
   as part of the modeled grid fleet.
-- The 211.70 MW diesel overlay is represented as fourteen committable units:
-  seven at Samayanallur in the Madurai area and seven at Samalpatti in the
-  Vellore area. In the absence of plant-specific operating data, these units
-  use the model's oil-and-gas commitment and cost assumptions while retaining
-  a separate `diesel` carrier.
+- The 211.70 MW diesel overlay is represented as fourteen units: seven at
+  Samayanallur in the Madurai area and seven at Samalpatti in the Vellore
+  area. In the absence of plant-specific operating data, these units use the
+  model's oil-and-gas cost assumptions while retaining a separate `diesel`
+  carrier.
 - Conventional hydro is controlled through
   `data/model_inputs/hydro_asset_registry.csv` and the explicit fleet
   reconciliation in `data/model_inputs/hydro_fleet_reconciliation.csv`. Simple
