@@ -300,8 +300,8 @@ down time, which made the whole coal fleet cold-start at 00:00 on 1 April.
 Observed Tamil Nadu coal generation on 1 April 2025 was 196.6 MU, about
 8.2 GW on average (`data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`),
 so the fleet was running; unit-level status is not available, so all
-committable coal units start online. Other committable units (oil and gas,
-diesel, bio-power) keep the template's offline start. This applies to every
+committable coal units start online (coal is the only committable carrier;
+see `restrict_unit_commitment` in `scripts/build_9ba_model.py`). This applies to every
 run mode; in rolling runs, later windows take their state from the previous
 window as before. In the relaxed rolling week-1 test this removed 49 forced
 start-ups and all 1,134 MWh of unserved energy (caused by start-up ramp limits

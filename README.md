@@ -117,7 +117,7 @@ RESUME = True
 | `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
 | `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
 | `MIP_REL_GAP` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
-| `ROLLING_TIME_LIMIT` | For `rolling` only. `"Default"` sets a per-attempt limit by `UNIT_COMMITMENT`: 300 s for `none`, 2,400 s for `relaxed` (provisional), 1,800 s for `full`. A positive number of seconds overrides it; `None` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `None` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
+| `ROLLING_TIME_LIMIT` | For `rolling` only. `"Default"` sets a per-attempt limit by `UNIT_COMMITMENT`: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `None` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `None` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
 | `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
 | `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `RUN_NAME` when changing study assumptions. |
 
@@ -222,8 +222,7 @@ seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
 history, plus storage state of charge, are passed across weekly boundaries.
 Before the first window, committable coal units are online (Tamil Nadu coal
-generation averaged about 8.2 GW on 1 April 2025); other committable units
-start offline.
+generation averaged about 8.2 GW on 1 April 2025).
 Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
 The relaxed runner carries fractional status, dispatch, and recent fractional
 start/shut-down history across weekly boundaries. Equal start-up and shut-down
@@ -288,29 +287,34 @@ commitment or storage analysis.
   vintage through `data/model_inputs/additional_capacity_2026_07.csv`. Demand
   and renewable profiles remain FY2025-26, so this is a capacity-vintage
   overlay rather than a historical FY2025-26 fleet snapshot.
-- Coal marginal costs are station energy charges from 2024+ regulatory orders
-  (TNERC FY2023-24 true-up and the JERC Puducherry FY2025-26 tariff order),
-  set per component from `data/model_inputs/coal_operating_costs.csv`; they
-  range from INR 2,720/MWh (NNTPS) to INR 6,190/MWh (Mettur TPS-II). Coal
-  start-up and shut-down costs come from CEA's August 2026 two-shift study of
-  Tuticorin TPS (INR 7,376 per MW per stop-start cycle for 210 MW units),
-  scaled to larger units with CEA's January 2025 start-up oil norms. See
-  `docs/input-data.md` for sources, proxies and limitations;
-  `model/coal_operating_cost_audit.csv` lists the applied values.
-- Coal, oil and gas, and bio-power generators otherwise retain the statewide
-  build template's commitment flags, minimum up/down times, and ramp limits;
-  oil and gas, diesel and bio-power keep placeholder marginal and start-up
-  costs. Some geographically unspecified aggregate bio-power records are
-  split across areas, so each allocated part is independently committable.
+- Only coal units are committable. They retain the statewide build template's
+  minimum stable output, minimum up/down times and ramp limits. Coal marginal
+  costs are station energy charges from 2024+ regulatory orders (TNERC
+  FY2023-24 true-up and the JERC Puducherry FY2025-26 tariff order), set per
+  component from `data/model_inputs/coal_operating_costs.csv`; they range from
+  INR 2,720/MWh (NNTPS) to INR 6,190/MWh (Mettur TPS-II). Coal start-up and
+  shut-down costs come from CEA's August 2026 two-shift study of Tuticorin TPS
+  (INR 7,376 per MW per stop-start cycle for 210 MW units), scaled to larger
+  units with CEA's January 2025 start-up oil norms. See `docs/input-data.md`
+  for sources, proxies and limitations; `model/coal_operating_cost_audit.csv`
+  lists the applied values.
+- Oil and gas, diesel and bio-power units are dispatched without commitment
+  decisions (`restrict_unit_commitment` in `scripts/build_9ba_model.py`):
+  minimum stable output, start/shut-down costs and minimum up/down times are
+  removed, so each unit can dispatch anywhere between zero and its available
+  capacity. Their output is still bounded by the observed oil/gas and
+  bio-power energy targets, and their marginal costs remain placeholders.
+  This removes about two-thirds of the unit-commitment variables and
+  constraints.
 - Explicitly off-grid capacity is excluded from the modeled fleet. This removes
   the 75.91 MW off-grid solar category and the 27.57 MW off-grid waste-to-energy
   (bio-power) category; the remaining generators are grid-connected or treated
   as part of the modeled grid fleet.
-- The 211.70 MW diesel overlay is represented as fourteen committable units:
-  seven at Samayanallur in the Madurai area and seven at Samalpatti in the
-  Vellore area. In the absence of plant-specific operating data, these units
-  use the model's oil-and-gas commitment and cost assumptions while retaining
-  a separate `diesel` carrier.
+- The 211.70 MW diesel overlay is represented as fourteen units: seven at
+  Samayanallur in the Madurai area and seven at Samalpatti in the Vellore
+  area. In the absence of plant-specific operating data, these units use the
+  model's oil-and-gas cost assumptions while retaining a separate `diesel`
+  carrier.
 - Conventional hydro is controlled through
   `data/model_inputs/hydro_asset_registry.csv` and the explicit fleet
   reconciliation in `data/model_inputs/hydro_fleet_reconciliation.csv`. Simple

@@ -80,6 +80,8 @@ DISTRICT_ALIASES = {
     "Tuticorin": "Thoothukudi",
 }
 MECHANISM_CARRIERS = {"market_import", "unserved_energy"}
+# Only these carriers keep on/off commitment decisions (see restrict_unit_commitment).
+COMMITTABLE_CARRIERS = {"coal"}
 EXPECTED_ADDITIONAL_CAPACITY_MW = {
     "diesel": 211.70,
     "solar": 212.33,
@@ -2078,6 +2080,34 @@ def read_additional_capacity(
     return overlay
 
 
+def restrict_unit_commitment(generators: pd.DataFrame) -> pd.DataFrame:
+    """Keep commitment decisions only for coal; dispatch other thermal freely.
+
+    Oil/gas, diesel and bio-power are small, fast units whose output is
+    already pinned by observed energy targets, and their cycling cost is a
+    small fraction of fuel cost (Indian Technology Catalogue 2022). Making
+    them non-committable removes about two-thirds of the unit-commitment
+    variables. Without a status variable PyPSA would treat ``p_min_pu`` as a
+    must-run floor, so it is set to zero together with all commitment-only
+    attributes. Their unit ramp limits of 1.0 p.u./h can never bind, so they
+    are dropped as well.
+    """
+    generators = generators.copy()
+    committable = generators["committable"].fillna(False).astype(bool)
+    released = committable & ~generators["carrier"].isin(COMMITTABLE_CARRIERS)
+    if (generators.loc[released, ["ramp_limit_up", "ramp_limit_down"]].fillna(1.0) < 1.0).any(axis=None):
+        raise ValueError("Released units with binding ramp limits need explicit handling")
+    generators.loc[released, "committable"] = False
+    generators.loc[released, ["p_min_pu", "start_up_cost", "shut_down_cost"]] = 0.0
+    generators.loc[released, ["min_up_time", "min_down_time", "down_time_before"]] = 0
+    generators.loc[released, "up_time_before"] = 1
+    generators.loc[released, [
+        "p_init", "ramp_limit_up", "ramp_limit_down",
+        "ramp_limit_start_up", "ramp_limit_shut_down",
+    ]] = np.nan
+    return generators
+
+
 def build_additional_generators(
     overlay: pd.DataFrame,
     original_generators: pd.DataFrame,
@@ -2733,6 +2763,7 @@ def main() -> None:
     generators = pd.concat(
         [generators, additional_generators], ignore_index=True, sort=False
     )
+    generators = restrict_unit_commitment(generators)
     expanded_metadata = pd.concat(
         [expanded_metadata, additional_metadata], ignore_index=True, sort=False
     )

@@ -17,11 +17,12 @@ def reset_highs_global_scheduler() -> None:
 
 
 # Per-attempt rolling-window time limits, by unit-commitment mode. Measured
-# week-1 solve times (FY2025-26 model, Nov 2026): none ~3-8 s (simplex);
-# relaxed ~480 s (interior point; the parallel dual simplex took ~1,860 s);
-# full is a MIP and keeps its existing limit with gap-based acceptance.
-# The relaxed limit is provisional until checked on a full relaxed year.
-DEFAULT_ROLLING_TIME_LIMIT_SECONDS = {"none": 300.0, "relaxed": 2400.0, "full": 1800.0}
+# solve times (FY2025-26 model, Nov 2026): none ~3-8 s (simplex); relaxed
+# with coal-only commitment ~70 s per week (interior point; the parallel dual
+# simplex fallback ~210-230 s); full is a MIP and keeps its existing limit
+# with gap-based acceptance. 700 s is ~10x a normal relaxed week, so a
+# stalled interior-point solve falls back to the simplex within ~12 minutes.
+DEFAULT_ROLLING_TIME_LIMIT_SECONDS = {"none": 300.0, "relaxed": 700.0, "full": 1800.0}
 
 
 def default_lp_solver(unit_commitment: str) -> str:
