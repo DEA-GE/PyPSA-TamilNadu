@@ -166,7 +166,8 @@ operating and cost values are model assumptions encoded in
 `scripts/build_unit_level_model.py`, not fields measured in the capacity
 workbook. The `Source` categories map to `coal`, `oil_gas`, `nuclear`,
 `bio_power`, `hydro`, `small_hydro`, `solar`, and `wind`; pumped hydro and
-special hydro representations are handled separately.
+special hydro representations are handled separately. Coal costs are the
+exception and are set from documented sources (next section).
 
 `data/model_inputs/additional_capacity_2026_07.csv` adds a July 2026
 capacity vintage. Each row includes `record_id`, technology/carrier, plant,
@@ -178,6 +179,152 @@ capacity uses a July 2026 comparison vintage while demand and renewable
 availability use FY2025-26. Inspect `model/district_capacity_allocation.csv`,
 `model/component_metadata.csv`, and `model/capacity_by_balancing_area.csv`
 for the resulting allocations and provenance.
+
+### Coal operating costs
+
+`data/model_inputs/coal_operating_costs.csv` gives every coal component,
+including the fixed REA export reservations, a station energy charge and,
+for committable units, the physical unit rating. Each row matches components
+by a regular expression (`component_regex`); `scripts/build_9ba_model.py`
+fails if a coal component matches no row or more than one. The build writes
+the applied values per component to `model/coal_operating_cost_audit.csv`.
+Only sources dated 2024 or later are used.
+
+**Marginal cost.** The coal `marginal_cost` is the station's energy charge
+(fuel and secondary oil, no fixed charge), in INR/MWh:
+
+| Station | INR/MWh | Basis | Source |
+|---|---:|---|---|
+| NLC New Neyveli TPS (NNTPS) | 2,720 | FY2025-26 approved | JERC |
+| NLC TPS-I Expansion | 2,920 | FY2025-26 approved | JERC |
+| NLC TPS-II Expansion | 3,240 | FY2025-26 approved | JERC |
+| NLC TPS-II Stage II / Stage I | 3,300 / 3,320 | FY2025-26 approved | JERC |
+| North Chennai TPS-I | 3,590 | FY2023-24 actual | TNERC |
+| Tuticorin TPS | 3,800 | FY2023-24 actual | TNERC |
+| NTECL Vallur | 4,090 | FY2025-26 approved | JERC |
+| North Chennai TPS-II | 4,110 | FY2023-24 actual | TNERC |
+| North Chennai TPS-III | 4,110 | proxy: Stage II | TNERC |
+| SEPC Tuticorin | 4,280 | FY2023-24 actual | TNERC |
+| ITPCL, Coastal Energen, Tuticorin private TPP, OPG, TCP, Tulsyan | 4,280 | proxy: SEPC | TNERC |
+| NTPL Tuticorin | 4,340 | FY2025-26 approved | JERC |
+| TAQA Neyveli (ST-CMS) | 4,590 | FY2023-24 actual | TNERC |
+| Mettur TPS-I | 5,400 | FY2023-24 actual | TNERC |
+| Mettur TPS-II | 6,190 | FY2023-24 actual | TNERC |
+
+- TNERC: *Approval of True Up of TNPDCL (formerly TANGEDCO) for FY 2023-24*,
+  order of 30 April 2025 (M.P. No. 18 of 2025). State stations from Table
+  2-42 (energy charge approved after true-up); SEPC and TAQA from the
+  power-purchase cost table (variable cost per unit).
+  https://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf
+  (archived copy:
+  http://web.archive.org/web/20250505210653/http://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf)
+- JERC (Goa and UTs): Electricity Department of Puducherry tariff order of
+  24 September 2025 (Petition 139/2025), Table 5-14, "Variable rate
+  (FY 2025-26)". Puducherry buys from the same central stations as Tamil
+  Nadu. https://electricity.py.gov.in/sites/default/files/Tariff%20Order%202025-25-to-FY-2029-30.pdf
+
+The capacity-weighted mean over committable units is about INR 4,146/MWh
+(the previous placeholder was a flat INR 3,087.5/MWh). Limitations:
+
+- State and private stations use FY2023-24 actuals; the only FY2025-26
+  projection for them is TNERC's 2022 tariff order, which is older than the
+  2024 cut-off.
+- No 2024+ energy charge was found for North Chennai TPS-III, ITPCL,
+  Coastal Energen, OPG, TCP, Tulsyan or the Tuticorin private TPP. These use
+  the proxies in the table (25% of committable coal capacity is on the SEPC
+  proxy, 7% on the Stage II proxy).
+- TNERC's FY2023-24 power-purchase costs for the NLC lignite stations are
+  INR 0.6–1.3/kWh higher than JERC's FY2024-25 figures, probably because they
+  include arrears; the model uses JERC.
+
+**Start-up and shut-down costs.** The anchor is the Central Electricity
+Authority's *Report of the Committee on Wear & Tear, O&M and Plant Lifespan
+Implications due to flexible operation* (August 2026). CEA and BHEL analysed
+two-shift operation of the 5×210 MW Tuticorin TPS and found shutdown and
+start-up costs of 29.42 paise/kWh and increased O&M of 16.68 paise/kWh,
+charged on a two-shift day of 16 generating hours that contains one
+stop–start cycle. That is INR 7,376 per MW of unit capacity per cycle
+(`COAL_CYCLE_COST_PER_MW` in `scripts/build_unit_level_model.py`); retrofit
+capital cost is a fixed cost and is excluded.
+https://cea.nic.in/whats-new/file?path=/home/cea_website/reports/general/en/18082026_Wear_and_Tear_Report_Final_ry_merged___with_Appendix_2.pdf&mode=view
+
+Larger units need less start-up oil per MW, so the per-MW cost is scaled by
+unit size with CEA's *Recommendations on Operational norms of secondary fuel
+oil consumption* to CERC (13 January 2025), which give oil per hot start of
+20, 30, 45 and 60 kl for the 210 MW, 500 MW, 660 MW and 800 MW series.
+https://cercind.gov.in/2024/draft_reg/Recommendations-of-CEA-130125.pdf
+Each unit is assigned a series from its physical rating (below 300 MW: 210;
+300–650 MW: 500; 650–750 MW: 660; 750 MW and above: 800) and its cost per MW
+is INR 7,376 times the series' oil per start per MW divided by the 210 MW
+series' value:
+
+| Series | Units in the model | Cycle cost (INR/MW) |
+|---|---|---:|
+| 210 MW | all units below 300 MW, including 250 MW and the small captive units | 7,376 |
+| 500 MW | 500, 525 and 600 MW units | 4,647 |
+| 800 MW | North Chennai TPS-III | 5,809 |
+
+The physical rating is used, not the Tamil Nadu share in `p_nom`: for
+stations shared with other states it is the Tamil Nadu share plus the REA
+export reservation in this model (for example Vallur, 656 + 844 MW = 3×500 MW).
+Each committable unit's start-up cost and shut-down cost are each half of
+`p_nom` × cycle cost, because equal start-up and shut-down costs activate
+PyPSA's tightening constraints for linearized unit commitment. Limitations:
+
+- The anchor is one plant (old state-owned 210 MW units) in hot two-shift
+  operation (units offline roughly 4–12 hours over the solar period). The
+  model's 8-hour minimum down time prevents the shorter stops, and warm or
+  cold starts use more oil (CEA 2025: 40 and 60 kl for a 210 MW unit,
+  against 20 kl hot), so restarts after long outages are likely
+  under-costed.
+- Lignite units (about 19% of committable coal capacity) and imported-coal
+  units are scaled like domestic-coal units; CEA's 2025 analysis reports
+  higher oil use per start at NLC.
+- CEA does not break the Tuticorin figure into oil, coal, auxiliary power and
+  maintenance.
+
+Sensitivity (relaxed unit commitment, rolling week 1, November 2026): halving
+or doubling all start-up and shut-down costs changed weekly coal energy by
+less than 0.1% and the mean Tamil Nadu price by about 1%, but changed
+cycling strongly. Fractional coal start-ups after the first hour were 26.7,
+10.4 and 0.8 at 0.5×, 1× and 2×, almost all at Mettur TPS-I, the most
+expensive coal station. The cycling cost level therefore matters for how
+often the expensive stations two-shift, not for energy or prices.
+
+**Initial commitment state.** Committable coal units start the horizon
+online: `up_time_before` = 168 h, `down_time_before` = 0 and `p_init` empty,
+so there is no ramp reference for the first hour and the optimizer chooses
+the opening dispatch (and pays the shut-down cost for any unit it turns off).
+The build template instead marks every thermal unit offline for its minimum
+down time, which made the whole coal fleet cold-start at 00:00 on 1 April.
+Observed Tamil Nadu coal generation on 1 April 2025 was 196.6 MU, about
+8.2 GW on average (`data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`),
+so the fleet was running; unit-level status is not available, so all
+committable coal units start online. Other committable units (oil and gas,
+diesel, bio-power) keep the template's offline start. This applies to every
+run mode; in rolling runs, later windows take their state from the previous
+window as before. In the relaxed rolling week-1 test this removed 49 forced
+start-ups and all 1,134 MWh of unserved energy (caused by start-up ramp limits
+in the opening hours), and the week's peak Tamil Nadu price fell from the
+INR 100,000/MWh unserved-energy cost to INR 6,908/MWh.
+
+### Other marginal costs
+
+The remaining thermal marginal costs are still the original placeholders in
+`scripts/build_unit_level_model.py`. A check against 2024+ Indian sources:
+
+| Carrier | Model (INR/MWh) | 2024+ reference | Assessment |
+|---|---:|---|---|
+| Oil and gas | 6,025 | Valuthur 5,290, Kuttalam 5,470, Thirumakottai 6,570 (TNERC FY2023-24 actual); PPAC domestic gas price ceiling USD 6.75/MMBtu for FY2025-26 | consistent |
+| Diesel | 6,025 | no station charge found; secondary-oil prices of INR 75,600–77,600/kL in CERC's 2026 orders 647/GT/2025 and 111/GT/2026 imply more than INR 6,025/MWh at any realistic engine heat rate | probably low |
+| Bio-power | 4,512.5 | 5,200 (TNERC FY2023-24 actual, 2.4 MU only); 6,100 for Tamil Nadu (CERC RE tariff order FY2025-26, 6/SM/2025, normative) | low |
+| Nuclear | 800 | only full tariffs available (MAPS 2,730, Kudankulam 4,690, JERC FY2025-26) | not checkable; nuclear output is fixed by energy targets |
+
+Sources: https://ppac.gov.in/natural-gas/gas-price,
+https://www.cercind.gov.in/2025/orders/6-SM-2025.pdf,
+https://www.cercind.gov.in/2026/Orders/647-GT-2025.pdf,
+https://www.cercind.gov.in/2026/Orders/111-GT-2026.pdf, and the TNERC and
+JERC orders above.
 
 ## Hydro: assets, water, and storage
 

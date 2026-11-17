@@ -58,12 +58,30 @@ GENERATOR_COLUMNS = [
     "ramp_limit_shut_down",
 ]
 
+# Coal cycling cost: CEA, "Report of the Committee on Wear & Tear, O&M and
+# Plant Lifespan Implications due to flexible operation" (Aug 2026), from
+# CEA/BHEL two-shift data of the 5x210 MW Tuticorin TPS, Tamil Nadu:
+# shutdown and start-up costs 29.42 paise/kWh plus increased O&M 16.68
+# paise/kWh, charged on one two-shift day (16 generating hours) that contains
+# one stop-start cycle. Retrofit capex is a fixed cost and is excluded.
+CEA_TUTICORIN_START_STOP_PAISE_PER_KWH = 29.42
+CEA_TUTICORIN_CYCLING_OM_PAISE_PER_KWH = 16.68
+CEA_TUTICORIN_GENERATING_HOURS_PER_CYCLE = 16.0
+COAL_CYCLE_COST_PER_MW = (
+    (CEA_TUTICORIN_START_STOP_PAISE_PER_KWH + CEA_TUTICORIN_CYCLING_OM_PAISE_PER_KWH)
+    / 100.0  # INR/kWh
+    * 1000.0  # kWh per MWh
+    * CEA_TUTICORIN_GENERATING_HOURS_PER_CYCLE
+)  # INR per MW of capacity per stop-start cycle (7,376)
+
 THERMAL_DEFAULTS = {
     "coal": {
         "p_min_pu": 0.55,
         "p_max_pu": 0.85,
         "marginal_cost": 3087.5,
-        "transition_cost_per_mw": 5_000_000.0 / (15_032.5 / 12),
+        # Split equally between start-up and shut-down: equal costs activate
+        # PyPSA's tightening constraints for linearized unit commitment.
+        "transition_cost_per_mw": COAL_CYCLE_COST_PER_MW / 2.0,
         "min_up_time": 8,
         "min_down_time": 8,
         "ramp_limit_up": 0.6,

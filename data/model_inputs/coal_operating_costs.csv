@@ -1,0 +1,33 @@
+component_regex,station,energy_charge_inr_per_mwh,charge_basis,source_id,physical_unit_mw,notes
+tuticorin_tps__unit_0[1-5],Tuticorin TPS,3800,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210,TNERC Table 2-42 approved energy charge
+mettur_tps__unit_0[1-4],Mettur TPS-I,5400,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210,TNERC Table 2-42 approved energy charge
+mettur_tps__unit_05,Mettur TPS-II,6190,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,600,TNERC Table 2-42 approved energy charge
+north_chennai_tps__unit_0[1-3],North Chennai TPS-I,3590,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210,TNERC Table 2-42 approved energy charge
+north_chennai_tps__unit_0[45],North Chennai TPS-II,4110,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,600,TNERC Table 2-42 approved energy charge
+north_chennai_tps__unit_06,North Chennai TPS-III,4110,proxy,TNERC_TRUEUP_FY2023_24,800,No 2024+ energy charge found for Stage III; uses North Chennai TPS-II (same site and coal supply)
+neyveli_tps_ii__unit_0[1-3],NLC TPS-II Stage I,3320,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (630 MW / 3 units)
+neyveli_tps_ii__unit_0[4-7],NLC TPS-II Stage II,3300,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (840 MW / 4 units)
+neyveli_ext_tps_i__unit_0[12],NLC TPS-I Expansion,2920,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (420 MW / 2 units)
+neyveli_ext_tps_ii__unit_0[12],NLC TPS-II Expansion,3240,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,250,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (500 MW / 2 units)
+neyveli_new_tpp_neyveli_extension__unit_0[12],NLC New Neyveli TPS (NNTPS),2720,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (1000 MW / 2 units)
+neyveli_tps_z__unit_01,TAQA Neyveli (ST-CMS),4590,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,250,TNERC power-purchase table variable cost per unit
+tuticorin_joint_venture__unit_0[12],NTPL Tuticorin,4340,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (1000 MW / 2 units)
+vallur_tpp__unit_0[1-3],NTECL Vallur,4090,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500,JERC Table 5-14 variable rate; physical size = TN share + REA export reservation (1500 MW / 3 units)
+tuticorin_thermal_power_plant__unit_01,SEPC Tuticorin,4280,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,525,TNERC power-purchase table variable cost per unit
+itpcl_or_cuddalore_tpp__unit_0[12],ITPCL Cuddalore,4280,proxy,TNERC_TRUEUP_FY2023_24,600,No 2024+ energy charge found; uses SEPC (imported-coal IPP selling to TN)
+muthiara_tpp__unit_0[12],Coastal Energen Mutiara,4280,proxy,TNERC_TRUEUP_FY2023_24,600,No 2024+ energy charge found; uses SEPC (imported-coal IPP selling to TN)
+tuticorin_p_tpp__unit_0[12],Tuticorin private TPP,4280,proxy,TNERC_TRUEUP_FY2023_24,150,No 2024+ energy charge found; uses SEPC (private coal IPP selling to TN)
+opg_power_generation_private_ltd__unit_0[12],OPG Power Gummidipoondi,4280,proxy,TNERC_TRUEUP_FY2023_24,77,No 2024+ energy charge found; uses SEPC; physical size = TN share + REA export reservation (77 MW per unit)
+opg_power_generation_private_ltd__unit_03,OPG Power Gummidipoondi,4280,proxy,TNERC_TRUEUP_FY2023_24,80,No 2024+ energy charge found; uses SEPC
+opg_power_generation_private_ltd__unit_04,OPG Power Gummidipoondi,4280,proxy,TNERC_TRUEUP_FY2023_24,180,No 2024+ energy charge found; uses SEPC; physical size = TN share + REA export reservation (180 MW)
+tcp_limited__unit_01,TCP Limited,4280,proxy,TNERC_TRUEUP_FY2023_24,63.5,No 2024+ energy charge found; uses SEPC
+tulsyan_nec_limited__unit_0[12],Tulsyan NEC,4280,proxy,TNERC_TRUEUP_FY2023_24,35,No 2024+ energy charge found; uses SEPC; physical size = TN share + REA export reservation (70 MW / 2 units)
+rea_export_reservation__nlc_tamil_nadu_power_ltd_tuticorin,NTPL Tuticorin,4340,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__ntecl_vallur_stps,NTECL Vallur,4090,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__neyveli_new_thermal_power_project,NLC New Neyveli TPS (NNTPS),2720,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__neyveli_tps_i_expansion,NLC TPS-I Expansion,2920,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__neyveli_tps_ii_stage_i,NLC TPS-II Stage I,3320,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__neyveli_tps_ii_stage_ii,NLC TPS-II Stage II,3300,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__neyveli_tps_ii_expansion,NLC TPS-II Expansion,3240,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,Fixed REA export schedule; same station charge
+rea_export_reservation__opg_power_generation_private_ltd_unit_[124],OPG Power Gummidipoondi,4280,proxy,TNERC_TRUEUP_FY2023_24,,Fixed REA export schedule; same proxy charge
+rea_export_reservation__tulsyan_nec_limited,Tulsyan NEC,4280,proxy,TNERC_TRUEUP_FY2023_24,,Fixed REA export schedule; same proxy charge

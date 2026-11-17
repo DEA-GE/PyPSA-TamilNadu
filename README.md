@@ -221,6 +221,9 @@ set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
 seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
 history, plus storage state of charge, are passed across weekly boundaries.
+Before the first window, committable coal units are online (Tamil Nadu coal
+generation averaged about 8.2 GW on 1 April 2025); other committable units
+start offline.
 Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
 The relaxed runner carries fractional status, dispatch, and recent fractional
 start/shut-down history across weekly boundaries. Equal start-up and shut-down
@@ -285,9 +288,19 @@ commitment or storage analysis.
   vintage through `data/model_inputs/additional_capacity_2026_07.csv`. Demand
   and renewable profiles remain FY2025-26, so this is a capacity-vintage
   overlay rather than a historical FY2025-26 fleet snapshot.
-- Coal, oil and gas, and bio-power generators retain the statewide build
-  template's commitment flags, start/shut-down costs, minimum up/down times,
-  and ramp limits. Some geographically unspecified aggregate bio-power records are
+- Coal marginal costs are station energy charges from 2024+ regulatory orders
+  (TNERC FY2023-24 true-up and the JERC Puducherry FY2025-26 tariff order),
+  set per component from `data/model_inputs/coal_operating_costs.csv`; they
+  range from INR 2,720/MWh (NNTPS) to INR 6,190/MWh (Mettur TPS-II). Coal
+  start-up and shut-down costs come from CEA's August 2026 two-shift study of
+  Tuticorin TPS (INR 7,376 per MW per stop-start cycle for 210 MW units),
+  scaled to larger units with CEA's January 2025 start-up oil norms. See
+  `docs/input-data.md` for sources, proxies and limitations;
+  `model/coal_operating_cost_audit.csv` lists the applied values.
+- Coal, oil and gas, and bio-power generators otherwise retain the statewide
+  build template's commitment flags, minimum up/down times, and ramp limits;
+  oil and gas, diesel and bio-power keep placeholder marginal and start-up
+  costs. Some geographically unspecified aggregate bio-power records are
   split across areas, so each allocated part is independently committable.
 - Explicitly off-grid capacity is excluded from the modeled fleet. This removes
   the 75.91 MW off-grid solar category and the 27.57 MW off-grid waste-to-energy

@@ -20,6 +20,7 @@ from transmission_assumptions import (
     interconnector_efficiency,
 )
 
+from build_unit_level_model import COAL_CYCLE_COST_PER_MW
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
 
@@ -43,6 +44,19 @@ REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_
 REA_PLANT_EXPORT_HOURLY_FILE = SOURCE_DIR / "rea_plant_export_hourly_FY2025_26.csv"
 REA_PLANT_EXPORT_AUDIT_FILE = SOURCE_DIR / "rea_plant_export_mapping_audit_FY2025_26.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
+# Station energy charges and physical unit sizes for every coal component
+# (sources in docs/input-data.md).
+COAL_OPERATING_COST_FILE = SOURCE_DIR / "coal_operating_costs.csv"
+# CEA, "Recommendations on Operational norms of secondary fuel oil
+# consumption" to CERC (13 Jan 2025): oil per hot start-up (kl) by unit
+# series. Used only to scale the Tuticorin (210 MW) cycling cost per MW to
+# other unit sizes.
+CEA_HOT_START_OIL_KL = {210: 20.0, 500: 30.0, 660: 45.0, 800: 60.0}
+COAL_CYCLE_COST_REFERENCE_SERIES_MW = 210
+# Hours committable coal units are treated as already online before the first
+# modelled hour. Any value of at least the longest minimum up/down time makes
+# the whole pre-horizon history "on"; one week is used for readability.
+COAL_INITIAL_UP_HOURS = 168
 OBSERVED_GENERATION_FILE = (
     ROOT
     / "data"
@@ -1882,6 +1896,114 @@ def allocate_mechanisms(
     return pd.DataFrame(output_rows, columns=mechanisms.columns), pd.DataFrame(metadata_rows)
 
 
+def cea_start_up_series(physical_unit_mw: float) -> int:
+    """Map a physical unit rating to the CEA start-up oil norm series."""
+    if physical_unit_mw < 300:
+        return 210
+    if physical_unit_mw < 650:
+        return 500
+    if physical_unit_mw < 750:
+        return 660
+    return 800
+
+
+def coal_cycle_cost_per_mw(physical_unit_mw: float) -> float:
+    """Return the stop-start cycling cost (INR per MW of capacity) for a unit.
+
+    The CEA Tuticorin two-shift cost is measured on 210 MW units. Larger units
+    need less start-up oil per MW (CEA 2025 hot-start norms), so the per-MW
+    cost is scaled by the ratio of oil per start per MW of the unit's series to
+    that of the 210 MW series.
+    """
+    series = cea_start_up_series(physical_unit_mw)
+    reference = COAL_CYCLE_COST_REFERENCE_SERIES_MW
+    scale = (CEA_HOT_START_OIL_KL[series] / series) / (
+        CEA_HOT_START_OIL_KL[reference] / reference
+    )
+    return COAL_CYCLE_COST_PER_MW * scale
+
+
+def apply_coal_operating_costs(
+    generators: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Set station energy charges and size-scaled cycling costs for coal.
+
+    Every coal component must match exactly one row of
+    ``coal_operating_costs.csv``. Committable units get equal start-up and
+    shut-down costs (half the cycle cost each), which keeps PyPSA's
+    tightening constraints for linearized unit commitment active.
+    """
+    table = pd.read_csv(COAL_OPERATING_COST_FILE)
+    generators = generators.copy()
+    coal = generators["carrier"].eq("coal")
+    names = generators.loc[coal, "name"].astype(str)
+    matched_row = pd.Series(-1, index=names.index)
+    for position, row in table.iterrows():
+        hits = names.str.fullmatch(row["component_regex"])
+        if not hits.any():
+            raise ValueError(f"Coal cost row matches no component: {row['component_regex']}")
+        if (matched_row[hits] >= 0).any():
+            raise ValueError(f"Coal components match more than one cost row: {row['component_regex']}")
+        matched_row[hits] = position
+    if (matched_row < 0).any():
+        missing = names[matched_row < 0].tolist()
+        raise ValueError(f"Coal components without an operating-cost row: {missing}")
+
+    audit_rows: list[dict[str, object]] = []
+    for index, position in matched_row.items():
+        row = table.loc[position]
+        generators.at[index, "marginal_cost"] = float(row["energy_charge_inr_per_mwh"])
+        committable = bool(generators.at[index, "committable"])
+        physical = row["physical_unit_mw"]
+        cycle_cost = np.nan
+        series = np.nan
+        if committable:
+            if pd.isna(physical):
+                raise ValueError(f"Committable coal unit {names[index]} needs physical_unit_mw")
+            series = cea_start_up_series(float(physical))
+            cycle_cost = coal_cycle_cost_per_mw(float(physical))
+            transition = float(generators.at[index, "p_nom"]) * cycle_cost / 2.0
+            generators.at[index, "start_up_cost"] = transition
+            generators.at[index, "shut_down_cost"] = transition
+        audit_rows.append({
+            "name": names[index],
+            "station": row["station"],
+            "p_nom_mw": float(generators.at[index, "p_nom"]),
+            "committable": committable,
+            "energy_charge_inr_per_mwh": float(row["energy_charge_inr_per_mwh"]),
+            "charge_basis": row["charge_basis"],
+            "source_id": row["source_id"],
+            "physical_unit_mw": physical,
+            "cea_start_up_series_mw": series,
+            "cycle_cost_inr_per_mw": cycle_cost,
+            "start_up_cost_inr": generators.at[index, "start_up_cost"] if committable else 0.0,
+        })
+    return generators, pd.DataFrame(audit_rows)
+
+
+def set_coal_initially_online(generators: pd.DataFrame) -> pd.DataFrame:
+    """Start committable coal units online instead of cold.
+
+    The template marks every thermal unit as offline before the first hour
+    (``down_time_before`` = minimum down time), which makes the whole coal
+    fleet start at 00:00 on 1 April. Observed Tamil Nadu coal generation on
+    1 April 2025 was 196.6 MU (about 8.2 GW on average), so the fleet was
+    running. Committable coal units are therefore online before the horizon,
+    with no first-hour ramp reference (``p_init`` unknown) so the optimizer
+    chooses the opening dispatch and pays shut-down costs for units it turns
+    off. Other committable units keep the template's offline start.
+    """
+    generators = generators.copy()
+    coal = generators["carrier"].eq("coal") & generators["committable"].fillna(False).astype(bool)
+    longest = generators.loc[coal, ["min_up_time", "min_down_time"]].max().max()
+    if coal.any() and COAL_INITIAL_UP_HOURS < longest:
+        raise ValueError("COAL_INITIAL_UP_HOURS must cover the longest minimum up/down time")
+    generators.loc[coal, "up_time_before"] = COAL_INITIAL_UP_HOURS
+    generators.loc[coal, "down_time_before"] = 0
+    generators.loc[coal, "p_init"] = np.nan
+    return generators
+
+
 def read_additional_capacity(
     district_to_area: dict[str, str],
 ) -> pd.DataFrame:
@@ -2802,8 +2924,11 @@ def main() -> None:
     generators.loc[
         generators["carrier"].eq("solar"), "marginal_cost"
     ] = SOLAR_CURTAILMENT_PREFERENCE_COST
+    generators, coal_operating_cost_audit = apply_coal_operating_costs(generators)
+    generators = set_coal_initially_online(generators)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    coal_operating_cost_audit.to_csv(OUTPUT_DIR / "coal_operating_cost_audit.csv", index=False)
     # Earlier builds wrote annual energy GlobalConstraints; a stale file would
     # still be imported by PyPSA and make part-year solves infeasible.
     (OUTPUT_DIR / "global_constraints.csv").unlink(missing_ok=True)

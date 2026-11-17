@@ -1,0 +1,61 @@
+name,station,p_nom_mw,committable,energy_charge_inr_per_mwh,charge_basis,source_id,physical_unit_mw,cea_start_up_series_mw,cycle_cost_inr_per_mw,start_up_cost_inr
+itpcl_or_cuddalore_tpp__unit_01,ITPCL Cuddalore,600.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+itpcl_or_cuddalore_tpp__unit_02,ITPCL Cuddalore,600.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+mettur_tps__unit_01,Mettur TPS-I,210.0,True,5400.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+mettur_tps__unit_02,Mettur TPS-I,210.0,True,5400.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+mettur_tps__unit_03,Mettur TPS-I,210.0,True,5400.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+mettur_tps__unit_04,Mettur TPS-I,210.0,True,5400.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+mettur_tps__unit_05,Mettur TPS-II,600.0,True,6190.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+muthiara_tpp__unit_01,Coastal Energen Mutiara,600.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+muthiara_tpp__unit_02,Coastal Energen Mutiara,600.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+neyveli_ext_tps_i__unit_01,NLC TPS-I Expansion,87.07624999999997,True,2920.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,321137.2099999999
+neyveli_ext_tps_i__unit_02,NLC TPS-I Expansion,87.07624999999997,True,2920.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,321137.2099999999
+neyveli_ext_tps_ii__unit_01,NLC TPS-II Expansion,135.5,True,3240.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,250.0,210.0,7376.0,499724.0
+neyveli_ext_tps_ii__unit_02,NLC TPS-II Expansion,135.5,True,3240.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,250.0,210.0,7376.0,499724.0
+neyveli_new_tpp_neyveli_extension__unit_01,NLC New Neyveli TPS (NNTPS),316.27250000000004,True,2720.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,734840.1774
+neyveli_new_tpp_neyveli_extension__unit_02,NLC New Neyveli TPS (NNTPS),316.27250000000004,True,2720.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,734840.1774
+neyveli_tps_z__unit_01,TAQA Neyveli (ST-CMS),250.0,True,4590.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,250.0,210.0,7376.0,922000.0
+neyveli_tps_ii__unit_03,NLC TPS-II Stage I,122.66666666666667,True,3320.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,452394.6666666667
+neyveli_tps_ii__unit_02,NLC TPS-II Stage I,122.66666666666667,True,3320.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,452394.6666666667
+neyveli_tps_ii__unit_01,NLC TPS-II Stage I,122.66666666666667,True,3320.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,452394.6666666667
+neyveli_tps_ii__unit_04,NLC TPS-II Stage II,118.26249999999999,True,3300.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,436152.1
+neyveli_tps_ii__unit_05,NLC TPS-II Stage II,118.26249999999999,True,3300.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,436152.1
+neyveli_tps_ii__unit_06,NLC TPS-II Stage II,118.26249999999999,True,3300.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,436152.1
+neyveli_tps_ii__unit_07,NLC TPS-II Stage II,118.26249999999999,True,3300.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,210.0,210.0,7376.0,436152.1
+north_chennai_tps__unit_01,North Chennai TPS-I,210.0,True,3590.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+north_chennai_tps__unit_02,North Chennai TPS-I,210.0,True,3590.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+north_chennai_tps__unit_03,North Chennai TPS-I,210.0,True,3590.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+north_chennai_tps__unit_05,North Chennai TPS-II,600.0,True,4110.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+north_chennai_tps__unit_04,North Chennai TPS-II,600.0,True,4110.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,600.0,500.0,4646.88,1394064.0
+north_chennai_tps__unit_06,North Chennai TPS-III,800.0,True,4110.0,proxy,TNERC_TRUEUP_FY2023_24,800.0,800.0,5808.599999999999,2323440.0
+opg_power_generation_private_ltd__unit_01,OPG Power Gummidipoondi,4.459999999999994,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,77.0,210.0,7376.0,16448.479999999978
+opg_power_generation_private_ltd__unit_02,OPG Power Gummidipoondi,4.459999999999994,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,77.0,210.0,7376.0,16448.479999999978
+opg_power_generation_private_ltd__unit_03,OPG Power Gummidipoondi,80.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,80.0,210.0,7376.0,295040.0
+opg_power_generation_private_ltd__unit_04,OPG Power Gummidipoondi,10.500000000000028,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,180.0,210.0,7376.0,38724.0000000001
+tcp_limited__unit_01,TCP Limited,63.5,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,63.5,210.0,7376.0,234188.0
+tulsyan_nec_limited__unit_01,Tulsyan NEC,7.5,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,35.0,210.0,7376.0,27660.0
+tulsyan_nec_limited__unit_02,Tulsyan NEC,7.5,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,35.0,210.0,7376.0,27660.0
+tuticorin_p_tpp__unit_01,Tuticorin private TPP,150.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,150.0,210.0,7376.0,553200.0
+tuticorin_p_tpp__unit_02,Tuticorin private TPP,150.0,True,4280.0,proxy,TNERC_TRUEUP_FY2023_24,150.0,210.0,7376.0,553200.0
+tuticorin_joint_venture__unit_01,NTPL Tuticorin,93.935,True,4340.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,218252.3364
+tuticorin_joint_venture__unit_02,NTPL Tuticorin,93.935,True,4340.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,218252.3364
+tuticorin_tps__unit_01,Tuticorin TPS,210.0,True,3800.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+tuticorin_tps__unit_02,Tuticorin TPS,210.0,True,3800.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+tuticorin_tps__unit_03,Tuticorin TPS,210.0,True,3800.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+tuticorin_tps__unit_05,Tuticorin TPS,210.0,True,3800.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+tuticorin_tps__unit_04,Tuticorin TPS,210.0,True,3800.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,210.0,210.0,7376.0,774480.0
+tuticorin_thermal_power_plant__unit_01,SEPC Tuticorin,525.0,True,4280.0,FY2023-24 actual,TNERC_TRUEUP_FY2023_24,525.0,500.0,4646.88,1219806.0
+vallur_tpp__unit_01,NTECL Vallur,218.81666666666663,True,4090.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,508407.39599999995
+vallur_tpp__unit_02,NTECL Vallur,218.81666666666663,True,4090.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,508407.39599999995
+vallur_tpp__unit_03,NTECL Vallur,218.81666666666663,True,4090.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,500.0,500.0,4646.88,508407.39599999995
+rea_export_reservation__nlc_tamil_nadu_power_ltd_tuticorin,NTPL Tuticorin,812.13,False,4340.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__ntecl_vallur_stps,NTECL Vallur,843.5500000000001,False,4090.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__neyveli_new_thermal_power_project,NLC New Neyveli TPS (NNTPS),367.455,False,2720.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__neyveli_tps_i_expansion,NLC TPS-I Expansion,245.84750000000005,False,2920.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__neyveli_tps_ii_stage_i,NLC TPS-II Stage I,262.0,False,3320.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__neyveli_tps_ii_stage_ii,NLC TPS-II Stage II,366.95,False,3300.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__opg_power_generation_private_ltd_unit_1,OPG Power Gummidipoondi,72.54,False,4280.0,proxy,TNERC_TRUEUP_FY2023_24,,,,0.0
+rea_export_reservation__opg_power_generation_private_ltd_unit_4,OPG Power Gummidipoondi,169.49999999999997,False,4280.0,proxy,TNERC_TRUEUP_FY2023_24,,,,0.0
+rea_export_reservation__neyveli_tps_ii_expansion,NLC TPS-II Expansion,229.0,False,3240.0,FY2025-26 approved,JERC_PUDUCHERRY_FY2025_26,,,,0.0
+rea_export_reservation__opg_power_generation_private_ltd_unit_2,OPG Power Gummidipoondi,72.54,False,4280.0,proxy,TNERC_TRUEUP_FY2023_24,,,,0.0
+rea_export_reservation__tulsyan_nec_limited,Tulsyan NEC,55.0,False,4280.0,proxy,TNERC_TRUEUP_FY2023_24,,,,0.0

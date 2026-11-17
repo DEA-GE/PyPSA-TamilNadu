@@ -48,7 +48,7 @@ configure_for_pypsa_124()
 # Increment when either the model inputs or rolling-solve acceptance policy changes.
 # This prevents resume from combining checkpoints made under different objectives
 # or solver-quality criteria.
-CHECKPOINT_MODEL_VERSION = "period-energy-targets-transmission-losses-v7"
+CHECKPOINT_MODEL_VERSION = "coal-costs-initial-online-v8"
 
 # Widths are fractions of usable storage capacity. Proxy observations receive
 # wider bands than direct Agriculture measurements. Slack costs use the same
