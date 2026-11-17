@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import threading
 import time
 import warnings
@@ -479,6 +480,28 @@ def _hydro_terminal_error(
     return float(sum(violations)), float(max(violations, default=0.0))
 
 
+NODAL_BALANCE_DUAL = "Bus-nodal_balance"
+_SPLIT_NODAL_BALANCE = re.compile(r"^Bus-meshed-\d+-nodal_balance$")
+
+
+def _merge_nodal_balance_duals(duals: xr.Dataset) -> xr.Dataset:
+    """Combine PyPSA's split bus-balance duals into one ``Bus-nodal_balance``.
+
+    PyPSA 1.x puts buses with many attached components into separate
+    constraints (``Bus-meshed-30-nodal_balance`` for more than 30, and so on).
+    In this model eight of the nine Tamil Nadu buses land there, so
+    ``Bus-nodal_balance`` alone has prices only for Chennai South and the
+    external buses. Each bus belongs to exactly one of these constraints.
+    """
+    split = sorted(name for name in duals.data_vars if _SPLIT_NODAL_BALANCE.match(str(name)))
+    if not split:
+        return duals
+    merged = duals[NODAL_BALANCE_DUAL] if NODAL_BALANCE_DUAL in duals else None
+    for name in split:
+        merged = duals[name] if merged is None else merged.combine_first(duals[name])
+    return duals.drop_vars(split).assign({NODAL_BALANCE_DUAL: merged})
+
+
 def _write_shadow_prices(network: pypsa.Network, path: Path) -> int:
     """Persist every Linopy constraint dual without relying on PyPSA mapping."""
     with warnings.catch_warnings():
@@ -500,6 +523,7 @@ def _write_shadow_prices(network: pypsa.Network, path: Path) -> int:
     for name in duals.coords:
         if duals[name].dtype == object:
             duals = duals.assign_coords({name: duals[name].astype(str)})
+    duals = _merge_nodal_balance_duals(duals)
     temporary = path.with_suffix(path.suffix + ".tmp")
     encoding = {
         name: {"zlib": True, "complevel": 4, "shuffle": True}
