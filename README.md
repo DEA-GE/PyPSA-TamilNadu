@@ -59,7 +59,7 @@ If `python` is not on your path, use the Python executable from your environment
 
 4. When the solve finishes, the runner builds a results report and prints its
    location. With the settings above, the run folder is
-   `results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/`. Open
+   `results/run_results/daily_2025-07-11_relaxed/daily_demo/`. Open
    `results_report.html` there. It is a single self-contained file, with
    figures embedded, that you can share. The folder also holds
    `validation.json`, the CSV comparisons, `solved_network.nc`, the
@@ -121,7 +121,7 @@ python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-analysis
 python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-profile
 
 # Repeat an earlier run exactly from its saved settings
-python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/run_config.yaml
+python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed/daily_demo/run_config.yaml
 ```
 
 `run_model.py` exits with 0 on success, with 1 if the config is invalid or the
@@ -142,7 +142,7 @@ the run's `profile/highs/` folder instead.
 | `selected_weeks.week_starts` | For `selected_weeks` only, list one or more first days of seven-day test periods as `YYYY-MM-DD` dates. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
 | `selected_weeks.warmup_days`, `selected_weeks.lookahead_days` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
 | `selected_weeks.reservoir_initial_soc_fraction` | For `selected_weeks` only, choose a value from 0 to 1 for initial reservoir state of charge where no observed or documented proxy level is available. The default is `0.5`; test sensitivity when the fallback matters. |
-| `formulation.unit_commitment` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. |
+| `formulation.unit_commitment` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. Result folders are categorised by this setting: `_UC` (`full`), `_relaxed`, or `_LP` (`none`). |
 | `solver.name` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
 | `solver.threads` | Leave as `Default` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
 | `solver.parallel_workers` | Leave as `Default` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
@@ -210,7 +210,7 @@ outputs only. To rebuild a report for any existing run folder, for example
 after an interrupted rolling run:
 
 ```powershell
-python scripts/build_results_report.py results/run_results/rolling_2025-04-01_2026-03-31_relaxed_uc/relaxed_lp
+python scripts/build_results_report.py results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed
 ```
 
 Add `--runner-outputs-only` to skip loading the solved networks (fast), or
@@ -233,7 +233,11 @@ a solved network in their run folder; selected weeks save one network per week,
 and rolling runs save retained checkpoints. Annual and short continuous runs save
 one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
-date or period and has a `_relaxed_uc` or `_none_uc` suffix when applicable.
+date or period and ends with the unit-commitment category: `_UC` for `full`,
+`_relaxed` for `relaxed`, and `_LP` for `none`. Runs made before these
+categories used no suffix for `full`, `_relaxed_uc`, and `_none_uc`; resuming
+such a rolling or selected-week run under the same `run.name` keeps using its
+old folder, so its checkpoints are reused.
 `run_model.py` prints the exact path after each run. No mode introduces equipment
 faults or outages.
 
@@ -254,10 +258,10 @@ the first day of an independent seven-day test period. Each optimization also
 includes `warmup_days` before the retained week and `lookahead_days` after it. Only the
 seven test days enter the reported comparison. The complete solved network,
 daily tables, validation, and plot for each week are written under
-`results/run_results/selected_weeks/<run_name>/week_YYYY-MM-DD/` for full unit
-commitment. Combined outputs and `selected_week_log.csv` are written in the
-`<run_name>/` folder. For relaxed or no-commitment runs, the mode folder has a
-`_relaxed_uc` or `_none_uc` suffix.
+`results/run_results/selected_weeks_UC/<run_name>/week_YYYY-MM-DD/` for full
+unit commitment. Combined outputs and `selected_week_log.csv` are written in the
+`<run_name>/` folder. For relaxed or no-commitment runs, the mode folder ends in
+`_relaxed` or `_LP` instead.
 With `run.resume: true`, a completed week is reused when its model version,
 solver, MIP gap, warm-up, look-ahead, and reservoir initial-SOC settings match
 the current run.
@@ -324,7 +328,7 @@ start/shut-down history across weekly boundaries. Equal start-up and shut-down
 costs activate PyPSA's additional tightening constraints. HiGHS uses explicit
 parallel solver settings appropriate to the selected LP or MIP formulation.
 Completed windows are checkpointed under
-`results/run_results/rolling_2025-04-01_2026-03-31_relaxed_uc/rolling_relaxed/weekly_networks/`
+`results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed/weekly_networks/`
 with `config/runs/rolling_relaxed.yaml`; keep
 `run.resume: true` to continue an interrupted run. The final one-day window has
 no look-ahead because it reaches the end of the available input horizon.
@@ -349,7 +353,7 @@ python scripts/analyze_results.py results/tamil_nadu_9ba_2025_26.nc
 ```
 
 If peak mode was run with `scripts/run_model.py` instead, its run folder, for
-example `results/run_results/peak_2025-07-07/baseline/` when
+example `results/run_results/peak_2025-07-07_UC/baseline/` when
 `formulation.unit_commitment: full` and `run.name: baseline`, already has a
 results report and can be passed to either analysis script.
 

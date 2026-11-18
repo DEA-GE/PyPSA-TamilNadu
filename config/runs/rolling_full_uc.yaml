@@ -1,4 +1,5 @@
 # Full-year rolling run with binary unit commitment (slowest, most detailed).
+# Results go to results/run_results/rolling_2025-04-01_2026-03-31_UC/rolling_full_uc/.
 #   python scripts/run_model.py config/runs/rolling_full_uc.yaml
 run:
   name: rolling_full_uc

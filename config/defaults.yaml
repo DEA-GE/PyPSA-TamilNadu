@@ -33,6 +33,7 @@ selected_weeks:                   # used by mode: selected_weeks only
 formulation:
   # full: binary on/off (MIP); relaxed: continuous on/off (LP, approximate);
   # none: no on/off decisions or minimum stable output. annual requires none.
+  # Result folders are categorised as _UC (full), _relaxed or _LP (none).
   unit_commitment: relaxed
 
 solver:
