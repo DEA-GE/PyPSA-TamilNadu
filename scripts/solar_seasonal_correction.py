@@ -108,7 +108,9 @@ def fiscal_year(dates: pd.DatetimeIndex) -> pd.Index:
 
 
 def file_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    """SHA-256 of the file with line endings normalised, so Git's CRLF/LF
+    conversion on different platforms does not change it."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest().upper()
 
 
 # --- Inputs ----------------------------------------------------------------
