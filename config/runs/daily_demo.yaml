@@ -1,0 +1,12 @@
+# First run: one relaxed day on a single thread (a few minutes).
+#   python scripts/run_model.py config/runs/daily_demo.yaml
+run:
+  name: daily_demo
+  mode: daily
+  reference_date: "2025-07-11"
+
+formulation:
+  unit_commitment: relaxed
+
+solver:
+  threads: 1

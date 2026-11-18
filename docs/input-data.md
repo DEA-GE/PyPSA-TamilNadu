@@ -462,7 +462,7 @@ GWh) rows; `comparable_total` is the supplied and reconciled NITI total of
 
 `data/source/Capacity_Metatable_Data_Sept26.xlsx` contains the latest supplied
 Tamil Nadu installed-capacity benchmark. The analysis loader selects the latest
-dated Tamil Nadu row set (2026-27); the main run notebook and run scripts export
+dated Tamil Nadu row set (2026-27); the run scripts export
 and display an `installed_capacity_comparison` table against that benchmark.
 
 `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`

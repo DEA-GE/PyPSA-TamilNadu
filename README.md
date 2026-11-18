@@ -3,7 +3,7 @@
 This repository contains the hourly, nine-balancing-area PyPSA
 unit-commitment model for Tamil Nadu. It is the repository's only supported
 model. The ready-to-load PyPSA CSV folder is `model/`. See [How to run](#how-to-run)
-for environment setup, rebuilding, and notebook settings. To load the network
+for environment setup, rebuilding, and run configuration. To load the network
 programmatically:
 
 ```python
@@ -25,7 +25,8 @@ input, see [Input data guide](docs/input-data.md).
 | `data/source/` | Source workbooks and supporting datasets |
 | `data/reservoirs/` | Validated reservoir observations used by the hydro model |
 | `scripts/` | Build, run, validation, analysis, and data-collection utilities |
-| `notebooks/` | Interactive run and analysis workflows |
+| `config/` | YAML run configurations: `defaults.yaml` plus one file per run in `runs/` |
+| `notebooks/` | Interactive analysis workflows |
 | `results/` | Local generated outputs; ignored by Git except for its README |
 
 ## How to run
@@ -49,77 +50,131 @@ If `python` is not on your path, use the Python executable from your environment
    python scripts/build_9ba_model.py
    ```
 
-3. Start Jupyter from the repository root and open
-   `notebooks/9BA_run_model.ipynb`:
+3. For a first solve, run the one-day example config. It solves 11 July 2025
+   with relaxed unit commitment on one thread and finishes in under a minute:
 
    ```powershell
-   python -m jupyter lab
+   python scripts/run_model.py config/runs/daily_demo.yaml
    ```
 
-4. For a first, one-day solve, change these five values in the notebook's
-   **USER SETTINGS** cell. The checked-in notebook otherwise starts a full-year
-   rolling run, which takes substantially longer.
-
-   ```python
-   RUN_MODE = "daily"
-   REFERENCE_DATE = "2025-07-11"
-   UNIT_COMMITMENT = "relaxed"
-   RUN_NAME = "daily_demo"
-   SOLVER_THREADS = 1
-   ```
-
-5. Choose **Run All Cells** in Jupyter. The final cell prints the solved
-   period, validation results, comparison plot, and exact output directory.
-   With the settings above, the directory is
-   `results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/`. Inspect
-   `validation.json` and `daily_generation_comparison.png` there. The folder
-   also contains CSV comparisons and `solved_network.nc`.
+4. When the solve finishes, the runner builds a results report and prints its
+   location. With the settings above, the run folder is
+   `results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/`. Open
+   `results_report.html` there. It is a single self-contained file, with
+   figures embedded, that you can share. The folder also holds
+   `validation.json`, the CSV comparisons, `solved_network.nc`, the
+   standardized `analysis/` tables and figures, and `run_config.yaml`, which
+   records the exact settings used.
 
 The loaded `model/` network carries no energy targets, so
 `network.optimize(snapshots=network.snapshots[:24])` is feasible but is not
-calibrated to observed generation. Use the notebook runner for calibrated runs:
-every mode applies the observed oil-and-gas and nuclear targets for each solved
-day, and the bio-power and small-hydro targets over the solved period
+calibrated to observed generation. Use `scripts/run_model.py` for calibrated
+runs: every mode applies the observed oil-and-gas and nuclear targets for each
+solved day, and the bio-power and small-hydro targets over the solved period
 (`scripts/period_energy_targets.py`).
 
-### Notebook parameters
+### Run configuration
 
-For a rolling relaxed run, use settings such as:
+Runs are configured with YAML files. `config/defaults.yaml` holds every
+setting with its default and a comment. A run config in `config/runs/` is
+merged on top of it, so it only lists what differs. Unknown sections or keys
+are rejected before the network is loaded, so a typo fails immediately.
 
-```python
-RUN_MODE = "rolling"
-REFERENCE_DATE = "2025-07-11" # ignored for peak, selected_weeks, and rolling
-WEEK_STARTS = ["2025-04-07", "2025-07-07", "2025-10-13", "2026-02-16"]
-WARMUP_DAYS = 1
-LOOKAHEAD_DAYS = 1
-RESERVOIR_INITIAL_SOC_FRACTION = 0.5
-SOLVER_NAME = "highs"
-SOLVER_THREADS = "Default"  # uses the runner's 8-thread relaxed default
-PARALLEL_WORKERS = "Default"  # backend default; rolling runs still use one effective worker
-MIP_REL_GAP = 0.01
-UNIT_COMMITMENT = "relaxed"
-RUN_NAME = "relaxed_lp"
-ROLLING_TIME_LIMIT = "Default"
-ROLLING_MAX_TIME_LIMIT_MIP_GAP = 0.10
-RESUME = True
+| Config | Run |
+| --- | --- |
+| `config/runs/daily_demo.yaml` | One relaxed day on one thread; use it for a first run |
+| `config/runs/rolling_relaxed.yaml` | Full-year rolling run, relaxed unit commitment |
+| `config/runs/rolling_full_uc.yaml` | Full-year rolling run, binary unit commitment |
+| `config/runs/selected_weeks_relaxed.yaml` | Four independent seasonal test weeks |
+| `config/runs/annual_lp.yaml` | All 8,760 hours as one no-unit-commitment LP |
+
+For a new study, copy one of these files, give `run.name` a new value, and
+change the settings you need. A rolling relaxed run config looks like this:
+
+```yaml
+run:
+  name: relaxed_lp
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10
 ```
 
-| Parameter | How to set it |
+Useful command-line options:
+
+```powershell
+# Check the merged settings without solving
+python scripts/run_model.py config/runs/rolling_relaxed.yaml --dry-run
+
+# Override single settings without editing the file
+python scripts/run_model.py config/runs/rolling_relaxed.yaml --set run.name=relaxed_test --set rolling.max_windows=2
+
+# Solve only; skip the results analysis and report
+python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-analysis
+
+# Repeat an earlier run exactly from its saved settings
+python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/run_config.yaml
+```
+
+`run_model.py` exits with 0 on success, with 1 if the config is invalid or the
+solve fails, and with 2 if the solve succeeded but the results analysis failed.
+In that last case the run outputs are kept, and you can rebuild the report
+later. Unless `paths.console_log` is `false`, Python console output is also
+written to `results/run_results/console_logs/<run name>_<UTC time>.log`. HiGHS
+writes its own solver log directly to the terminal, so that log is not in the
+file. To keep it too, pipe the command through `Tee-Object`.
+
+| Setting | How to set it |
 | --- | --- |
-| `RUN_MODE` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, `annual`, or `rolling`. The modes and their output behavior are described below. |
-| `REFERENCE_DATE` | Use a date in `YYYY-MM-DD` format within 1 April 2025–31 March 2026. `daily` runs that date; `monthly` runs every day in its month. It is ignored for the other modes. |
-| `WEEK_STARTS` | For `selected_weeks` only, supply one or more first days of seven-day test periods as `YYYY-MM-DD` strings. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
-| `WARMUP_DAYS`, `LOOKAHEAD_DAYS` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
-| `RESERVOIR_INITIAL_SOC_FRACTION` | For `selected_weeks` only, choose a value from 0 to 1 for initial reservoir state of charge where no observed or documented proxy level is available. The checked-in value is `0.5`; test sensitivity when the fallback matters. |
-| `UNIT_COMMITMENT` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `MIP_REL_GAP` applies only to `full`. |
-| `RUN_NAME` | Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
-| `SOLVER_NAME` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
-| `SOLVER_THREADS` | Leave as `"Default"` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
-| `PARALLEL_WORKERS` | Leave as `"Default"` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
-| `MIP_REL_GAP` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
-| `ROLLING_TIME_LIMIT` | For `rolling` only. `"Default"` sets a per-attempt limit by `UNIT_COMMITMENT`: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `None` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `None` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
-| `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
-| `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `RUN_NAME` when changing study assumptions. |
+| `run.mode` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, `annual`, or `rolling`. The modes and their output behavior are described below. |
+| `run.name` | Required. Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
+| `run.reference_date` | Use a date in `YYYY-MM-DD` format within 1 April 2025–31 March 2026. `daily` runs that date; `monthly` runs every day in its month. It is ignored for the other modes. |
+| `run.resume` | `true` reuses compatible completed selected-week solves or rolling checkpoints; `false` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `run.name` when changing study assumptions. |
+| `selected_weeks.week_starts` | For `selected_weeks` only, list one or more first days of seven-day test periods as `YYYY-MM-DD` dates. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
+| `selected_weeks.warmup_days`, `selected_weeks.lookahead_days` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
+| `selected_weeks.reservoir_initial_soc_fraction` | For `selected_weeks` only, choose a value from 0 to 1 for initial reservoir state of charge where no observed or documented proxy level is available. The default is `0.5`; test sensitivity when the fallback matters. |
+| `formulation.unit_commitment` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. |
+| `solver.name` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
+| `solver.threads` | Leave as `Default` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
+| `solver.parallel_workers` | Leave as `Default` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
+| `solver.mip_rel_gap` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
+| `rolling.time_limit` | For `rolling` only. `Default` sets a per-attempt limit by unit commitment: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `null` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `null` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
+| `rolling.max_time_limit_mip_gap` | For a time-limited `rolling` run with `full` unit commitment, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `solver.mip_rel_gap`. |
+| `rolling.max_windows` | For testing only: stop a rolling run after this many windows. Leave as `null` for a full year. |
+| `paths.network`, `paths.results_root` | Input network and output root. Relative paths are resolved from the repository root. |
+| `analysis.enabled`, `analysis.compare_observed` | Build the results report after the run, and include comparisons with observed generation and capacity. Both default to `true`. |
+
+### Results analysis and report
+
+At the end of a run, `run_model.py` calls `scripts/build_results_report.py`.
+That script:
+
+1. runs the standardized `scripts/results_analysis/` pipeline on every solved
+   network the run kept (`solved_network.nc`, rolling `weekly_networks/`
+   checkpoints, or one network per selected week), and writes its tables and
+   figures to `analysis/` next to them;
+2. writes `results_report.html` in the run folder. The report contains status
+   tiles (solver status, rolling progress, unserved energy, demand, solver
+   time), generation and installed capacity compared with observed values, the
+   daily comparison plot, rolling solve performance from `window_log.csv`, the
+   detailed analysis figures and tables, the full `validation.json`, and the
+   resolved run configuration.
+
+Monthly runs keep no solved networks, so their report covers the runner's own
+outputs only. To rebuild a report for any existing run folder, for example
+after an interrupted rolling run:
+
+```powershell
+python scripts/build_results_report.py results/run_results/rolling_2025-04-01_2026-03-31_relaxed_uc/relaxed_lp
+```
+
+Add `--runner-outputs-only` to skip loading the solved networks (fast), or
+`--no-observed` to leave out observed-data comparisons.
 
 ### Run modes and results
 
@@ -129,7 +184,7 @@ RESUME = True
 | `monthly` | Each day in the month of `REFERENCE_DATE`, solved separately | Commitment and storage state do not carry between days. |
 | `peak` | The continuous Monday–Sunday week containing the annual maximum hourly demand | One 168-hour solve. |
 | `selected_weeks` | Each seven-day period in `WEEK_STARTS`, with configured warm-up and look-ahead | Each period is independent; observed reservoir levels constrain its boundaries. |
-| `annual` | All 8,760 hours in one continuous no-unit-commitment LP | No rolling boundaries or look-ahead. Daily and build-defined weekly operating targets remain constraints inside the one model. Requires `UNIT_COMMITMENT = "none"`. |
+| `annual` | All 8,760 hours in one continuous no-unit-commitment LP | No rolling boundaries or look-ahead. Daily and build-defined weekly operating targets remain constraints inside the one model. Requires `formulation.unit_commitment: none`. |
 | `rolling` | All 8,760 hours in consecutive windows; seven days accepted and one day used for look-ahead | Commitment, dispatch history, and storage state carry between windows. |
 
 Every mode enforces exact daily oil-and-gas and nuclear generation targets and
@@ -139,7 +194,7 @@ and rolling runs save retained checkpoints. Annual and short continuous runs sav
 one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
 date or period and has a `_relaxed_uc` or `_none_uc` suffix when applicable.
-The notebook prints the exact path after each run. No mode introduces equipment
+`run_model.py` prints the exact path after each run. No mode introduces equipment
 faults or outages.
 
 For rolling runs, `window_log.partial.csv` is updated after each completed
@@ -154,23 +209,23 @@ metrics were added will have empty values for the new columns.
 
 ### Selected-week seasonal tests
 
-`RUN_MODE = "selected_weeks"` solves every date in `WEEK_STARTS` as the first
-day of an independent seven-day test period. Each optimization also includes
-`WARMUP_DAYS` before the retained week and `LOOKAHEAD_DAYS` after it. Only the
+`run.mode: selected_weeks` solves every date in `selected_weeks.week_starts` as
+the first day of an independent seven-day test period. Each optimization also
+includes `warmup_days` before the retained week and `lookahead_days` after it. Only the
 seven test days enter the reported comparison. The complete solved network,
 daily tables, validation, and plot for each week are written under
 `results/run_results/selected_weeks/<run_name>/week_YYYY-MM-DD/` for full unit
 commitment. Combined outputs and `selected_week_log.csv` are written in the
 `<run_name>/` folder. For relaxed or no-commitment runs, the mode folder has a
 `_relaxed_uc` or `_none_uc` suffix.
-With `RESUME = True`, a completed week is reused when its model version,
+With `run.resume: true`, a completed week is reused when its model version,
 solver, MIP gap, warm-up, look-ahead, and reservoir initial-SOC settings match
 the current run.
 
 Reservoir state does not transfer across gaps between selected weeks. Each
 independent solve instead uses the nearest available observed daily reservoir
 storage at the retained period's start and constrains the nearest observed
-storage at its end. The configured `RESERVOIR_INITIAL_SOC_FRACTION` is only a
+storage at its end. The configured `reservoir_initial_soc_fraction` is only a
 fallback for assets without an observed or explicitly documented proxy level.
 A full rolling run is still required when the study question needs endogenous
 chronological carry-over rather than observed boundary conditions.
@@ -215,26 +270,27 @@ are reported without an observed-error statistic. Tables and figures are
 written to `results/weekly_days/`. The runner does not introduce equipment
 faults or outages.
 
-For a chronological full-year approximation, open
-`notebooks/9BA_run_model.ipynb` and
-set `RUN_MODE = "rolling"`. Each optimization covers eight days: the first
+For a chronological full-year approximation, run
+`python scripts/run_model.py config/runs/rolling_relaxed.yaml` (or another
+config with `run.mode: rolling`). Each optimization covers eight days: the first
 seven are accepted and exported, while the eighth supplies look-ahead and is
 re-optimized in the next window. Generator dispatch and consecutive on/off
 history, plus storage state of charge, are passed across weekly boundaries.
 Before the first window, committable coal units are online (Tamil Nadu coal
 generation averaged about 8.2 GW on 1 April 2025).
-Set `UNIT_COMMITMENT = "relaxed"` for the continuous linearized formulation.
+Set `formulation.unit_commitment: relaxed` for the continuous linearized formulation.
 The relaxed runner carries fractional status, dispatch, and recent fractional
 start/shut-down history across weekly boundaries. Equal start-up and shut-down
 costs activate PyPSA's additional tightening constraints. HiGHS uses explicit
 parallel solver settings appropriate to the selected LP or MIP formulation.
 Completed windows are checkpointed under
-`results/run_results/rolling_2025-04-01_2026-03-31_relaxed_uc/relaxed_lp/weekly_networks/`
-with the checked-in settings; keep
-`RESUME = True` to continue an interrupted run. The final one-day window has
+`results/run_results/rolling_2025-04-01_2026-03-31_relaxed_uc/rolling_relaxed/weekly_networks/`
+with `config/runs/rolling_relaxed.yaml`; keep
+`run.resume: true` to continue an interrupted run. The final one-day window has
 no look-ahead because it reaches the end of the available input horizon.
 
-After the rolling run is complete, open
+After the rolling run is complete, its `results_report.html` gives the
+standard summary. For interactive exploration, open
 `notebooks/analyze_rolling_year.ipynb` and run all cells. It checks the
 8,760-hour retained chronology and state handoffs, compares monthly and annual
 modeled generation with the observed FY2025-26 workbook, reports full-load
@@ -252,9 +308,10 @@ The same analysis can be run without Jupyter:
 python scripts/analyze_results.py results/tamil_nadu_9ba_2025_26.nc
 ```
 
-If peak mode was run from `9BA_run_model.ipynb` instead, analyze its named run
-folder, for example `results/run_results/peak_2025-07-07/baseline/` when
-`UNIT_COMMITMENT = "full"` and `RUN_NAME = "baseline"`.
+If peak mode was run with `scripts/run_model.py` instead, its run folder, for
+example `results/run_results/peak_2025-07-07/baseline/` when
+`formulation.unit_commitment: full` and `run.name: baseline`, already has a
+results report and can be passed to either analysis script.
 
 ## Model contents
 

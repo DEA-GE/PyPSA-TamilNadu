@@ -1,0 +1,8 @@
+# All 8,760 hours as one no-unit-commitment LP (annual requires unit_commitment: none).
+#   python scripts/run_model.py config/runs/annual_lp.yaml
+run:
+  name: annual_lp
+  mode: annual
+
+formulation:
+  unit_commitment: none
