@@ -234,10 +234,7 @@ and rolling runs save retained checkpoints. Annual and short continuous runs sav
 one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
 date or period and ends with the unit-commitment category: `_UC` for `full`,
-`_relaxed` for `relaxed`, and `_LP` for `none`. Runs made before these
-categories used no suffix for `full`, `_relaxed_uc`, and `_none_uc`; resuming
-such a rolling or selected-week run under the same `run.name` keeps using its
-old folder, so its checkpoints are reused.
+`_relaxed` for `relaxed`, and `_LP` for `none`.
 `run_model.py` prints the exact path after each run. No mode introduces equipment
 faults or outages.
 

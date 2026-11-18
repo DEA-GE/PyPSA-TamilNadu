@@ -78,8 +78,6 @@ DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
 # Result-folder category per unit-commitment mode: <mode label><suffix>/<run name>/.
 UNIT_COMMITMENT_FOLDER_SUFFIX = {"full": "_UC", "relaxed": "_relaxed", "none": "_LP"}
-# Suffixes used before these categories; only consulted to resume older runs.
-LEGACY_UNIT_COMMITMENT_FOLDER_SUFFIX = {"full": "", "relaxed": "_relaxed_uc", "none": "_none_uc"}
 RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
 # Importing the full-year network from the CSV folder is needlessly repeated
@@ -357,29 +355,11 @@ def _validate_run_name(run_name: str) -> str:
 
 
 def _run_output_dir(
-    results_root: Path, base_label: str, unit_commitment: str, run_name: str, resume: bool
+    results_root: Path, base_label: str, unit_commitment: str, run_name: str
 ) -> Path:
-    """Run folder ``<results_root>/<base label>_<UC|relaxed|LP>/<run name>``.
-
-    Runs made before these categories used other suffixes (none for full UC,
-    ``_relaxed_uc``, ``_none_uc``). When resuming a run that only exists under
-    its old folder name, keep using that folder so its checkpoints are reused
-    instead of silently starting a new run.
-    """
-    output_dir = (
-        results_root / f"{base_label}{UNIT_COMMITMENT_FOLDER_SUFFIX[unit_commitment]}" / run_name
-    )
-    if resume and not output_dir.exists():
-        legacy_suffix = LEGACY_UNIT_COMMITMENT_FOLDER_SUFFIX[unit_commitment]
-        legacy_dir = results_root / f"{base_label}{legacy_suffix}" / run_name
-        if legacy_dir.is_dir():
-            print(
-                f"Resuming existing run in its old folder: {legacy_dir}\n"
-                f"(new {unit_commitment} runs are written to {output_dir.parent})",
-                flush=True,
-            )
-            return legacy_dir
-    return output_dir
+    """Run folder ``<results_root>/<base label>_<UC|relaxed|LP>/<run name>``."""
+    suffix = UNIT_COMMITMENT_FOLDER_SUFFIX[unit_commitment]
+    return results_root / f"{base_label}{suffix}" / run_name
 
 
 def _ensure_available(dates: pd.DatetimeIndex, available: pd.DatetimeIndex) -> None:
@@ -1686,9 +1666,7 @@ def _run_selection(
     if len(missing_observed):
         raise ValueError(f"Observed generation is missing {len(missing_observed)} requested day(s).")
 
-    # Only rolling and selected-week runs have checkpoints to resume.
-    resumable = resume and mode in {"rolling", "selected_weeks"}
-    output_dir = _run_output_dir(results_root, label, unit_commitment, run_name, resumable)
+    output_dir = _run_output_dir(results_root, label, unit_commitment, run_name)
     output_dir.mkdir(parents=True, exist_ok=True)
     profile_dir = profiler.attach(output_dir)
     if profile_dir is not None:
