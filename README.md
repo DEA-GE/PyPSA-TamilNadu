@@ -84,7 +84,7 @@ are rejected before the network is loaded, so a typo fails immediately.
 | --- | --- |
 | `config/runs/daily_demo.yaml` | One relaxed day on one thread; use it for a first run |
 | `config/runs/rolling_relaxed.yaml` | Full-year rolling run, relaxed unit commitment |
-| `config/runs/rolling_full_uc.yaml` | Full-year rolling run, binary unit commitment (`UC`) |
+| `config/runs/rolling_full_uc.yaml` | Full-year rolling run, binary unit commitment |
 | `config/runs/selected_weeks_relaxed.yaml` | Four independent seasonal test weeks |
 | `config/runs/annual_lp.yaml` | All 8,760 hours as one no-unit-commitment LP |
 
@@ -142,13 +142,13 @@ the run's `profile/highs/` folder instead.
 | `selected_weeks.week_starts` | For `selected_weeks` only, list one or more first days of seven-day test periods as `YYYY-MM-DD` dates. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
 | `selected_weeks.warmup_days`, `selected_weeks.lookahead_days` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
 | `selected_weeks.reservoir_initial_soc_fraction` | For `selected_weeks` only, choose a value from 0 to 1 for initial reservoir state of charge where no observed or documented proxy level is available. The default is `0.5`; test sensitivity when the fallback matters. |
-| `formulation.unit_commitment` | `UC` uses binary on/off decisions (full unit commitment; `full` is accepted as an alias); `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. Run folders get a `_UC`, `_relaxed_uc`, or `_none_uc` suffix. |
+| `formulation.unit_commitment` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. |
 | `solver.name` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
-| `solver.threads` | Leave as `Default` to use the runner's defaults: 8 for `UC` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `UC` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
+| `solver.threads` | Leave as `Default` to use the runner's defaults: 8 for `full` and `relaxed`, 3 for `none` (LP). Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
 | `solver.parallel_workers` | Leave as `Default` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
-| `solver.mip_rel_gap` | Target relative optimality gap for `UC` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
-| `rolling.time_limit` | For `rolling` only. `Default` sets a per-attempt limit by unit commitment: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `UC`. A positive number of seconds overrides it; `null` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `UC` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `null` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
-| `rolling.max_time_limit_mip_gap` | For a time-limited `rolling` run with `UC` unit commitment, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `solver.mip_rel_gap`. |
+| `solver.mip_rel_gap` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
+| `rolling.time_limit` | For `rolling` only. `Default` sets a per-attempt limit by unit commitment: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `null` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `null` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
+| `rolling.max_time_limit_mip_gap` | For a time-limited `rolling` run with `full` unit commitment, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `solver.mip_rel_gap`. |
 | `rolling.max_windows` | For testing only: stop a rolling run after this many windows. Leave as `null` for a full year. |
 | `paths.network`, `paths.results_root` | Input network and output root. Relative paths are resolved from the repository root. |
 | `analysis.enabled`, `analysis.compare_observed` | Build the results report after the run, and include comparisons with observed generation and capacity. Both default to `true`. |
@@ -233,10 +233,7 @@ a solved network in their run folder; selected weeks save one network per week,
 and rolling runs save retained checkpoints. Annual and short continuous runs save
 one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
-date or period and ends with the unit-commitment suffix: `_UC`, `_relaxed_uc`,
-or `_none_uc`. Full-UC runs made before the `_UC` suffix was introduced live in
-folders without a suffix; resuming one under the same `run.name` keeps using
-that folder.
+date or period and has a `_relaxed_uc` or `_none_uc` suffix when applicable.
 `run_model.py` prints the exact path after each run. No mode introduces equipment
 faults or outages.
 
@@ -257,10 +254,10 @@ the first day of an independent seven-day test period. Each optimization also
 includes `warmup_days` before the retained week and `lookahead_days` after it. Only the
 seven test days enter the reported comparison. The complete solved network,
 daily tables, validation, and plot for each week are written under
-`results/run_results/selected_weeks_UC/<run_name>/week_YYYY-MM-DD/` for full
-unit commitment (`UC`). Combined outputs and `selected_week_log.csv` are written
-in the `<run_name>/` folder. For relaxed or no-commitment runs, the mode folder
-has a `_relaxed_uc` or `_none_uc` suffix instead.
+`results/run_results/selected_weeks/<run_name>/week_YYYY-MM-DD/` for full unit
+commitment. Combined outputs and `selected_week_log.csv` are written in the
+`<run_name>/` folder. For relaxed or no-commitment runs, the mode folder has a
+`_relaxed_uc` or `_none_uc` suffix.
 With `run.resume: true`, a completed week is reused when its model version,
 solver, MIP gap, warm-up, look-ahead, and reservoir initial-SOC settings match
 the current run.
@@ -352,8 +349,8 @@ python scripts/analyze_results.py results/tamil_nadu_9ba_2025_26.nc
 ```
 
 If peak mode was run with `scripts/run_model.py` instead, its run folder, for
-example `results/run_results/peak_2025-07-07_UC/baseline/` when
-`formulation.unit_commitment: UC` and `run.name: baseline`, already has a
+example `results/run_results/peak_2025-07-07/baseline/` when
+`formulation.unit_commitment: full` and `run.name: baseline`, already has a
 results report and can be passed to either analysis script.
 
 ## Model contents

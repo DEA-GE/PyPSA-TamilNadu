@@ -19,10 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULTS_PATH = ROOT / "config" / "defaults.yaml"
 
 RUN_MODES = {"daily", "monthly", "peak", "selected_weeks", "annual", "rolling"}
-# Config spelling -> runner value. "UC" is full binary unit commitment; "full"
-# is still accepted as an alias.
-UNIT_COMMITMENT_MODES = {"UC": "full", "relaxed": "relaxed", "none": "none"}
-_UNIT_COMMITMENT_SPELLINGS = {"uc": "UC", "full": "UC", "relaxed": "relaxed", "none": "none"}
+UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
 LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
 _UNLIMITED = {"none", "null", "unlimited"}
 
@@ -146,13 +143,10 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     )
 
     formulation = config["formulation"]
-    unit_commitment = _UNIT_COMMITMENT_SPELLINGS.get(
-        str(formulation["unit_commitment"]).strip().lower()
-    )
-    if unit_commitment is None:
+    unit_commitment = str(formulation["unit_commitment"]).strip().lower()
+    if unit_commitment not in UNIT_COMMITMENT_MODES:
         raise ConfigError(
-            f"formulation.unit_commitment must be one of {list(UNIT_COMMITMENT_MODES)}, "
-            f"got {formulation['unit_commitment']!r}"
+            f"formulation.unit_commitment must be one of {sorted(UNIT_COMMITMENT_MODES)}"
         )
     if mode == "annual" and unit_commitment != "none":
         raise ConfigError("run.mode 'annual' requires formulation.unit_commitment: none")
@@ -263,7 +257,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "solver_threads": solver["threads"],
         "simplex_strategy": solver["simplex_strategy"],
         "parallel_workers": solver["parallel_workers"],
-        "unit_commitment": UNIT_COMMITMENT_MODES[config["formulation"]["unit_commitment"]],
+        "unit_commitment": config["formulation"]["unit_commitment"],
         "run_name": run["name"],
         "rolling_time_limit": rolling["time_limit"],
         "rolling_max_time_limit_mip_gap": rolling["max_time_limit_mip_gap"],
