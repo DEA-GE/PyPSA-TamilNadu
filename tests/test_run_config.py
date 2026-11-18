@@ -26,11 +26,11 @@ def test_shipped_run_configs_are_valid(path):
 def test_run_config_overrides_only_given_keys(tmp_path):
     path = _write(
         tmp_path / "run.yaml",
-        "run:\n  name: demo\n  mode: rolling\nformulation:\n  unit_commitment: full\n",
+        "run:\n  name: demo\n  mode: rolling\nformulation:\n  unit_commitment: none\n",
     )
     config = load_run_config(path)
     assert config["run"]["mode"] == "rolling"
-    assert config["formulation"]["unit_commitment"] == "full"
+    assert config["formulation"]["unit_commitment"] == "none"
     # Untouched values come from config/defaults.yaml.
     assert config["solver"]["threads"] == "Default"
     assert config["analysis"]["enabled"] is True
@@ -136,6 +136,16 @@ def test_profile_flag_overrides_config(tmp_path, capsys, flag, expected):
     )
     assert run_model.main([str(path), flag, "--dry-run"]) == 0
     assert yaml.safe_load(capsys.readouterr().out)["logging"]["profile"] is expected
+
+
+@pytest.mark.parametrize("spelling", ["UC", "uc", "full", "Full"])
+def test_uc_is_the_name_of_full_unit_commitment(tmp_path, spelling):
+    path = _write(
+        tmp_path / "run.yaml", f"run:\n  name: demo\nformulation:\n  unit_commitment: {spelling}\n"
+    )
+    config = load_run_config(path)
+    assert config["formulation"]["unit_commitment"] == "UC"
+    assert run_selection_kwargs(config)["unit_commitment"] == "full"
 
 
 def test_override_requires_section_and_key():

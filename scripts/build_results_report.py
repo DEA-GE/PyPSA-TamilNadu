@@ -539,6 +539,8 @@ def render_report(
     run_name = validation.get("run_name", result_dir.name)
     mode = validation.get("run_mode", "unknown")
     unit_commitment = validation.get("unit_commitment", "unknown")
+    if unit_commitment == "full":  # runner value for full binary unit commitment
+        unit_commitment = "UC"
     period = f"{validation.get('start_date', '?')} to {validation.get('end_date', '?')}"
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     commit = _git_commit()

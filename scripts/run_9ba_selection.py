@@ -76,6 +76,9 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
+UNIT_COMMITMENT_ALIASES = {"uc": "full"}
+# Output-folder suffix per unit-commitment mode: <mode label><suffix>/<run name>/.
+UNIT_COMMITMENT_LABEL_SUFFIX = {"full": "_UC", "relaxed": "_relaxed_uc", "none": "_none_uc"}
 RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
 # Importing the full-year network from the CSV folder is needlessly repeated
@@ -350,6 +353,29 @@ def _validate_run_name(run_name: str) -> str:
             "and contain only letters, numbers, dots, underscores, or hyphens."
         )
     return value
+
+
+def _run_output_dir(
+    results_root: Path, base_label: str, unit_commitment: str, run_name: str, resume: bool
+) -> Path:
+    """Run folder ``<results_root>/<base label><UC suffix>/<run name>``.
+
+    Full-UC runs used to have no suffix. When resuming a full-UC run that only
+    exists in such an un-suffixed folder, keep using it so its checkpoints are
+    reused instead of silently starting a new run.
+    """
+    suffix = UNIT_COMMITMENT_LABEL_SUFFIX[unit_commitment]
+    output_dir = results_root / f"{base_label}{suffix}" / run_name
+    if unit_commitment == "full" and resume and not output_dir.exists():
+        legacy_dir = results_root / base_label / run_name
+        if legacy_dir.is_dir():
+            print(
+                f"Resuming existing full-UC run in its pre-'_UC' folder: {legacy_dir}\n"
+                f"(new full-UC runs are written to {output_dir.parent})",
+                flush=True,
+            )
+            return legacy_dir
+    return output_dir
 
 
 def _ensure_available(dates: pd.DatetimeIndex, available: pd.DatetimeIndex) -> None:
@@ -1571,8 +1597,12 @@ def _run_selection(
     """
     mode = _normalise_mode(run_mode)
     unit_commitment = str(unit_commitment).strip().lower()
+    # "UC" is the user-facing name of full binary unit commitment.
+    unit_commitment = UNIT_COMMITMENT_ALIASES.get(unit_commitment, unit_commitment)
     if unit_commitment not in UNIT_COMMITMENT_MODES:
-        raise ValueError(f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)}")
+        raise ValueError(
+            f"UNIT_COMMITMENT must be one of {sorted(UNIT_COMMITMENT_MODES)} or 'UC'"
+        )
     if mode == "annual" and unit_commitment != "none":
         raise ValueError("RUN_MODE = 'annual' requires UNIT_COMMITMENT = 'none'.")
     if isinstance(solver_threads, str):
@@ -1647,8 +1677,6 @@ def _run_selection(
         selected_starts = pd.DatetimeIndex([])
         dates, label = _dates_for_mode(mode, reference_date, total_load)
 
-    if unit_commitment != "full":
-        label = f"{label}_{unit_commitment}_uc"
 
     with profiler.phase("read_observed_inputs"):
         observed = read_observed_generation()
@@ -1659,7 +1687,7 @@ def _run_selection(
     if len(missing_observed):
         raise ValueError(f"Observed generation is missing {len(missing_observed)} requested day(s).")
 
-    output_dir = results_root / label / run_name
+    output_dir = _run_output_dir(results_root, label, unit_commitment, run_name, resume)
     output_dir.mkdir(parents=True, exist_ok=True)
     profile_dir = profiler.attach(output_dir)
     if profile_dir is not None:

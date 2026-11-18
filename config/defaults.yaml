@@ -31,22 +31,24 @@ selected_weeks:                   # used by mode: selected_weeks only
   soc_boundary_tolerance_pu: 0.05
 
 formulation:
-  # full: binary on/off (MIP); relaxed: continuous on/off (LP, approximate);
+  # UC: full binary on/off unit commitment (MIP); "full" is accepted as an alias.
+  # relaxed: continuous on/off (LP, approximate);
   # none: no on/off decisions or minimum stable output. annual requires none.
+  # Run folders get a _UC, _relaxed_uc or _none_uc suffix.
   unit_commitment: relaxed
 
 solver:
   name: highs
-  threads: Default                # "Default" (8 for full/relaxed, 3 for none) or 1..8
+  threads: Default                # "Default" (8 for UC/relaxed, 3 for none) or 1..8
   parallel_workers: Default       # "Default" (2) or a positive integer; independent solves only
-  mip_rel_gap: 0.01               # full only; 0.01 = 1 %
+  mip_rel_gap: 0.01               # UC only; 0.01 = 1 %
   simplex_strategy: null          # annual/rolling only: HiGHS simplex_strategy override
 
 rolling:                          # used by mode: rolling only
   # Seconds per window attempt. "Default" = per mode (none 300, relaxed 700,
-  # full 1800); null = unlimited, which disables automatic retries.
+  # UC 1800); null = unlimited, which disables automatic retries.
   time_limit: Default
-  max_time_limit_mip_gap: 0.10    # full only: largest gap accepted at the time limit
+  max_time_limit_mip_gap: 0.10    # UC only: largest gap accepted at the time limit
   max_windows: null               # debugging: stop after this many windows
 
 paths:                            # relative paths are resolved from the repository root
