@@ -120,6 +120,38 @@ RESUME = True
 | `ROLLING_TIME_LIMIT` | For `rolling` only. `"Default"` sets a per-attempt limit by `UNIT_COMMITMENT`: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `None` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `None` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
 | `ROLLING_MAX_TIME_LIMIT_MIP_GAP` | For a time-limited `rolling` run with `UNIT_COMMITMENT = "full"`, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `MIP_REL_GAP`. |
 | `RESUME` | `True` reuses compatible completed selected-week solves or rolling checkpoints; `False` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `RUN_NAME` when changing study assumptions. |
+| `PROFILE` | `True` (the default) writes the run profile described in [Run profiling](#run-profiling); `False` runs without it. |
+
+### Run profiling
+
+Every run writes a `profile/` folder inside its output directory. It records
+where wall-clock time, CPU time, and memory go, so run-time improvements can
+be targeted and measured. The runner prints a short summary at the end of
+the run.
+
+| File | Contents |
+| --- | --- |
+| `run.log` | Timestamped runner, PyPSA, and Linopy messages, and one line for every phase longer than 1 s |
+| `events.jsonl` | One record per phase (for example `run_rolling/window/optimize/build_model`): wall and CPU seconds, average cores, memory at the end, sampled peak memory, and the window, week, day, or solve attempt |
+| `solves.jsonl`, `solves.csv` | One row per solver attempt. The time is split into PyPSA model build, custom constraints, LP-file write, HiGHS model read, HiGHS solve, remaining Linopy transfer, and solution and dual assignment. Each row also has the model size before and after presolve, the largest constraint groups, iteration counts, and MIP statistics (nodes, gap, time to the first incumbent, LP iterations by source) |
+| `highs/*.log` | The complete HiGHS log of every attempt |
+| `resources.csv` | Resource timeline, by default every second: process memory, CPU cores in use, threads, system CPU, available memory, and the active phase |
+| `environment.json`, `run_status.json` | Package versions, hardware, Git revision, and run settings; final status, any error, totals, and peak memory |
+| `summary.txt`, `summary.json` | Phase totals and shares of the run, the solve-time breakdown, and the slowest solves |
+
+Rolling runs also add the accepted attempt's breakdown to each window's
+`profile_*` columns in `window_log.csv`. A failed or interrupted run still
+writes its profile. A repeated run keeps the earlier profile in
+`profile_history/`. To rebuild one summary, or to compare runs side by side:
+
+```powershell
+python scripts/summarize_run_profile.py results/run_results/<label>/<run_name>
+python scripts/summarize_run_profile.py <run A folder> <run B folder>
+```
+
+`run_selection(..., profile_log_level="DEBUG")` adds the libraries' debug
+messages to `run.log`. `profile_sample_interval` sets the timeline sampling
+period in seconds.
 
 ### Run modes and results
 

@@ -30,6 +30,7 @@ import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
+from run_profiling import get_profiler, optimize_profiled
 from nuclear_energy_targets import add_nuclear_targets, generator_dimension, validate_nuclear_targets
 from period_energy_targets import (
     add_prorated_monthly_targets,
@@ -424,8 +425,10 @@ def solve_day(
     if len(snapshots) != 24:
         raise ValueError(f"Expected 24 snapshots for {day.date()}, found {len(snapshots)}")
 
-    network = annual_network.copy(snapshots=snapshots)
-    drop_native_energy_targets(network)
+    profiler = get_profiler()
+    with profiler.phase("copy_network"):
+        network = annual_network.copy(snapshots=snapshots)
+        drop_native_energy_targets(network)
     period_targets: dict[str, float] = {}
 
     def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
@@ -462,11 +465,13 @@ def solve_day(
         unit_commitment, mip_rel_gap, solver_threads
     )
     reset_highs_global_scheduler()
-    status, condition = network.optimize(
+    status, condition = optimize_profiled(
+        network,
         solver_name=solver,
         extra_functionality=extra_functionality,
-        transmission_losses=TRANSMISSION_LOSSES,
         solver_options=solver_options,
+        tag=f"day_{day:%Y%m%d}",
+        transmission_losses=TRANSMISSION_LOSSES,
         include_objective_constant=False,
         linearized_unit_commitment=linearized_unit_commitment,
     )
@@ -517,6 +522,9 @@ def solve_day(
         rtol=0.0,
     ):
         raise RuntimeError(f"Oil-and-gas daily energy target failed for {day.date()}")
+    if profiler.last_solve:
+        result["highs_run_seconds"] = profiler.last_solve.get("highs_run_s")
+        result["model_build_seconds"] = profiler.last_solve.get("build_model_s")
     return network, result
 
 
