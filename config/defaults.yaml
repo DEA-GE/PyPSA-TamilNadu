@@ -52,7 +52,16 @@ rolling:                          # used by mode: rolling only
 paths:                            # relative paths are resolved from the repository root
   network: model
   results_root: results/run_results
-  # Console output is copied to <results_root>/console_logs/<run name>_<UTC time>.log.
+
+logging:
+  # Detailed run logging and profiling. When true, the run writes a profile/
+  # folder next to its results: run.log, the complete HiGHS log of every solve
+  # (profile/highs/), phase timings, solve breakdowns and resource use.
+  # Override per run with --profile / --no-profile.
+  profile: true
+  level: INFO                     # INFO | DEBUG | WARNING | ERROR; DEBUG adds library debug messages to run.log
+  sample_interval: 1.0            # seconds between resource samples in profile/resources.csv
+  # Copy console output to <results_root>/console_logs/<run name>_<UTC time>.log.
   console_log: true
 
 analysis:

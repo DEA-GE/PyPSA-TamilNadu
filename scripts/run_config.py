@@ -20,6 +20,7 @@ DEFAULTS_PATH = ROOT / "config" / "defaults.yaml"
 
 RUN_MODES = {"daily", "monthly", "peak", "selected_weeks", "annual", "rolling"}
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
+LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
 _UNLIMITED = {"none", "null", "unlimited"}
 
 
@@ -191,7 +192,23 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     paths = config["paths"]
     for key in ("network", "results_root"):
         paths[key] = str(paths[key])
-    for section, key in (("paths", "console_log"), ("analysis", "enabled"), ("analysis", "compare_observed")):
+
+    logging_settings = config["logging"]
+    level = str(logging_settings["level"]).strip().upper()
+    if level not in LOG_LEVELS:
+        raise ConfigError(f"logging.level must be one of {list(LOG_LEVELS)}, got {logging_settings['level']!r}")
+    logging_settings["level"] = level
+    interval = _number(logging_settings["sample_interval"], "logging.sample_interval")
+    if interval <= 0:
+        raise ConfigError("logging.sample_interval must be a positive number of seconds")
+    logging_settings["sample_interval"] = interval
+
+    for section, key in (
+        ("logging", "profile"),
+        ("logging", "console_log"),
+        ("analysis", "enabled"),
+        ("analysis", "compare_observed"),
+    ):
         if not isinstance(config[section][key], bool):
             raise ConfigError(f"{section}.{key} must be true or false")
     return config
@@ -248,6 +265,9 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "results_root": resolve_path(config["paths"]["results_root"]),
         "resume": run["resume"],
         "max_windows": rolling["max_windows"],
+        "profile": config["logging"]["profile"],
+        "profile_log_level": config["logging"]["level"],
+        "profile_sample_interval": config["logging"]["sample_interval"],
     }
 
 

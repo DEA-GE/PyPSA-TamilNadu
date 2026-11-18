@@ -94,6 +94,50 @@ def test_unlimited_rolling_time_limit_spellings(tmp_path, value):
     assert load_run_config(path)["rolling"]["time_limit"] is None
 
 
+def test_logging_settings_map_to_profiler_arguments(tmp_path):
+    path = _write(
+        tmp_path / "run.yaml",
+        "run:\n  name: demo\nlogging:\n  profile: false\n  level: debug\n  sample_interval: 2\n",
+    )
+    kwargs = run_selection_kwargs(load_run_config(path))
+    assert kwargs["profile"] is False
+    assert kwargs["profile_log_level"] == "DEBUG"
+    assert kwargs["profile_sample_interval"] == 2.0
+
+
+def test_profiling_is_on_by_default():
+    kwargs = run_selection_kwargs(load_run_config(ROOT / "config" / "runs" / "daily_demo.yaml"))
+    assert kwargs["profile"] is True
+    assert kwargs["profile_log_level"] == "INFO"
+
+
+@pytest.mark.parametrize(
+    "text, message",
+    [
+        ("logging:\n  level: verbose\n", "logging.level must be one of"),
+        ("logging:\n  sample_interval: 0\n", "logging.sample_interval"),
+        ("logging:\n  profile: maybe\n", "logging.profile must be true or false"),
+    ],
+)
+def test_invalid_logging_settings_are_rejected(tmp_path, text, message):
+    path = _write(tmp_path / "run.yaml", "run:\n  name: demo\n" + text)
+    with pytest.raises(ConfigError, match=message):
+        load_run_config(path)
+
+
+@pytest.mark.parametrize("flag, expected", [("--no-profile", False), ("--profile", True)])
+def test_profile_flag_overrides_config(tmp_path, capsys, flag, expected):
+    import run_model
+    import yaml
+
+    path = _write(
+        tmp_path / "run.yaml",
+        f"run:\n  name: demo\nlogging:\n  profile: {str(not expected).lower()}\n",
+    )
+    assert run_model.main([str(path), flag, "--dry-run"]) == 0
+    assert yaml.safe_load(capsys.readouterr().out)["logging"]["profile"] is expected
+
+
 def test_override_requires_section_and_key():
     with pytest.raises(ConfigError, match="section.key"):
         run_config.parse_override("threads=4")

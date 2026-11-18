@@ -117,6 +117,9 @@ python scripts/run_model.py config/runs/rolling_relaxed.yaml --set run.name=rela
 # Solve only; skip the results analysis and report
 python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-analysis
 
+# Turn detailed logging and profiling off (or on) for this run only
+python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-profile
+
 # Repeat an earlier run exactly from its saved settings
 python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed_uc/daily_demo/run_config.yaml
 ```
@@ -124,10 +127,11 @@ python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed_uc/dail
 `run_model.py` exits with 0 on success, with 1 if the config is invalid or the
 solve fails, and with 2 if the solve succeeded but the results analysis failed.
 In that last case the run outputs are kept, and you can rebuild the report
-later. Unless `paths.console_log` is `false`, Python console output is also
+later. Unless `logging.console_log` is `false`, Python console output is also
 written to `results/run_results/console_logs/<run name>_<UTC time>.log`. HiGHS
-writes its own solver log directly to the terminal, so that log is not in the
-file. To keep it too, pipe the command through `Tee-Object`.
+writes its solver output directly to the terminal, so it is not in that file;
+with `logging.profile: true` the complete HiGHS log of every solve is kept in
+the run's `profile/highs/` folder instead.
 
 | Setting | How to set it |
 | --- | --- |
@@ -148,6 +152,42 @@ file. To keep it too, pipe the command through `Tee-Object`.
 | `rolling.max_windows` | For testing only: stop a rolling run after this many windows. Leave as `null` for a full year. |
 | `paths.network`, `paths.results_root` | Input network and output root. Relative paths are resolved from the repository root. |
 | `analysis.enabled`, `analysis.compare_observed` | Build the results report after the run, and include comparisons with observed generation and capacity. Both default to `true`. |
+| `logging.profile` | `true` (the default) turns on detailed run logging and profiling: the run writes the `profile/` folder described in [Run logging and profiling](#run-logging-and-profiling), including the complete HiGHS log of every solve. `false` runs without it. `--profile` / `--no-profile` on the command line override it. |
+| `logging.level` | `INFO` (the default), `DEBUG`, `WARNING`, or `ERROR`. `DEBUG` adds the PyPSA and Linopy debug messages to `profile/run.log`. Used only when `logging.profile` is `true`. |
+| `logging.sample_interval` | Seconds between resource samples in `profile/resources.csv`; default `1.0`. |
+| `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
+
+### Run logging and profiling
+
+With `logging.profile: true` (the default), every run writes a `profile/`
+folder inside its output directory. It records the solver logs and where
+wall-clock time, CPU time, and memory go, so run-time improvements can be
+targeted and measured. The runner prints a short summary at the end of the
+run, and the results report includes it. To run without it:
+
+```powershell
+python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-profile
+```
+
+| File | Contents |
+| --- | --- |
+| `run.log` | Timestamped runner, PyPSA, and Linopy messages, and one line for every phase longer than 1 s |
+| `events.jsonl` | One record per phase (for example `run_rolling/window/optimize/build_model`): wall and CPU seconds, average cores, memory at the end, sampled peak memory, and the window, week, day, or solve attempt |
+| `solves.jsonl`, `solves.csv` | One row per solver attempt. The time is split into PyPSA model build, custom constraints, LP-file write, HiGHS model read, HiGHS solve, remaining Linopy transfer, and solution and dual assignment. Each row also has the model size before and after presolve, the largest constraint groups, iteration counts, and MIP statistics (nodes, gap, time to the first incumbent, LP iterations by source) |
+| `highs/*.log` | The complete HiGHS log of every attempt |
+| `resources.csv` | Resource timeline, by default every second: process memory, CPU cores in use, threads, system CPU, available memory, and the active phase |
+| `environment.json`, `run_status.json` | Package versions, hardware, Git revision, and run settings; final status, any error, totals, and peak memory |
+| `summary.txt`, `summary.json` | Phase totals and shares of the run, the solve-time breakdown, and the slowest solves |
+
+Rolling runs also add the accepted attempt's breakdown to each window's
+`profile_*` columns in `window_log.csv`. A failed or interrupted run still
+writes its profile. A repeated run keeps the earlier profile in
+`profile_history/`. To rebuild one summary, or to compare runs side by side:
+
+```powershell
+python scripts/summarize_run_profile.py results/run_results/<label>/<run_name>
+python scripts/summarize_run_profile.py <run A folder> <run B folder>
+```
 
 ### Results analysis and report
 

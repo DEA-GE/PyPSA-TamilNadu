@@ -37,6 +37,12 @@ from nuclear_energy_targets import (
     generator_dimension,
 )
 from period_energy_targets import drop_native_energy_targets
+from run_profiling import (
+    format_solve_breakdown,
+    get_profiler,
+    optimize_profiled,
+    report,
+)
 from run_9ba_weekly_days_2025_26 import MODEL_DIR
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
@@ -60,6 +66,12 @@ WATER_BALANCE_ADJUSTMENT_CAPACITY_MW = 10_000.0
 WATER_BALANCE_SINK = "measured_storage_balance_sink"
 KODAYAR_WATER_MWH_PER_MCFT = 1000.0 / 16.5
 CASCADE_TARGET_FILE = MODEL_DIR / "hydro_cascade_generation_targets.csv"
+
+
+def _timed(name: str, function, *args, **kwargs):
+    """Run one model-building step as a named profile phase."""
+    with get_profiler().phase(name):
+        return function(*args, **kwargs)
 
 
 def _cascade_generation_targets() -> pd.DataFrame:
@@ -1130,40 +1142,46 @@ def run_annual_no_uc(
     def extra_functionality(
         active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex,
     ) -> None:
-        _add_daily_targets(active_network, active_snapshots, gas_targets)
-        _add_exact_measured_storage(
-            active_network, active_snapshots, measured_store_targets
+        _timed("daily_targets", _add_daily_targets, active_network, active_snapshots, gas_targets)
+        _timed(
+            "measured_storage", _add_exact_measured_storage,
+            active_network, active_snapshots, measured_store_targets,
         )
-        for period, (terminal, targets) in zip(constraint_periods, terminal_targets):
-            _add_weekly_cascade_targets(active_network, period, cascade_targets)
-            _add_committed_biomass_target(
-                active_network, period, biomass_monthly_targets_mwh
-            )
-            _add_committed_small_hydro_target(
-                active_network, period, small_hydro_monthly_targets_mwh
-            )
-            _add_hydro_terminal_targets(
-                active_network,
-                period,
-                targets,
-                name_suffix=f"-{terminal:%Y%m%d}",
-            )
-        add_transmission_flow_cost(active_network, active_snapshots)
+        with get_profiler().phase("weekly_period_targets", periods=len(constraint_periods)):
+            for period, (terminal, targets) in zip(constraint_periods, terminal_targets):
+                _timed("cascade_targets", _add_weekly_cascade_targets, active_network, period, cascade_targets)
+                _timed(
+                    "biomass_target", _add_committed_biomass_target,
+                    active_network, period, biomass_monthly_targets_mwh,
+                )
+                _timed(
+                    "small_hydro_target", _add_committed_small_hydro_target,
+                    active_network, period, small_hydro_monthly_targets_mwh,
+                )
+                _timed(
+                    "hydro_terminal_targets", _add_hydro_terminal_targets,
+                    active_network,
+                    period,
+                    targets,
+                    name_suffix=f"-{terminal:%Y%m%d}",
+                )
+        _timed("transmission_flow_cost", add_transmission_flow_cost, active_network, active_snapshots)
 
-    print(
+    report(
         f"Solving annual no-UC LP: {snapshots[0].date()} to {snapshots[-1].date()} "
-        f"({len(snapshots)} snapshots) ...",
-        flush=True,
+        f"({len(snapshots)} snapshots) ..."
     )
     reset_highs_global_scheduler()
     with _SolveResourceMonitor() as resources:
         started = time.perf_counter()
-        status, condition = network.optimize(
+        status, condition = optimize_profiled(
+            network,
             solver_name=solver_name,
             solver_options=highs_solver_options(
                 "none", None, solver_threads, simplex_strategy
             ),
             extra_functionality=extra_functionality,
+            tag="annual_no_uc",
             transmission_losses=TRANSMISSION_LOSSES,
             include_objective_constant=False,
         )
@@ -1172,10 +1190,13 @@ def run_annual_no_uc(
         raise RuntimeError(
             f"Annual no-UC solve failed: status={status}, condition={condition}"
         )
+    if get_profiler().last_solve:
+        report(f"Annual solve: {format_solve_breakdown(get_profiler().last_solve)}")
 
-    modeled = _window_metrics(network, snapshots)
-    water_balance = _measured_water_balance_daily(network, measured_store_targets)
-    kodayar_balance = _upper_kodayar_daily_balance(network)
+    with get_profiler().phase("annual_metrics"):
+        modeled = _window_metrics(network, snapshots)
+        water_balance = _measured_water_balance_daily(network, measured_store_targets)
+        kodayar_balance = _upper_kodayar_daily_balance(network)
     kodayar_residual = float(kodayar_balance.balance_residual_mwh_equiv.abs().max())
     if kodayar_residual > 1e-3:
         raise RuntimeError(f"Upper Kodayar water-balance residual is {kodayar_residual:.6g} MWh")
@@ -1293,6 +1314,34 @@ def _assess_solve(
     }
 
 
+_WINDOW_PROFILE_KEYS = (
+    "optimize_wall_s", "build_model_s", "extra_functionality_s", "lp_write_s",
+    "lp_read_s", "highs_run_s", "linopy_other_s", "assign_s", "lp_file_mb",
+    "model_variables", "model_constraint_rows", "log_original_rows",
+    "log_original_cols", "log_original_nonzeros", "log_original_integer_cols",
+    "log_presolved_rows", "log_presolved_cols", "log_presolved_nonzeros",
+    "highs_simplex_iteration_count", "highs_ipm_iteration_count",
+    "highs_crossover_iteration_count", "highs_mip_node_count", "highs_mip_gap",
+    "log_mip_first_incumbent_s", "log_mip_incumbent_updates", "solve_peak_rss_mb",
+)
+
+
+def _window_profile_fields(
+    attempts: list[dict], copy_phase: dict, prepare_phase: dict,
+) -> dict[str, object]:
+    """Summarize where the accepted window's time went, for the window log."""
+    accepted = attempts[-1] if attempts else {}
+    fields: dict[str, object] = {
+        f"profile_{key}": accepted.get(key) for key in _WINDOW_PROFILE_KEYS
+    }
+    fields["profile_copy_network_s"] = copy_phase.get("wall_s")
+    fields["profile_prepare_window_s"] = prepare_phase.get("wall_s")
+    fields["profile_all_attempts_optimize_s"] = (
+        sum(item.get("optimize_wall_s") or 0.0 for item in attempts) if attempts else None
+    )
+    return fields
+
+
 def run_rolling_year(
     base_network: pypsa.Network,
     observed: pd.DataFrame,
@@ -1324,22 +1373,24 @@ def run_rolling_year(
     snapshots = pd.DatetimeIndex(base_network.snapshots)
     if not snapshots.is_monotonic_increasing or snapshots.has_duplicates:
         raise ValueError("Network snapshots must be unique and chronological")
-    cascade_targets = _cascade_generation_targets()
-    biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
-    small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
-    small_hydro_units = base_network.generators.index[
-        base_network.generators.carrier.eq("small_hydro")
-    ]
-    if not len(small_hydro_units):
-        raise ValueError("Small-hydro targets require small_hydro generators")
-    # The inherited placeholder profile cannot supply the observed monthly
-    # energy. Weekly energy equalities replace that profile as the operating
-    # evidence, so availability is nameplate and timing is optimized.
-    base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
-    observed_soc, hydro_parameters, monthly_soc, hydro_input_hash = _hydro_storage_inputs()
-    measured_store_targets = _measured_store_targets(
-        observed_soc, hydro_parameters, base_network
-    )
+    profiler = get_profiler()
+    with profiler.phase("rolling_inputs"):
+        cascade_targets = _cascade_generation_targets()
+        biomass_monthly_targets_mwh = read_bio_power_monthly_targets()
+        small_hydro_monthly_targets_mwh = read_small_hydro_monthly_targets()
+        small_hydro_units = base_network.generators.index[
+            base_network.generators.carrier.eq("small_hydro")
+        ]
+        if not len(small_hydro_units):
+            raise ValueError("Small-hydro targets require small_hydro generators")
+        # The inherited placeholder profile cannot supply the observed monthly
+        # energy. Weekly energy equalities replace that profile as the operating
+        # evidence, so availability is nameplate and timing is optimized.
+        base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+        observed_soc, hydro_parameters, monthly_soc, hydro_input_hash = _hydro_storage_inputs()
+        measured_store_targets = _measured_store_targets(
+            observed_soc, hydro_parameters, base_network
+        )
 
     step = pd.Timedelta(days=commit_days)
     horizon = pd.Timedelta(days=commit_days + lookahead_days)
@@ -1354,305 +1405,327 @@ def run_rolling_year(
     for number, start in enumerate(starts, start=1):
         if max_windows is not None and number > max_windows:
             break
-        commit_end = min(start + step, snapshots[-1] + pd.Timedelta(hours=1))
-        solve_end = min(start + horizon, snapshots[-1] + pd.Timedelta(hours=1))
-        active = snapshots[(snapshots >= start) & (snapshots < solve_end)]
-        committed = active[active < commit_end]
-        expected_bio_power_target_mwh = bio_power_energy_target_mwh(
-            committed,
-            base_network.snapshot_weightings.generators,
-            biomass_monthly_targets_mwh,
-        )
-        expected_small_hydro_target_mwh = small_hydro_energy_target_mwh(
-            committed,
-            base_network.snapshot_weightings.generators,
-            small_hydro_monthly_targets_mwh,
-        )
-        terminal_targets = _hydro_targets_at(
-            committed[-1], observed_soc, hydro_parameters, monthly_soc
-        ).drop(index=measured_store_targets.columns, errors="ignore")
-        checkpoint = chunks_dir / f"window_{number:03d}_{start:%Y-%m-%d}.nc"
-        daily_file = checkpoint.with_suffix(".daily.csv")
-        dual_file = checkpoint.with_suffix(".duals.nc")
-        slack_file = checkpoint.with_suffix(".hydro_terminal_slacks.csv")
-        meta_file = checkpoint.with_suffix(".json")
+        with profiler.context(window=number, window_start=f"{start:%Y-%m-%d}"), profiler.phase("window") as window_phase:
+            window_started = time.perf_counter()
+            commit_end = min(start + step, snapshots[-1] + pd.Timedelta(hours=1))
+            solve_end = min(start + horizon, snapshots[-1] + pd.Timedelta(hours=1))
+            active = snapshots[(snapshots >= start) & (snapshots < solve_end)]
+            committed = active[active < commit_end]
+            expected_bio_power_target_mwh = bio_power_energy_target_mwh(
+                committed,
+                base_network.snapshot_weightings.generators,
+                biomass_monthly_targets_mwh,
+            )
+            expected_small_hydro_target_mwh = small_hydro_energy_target_mwh(
+                committed,
+                base_network.snapshot_weightings.generators,
+                small_hydro_monthly_targets_mwh,
+            )
+            terminal_targets = _hydro_targets_at(
+                committed[-1], observed_soc, hydro_parameters, monthly_soc
+            ).drop(index=measured_store_targets.columns, errors="ignore")
+            checkpoint = chunks_dir / f"window_{number:03d}_{start:%Y-%m-%d}.nc"
+            daily_file = checkpoint.with_suffix(".daily.csv")
+            dual_file = checkpoint.with_suffix(".duals.nc")
+            slack_file = checkpoint.with_suffix(".hydro_terminal_slacks.csv")
+            meta_file = checkpoint.with_suffix(".json")
 
-        if (
-            resume
-            and checkpoint.exists()
-            and daily_file.exists()
-            and dual_file.exists()
-            and slack_file.exists()
-            and meta_file.exists()
-        ):
-            checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
-            if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
-                    and checkpoint_meta.get("pypsa_version") == pypsa.__version__
-                    and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
-                    and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
-                    and np.isclose(
-                        checkpoint_meta.get("bio_power_target_mwh", np.nan),
-                        expected_bio_power_target_mwh,
+            if (
+                resume
+                and checkpoint.exists()
+                and daily_file.exists()
+                and dual_file.exists()
+                and slack_file.exists()
+                and meta_file.exists()
+            ):
+                checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
+                        and checkpoint_meta.get("pypsa_version") == pypsa.__version__
+                        and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
+                        and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
+                        and np.isclose(
+                            checkpoint_meta.get("bio_power_target_mwh", np.nan),
+                            expected_bio_power_target_mwh,
+                        )
+                        and np.isclose(
+                            checkpoint_meta.get("small_hydro_target_mwh", np.nan),
+                            expected_small_hydro_target_mwh,
+                        )):
+                    report(f"Loading completed window {number}/{len(starts)}: {start.date()}")
+                    window_phase["resumed"] = True
+                    with profiler.phase("load_checkpoint"):
+                        previous = pypsa.Network(checkpoint)
+                        checkpoint_daily = pd.read_csv(
+                            daily_file, index_col="date", parse_dates=True
+                        )
+                        if {"bio_power", "small_hydro"} - set(checkpoint_daily.columns):
+                            checkpoint_daily = _window_metrics(previous, previous.snapshots)
+                            checkpoint_daily.to_csv(daily_file)
+                        daily_parts.append(checkpoint_daily)
+                        water_balance_parts.append(
+                            _measured_water_balance_daily(previous, measured_store_targets)
+                        )
+                        kodayar_balance_parts.append(_upper_kodayar_daily_balance(previous))
+                        window_rows.append(checkpoint_meta)
+                    continue
+                report(f"Re-solving stale checkpoint {number}/{len(starts)}: {start.date()}")
+
+            window_phase["resumed"] = False
+            with profiler.phase("copy_network") as copy_phase:
+                network = base_network.copy(snapshots=active)
+            with profiler.phase("prepare_window") as prepare_phase:
+                _add_measured_water_balance(network, measured_store_targets)
+                # Energy targets are added in extra_functionality: oil/gas and nuclear
+                # for every solved day, bio-power and small hydro for committed days only.
+                drop_native_energy_targets(network)
+                # Keep topology construction explicit before optimization so slack-bus
+                # assignment cannot encounter read-only views from copied static data.
+                _prepare_topology_for_pandas3(network)
+                network.storage_units.loc[:, "cyclic_state_of_charge"] = False
+                if len(network.stores):
+                    network.stores.loc[:, "e_cyclic"] = False
+                _set_initial_state(network, previous, unit_commitment)
+                if previous is None:
+                    opening = _hydro_targets_at(
+                        active[0], observed_soc, hydro_parameters, monthly_soc, initial=True
                     )
-                    and np.isclose(
-                        checkpoint_meta.get("small_hydro_target_mwh", np.nan),
-                        expected_small_hydro_target_mwh,
-                    )):
-                print(f"Loading completed window {number}/{len(starts)}: {start.date()}", flush=True)
-                previous = pypsa.Network(checkpoint)
-                checkpoint_daily = pd.read_csv(
-                    daily_file, index_col="date", parse_dates=True
-                )
-                if {"bio_power", "small_hydro"} - set(checkpoint_daily.columns):
-                    checkpoint_daily = _window_metrics(previous, previous.snapshots)
-                    checkpoint_daily.to_csv(daily_file)
-                daily_parts.append(checkpoint_daily)
-                water_balance_parts.append(
-                    _measured_water_balance_daily(previous, measured_store_targets)
-                )
-                kodayar_balance_parts.append(_upper_kodayar_daily_balance(previous))
-                window_rows.append(checkpoint_meta)
-                continue
-            print(
-                f"Re-solving stale checkpoint {number}/{len(starts)}: {start.date()}",
-                flush=True,
-            )
+                    for component, row in opening.iterrows():
+                        if component in network.storage_units.index:
+                            network.storage_units.at[component, "state_of_charge_initial"] = row.target_mwh
+                        elif component in network.stores.index:
+                            network.stores.at[component, "e_initial"] = row.target_mwh
+                dates = active.normalize().unique()
+                gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
+                if gas_targets.isna().any():
+                    raise ValueError(f"Missing oil/gas target in window starting {start.date()}")
 
-        network = base_network.copy(snapshots=active)
-        _add_measured_water_balance(network, measured_store_targets)
-        # Energy targets are added in extra_functionality: oil/gas and nuclear
-        # for every solved day, bio-power and small hydro for committed days only.
-        drop_native_energy_targets(network)
-        # Keep topology construction explicit before optimization so slack-bus
-        # assignment cannot encounter read-only views from copied static data.
-        _prepare_topology_for_pandas3(network)
-        network.storage_units.loc[:, "cyclic_state_of_charge"] = False
-        if len(network.stores):
-            network.stores.loc[:, "e_cyclic"] = False
-        _set_initial_state(network, previous, unit_commitment)
-        if previous is None:
-            opening = _hydro_targets_at(
-                active[0], observed_soc, hydro_parameters, monthly_soc, initial=True
+            report(
+                f"Solving window {number}/{len(starts)}: {start.date()} to "
+                f"{active[-1].date()} ({len(committed)} committed + "
+                f"{len(active) - len(committed)} look-ahead hours)"
             )
-            for component, row in opening.iterrows():
-                if component in network.storage_units.index:
-                    network.storage_units.at[component, "state_of_charge_initial"] = row.target_mwh
-                elif component in network.stores.index:
-                    network.stores.at[component, "e_initial"] = row.target_mwh
-        dates = active.normalize().unique()
-        gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
-        if gas_targets.isna().any():
-            raise ValueError(f"Missing oil/gas target in window starting {start.date()}")
+            attempts = solve_attempts(
+                unit_commitment, mip_rel_gap, solver_threads, simplex_strategy, time_limit
+            )
+            attempt_log: list[str] = []
+            attempt_breakdowns: list[dict] = []
+            # A solve (even an unaccepted one) writes custom-constraint duals back
+            # as GlobalConstraint rows; a retry must start from the original set,
+            # or PyPSA's consistency check rejects those rows.
+            original_global_constraints = network.global_constraints.index.copy()
 
-        print(
-            f"Solving window {number}/{len(starts)}: {start.date()} to "
-            f"{active[-1].date()} ({len(committed)} committed + "
-            f"{len(active) - len(committed)} look-ahead hours)",
-            flush=True,
-        )
-        attempts = solve_attempts(
-            unit_commitment, mip_rel_gap, solver_threads, simplex_strategy, time_limit
-        )
-        attempt_log: list[str] = []
-        # A solve (even an unaccepted one) writes custom-constraint duals back
-        # as GlobalConstraint rows; a retry must start from the original set,
-        # or PyPSA's consistency check rejects those rows.
-        original_global_constraints = network.global_constraints.index.copy()
-        with _SolveResourceMonitor() as resources:
-            started = time.perf_counter()
-            for attempt_number, (attempt_label, solver_options) in enumerate(attempts, start=1):
-                added = network.global_constraints.index.difference(original_global_constraints)
-                if len(added):
-                    network.remove("GlobalConstraint", added)
-                reset_highs_global_scheduler()
-                attempt_started = time.perf_counter()
-                status, condition = network.optimize(
-                    solver_name=solver_name,
-                    solver_options=solver_options,
-                    extra_functionality=lambda n, s: (
-                        _add_daily_targets(n, s, gas_targets),
-                        _add_weekly_cascade_targets(n, committed, cascade_targets),
-                        _add_committed_biomass_target(
-                            n, committed, biomass_monthly_targets_mwh
-                        ),
-                        _add_committed_small_hydro_target(
-                            n, committed, small_hydro_monthly_targets_mwh
-                        ),
-                        _add_hydro_terminal_targets(n, committed, terminal_targets),
-                        add_transmission_flow_cost(n, s),
-                        _add_exact_measured_storage(n, s, measured_store_targets),
-                        _add_relaxed_boundary_constraints(n, previous)
-                        if unit_commitment == "relaxed"
-                        else None,
-                    ),
-                    transmission_losses=TRANSMISSION_LOSSES,
-                    include_objective_constant=False,
-                    linearized_unit_commitment=unit_commitment == "relaxed",
-                    assign_all_duals=True,
+            def window_constraints(n: pypsa.Network, s: pd.DatetimeIndex) -> None:
+                _timed("daily_targets", _add_daily_targets, n, s, gas_targets)
+                _timed("cascade_targets", _add_weekly_cascade_targets, n, committed, cascade_targets)
+                _timed(
+                    "biomass_target", _add_committed_biomass_target,
+                    n, committed, biomass_monthly_targets_mwh,
                 )
-                assessment = _assess_solve(
-                    network, status, condition, unit_commitment, max_time_limit_mip_gap
+                _timed(
+                    "small_hydro_target", _add_committed_small_hydro_target,
+                    n, committed, small_hydro_monthly_targets_mwh,
                 )
-                attempt_log.append(
-                    f"{attempt_label}: {condition} in "
-                    f"{time.perf_counter() - attempt_started:.0f} s"
-                )
-                if assessment["accepted_solution"] or str(condition) in NON_RETRYABLE_CONDITIONS:
-                    break
-                if attempt_number < len(attempts):
-                    print(
-                        f"Window {number}/{len(starts)}: attempt {attempt_number} "
-                        f"({attempt_label}) ended with {condition} "
-                        f"({assessment['native_info']}); retrying with "
-                        f"{attempts[attempt_number][0]}.",
-                        flush=True,
+                _timed("hydro_terminal_targets", _add_hydro_terminal_targets, n, committed, terminal_targets)
+                _timed("transmission_flow_cost", add_transmission_flow_cost, n, s)
+                _timed("measured_storage", _add_exact_measured_storage, n, s, measured_store_targets)
+                if unit_commitment == "relaxed":
+                    _timed("relaxed_boundary", _add_relaxed_boundary_constraints, n, previous)
+
+            with _SolveResourceMonitor() as resources:
+                started = time.perf_counter()
+                for attempt_number, (attempt_label, solver_options) in enumerate(attempts, start=1):
+                    with profiler.context(attempt=attempt_number, attempt_label=attempt_label):
+                        added = network.global_constraints.index.difference(original_global_constraints)
+                        if len(added):
+                            network.remove("GlobalConstraint", added)
+                        reset_highs_global_scheduler()
+                        attempt_started = time.perf_counter()
+                        status, condition = optimize_profiled(
+                            network,
+                            solver_name=solver_name,
+                            solver_options=solver_options,
+                            extra_functionality=window_constraints,
+                            tag=f"window{number:03d}_{start:%Y%m%d}_attempt{attempt_number}",
+                            transmission_losses=TRANSMISSION_LOSSES,
+                            include_objective_constant=False,
+                            linearized_unit_commitment=unit_commitment == "relaxed",
+                            assign_all_duals=True,
+                        )
+                        with profiler.phase("assess_solve"):
+                            assessment = _assess_solve(
+                                network, status, condition, unit_commitment, max_time_limit_mip_gap
+                            )
+                    attempt_log.append(
+                        f"{attempt_label}: {condition} in "
+                        f"{time.perf_counter() - attempt_started:.0f} s"
                     )
-            runtime = time.perf_counter() - started
-        mip_gap = assessment["mip_gap"]
-        accepted_time_limit = assessment["accepted_time_limit"]
-        accepted_solution = assessment["accepted_solution"]
-        if not accepted_solution:
-            raise RuntimeError(
-                f"Window {number} failed after {len(attempt_log)} attempt(s) "
-                f"[{'; '.join(attempt_log)}]: status={status}, condition={condition}, "
-                f"HiGHS status={assessment['native_status']}, "
-                f"HiGHS info={assessment['native_info']}, "
-                f"reported_mip_gap={assessment['reported_mip_gap']}, "
-                f"accepted_mip_gap={mip_gap}. "
-                "Time-limited integer windows require a finite MIP gap "
-                f"no greater than {max_time_limit_mip_gap:.1%}; LP windows "
-                "must reach optimality. "
-                "Completed checkpoints can be resumed."
-            )
-        if len(attempt_log) > 1:
-            print(
-                f"Window {number}/{len(starts)} solved on attempt "
-                f"{len(attempt_log)}: {'; '.join(attempt_log)}.",
-                flush=True,
-            )
-        if accepted_time_limit:
-            print(
-                f"Accepting time-limited window {number}/{len(starts)} with "
-                f"MIP gap {mip_gap:.2%} (limit {max_time_limit_mip_gap:.2%}).",
-                flush=True,
-            )
+                    if profiler.last_solve is not None:
+                        attempt_breakdowns.append(profiler.last_solve)
+                        report(
+                            f"Window {number}/{len(starts)} attempt {attempt_number} "
+                            f"({attempt_label}): {condition}; "
+                            f"{format_solve_breakdown(profiler.last_solve)}"
+                        )
+                    if assessment["accepted_solution"] or str(condition) in NON_RETRYABLE_CONDITIONS:
+                        break
+                    if attempt_number < len(attempts):
+                        report(
+                            f"Window {number}/{len(starts)}: attempt {attempt_number} "
+                            f"({attempt_label}) ended with {condition} "
+                            f"({assessment['native_info']}); retrying with "
+                            f"{attempts[attempt_number][0]}."
+                        )
+                runtime = time.perf_counter() - started
+            mip_gap = assessment["mip_gap"]
+            accepted_time_limit = assessment["accepted_time_limit"]
+            accepted_solution = assessment["accepted_solution"]
+            if not accepted_solution:
+                raise RuntimeError(
+                    f"Window {number} failed after {len(attempt_log)} attempt(s) "
+                    f"[{'; '.join(attempt_log)}]: status={status}, condition={condition}, "
+                    f"HiGHS status={assessment['native_status']}, "
+                    f"HiGHS info={assessment['native_info']}, "
+                    f"reported_mip_gap={assessment['reported_mip_gap']}, "
+                    f"accepted_mip_gap={mip_gap}. "
+                    "Time-limited integer windows require a finite MIP gap "
+                    f"no greater than {max_time_limit_mip_gap:.1%}; LP windows "
+                    "must reach optimality. "
+                    "Completed checkpoints can be resumed."
+                )
+            if len(attempt_log) > 1:
+                report(
+                    f"Window {number}/{len(starts)} solved on attempt "
+                    f"{len(attempt_log)}: {'; '.join(attempt_log)}."
+                )
+            if accepted_time_limit:
+                report(
+                    f"Accepting time-limited window {number}/{len(starts)} with "
+                    f"MIP gap {mip_gap:.2%} (limit {max_time_limit_mip_gap:.2%})."
+                )
 
-        shadow_price_constraints = _write_shadow_prices(network, dual_file)
-        hydro_slacks = _hydro_terminal_slacks(network)
-        hydro_slacks.to_csv(slack_file, index=False)
+            with profiler.phase("write_shadow_prices"):
+                shadow_price_constraints = _write_shadow_prices(network, dual_file)
+            with profiler.phase("hydro_slacks"):
+                hydro_slacks = _hydro_terminal_slacks(network)
+                hydro_slacks.to_csv(slack_file, index=False)
 
-        # The checkpoint contains only accepted hours. It is also the complete
-        # state source for the next window and for restart/resume.
-        # Release the large Linopy/HiGHS model before checkpointing. Copying a
-        # solved 192-hour network here can briefly double RAM and kill a Jupyter
-        # kernel even though optimization itself completed successfully.
-        del network.model
-        network.set_snapshots(committed)
-        previous = network
-        daily = _window_metrics(previous, committed)
-        biomass_target_mwh = expected_bio_power_target_mwh
-        biomass_generation_mwh = float(daily["bio_power"].sum() * 1_000.0)
-        small_hydro_generation_mwh = float(daily["small_hydro"].sum() * 1_000.0)
-        water_balance_daily = _measured_water_balance_daily(
-            previous, measured_store_targets
-        )
-        kodayar_balance_daily = _upper_kodayar_daily_balance(previous)
-        kodayar_residual = float(kodayar_balance_daily.balance_residual_mwh_equiv.abs().max())
-        if kodayar_residual > 1e-3:
-            raise RuntimeError(f"Upper Kodayar water-balance residual is {kodayar_residual:.6g} MWh")
-        max_measured_error = float(water_balance_daily.opening_error_mwh.abs().max())
-        if max_measured_error > 1e-3:
-            raise RuntimeError(
-                f"Measured storage opening error is {max_measured_error:.6g} MWh"
+            # The checkpoint contains only accepted hours. It is also the complete
+            # state source for the next window and for restart/resume.
+            # Release the large Linopy/HiGHS model before checkpointing. Copying a
+            # solved 192-hour network here can briefly double RAM and kill a Jupyter
+            # kernel even though optimization itself completed successfully.
+            with profiler.phase("release_model"):
+                del network.model
+                network.set_snapshots(committed)
+            previous = network
+            with profiler.phase("window_metrics"):
+                daily = _window_metrics(previous, committed)
+                biomass_target_mwh = expected_bio_power_target_mwh
+                biomass_generation_mwh = float(daily["bio_power"].sum() * 1_000.0)
+                small_hydro_generation_mwh = float(daily["small_hydro"].sum() * 1_000.0)
+                water_balance_daily = _measured_water_balance_daily(
+                    previous, measured_store_targets
+                )
+                kodayar_balance_daily = _upper_kodayar_daily_balance(previous)
+            kodayar_residual = float(kodayar_balance_daily.balance_residual_mwh_equiv.abs().max())
+            if kodayar_residual > 1e-3:
+                raise RuntimeError(f"Upper Kodayar water-balance residual is {kodayar_residual:.6g} MWh")
+            max_measured_error = float(water_balance_daily.opening_error_mwh.abs().max())
+            if max_measured_error > 1e-3:
+                raise RuntimeError(
+                    f"Measured storage opening error is {max_measured_error:.6g} MWh"
+                )
+            hydro_total_error, hydro_max_error = _hydro_terminal_error(previous, terminal_targets)
+            residual = float(previous.buses_t.p.sum(axis=1).abs().max())
+            loading = (
+                float(previous.links_t.p0.abs().div(previous.links.p_nom, axis=1).max().max() * 100)
+                if len(previous.links)
+                else 0.0
             )
-        hydro_total_error, hydro_max_error = _hydro_terminal_error(previous, terminal_targets)
-        residual = float(previous.buses_t.p.sum(axis=1).abs().max())
-        loading = (
-            float(previous.links_t.p0.abs().div(previous.links.p_nom, axis=1).max().max() * 100)
-            if len(previous.links)
-            else 0.0
-        )
-        row = {
-            "model_version": CHECKPOINT_MODEL_VERSION,
-            "pypsa_version": pypsa.__version__,
-            "hydro_input_hash": hydro_input_hash,
-            "hydro_terminal_targets": len(terminal_targets),
-            "hydro_terminal_band_violation_mwh": hydro_total_error,
-            "hydro_max_terminal_band_violation_mwh": hydro_max_error,
-            "measured_storage_max_error_mwh": max_measured_error,
-            "balancing_inflow_mwh": float(water_balance_daily.balancing_inflow_mwh.sum()),
-            "balancing_outflow_mwh": float(water_balance_daily.balancing_outflow_mwh.sum()),
-            "upper_kodayar_balance_max_residual_mwh": kodayar_residual,
-            "upper_kodayar_inflow_mwh": float(kodayar_balance_daily.estimated_natural_inflow_mwh_equiv.sum()),
-            "kodayar_i_water_use_mwh": float(kodayar_balance_daily.kodayar_i_water_use_mwh_equiv.sum()),
-            "upper_kodayar_spill_mwh": float(kodayar_balance_daily.spill_mwh_equiv.sum()),
-            "bio_power_target_mwh": biomass_target_mwh,
-            "bio_power_generation_mwh": biomass_generation_mwh,
-            "bio_power_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
-            "small_hydro_target_mwh": expected_small_hydro_target_mwh,
-            "small_hydro_generation_mwh": small_hydro_generation_mwh,
-            "small_hydro_target_error_mwh": (
-                small_hydro_generation_mwh - expected_small_hydro_target_mwh
-            ),
-            "unit_commitment": unit_commitment,
-            "window": number,
-            "solve_start": str(active[0]),
-            "solve_end": str(active[-1]),
-            "commit_end": str(committed[-1]),
-            "committed_snapshots": len(committed),
-            "lookahead_snapshots": len(active) - len(committed),
-            "solver_status": str(status),
-            "termination_condition": str(condition),
-            "accepted_solution": accepted_solution,
-            "shadow_prices_recorded": True,
-            "shadow_price_constraints": shadow_price_constraints,
-            "shadow_price_file": dual_file.name,
-            "hydro_terminal_slack_file": slack_file.name,
-            "mip_gap": mip_gap,
-            "time_limit_seconds": time_limit,
-            "max_time_limit_mip_gap": (
-                max_time_limit_mip_gap if unit_commitment == "full" else None
-            ),
-            "solver_threads": solver_options.get("threads", solver_threads),
-            "lp_solver": solver_options.get("solver"),
-            "simplex_strategy": solver_options.get("simplex_strategy"),
-            "solve_attempts": len(attempt_log),
-            "solve_attempt_log": "; ".join(attempt_log),
-            "runtime_seconds": runtime,
-            "process_cpu_seconds": resources.cpu_seconds,
-            "average_cpu_cores": resources.cpu_seconds / runtime if runtime > 0 else None,
-            "peak_cpu_cores_sampled": resources.peak_cpu_cores_sampled,
-            "peak_process_rss_mb_sampled": resources.peak_rss_bytes / 1_000_000,
-            "peak_process_threads_sampled": resources.peak_threads,
-            "max_nodal_residual_mw": residual,
-            "max_corridor_loading_pct": loading,
-        }
-        previous.export_to_netcdf(checkpoint)
-        daily.to_csv(daily_file)
-        meta_file.write_text(json.dumps(row, indent=2), encoding="utf-8")
-        daily_parts.append(daily)
-        water_balance_parts.append(water_balance_daily)
-        kodayar_balance_parts.append(kodayar_balance_daily)
-        window_rows.append(row)
+            row = {
+                "model_version": CHECKPOINT_MODEL_VERSION,
+                "pypsa_version": pypsa.__version__,
+                "hydro_input_hash": hydro_input_hash,
+                "hydro_terminal_targets": len(terminal_targets),
+                "hydro_terminal_band_violation_mwh": hydro_total_error,
+                "hydro_max_terminal_band_violation_mwh": hydro_max_error,
+                "measured_storage_max_error_mwh": max_measured_error,
+                "balancing_inflow_mwh": float(water_balance_daily.balancing_inflow_mwh.sum()),
+                "balancing_outflow_mwh": float(water_balance_daily.balancing_outflow_mwh.sum()),
+                "upper_kodayar_balance_max_residual_mwh": kodayar_residual,
+                "upper_kodayar_inflow_mwh": float(kodayar_balance_daily.estimated_natural_inflow_mwh_equiv.sum()),
+                "kodayar_i_water_use_mwh": float(kodayar_balance_daily.kodayar_i_water_use_mwh_equiv.sum()),
+                "upper_kodayar_spill_mwh": float(kodayar_balance_daily.spill_mwh_equiv.sum()),
+                "bio_power_target_mwh": biomass_target_mwh,
+                "bio_power_generation_mwh": biomass_generation_mwh,
+                "bio_power_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
+                "small_hydro_target_mwh": expected_small_hydro_target_mwh,
+                "small_hydro_generation_mwh": small_hydro_generation_mwh,
+                "small_hydro_target_error_mwh": (
+                    small_hydro_generation_mwh - expected_small_hydro_target_mwh
+                ),
+                "unit_commitment": unit_commitment,
+                "window": number,
+                "solve_start": str(active[0]),
+                "solve_end": str(active[-1]),
+                "commit_end": str(committed[-1]),
+                "committed_snapshots": len(committed),
+                "lookahead_snapshots": len(active) - len(committed),
+                "solver_status": str(status),
+                "termination_condition": str(condition),
+                "accepted_solution": accepted_solution,
+                "shadow_prices_recorded": True,
+                "shadow_price_constraints": shadow_price_constraints,
+                "shadow_price_file": dual_file.name,
+                "hydro_terminal_slack_file": slack_file.name,
+                "mip_gap": mip_gap,
+                "time_limit_seconds": time_limit,
+                "max_time_limit_mip_gap": (
+                    max_time_limit_mip_gap if unit_commitment == "full" else None
+                ),
+                "solver_threads": solver_options.get("threads", solver_threads),
+                "lp_solver": solver_options.get("solver"),
+                "simplex_strategy": solver_options.get("simplex_strategy"),
+                "solve_attempts": len(attempt_log),
+                "solve_attempt_log": "; ".join(attempt_log),
+                "runtime_seconds": runtime,
+                "process_cpu_seconds": resources.cpu_seconds,
+                "average_cpu_cores": resources.cpu_seconds / runtime if runtime > 0 else None,
+                "peak_cpu_cores_sampled": resources.peak_cpu_cores_sampled,
+                "peak_process_rss_mb_sampled": resources.peak_rss_bytes / 1_000_000,
+                "peak_process_threads_sampled": resources.peak_threads,
+                "max_nodal_residual_mw": residual,
+                "max_corridor_loading_pct": loading,
+                **_window_profile_fields(attempt_breakdowns, copy_phase, prepare_phase),
+            }
+            with profiler.phase("export_checkpoint"):
+                previous.export_to_netcdf(checkpoint)
+                daily.to_csv(daily_file)
+                meta_file.write_text(json.dumps(row, indent=2), encoding="utf-8")
+            daily_parts.append(daily)
+            water_balance_parts.append(water_balance_daily)
+            kodayar_balance_parts.append(kodayar_balance_daily)
+            window_rows.append(row)
 
-        pd.concat(daily_parts).sort_index().to_csv(output_dir / "modeled_daily_generation.partial.csv")
-        pd.concat(water_balance_parts).to_csv(
-            output_dir / "measured_water_balance.partial.csv", index=False
-        )
-        pd.concat(kodayar_balance_parts).to_csv(
-            output_dir / "upper_kodayar_balance.partial.csv", index=False
-        )
-        pd.DataFrame(window_rows).to_csv(output_dir / "window_log.partial.csv", index=False)
-        print(
-            f"Window {number}/{len(starts)}: {runtime:.1f} s wall, "
-            f"{resources.cpu_seconds:.1f} s CPU "
-            f"({resources.cpu_seconds / runtime:.2f} cores average), "
-            f"{resources.peak_cpu_cores_sampled:.2f} peak sampled cores, "
-            f"{resources.peak_rss_bytes / 1_000_000:.0f} MB peak RSS, "
-            f"{resources.peak_threads} peak process threads. "
-            f"Metrics: {output_dir / 'window_log.partial.csv'}",
-            flush=True,
-        )
+            with profiler.phase("write_partial_logs"):
+                pd.concat(daily_parts).sort_index().to_csv(output_dir / "modeled_daily_generation.partial.csv")
+                pd.concat(water_balance_parts).to_csv(
+                    output_dir / "measured_water_balance.partial.csv", index=False
+                )
+                pd.concat(kodayar_balance_parts).to_csv(
+                    output_dir / "upper_kodayar_balance.partial.csv", index=False
+                )
+                pd.DataFrame(window_rows).to_csv(output_dir / "window_log.partial.csv", index=False)
+            report(
+                f"Window {number}/{len(starts)}: {runtime:.1f} s wall, "
+                f"{resources.cpu_seconds:.1f} s CPU "
+                f"({resources.cpu_seconds / runtime:.2f} cores average), "
+                f"{resources.peak_cpu_cores_sampled:.2f} peak sampled cores, "
+                f"{resources.peak_rss_bytes / 1_000_000:.0f} MB peak RSS, "
+                f"{resources.peak_threads} peak process threads; window total "
+                f"{time.perf_counter() - window_started:.1f} s. "
+                f"Metrics: {output_dir / 'window_log.partial.csv'}"
+            )
 
     modeled = pd.concat(daily_parts).sort_index() if daily_parts else pd.DataFrame()
     water_balance = (
@@ -1719,8 +1792,9 @@ def run_rolling_year(
         "solver_runtime_seconds_sum": float(window_log.get("runtime_seconds", pd.Series(dtype=float)).sum()),
         "wall_clock_seconds_this_session": float(time.perf_counter() - run_started),
     }
-    modeled.to_csv(output_dir / "modeled_daily_generation.csv")
-    water_balance.to_csv(output_dir / "measured_water_balance.csv", index=False)
-    kodayar_balance.to_csv(output_dir / "upper_kodayar_balance.csv", index=False)
-    window_log.to_csv(output_dir / "window_log.csv", index=False)
+    with profiler.phase("write_rolling_outputs"):
+        modeled.to_csv(output_dir / "modeled_daily_generation.csv")
+        water_balance.to_csv(output_dir / "measured_water_balance.csv", index=False)
+        kodayar_balance.to_csv(output_dir / "upper_kodayar_balance.csv", index=False)
+        window_log.to_csv(output_dir / "window_log.csv", index=False)
     return modeled, validation, None

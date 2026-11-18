@@ -435,6 +435,44 @@ def _detail_section(detail: DetailedAnalysis, result_dir: Path, collapsed: bool)
     return "".join(parts)
 
 
+def _profile_section(result_dir: Path) -> str:
+    """Summary and log links from the run's ``profile/`` folder, if logging was on."""
+    profile_dir = result_dir / "profile"
+    if not profile_dir.is_dir():
+        return ""
+    parts = ["<h2>Run logging and profile</h2>"]
+    status = _read_json(profile_dir / "run_status.json")
+    if status.get("status"):
+        tone = "" if status["status"] == "completed" else ' class="warn-text"'
+        parts.append(f"<p{tone}>Profiled run status: <code>{_esc(status['status'])}</code></p>")
+    summary = profile_dir / "summary.txt"
+    if summary.exists():
+        parts.append(
+            "<details open><summary>Profile summary</summary>"
+            f"<pre>{_esc(summary.read_text(encoding='utf-8', errors='replace'))}</pre></details>"
+        )
+    links = [
+        path
+        for path in (
+            profile_dir / "run.log",
+            profile_dir / "solves.csv",
+            profile_dir / "resources.csv",
+            profile_dir / "summary.json",
+        )
+        if path.exists()
+    ]
+    highs_logs = sorted((profile_dir / "highs").glob("*.log"))
+    items = "".join(f"<li>{_link(path, result_dir)}</li>" for path in links)
+    if highs_logs:
+        items += (
+            f"<li>{_link(profile_dir / 'highs', result_dir)}/ "
+            f"({len(highs_logs):,} HiGHS solver logs)</li>"
+        )
+    if items:
+        parts.append(f"<ul>{items}</ul>")
+    return "".join(parts)
+
+
 CSS = """
 :root {
   --bg: #f7f7f5; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6b66;
@@ -553,6 +591,8 @@ def render_report(
             '<p class="muted">This run kept no solved networks (for example a monthly run), '
             "so only the runner outputs above are available.</p>"
         )
+
+    sections.append(_profile_section(result_dir))
 
     sections.append("<h2>Run record</h2>")
     sections.append(

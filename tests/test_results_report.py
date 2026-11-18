@@ -82,6 +82,31 @@ def test_report_warns_when_rolling_run_is_incomplete(tmp_path):
     assert "1 / 53" in text
 
 
+def test_report_links_profile_logs_when_logging_was_on(tmp_path):
+    result_dir = tmp_path / "profiled"
+    _runner_outputs(result_dir)
+    profile = result_dir / "profile"
+    (profile / "highs").mkdir(parents=True)
+    (profile / "highs" / "day_20250711.log").write_text("Running HiGHS", encoding="utf-8")
+    (profile / "run.log").write_text("log", encoding="utf-8")
+    (profile / "summary.txt").write_text("Total wall time 12 s", encoding="utf-8")
+    (profile / "run_status.json").write_text('{"status": "completed"}', encoding="utf-8")
+
+    text = report.build_report(result_dir, detailed=False).read_text(encoding="utf-8")
+
+    assert "Run logging and profile" in text
+    assert "Total wall time 12 s" in text
+    assert 'href="profile/run.log"' in text
+    assert "1 HiGHS solver logs" in text
+
+
+def test_report_has_no_profile_section_when_logging_was_off(tmp_path):
+    result_dir = tmp_path / "unprofiled"
+    _runner_outputs(result_dir)
+    text = report.build_report(result_dir, detailed=False).read_text(encoding="utf-8")
+    assert "Run logging and profile" not in text
+
+
 def test_rolling_window_summary_counts_problems():
     log = pd.DataFrame(
         {

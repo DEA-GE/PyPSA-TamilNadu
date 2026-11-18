@@ -58,7 +58,7 @@ class _Tee:
 
 
 def _start_console_log(config: dict) -> tuple[Path, TextIO] | None:
-    if not config["paths"]["console_log"]:
+    if not config["logging"]["console_log"]:
         return None
     log_dir = resolve_path(config["paths"]["results_root"]) / "console_logs"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -128,12 +128,22 @@ def main(argv: list[str] | None = None) -> int:
         help="Override one setting, e.g. --set run.name=test --set solver.threads=4",
     )
     parser.add_argument(
+        "--profile",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Turn detailed logging and profiling (profile/ folder with run.log and HiGHS "
+        "logs) on or off for this run; overrides logging.profile",
+    )
+    parser.add_argument(
         "--no-analysis", action="store_true", help="Skip the results analysis and report"
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Validate and print the resolved config only"
     )
     args = parser.parse_args(argv)
+    if args.profile is not None:
+        # Applied last, so the flag wins over the config file and --set.
+        args.overrides.append(f"logging.profile={'true' if args.profile else 'false'}")
 
     try:
         config = load_run_config(args.config, args.overrides)
@@ -150,6 +160,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if log_handle is not None:
             print(f"Console log: {log_handle[0]}")
+        print(
+            "Detailed logging and profiling: "
+            + (f"on (level {config['logging']['level']})" if config["logging"]["profile"] else "off")
+        )
         _print_environment(config)
 
         import run_9ba_selection
