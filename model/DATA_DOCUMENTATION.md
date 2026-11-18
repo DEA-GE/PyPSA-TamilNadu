@@ -25,6 +25,7 @@ To replace only the transmission network from the active Excel input, run
 | `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand including external-bus exchange, generator availability, and simple-reservoir inflow |
 | `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv`, `*_energy_*_summary.csv` | Observed daily energy targets and annual target summaries (applied by the run scripts, not as PyPSA GlobalConstraints) |
 | `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
+| `solar_capacity_trajectory.csv`, `solar_availability_calibration.csv`, `solar_seasonal_correction.csv` | Month-end government solar capacity applied to solar availability, the annual-energy calibration of that availability, and the applied monthly soiling/wind-cooling/seasonal correction |
 | `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv`, `interstate_flow_audit.csv`, `interstate_flow_reconciliation.csv` | Hydro assumptions and validation, corridor ratings, capacity reconciliation, and hourly/annual REA flow audits |
 
 FY2025-26 SRPC REA imports and exports are represented at four external buses.

@@ -13,7 +13,9 @@ network = pypsa.Network("model")
 ```
 
 For the location, table structure, units, provenance, and limitations of each
-input, see [Input data guide](docs/input-data.md).
+input, see [Input data guide](docs/input-data.md). How hourly solar
+availability is derived and validated is described in the
+[Solar availability methodology](docs/solar-availability-methodology.md).
 
 ## Repository layout
 
@@ -543,6 +545,19 @@ model profiles are archived in
 See the [Input data guide](docs/input-data.md#wind-and-solar-availability)
 for the source and validation details. The builder uses statewide template
 shapes as a fallback only if the active CSV is absent.
+
+Solar availability also follows the capacity installed through the year.
+The NITI Dashboard's monthly installed capacity (MNRE's monthly series) puts
+Tamil Nadu's grid-connected solar at 10,083 MW on 31 March 2025 and 13,505 MW
+on 31 March 2026, against the 14,045.55 MW July 2026 fleet in
+`generators.csv`. Each hour's solar availability is scaled by the installed
+share of that fleet. A seasonal correction follows: soiling and wind cooling
+from literature parameters, plus monthly factors fitted on FY2020-21 to
+FY2024-25 observed generation. One multiplier (1.1863) then keeps annual solar
+potential equal to the observed 19,690.99 GWh. See the [Solar availability methodology](docs/solar-availability-methodology.md)
+for the method, validation and limitations, and the
+[Input data guide](docs/input-data.md#solar-capacity-through-the-year) for the
+files.
 
 ## Generated files and Git
 

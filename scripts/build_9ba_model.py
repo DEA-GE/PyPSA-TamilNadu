@@ -23,6 +23,8 @@ from transmission_assumptions import (
 from build_unit_level_model import COAL_CYCLE_COST_PER_MW
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
+from solar_capacity_trajectory import monthly_solar_capacity, solar_capacity_mw
+from solar_seasonal_correction import hourly_solar_correction
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,11 +35,11 @@ AREA_FILE = SOURCE_DIR / "Balancing_areas.txt"
 GRID_WORKBOOK = SOURCE_DIR / "TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx"
 DEMAND_WORKBOOK = SOURCE_DIR / "tamil_nadu_balancing_area_demand.xlsx"
 PROFILE_INPUT = SOURCE_DIR / "renewable_profiles.csv"
-# Empirical calibration of solar availability against the NITI Dashboard's
-# observed FY2025-26 statewide generation: 19,690.99 GWh observed divided by
-# 21,163.90 GWh of unscaled profile potential.  This scales the solar
-# capacity-factor profiles (not installed capacity) before generator p_max_pu.
-SOLAR_AVAILABILITY_MULTIPLIER = 0.9304
+# Solar availability is calibrated so that the potential of the capacity
+# installed through FY2025-26 (scripts/solar_capacity_trajectory.py) equals
+# the NITI Dashboard's observed annual statewide solar generation; see
+# apply_solar_capacity_trajectory.
+OBSERVED_ANNUAL_GENERATION_FILE = SOURCE_DIR / "niti_dashboard_annual_generation_FY2025_26.csv"
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 REA_INTERSTATE_HOURLY_FLOW_FILE = SOURCE_DIR / "rea_interstate_hourly_flows_FY2025_26.csv"
 REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_FY2025_26.csv"
@@ -2465,10 +2467,7 @@ def placeholder_profiles(
         values = profiles[required_columns]
         if values.isna().any().any() or ((values < 0.0) | (values > 1.0)).any().any():
             raise ValueError("Renewable profiles must contain values from zero to one")
-        profiles = profiles[["snapshot", *required_columns]].copy()
-        solar_columns = [column for column in required_columns if column.endswith("_solar")]
-        profiles.loc[:, solar_columns] *= SOLAR_AVAILABILITY_MULTIPLIER
-        return profiles
+        return profiles[["snapshot", *required_columns]].copy()
 
     technology = pd.read_csv(BASE_MODEL / "technology-p_max-pu.csv", index_col=0)
     meta = metadata.set_index("component_id")
@@ -2487,8 +2486,6 @@ def placeholder_profiles(
         profiles[f"{slugify(area)}_solar"] = solar_profile.to_numpy()
         profiles[f"{slugify(area)}_wind"] = technology["wind_fleet"].to_numpy()
     profiles.to_csv(PROFILE_INPUT, index=False)
-    solar_columns = [column for column in required_columns if column.endswith("_solar")]
-    profiles.loc[:, solar_columns] *= SOLAR_AVAILABILITY_MULTIPLIER
     return profiles
 
 
@@ -2511,6 +2508,115 @@ def build_generator_profiles(
             if original in base.columns:
                 output[name] = base[original]
     return pd.DataFrame(output, index=base.index)
+
+
+def read_observed_annual_solar_mwh(path: Path = OBSERVED_ANNUAL_GENERATION_FILE) -> float:
+    """NITI Dashboard FY2025-26 statewide solar generation in MWh."""
+    observed = pd.read_csv(path)
+    solar = observed.loc[observed["carrier"].eq("solar")]
+    if len(solar) != 1:
+        raise ValueError(f"Expected one solar row in {path}")
+    row = solar.iloc[0]
+    if (row["period_start"], row["period_end"]) != ("2025-04-01", "2026-03-31"):
+        raise ValueError("Observed annual solar generation must cover FY2025-26")
+    return float(row["generation_gwh"]) * 1_000.0
+
+
+def apply_solar_seasonal_correction(
+    generator_profiles: pd.DataFrame,
+    generators: pd.DataFrame,
+    snapshots: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Apply the soiling, wind-cooling and seasonal correction to solar availability.
+
+    See scripts/solar_seasonal_correction.py.  The annual level is set
+    afterwards by apply_solar_capacity_trajectory.
+    """
+    model_snapshots = pd.DatetimeIndex(pd.to_datetime(snapshots, errors="raise"))
+    correction = hourly_solar_correction(model_snapshots)
+    solar = generators.loc[generators["carrier"].eq("solar"), ["name", "bus"]]
+    profiles = generator_profiles.copy()
+    raw = generator_profiles[solar["name"]]
+    for name, bus in solar.itertuples(index=False):
+        profiles[name] = raw[name].to_numpy() * correction[slugify(bus)].to_numpy()
+
+    nameplate = generators.set_index("name").loc[solar["name"], "p_nom"].astype(float)
+    month = model_snapshots.to_period("M")
+    before = raw.mul(nameplate, axis=1).sum(axis=1).groupby(month).sum()
+    after = profiles[solar["name"]].mul(nameplate, axis=1).sum(axis=1).groupby(month).sum()
+    audit = pd.DataFrame(
+        {
+            "month": before.index.astype(str),
+            "energy_weighted_correction": (after / before).to_numpy(),
+        }
+    )
+    return profiles, audit
+
+
+def apply_solar_capacity_trajectory(
+    generator_profiles: pd.DataFrame,
+    generators: pd.DataFrame,
+    snapshots: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Scale solar availability to the capacity installed at each snapshot.
+
+    ``p_nom`` keeps the July 2026 fleet and its area distribution.  Government
+    releases record statewide grid-connected solar only, so every solar
+    generator's ``p_max_pu`` is multiplied by the same installed share of that
+    fleet.  A single availability multiplier then makes annual potential equal
+    the observed annual generation, replacing the earlier fixed 0.9304 that was
+    calibrated against a constant July 2026 fleet.
+    """
+    solar = generators.loc[generators["carrier"].eq("solar"), ["name", "p_nom"]]
+    nameplate = solar.set_index("name")["p_nom"].astype(float)
+    fleet_mw = float(nameplate.sum())
+    model_snapshots = pd.DatetimeIndex(pd.to_datetime(snapshots, errors="raise"))
+    if len(model_snapshots) != len(generator_profiles):
+        raise ValueError("Generator profiles and snapshots differ in length")
+    monthly = monthly_solar_capacity()
+    capacity = solar_capacity_mw(model_snapshots, monthly)
+    if capacity.gt(fleet_mw + 1e-6).any():
+        raise ValueError(
+            "Reported solar capacity exceeds the modeled fleet, which p_nom would cap"
+        )
+    installed_share = capacity.to_numpy() / fleet_mw
+    raw = generator_profiles[nameplate.index]
+    flat_potential_mwh = float(raw.mul(nameplate, axis=1).to_numpy().sum())
+    trajectory_potential_mwh = float(
+        raw.mul(nameplate, axis=1).mul(installed_share, axis=0).to_numpy().sum()
+    )
+    observed_mwh = read_observed_annual_solar_mwh()
+    multiplier = observed_mwh / trajectory_potential_mwh
+    scaled = raw.mul(installed_share * multiplier, axis=0)
+    if scaled.to_numpy().max() > 1.0:
+        raise ValueError("Calibrated solar availability exceeds one")
+    profiles = generator_profiles.copy()
+    profiles.loc[:, nameplate.index] = scaled
+
+    trajectory_audit = monthly.assign(
+        model_fleet_mw=fleet_mw,
+        installed_share_of_fleet=monthly["solar_grid_connected_mw"] / fleet_mw,
+    ).reset_index()
+    calibration = pd.DataFrame(
+        [
+            {
+                "model_fleet_mw": fleet_mw,
+                "fy_mean_grid_connected_mw": float(capacity.mean()),
+                "first_snapshot_mw": float(capacity.iloc[0]),
+                "last_snapshot_mw": float(capacity.iloc[-1]),
+                "unscaled_potential_constant_fleet_gwh": flat_potential_mwh / 1_000.0,
+                "unscaled_potential_trajectory_gwh": trajectory_potential_mwh / 1_000.0,
+                "observed_annual_generation_gwh": observed_mwh / 1_000.0,
+                "observed_source": OBSERVED_ANNUAL_GENERATION_FILE.name,
+                "availability_multiplier": multiplier,
+                "calibrated_potential_gwh": float(
+                    scaled.mul(nameplate, axis=1).to_numpy().sum()
+                )
+                / 1_000.0,
+            }
+        ]
+    )
+    return profiles, trajectory_audit, calibration
 
 
 def validate_capacity_conservation(
@@ -2934,6 +3040,14 @@ def main() -> None:
     generator_profiles = build_generator_profiles(
         generators, expanded_metadata, area_profiles
     )
+    generator_profiles, solar_seasonal_correction = apply_solar_seasonal_correction(
+        generator_profiles, generators, snapshots
+    )
+    (
+        generator_profiles,
+        solar_capacity_trajectory,
+        solar_availability_calibration,
+    ) = apply_solar_capacity_trajectory(generator_profiles, generators, snapshots)
     for name in rea_export_reservation_profiles.columns:
         generator_profiles[name] = rea_export_reservation_profiles[name].to_numpy()
     # Monthly observed energy equalities supersede the inherited placeholder
@@ -3039,6 +3153,15 @@ def main() -> None:
     load_time_series.to_csv(OUTPUT_DIR / "loads-p_set.csv")
     generators.to_csv(OUTPUT_DIR / "generators.csv", index=False)
     generator_profiles.to_csv(OUTPUT_DIR / "generators-p_max_pu.csv")
+    solar_capacity_trajectory.to_csv(
+        OUTPUT_DIR / "solar_capacity_trajectory.csv", index=False, date_format="%Y-%m-%d"
+    )
+    solar_availability_calibration.to_csv(
+        OUTPUT_DIR / "solar_availability_calibration.csv", index=False
+    )
+    solar_seasonal_correction.to_csv(
+        OUTPUT_DIR / "solar_seasonal_correction.csv", index=False
+    )
     pd.concat([
         water_inflow_profiles[["upper_kodayar_estimated_inflow"]],
         cascade_inflow_profiles,
@@ -3242,6 +3365,14 @@ def main() -> None:
         "Applied July 2026 capacity overlay: "
         f"{additional_generators['p_nom'].sum():.4f} MW modeled and "
         f"{additional_capacity.loc[~additional_capacity['include_in_model'], 'capacity_mw'].sum():.2f} MW unassigned"
+    )
+    calibration = solar_availability_calibration.iloc[0]
+    print(
+        "Solar capacity through FY2025-26: "
+        f"{calibration['first_snapshot_mw']:,.0f} to {calibration['last_snapshot_mw']:,.0f} MW "
+        f"(mean {calibration['fy_mean_grid_connected_mw']:,.0f} MW of a "
+        f"{calibration['model_fleet_mw']:,.0f} MW fleet); availability multiplier "
+        f"{calibration['availability_multiplier']:.4f}"
     )
     print(f"Model folder: {OUTPUT_DIR}")
 
