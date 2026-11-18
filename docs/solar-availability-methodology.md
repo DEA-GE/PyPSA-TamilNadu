@@ -18,7 +18,7 @@ p_max_pu(g, t) = CF(a, t) × φ(a, d) × s(d) × C(t) / P × k
 
 | Term | Meaning | Source |
 | --- | --- | --- |
-| `CF(a, t)` | ERA5 capacity factor of area `a`, converted by atlite (panel tilt and ambient temperature included) | `data/model_inputs/renewable_profiles.csv` |
+| `CF(a, t)` | ERA5 capacity factor of area `a`, converted by atlite (panel tilt and ambient temperature included) and aligned to IST model hours | `data/model_inputs/renewable_profiles.csv`, built by `scripts/prepare_lava_profiles.py` (§7) |
 | `φ(a, d)` | Physical layer: `(1 − soiling) × wind-cooling gain`, daily | Literature parameters, ERA5 daily weather (§3.1) |
 | `s(d)` | Seasonal layer: smooth daily curve whose monthly means equal the fitted factor `f(m)` | Fitted on FY2020-21 to FY2024-25 (§3.2) |
 | `C(t)` | Grid-connected solar capacity installed in Tamil Nadu at hour `t` | NITI Dashboard monthly installed capacity, i.e. MNRE's monthly state series (§2) |
@@ -267,13 +267,18 @@ solar with the NITI monthly series and the daily series:
 |---|---|---|---|---|
 | Constant fleet, 0.9304 (before) | 19,689 GWh | 86 GWh | 14.5% (Apr) | 0.806 |
 | Capacity trajectory only | 19,674 GWh | 106 GWh | 12.8% (Jul) | 0.816 |
-| Trajectory + seasonal correction | 19,687 GWh | 39 GWh | 4.1% (Apr) | 0.841 |
+| Trajectory + seasonal correction, IST-aligned profile (§7) | 19,689 GWh | 39 GWh | 4.1% (Apr) | 0.841 |
 
 All 53 weekly windows solve to optimality. Curtailment stays below 0.1% of
 solar potential. Annual coal, hydro and wind change by 0.1% or less against
 the constant-fleet run. Unserved energy, all of it in April 2025, rises from
-73.8 to 80.4 GWh because April solar is now 16% lower than with the constant
-fleet. That April shortfall existed before the solar change and is a separate
+73.8 to 76.3 GWh because April solar is now 16% lower than with the constant
+fleet. Aligning the profile to IST hours (§7) changed none of the monthly
+figures; it lowered April unserved energy from 80.4 to 76.3 GWh. Shifting wind to IST (§7) leaves monthly solar and wind
+energy unchanged (solar RMSE 40 GWh) and raises the daily wind correlation
+with observations from 0.915 to 0.919. With wind now peaking in the afternoon
+rather than the late morning, April unserved energy falls from 76.3 to 24.4 GWh.
+Hydro falls by 69 GWh and coal rises by 56 GWh. That April shortfall existed before the solar change and is a separate
 issue.
 
 ## 6. Limitations and open questions
@@ -310,50 +315,61 @@ issue.
 - **Hourly shape.** The correction scales whole days; it does not change the
   shape within a day. Inverter clipping, which flattens midday output, is not
   modeled.
-- **Time alignment.** atlite solar output is labelled at the end of each UTC
-  hour (ERA5 accumulations). The model labels hours by their start in IST. The
-  current +5 h shift therefore leaves solar about 30 minutes late (§7).
 
-## 7. Recommendation for profile time alignment
+## 7. Profile time alignment
 
-This is not yet applied; it is for the next atlite run.
+The wind and solar columns of `renewable_profiles.csv` are built by
+`scripts/prepare_lava_profiles.py` from the LAVA/atlite area profiles, with
+the source in `data/source/lava_profiles_fy2025_26/`:
+
+- solar `9BA`: CSi panel, latitude-optimal fixed tilt, no tracking;
+- wind `AggrPCWiderCUF`.
+
+Both are computed on the ERA5 cutout `TamilNadu-2025-era5.nc`, whose time axis
+is UTC; LAVA keeps those timestamps.
 
 - **Conventions.** The model's hour `L` is `[L, L+1)` IST: REA 15-minute blocks
   1–4 map to hour 0. atlite keeps ERA5's labels for radiation: the value at
   `T` (UTC) is the mean over `(T−1h, T]` UTC, and only the solar-position
-  calculation is shifted by −30 minutes. Each model hour therefore takes half
-  of two atlite hours.
-- **Solar.** Move each value to the centre of its interval, convert to IST,
-  and average consecutive hours:
+  calculation is shifted by −30 minutes. IST is UTC+5:30, so each model hour
+  takes half of two atlite hours:
 
-  ```python
-  centre = pu.copy()
-  centre.index = (centre.index - pd.Timedelta("30min")).tz_localize("UTC") \
-                     .tz_convert("Asia/Kolkata").tz_localize(None)
-  model = 0.5 * (centre + centre.shift(-1))
+  ```
+  CF(L) = 0.5 × (atlite(L − 5 h) + atlite(L − 4 h))      [L in IST, atlite labels in UTC]
   ```
 
-  Splitting each ERA5 hour by clear-sky irradiance improves the sunrise and
-  sunset hours further.
-- **Wind.** ERA5 100 m wind is instantaneous, so the plain +5 h shift is
-  already right.
-- **Year ends.** Extend the atlite run by a few hours at both ends instead of
-  wrapping the year with `np.roll`.
-- **Check.** On the corrected profile, the average daily curve's midpoint
-  should fall near solar noon minus 0.5 h: about hour 11.8 in southern Tamil
-  Nadu and 11.65 in Chennai, against 12.26 now. On the Tirunelveli profile the
-  correction moves about 0.075 p.u. into 07:00–09:00 and out of 15:00–18:00.
+  Output within each ERA5 hour is treated as constant.
+- **No wrap-around.** The source window runs from 2025-03-31 18:00 to
+  2026-04-01 00:00 UTC, so the first and last model hours use real data.
+  Earlier profiles shifted the series 5 hours and wrapped the last five hours
+  of the year to its start.
+- **Effect.** Annual and monthly energy are unchanged, and so are the seasonal
+  factors and `k`. On the average day, the midpoint of solar output moves from
+  hour 12.26 to 11.76 in Tirunelveli and to 11.63 in Chennai North. That is
+  0.5 h before local solar noon, as it should be for hour-beginning labels.
+  Solar output is about 0.075 p.u. higher at 07:00–09:00 and up to 0.07 p.u.
+  lower at 15:00–18:00 than before. The evening drop therefore starts about an
+  hour earlier.
+- **Wind.** ERA5 100 m wind is instantaneous. The value at `L − 5 h` (UTC)
+  is the middle of model hour `L` (IST), so wind is shifted 5 hours:
+  `CF(L) = atlite(L − 5 h)`. Earlier wind profiles used the UTC timestamps as
+  IST, putting wind about 5 hours early; on the average day, Tirunelveli wind
+  now peaks at 16:00 IST instead of 11:00. Annual wind energy is unchanged.
+- **Possible refinement.** Splitting each ERA5 hour by clear-sky irradiance
+  instead of in equal halves would sharpen the sunrise and sunset hours.
 
 ## 8. Updating
 
 | Change | Action |
 | --- | --- |
-| New `renewable_profiles.csv` (e.g. new atlite run) | `python scripts/solar_seasonal_correction.py`, then `python scripts/build_9ba_model.py` |
+| New LAVA/atlite profiles | `python scripts/prepare_lava_profiles.py --extract-from <LAVA data folder>`, then `python scripts/solar_seasonal_correction.py`, then `python scripts/build_9ba_model.py` |
+| Other change to `renewable_profiles.csv` | `python scripts/solar_seasonal_correction.py`, then `python scripts/build_9ba_model.py` |
 | New monthly capacity export or MNRE release | Update `tamil_nadu_installed_capacity_monthly_2019_2026.csv` (and `tamil_nadu_re_capacity_releases_FY2025_26.csv` for off-grid), refit, rebuild |
 | Another study year | Extend the ERA5 weather file, the monthly capacity, the observed series and `TRAINING_FISCAL_YEARS`; refit, keeping the study year out of the fit |
 | Different literature parameters | Edit the constants at the top of `solar_seasonal_correction.py`, refit, rebuild |
 
-Tests: `tests/test_solar_capacity_trajectory.py` and
+Tests: `tests/test_prepare_lava_profiles.py`,
+`tests/test_solar_capacity_trajectory.py` and
 `tests/test_solar_seasonal_correction.py`. They check agreement with MNRE's
 releases, interpolation, the soiling and wind models, mean-preserving
 smoothing, that the stored factors reproduce the fit, and the builder.

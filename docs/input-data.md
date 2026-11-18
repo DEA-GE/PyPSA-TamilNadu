@@ -111,29 +111,34 @@ each area's technology profile to its corresponding wind or solar generators
 and writes component-level availability to `model/generators-p_max_pu.csv`.
 The builder checks timestamps, required columns, missing values, and bounds.
 
-The active profiles come from the area-specific wind and solar CSVs under
-`model/TamilNadu9BAs_profiles_2025_2026/2025/` and `2026/`. The 2025 files
-cover the full calendar year; the 2026 files cover January through April.
-The FY2025-26 series uses 2025-04-01 through 2026-03-31 and is shifted five
-hours later to match the model's hourly convention. The final five FY hours
-wrap to the beginning. The constructed table is
-`model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv`.
-To activate the corrected FY table and rebuild the generator profiles, run:
+**Solar columns** come from the LAVA/atlite `9BA` area profiles (CSi panel,
+latitude-optimal fixed tilt, ERA5). `scripts/prepare_lava_profiles.py` reads
+the UTC source window in `data/source/lava_profiles_fy2025_26/`. atlite
+labels each value at the end of its UTC hour, while model hours begin at their
+IST label. Each model hour is therefore the mean of the two atlite hours it
+overlaps. The window extends beyond the fiscal year, so nothing wraps around.
+The method and checks are in
+[Solar availability methodology §7](solar-availability-methodology.md#7-profile-time-alignment).
 
-```powershell
-Copy-Item model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv data/model_inputs/renewable_profiles.csv
-python scripts/build_9ba_model.py
-python scripts/construct_and_compare_re_profiles_fy2025_26.py
-```
+**Wind columns** come from the LAVA `AggrPCWiderCUF` area profiles, through
+the same script and source folder. LAVA labels values with the ERA5 cutout's
+UTC timestamps, and ERA5 100 m wind is instantaneous. Each IST model hour
+therefore takes the value at its midpoint, 5 hours earlier in UTC. The script
+also writes the fiscal-year wind table
+`data/model_inputs/Onshorewind_9BAs_AggrPCWiderCUF_FY2025-26.csv`. Until
+November 2026 that table and the model's wind columns used the UTC timestamps
+as if they were IST, putting wind about 5 hours early.
 
-The construction script checks that the corrected series agree with the active
-input and all renewable generators. The previous model input is archived at
-`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv`. The
-comparison notebook at `notebooks/compare_external_re_profiles_FY2025_26.ipynb`
-uses that archive as its baseline. The older workbook
+Earlier versions built both technologies with
+`scripts/construct_and_compare_re_profiles_fy2025_26.py`. That script shifted
+the series 5 hours later and wrapped the last five hours of the year to its
+start, and it needs source files no longer in the repository. The previous
+model input is archived at
+`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for
+`notebooks/compare_external_re_profiles_FY2025_26.ipynb`. The older workbook
 `data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx` is retained for
-comparison; `scripts/prepare_renewable_profiles.py` now checks or regenerates
-the archived baseline by default, leaving the active input unchanged.
+comparison; `scripts/prepare_renewable_profiles.py` checks or regenerates the
+archived baseline, leaving the active input unchanged.
 
 ### Solar capacity through the year
 
