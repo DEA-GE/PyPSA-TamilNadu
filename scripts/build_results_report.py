@@ -53,18 +53,23 @@ INLINE_TABLES = (
     ("monthly_generation", "Monthly generation"),
     ("storage_metrics", "Storage units"),
     ("balancing_area_metrics", "Balancing areas"),
+    ("operating_costs", "Operating costs"),
+    ("price_metrics", "Marginal prices"),
+    ("market_values", "Market values"),
     ("commitment_by_carrier", "Unit commitment by carrier"),
     ("chronology_validation", "Chronology checks"),
     ("topology_validation", "Topology checks"),
 )
 FIGURE_TITLES = {
-    "generation": "Hourly generation and demand",
+    "energy_balance": "System electricity balance",
     "generation_comparison": "Generation versus observed",
     "monthly_generation": "Monthly generation",
     "resource_seasonality": "Resource seasonality",
-    "storage": "Storage dispatch and state of charge",
+    "storage": "Storage units and reservoirs",
     "transmission": "Transmission flows",
     "ramps": "Net-load ramps",
+    "prices": "Marginal prices",
+    "costs": "Operating costs and market values",
 }
 MAX_INLINE_ROWS = 200
 

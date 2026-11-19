@@ -6,7 +6,13 @@ import numpy as np
 import pandas as pd
 import pypsa
 
-from .config import RENEWABLE_CARRIERS, canonical_carrier
+from .config import (
+    CARRIER_ORDER,
+    CURRENCY,
+    PENALTY_CARRIERS,
+    RENEWABLE_CARRIERS,
+    canonical_carrier,
+)
 from .loaders import AnalysisRun
 from .statistics import (
     ELECTRICITY_BUS_CARRIER,
@@ -15,6 +21,8 @@ from .statistics import (
     is_transmission,
     network_statistic,
     order_carriers,
+    price_timeseries,
+    statistic_sum,
     statistic_timeseries,
     statistic_total,
     to_report_carriers,
@@ -434,6 +442,47 @@ def _area_timeseries(run: AnalysisRun) -> dict[str, pd.DataFrame]:
     return frames
 
 
+def energy_balance_timeseries(run: AnalysisRun) -> pd.DataFrame:
+    """Return the hourly system electricity balance (MW) by category.
+
+    Built from PyPSA's ``energy_balance`` at the electricity buses, summed
+    over buses. Supply is positive: generation by report carrier (storage
+    discharge counts as ``hydro``) and ``imports`` (negative loads). Use is
+    negative: ``demand`` (loads, including neighbouring-region loads),
+    ``storage_charging`` (storage units charging and pumps) and
+    ``transmission_losses``. Each hour sums to zero.
+    """
+    balance = statistic_timeseries(
+        run, "energy_balance", groupby=["bus", "carrier"]
+    )
+    if balance.empty:
+        return pd.DataFrame(index=run.snapshots)
+    columns = balance.columns
+    components = columns.get_level_values("component")
+    carriers = columns.get_level_values("carrier")
+    transfer = is_transmission(components, carriers)
+    producing = (
+        components.isin(["Generator", "StorageUnit"])
+        | (components.isin(["Link"]) & ~transfer)
+    )
+    production = balance.loc[:, producing]
+    parts: dict[str, pd.Series] = {}
+    supplied = production.clip(lower=0.0).T.groupby(
+        carriers[producing].map(canonical_carrier)
+    ).sum().T
+    parts.update({carrier: supplied[carrier] for carrier in supplied})
+    parts["storage_charging"] = production.clip(upper=0.0).sum(axis=1)
+    loads = balance.loc[:, components == "Load"]
+    parts["imports"] = loads.clip(lower=0.0).sum(axis=1)
+    parts["demand"] = loads.clip(upper=0.0).sum(axis=1)
+    parts["transmission_losses"] = balance.loc[:, transfer].sum(axis=1)
+    result = pd.DataFrame(parts).fillna(0.0)
+    result = result.loc[:, result.abs().gt(1e-6).any()]
+    supply = order_carriers(result.loc[:, result.ge(0.0).all()])
+    use = result.drop(columns=supply.columns)
+    return pd.concat([supply, use], axis=1)
+
+
 def balancing_area_metrics(run: AnalysisRun) -> pd.DataFrame:
     frames = _area_timeseries(run)
     weights = run.weights
@@ -487,6 +536,163 @@ def ramp_timeseries(run: AnalysisRun) -> pd.DataFrame:
     return result
 
 
+MILLION = f"million_{CURRENCY.lower()}"
+PER_MWH = f"{CURRENCY.lower()}_per_mwh"
+
+OPEX_COST_TYPES = (
+    "marginal_cost",
+    "start_up_cost",
+    "shut_down_cost",
+    "stand_by_cost",
+    "spill_cost",
+    "marginal_cost_storage",
+    "marginal_cost_quadratic",
+)
+
+
+def _cost_carrier(index: pd.MultiIndex) -> pd.Index:
+    """Map ``(component, carrier)`` cost groups to report carriers."""
+    components = index.get_level_values("component")
+    carriers = index.get_level_values("carrier")
+    labels = carriers.map(canonical_carrier)
+    return pd.Index(
+        np.where(is_transmission(components, carriers), "transmission", labels),
+        name="carrier",
+    )
+
+
+def operating_costs(run: AnalysisRun) -> pd.DataFrame:
+    """Return operating costs (million currency units) by carrier and cost type.
+
+    From PyPSA's ``opex`` over all components, including the water layer.
+    ``transmission`` holds the charges on interstate AC and HVDC links.
+    Penalty carriers (unserved energy, measured-storage reconciliation,
+    spill tie-breaks) come last; the ``operating_total`` row excludes them,
+    ``penalty_total`` sums them and ``total`` is both. Cost types that are
+    zero throughout are left out.
+    """
+    columns = {}
+    for cost_type in OPEX_COST_TYPES:
+        cost = statistic_sum(
+            run, "opex", cost_types=cost_type, groupby="carrier", bus_carrier=None
+        )
+        if cost.empty or not cost.abs().gt(0.0).any():
+            continue
+        columns[f"{cost_type}_{MILLION}"] = cost.groupby(_cost_carrier(cost.index)).sum() / 1e6
+    if not columns:
+        return pd.DataFrame()
+    result = pd.DataFrame(columns).fillna(0.0)
+    result[f"total_{MILLION}"] = result.sum(axis=1)
+    penalties = [carrier for carrier in result.index if carrier in PENALTY_CARRIERS]
+    operating = result.drop(index=penalties)
+    ordered = [carrier for carrier in CARRIER_ORDER if carrier in operating.index]
+    ordered += sorted(set(operating.index) - set(ordered))
+    result = result.reindex(ordered + sorted(penalties))
+    result.loc["operating_total"] = result.loc[ordered].sum()
+    result.loc["penalty_total"] = result.loc[penalties].sum()
+    result.loc["total"] = result.loc[["operating_total", "penalty_total"]].sum()
+    result.index.name = "carrier"
+    return result
+
+
+def _has_prices(prices: pd.DataFrame) -> bool:
+    return not (prices.empty or prices.isna().all().all())
+
+
+def _area_load_weights(run: AnalysisRun, prices: pd.DataFrame) -> pd.DataFrame:
+    """Return energy weights (MWh) for load-weighting prices per bus and hour."""
+    demand = _area_timeseries(run)["demand"].clip(lower=0.0)
+    return demand.reindex(columns=prices.columns, fill_value=0.0).mul(
+        run.weights, axis=0
+    )
+
+
+def system_price_timeseries(
+    run: AnalysisRun, prices: pd.DataFrame | None = None
+) -> pd.Series:
+    """Return the hourly load-weighted price over the electricity buses."""
+    prices = price_timeseries(run) if prices is None else prices
+    if not _has_prices(prices):
+        return pd.Series(np.nan, index=run.snapshots)
+    energy = _area_load_weights(run, prices)
+    return prices.mul(energy).sum(axis=1) / energy.sum(axis=1).replace(0.0, np.nan)
+
+
+def average_price(run: AnalysisRun, prices: pd.DataFrame | None = None) -> float:
+    """Return the load-weighted average price over buses and hours."""
+    prices = price_timeseries(run) if prices is None else prices
+    if not _has_prices(prices):
+        return np.nan
+    energy = _area_load_weights(run, prices)
+    return float(prices.mul(energy).sum().sum() / energy.sum().sum())
+
+
+def price_metrics(run: AnalysisRun) -> pd.DataFrame:
+    """Summarize marginal prices (currency/MWh) at each electricity bus.
+
+    Empty when the solves carry no prices (binary unit commitment). Hours at
+    the unserved-energy price are hours in which load shedding set the price.
+    """
+    prices = price_timeseries(run)
+    if not _has_prices(prices):
+        return pd.DataFrame()
+    weights = run.weights
+    energy = _area_load_weights(run, prices)
+    result = pd.DataFrame(index=prices.columns)
+    result.index.name = "balancing_area"
+    result[f"time_weighted_mean_{PER_MWH}"] = prices.mul(weights, axis=0).sum() / weights.sum()
+    result[f"load_weighted_mean_{PER_MWH}"] = (
+        prices.mul(energy).sum() / energy.sum().replace(0.0, np.nan)
+    )
+    result[f"minimum_{PER_MWH}"] = prices.min()
+    result[f"p05_{PER_MWH}"] = prices.quantile(0.05)
+    result[f"median_{PER_MWH}"] = prices.median()
+    result[f"p95_{PER_MWH}"] = prices.quantile(0.95)
+    result[f"maximum_{PER_MWH}"] = prices.max()
+    shedding = run.base.generators.loc[
+        run.base.generators.carrier.astype(str).eq("unserved_energy"), "marginal_cost"
+    ]
+    if not shedding.empty:
+        result["hours_at_unserved_energy_price"] = prices.ge(
+            0.999 * float(shedding.min())
+        ).sum()
+    result["hours_with_negative_price"] = prices.lt(0.0).sum()
+    return result
+
+
+def market_values(run: AnalysisRun) -> pd.DataFrame:
+    """Return energy-weighted market value and revenue by generation carrier.
+
+    Market value is revenue from supplied energy divided by supplied energy
+    at the electricity buses; the capture ratio divides it by the
+    load-weighted mean price over the same buses and hours. Slack generators
+    (unserved energy, imports) are left out. Empty when the solves carry no
+    prices.
+    """
+    prices = price_timeseries(run)
+    if not _has_prices(prices):
+        return pd.DataFrame()
+    options = {"components": GENERATING_COMPONENTS, "groupby": "carrier"}
+    revenue = to_report_carriers(
+        statistic_sum(run, "revenue", direction="output", **options)
+    )
+    supply = to_report_carriers(statistic_sum(run, "supply", **options))
+    result = pd.DataFrame(
+        {"supplied_gwh": supply / 1_000.0, f"revenue_{MILLION}": revenue / 1e6}
+    ).fillna(0.0)
+    result[f"market_value_{PER_MWH}"] = (
+        result[f"revenue_{MILLION}"] * 1e6
+        / (result.supplied_gwh * 1_000.0).replace(0.0, np.nan)
+    )
+    result["capture_ratio"] = (
+        result[f"market_value_{PER_MWH}"] / average_price(run, prices)
+    )
+    result = result.drop(index=list(NON_PLANT_CARRIERS), errors="ignore")
+    result.index.name = "carrier"
+    ordered = [carrier for carrier in CARRIER_ORDER if carrier in result.index]
+    return result.reindex(ordered + sorted(set(result.index) - set(ordered)))
+
+
 def system_metrics(run: AnalysisRun) -> pd.DataFrame:
     generation = generation_by_carrier_timeseries(run)
     area = _area_timeseries(run)
@@ -494,6 +700,14 @@ def system_metrics(run: AnalysisRun) -> pd.DataFrame:
     weights = run.weights
     ramps = ramp_timeseries(run)
     corridors = corridor_metrics(run)
+    costs = operating_costs(run)
+    prices = price_timeseries(run)
+    has_prices = _has_prices(prices)
+    def cost_row(row: str) -> float:
+        return float(costs.at[row, f"total_{MILLION}"]) if not costs.empty else np.nan
+
+    operating_cost = cost_row("operating_total")
+    demand_mwh = float(demand.mul(weights).sum())
     unserved = generation.get("unserved_energy", pd.Series(0.0, index=run.snapshots))
     renewable = generation.reindex(columns=RENEWABLE_CARRIERS, fill_value=0.0).sum(axis=1)
     rows = [
@@ -509,6 +723,18 @@ def system_metrics(run: AnalysisRun) -> pd.DataFrame:
             "maximum_corridor_loading",
             corridors.maximum_loading_pct.max() if not corridors.empty else np.nan,
             "%",
+        ),
+        ("operating_cost", operating_cost, f"million {CURRENCY}"),
+        (
+            "operating_cost_per_mwh_demand",
+            operating_cost * 1e6 / demand_mwh if demand_mwh > 0 else np.nan,
+            f"{CURRENCY}/MWh",
+        ),
+        ("penalty_cost", cost_row("penalty_total"), f"million {CURRENCY}"),
+        (
+            "load_weighted_average_price",
+            average_price(run, prices),
+            f"{CURRENCY}/MWh" if has_prices else "not available: no prices in solves",
         ),
     ]
     return pd.DataFrame(rows, columns=["metric", "value", "unit"]).set_index("metric")

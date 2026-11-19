@@ -199,26 +199,38 @@ That script:
 1. runs the standardized `scripts/results_analysis/` pipeline on every solved
    network the run kept (`solved_network.nc`, rolling `weekly_networks/`
    checkpoints, or one network per selected week), and writes its tables and
-   figures to `analysis/` next to them. Generation and installed capacity come
-   from PyPSA's `n.statistics` at the electricity buses: generation is the
-   `supply` of generators, storage discharge and the grid side of hydro
-   turbines, so the water-side inflows that feed the turbines are not counted
-   again. For rolling runs each weekly network is evaluated and the results
-   are joined in time. In the capacity comparison, the `total` row and model
-   shares cover physical plant only, without the unserved-energy slack
-   generators. The balancing-area table splits each bus's `energy_balance`
-   into generation, storage, net imports (Lines and AC/DC Links, with line
-   losses) and demand, so its residual is zero. Corridor metrics cover every
-   Line and AC/DC Link; loading is relative to the operating limit
-   (`s_nom * s_max_pu` or `p_nom * p_max_pu`), so 100% means the limit binds.
-   Storage and reservoir-store charge and discharge come from `withdrawal` and
-   `supply`;
+   figures to `analysis/` next to them;
 2. writes `results_report.html` in the run folder. The report contains status
    tiles (solver status, rolling progress, unserved energy, demand, solver
    time), generation and installed capacity compared with observed values, the
    daily comparison plot, rolling solve performance from `window_log.csv`, the
    detailed analysis figures and tables, the full `validation.json`, and the
    resolved run configuration.
+
+The analysis is calculated with PyPSA's `n.statistics` at the electricity
+buses, so the water-energy layer (reservoir stores, natural inflows, spill)
+counts only where it reaches the grid through the hydro turbines. A rolling run
+is stored as one network per week; each is evaluated and the results are joined
+in time. PyPSA's own plotting (`n.statistics.<metric>.plot`) handles one
+network at a time, so the figures are drawn from the joined statistics instead.
+
+| Output | Definition |
+| --- | --- |
+| Generation by carrier | `supply` from generators, storage discharge and the grid side of hydro turbines |
+| Installed capacity | `installed_capacity`; turbines at their grid-side rating. The comparison's `total` and model shares exclude the unserved-energy slack generators |
+| Balancing areas | Each bus's `energy_balance` split into generation, storage, net imports (Lines and AC/DC Links, with losses) and demand; the residual is zero |
+| Corridors | `transmission` on every Line and AC/DC Link; loading is relative to the operating limit (`s_nom * s_max_pu` or `p_nom * p_max_pu`), so 100% means the limit binds |
+| Storage units and stores | Discharge and charge from `supply` and `withdrawal` |
+| Operating costs | `opex` by carrier and cost type (marginal, start-up, shut-down, …) in million INR; `transmission` is the interstate-link charge. Model penalties are listed last and totalled separately from operating cost: unserved energy, `water_balance_adjustment` (the slack that makes reservoirs match measured storage) and the spill tie-break |
+| Marginal prices | `prices` per bus: time- and load-weighted means, percentiles, and hours at the unserved-energy price |
+| Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
+| System electricity balance (figure) | `energy_balance` summed over buses: supply stacked above zero, demand, storage charging and losses below; daily means for periods over a month |
+
+Marginal prices come from the solver's duals. Binary unit-commitment (`full`)
+solves have none, so for those runs the price table, market values and price
+figure are empty, and the system metrics mark the average price as not
+available. Relaxed and LP runs have prices; with relaxed commitment they
+reflect the continuous on/off approximation.
 
 Monthly runs keep no solved networks, so their report covers the runner's own
 outputs only. To rebuild a report for any existing run folder, for example

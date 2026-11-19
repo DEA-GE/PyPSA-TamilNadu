@@ -13,19 +13,35 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from results_analysis.loaders import AnalysisRun  # noqa: E402
 from results_analysis.metrics import (  # noqa: E402
+    average_price,
     balancing_area_metrics,
     capacity_comparison,
     corridor_metrics,
+    energy_balance_timeseries,
     generation_by_carrier,
     generation_by_carrier_timeseries,
     installed_capacity_by_area,
+    market_values,
+    operating_costs,
+    price_metrics,
     renewable_generation_by_area,
     storage_metrics,
     store_metrics,
+    system_metrics,
 )
 
+# Chennai load per hour over both windows, and the load-weighted price.
+CHENNAI_LOAD = [84.0, 64.0, 64.0, 44.0]
+CHENNAI_PRICE = [4_000.0, 5_000.0, 4_000.0, 5_000.0]
+AVERAGE_PRICE = sum(l * p for l, p in zip(CHENNAI_LOAD, CHENNAI_PRICE)) / sum(CHENNAI_LOAD)
 
-def _window(start: str, coal: float) -> pypsa.Network:
+
+def _frame(data: dict, index: pd.Index) -> pd.DataFrame:
+    """Build a time series with columns named ``name``, as PyPSA stores them."""
+    return pd.DataFrame(data, index=index).rename_axis(columns="name")
+
+
+def _window(start: str, coal: float, prices: bool = True) -> pypsa.Network:
     """Build a two-hour, balanced, solved-looking network with a water layer.
 
     Erode has coal and a hydro turbine fed from a reservoir; it exports over
@@ -37,10 +53,14 @@ def _window(start: str, coal: float) -> pypsa.Network:
     network.add("Carrier", ["AC", "water_energy"])
     network.add("Bus", ["Erode", "Chennai"], carrier="AC")
     network.add("Bus", "water_mettur", carrier="water_energy")
-    network.add("Generator", "coal_1", bus="Erode", carrier="coal", p_nom=100.0)
+    network.add(
+        "Generator", "coal_1", bus="Erode", carrier="coal", p_nom=100.0,
+        marginal_cost=3_000.0,
+    )
     network.add("Generator", "solar_1", bus="Chennai", carrier="solar", p_nom=50.0)
     network.add(
-        "Generator", "ue_Erode", bus="Erode", carrier="unserved_energy", p_nom=1_000.0
+        "Generator", "ue_Erode", bus="Erode", carrier="unserved_energy", p_nom=1_000.0,
+        marginal_cost=100_000.0,
     )
     network.add(
         "Generator", "inflow", bus="water_mettur", carrier="water_inflow", p_nom=40.0
@@ -64,7 +84,8 @@ def _window(start: str, coal: float) -> pypsa.Network:
         efficiency=0.9,
     )
     network.add(
-        "Link", "tie", bus0="Erode", bus1="Chennai", carrier="AC", p_nom=80.0
+        "Link", "tie", bus0="Erode", bus1="Chennai", carrier="AC", p_nom=80.0,
+        marginal_cost=200.0,
     )
     network.add(
         "Line",
@@ -79,34 +100,38 @@ def _window(start: str, coal: float) -> pypsa.Network:
     network.add("Load", "load_Chennai", bus="Chennai", carrier="electricity")
 
     index = network.snapshots
-    solar = pd.Series([10.0, 0.0], index=index)
-    storage = pd.Series([5.0, -5.0], index=index)
+    solar = pd.Series([10.0, 0.0], index)
+    storage = pd.Series([5.0, -5.0], index)
     line = coal + 9.0 - 60.0  # Erode: coal + turbine - tie - line = 0
-    network.generators_t.p = pd.DataFrame(
-        {"coal_1": coal, "solar_1": solar, "ue_Erode": 0.0, "inflow": 30.0}, index=index
+    network.generators_t.p = _frame(
+        {"coal_1": coal, "solar_1": solar, "ue_Erode": 0.0, "inflow": 30.0}, index
     )
-    network.links_t.p0 = pd.DataFrame({"turbine": 10.0, "tie": 60.0}, index=index)
-    network.links_t.p1 = pd.DataFrame({"turbine": -9.0, "tie": -60.0}, index=index)
-    network.lines_t.p0 = pd.DataFrame({"Erode-Chennai": line}, index=index)
-    network.lines_t.p1 = pd.DataFrame({"Erode-Chennai": -line}, index=index)
-    network.storage_units_t.p = pd.DataFrame({"psp": storage}, index=index)
-    network.storage_units_t.state_of_charge = pd.DataFrame(
-        {"psp": [20.0, 25.0]}, index=index
+    network.links_t.p0 = _frame({"turbine": 10.0, "tie": 60.0}, index)
+    network.links_t.p1 = _frame({"turbine": -9.0, "tie": -60.0}, index)
+    network.lines_t.p0 = _frame({"Erode-Chennai": line}, index)
+    network.lines_t.p1 = _frame({"Erode-Chennai": -line}, index)
+    network.storage_units_t.p = _frame({"psp": storage}, index)
+    network.storage_units_t.state_of_charge = _frame(
+        {"psp": [20.0, 25.0]}, index
     )
     # Water bus: inflow - turbine intake + store dispatch = 0.
-    network.stores_t.p = pd.DataFrame({"mettur": -20.0}, index=index)
-    network.stores_t.e = pd.DataFrame({"mettur": [120.0, 140.0]}, index=index)
-    network.loads_t.p = pd.DataFrame(
-        {"load_Chennai": solar + 60.0 + line + storage}, index=index
+    network.stores_t.p = _frame({"mettur": -20.0}, index)
+    network.stores_t.e = _frame({"mettur": [120.0, 140.0]}, index)
+    network.loads_t.p = _frame(
+        {"load_Chennai": solar + 60.0 + line + storage}, index
     )
+    if prices:
+        network.buses_t.marginal_price = _frame(
+            {"Erode": 3_000.0, "Chennai": [4_000.0, 5_000.0], "water_mettur": 0.0},
+            index,
+        )
     return network
 
 
-@pytest.fixture
-def rolling_run() -> AnalysisRun:
+def _run(prices: bool = True) -> AnalysisRun:
     networks = (
-        _window("2025-04-01 00:00", coal=60.0),
-        _window("2025-04-01 02:00", coal=40.0),
+        _window("2025-04-01 00:00", coal=60.0, prices=prices),
+        _window("2025-04-01 02:00", coal=40.0, prices=prices),
     )
     return AnalysisRun(
         result_dir=Path("."),
@@ -115,6 +140,11 @@ def rolling_run() -> AnalysisRun:
         source_files=(),
         metadata={},
     )
+
+
+@pytest.fixture
+def rolling_run() -> AnalysisRun:
+    return _run()
 
 
 def test_generation_joins_windows_and_counts_electricity_only(rolling_run):
@@ -201,3 +231,52 @@ def test_area_balance_closes_with_lines_and_ties(rolling_run):
     assert areas.at["Chennai", "net_import_gwh"] == pytest.approx(0.236)
     assert areas.at["Chennai", "storage_gwh"] == pytest.approx(0.0)
     assert "water_mettur" not in areas.index
+
+
+def test_energy_balance_closes_every_hour(rolling_run):
+    balance = energy_balance_timeseries(rolling_run)
+
+    assert balance.sum(axis=1).abs().max() == pytest.approx(0.0, abs=1e-9)
+    assert balance["demand"].tolist() == pytest.approx([-load for load in CHENNAI_LOAD])
+    assert balance["storage_charging"].tolist() == pytest.approx([0.0, -5.0, 0.0, -5.0])
+    assert "water_inflow" not in balance
+
+
+def test_operating_costs_by_carrier_and_type(rolling_run):
+    costs = operating_costs(rolling_run)
+
+    # Coal: 200 MWh at 3,000; interstate tie: 240 MWh at 200.
+    assert costs.at["coal", "marginal_cost_million_inr"] == pytest.approx(0.6)
+    assert costs.at["transmission", "marginal_cost_million_inr"] == pytest.approx(0.048)
+    assert costs.at["operating_total", "total_million_inr"] == pytest.approx(0.648)
+    assert costs.at["penalty_total", "total_million_inr"] == pytest.approx(0.0)
+    assert costs.at["total", "total_million_inr"] == pytest.approx(0.648)
+    metrics = system_metrics(rolling_run)
+    assert metrics.at["operating_cost", "value"] == pytest.approx(0.648)
+    assert metrics.at["penalty_cost", "value"] == pytest.approx(0.0)
+
+
+def test_prices_and_market_values(rolling_run):
+    prices = price_metrics(rolling_run)
+    assert prices.at["Chennai", "maximum_inr_per_mwh"] == pytest.approx(5_000.0)
+    assert prices.at["Chennai", "time_weighted_mean_inr_per_mwh"] == pytest.approx(4_500.0)
+    assert prices.at["Chennai", "load_weighted_mean_inr_per_mwh"] == pytest.approx(AVERAGE_PRICE)
+    assert "water_mettur" not in prices.index
+    assert average_price(rolling_run) == pytest.approx(AVERAGE_PRICE)
+
+    market = market_values(rolling_run)
+    assert market.at["coal", "market_value_inr_per_mwh"] == pytest.approx(3_000.0)
+    assert market.at["solar", "market_value_inr_per_mwh"] == pytest.approx(4_000.0)
+    # Turbine: 36 MWh at Erode (3,000); storage: 10 MWh at Chennai (4,000).
+    assert market.at["hydro", "market_value_inr_per_mwh"] == pytest.approx(148_000.0 / 46.0)
+    assert market.at["coal", "capture_ratio"] == pytest.approx(3_000.0 / AVERAGE_PRICE)
+
+
+def test_price_outputs_are_empty_without_duals():
+    run = _run(prices=False)
+
+    assert price_metrics(run).empty
+    assert market_values(run).empty
+    row = system_metrics(run).loc["load_weighted_average_price"]
+    assert pd.isna(row.value)
+    assert row.unit.startswith("not available")
