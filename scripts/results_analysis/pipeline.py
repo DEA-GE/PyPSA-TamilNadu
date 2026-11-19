@@ -9,18 +9,23 @@ import pandas as pd
 
 from .loaders import AnalysisRun
 from .metrics import (
+    average_price,
     balancing_area_metrics,
     commitment_by_carrier,
     commitment_metrics,
+    corridor_flows,
     corridor_metrics,
+    energy_balance_timeseries,
     generation_by_carrier,
-    generation_by_carrier_timeseries,
     generation_comparison,
     installed_capacity_by_area,
     installed_capacity_comparison,
+    market_values,
     monthly_generation_comparison,
     monthly_resource_seasonality,
+    operating_costs,
     peak_hour_by_area,
+    price_metrics,
     ramp_timeseries,
     renewable_generation_by_area,
     seasonality_fit,
@@ -28,16 +33,20 @@ from .metrics import (
     storage_metrics,
     store_metrics,
     system_metrics,
+    system_price_timeseries,
 )
 from .plots import (
-    generation_figure,
+    cost_figure,
+    energy_balance_figure,
     generation_comparison_figure,
     monthly_generation_figure,
+    price_figure,
     ramp_figure,
-    storage_figure,
     seasonality_figure,
+    storage_figure,
     transmission_figure,
 )
+from .statistics import price_timeseries
 from .validation import boundary_handoff_metrics, chronology_validation, topology_validation
 
 
@@ -55,19 +64,17 @@ def analyze_run(
     observed_capacity: pd.DataFrame | None = None,
 ) -> AnalysisBundle:
     """Calculate the common schema plus applicable horizon-specific outputs."""
-    generation_hourly = generation_by_carrier_timeseries(run)
-    load = run.frame("loads", "p")
-    if load.empty:
-        load = run.frame("loads", "p_set")
-    demand = load.sum(axis=1)
+    balance = energy_balance_timeseries(run)
     storage_dispatch = run.frame("storage_units", "p")
     storage_soc = run.frame("storage_units", "state_of_charge")
-    store_dispatch = run.frame("stores", "p")
     store_energy = run.frame("stores", "e")
-    link_flows = run.frame("links", "p0")
+    flows = corridor_flows(run)
     ramps = ramp_timeseries(run)
-    corridors = corridor_metrics(run)
+    corridors = corridor_metrics(run, flows)
     unit_commitment = commitment_metrics(run)
+    prices = price_timeseries(run)
+    costs = operating_costs(run)
+    market = market_values(run)
 
     tables = {
         "chronology_validation": chronology_validation(run),
@@ -89,11 +96,14 @@ def analyze_run(
         "renewable_generation_by_area": renewable_generation_by_area(run),
         "corridor_metrics": corridors,
         "ramp_timeseries": ramps,
+        "operating_costs": costs,
+        "price_metrics": price_metrics(run),
+        "market_values": market,
     }
 
     if run.run_type in {"peak", "peak_week", "selected_week", "single_network"}:
         tables["peak_hour_by_area"] = peak_hour_by_area(run)
-    if run.run_type == "rolling" or len(run.networks) > 1:
+    if len(run.windows) > 1:
         tables["boundary_handoffs"] = boundary_handoff_metrics(run)
     if len(run.snapshots) >= 28 * 24:
         tables["monthly_generation"] = monthly_generation_comparison(
@@ -105,16 +115,17 @@ def analyze_run(
         tables["seasonality_fit"] = seasonality_fit(monthly_seasonality)
 
     figures = {
-        "generation": generation_figure(generation_hourly, demand),
+        "energy_balance": energy_balance_figure(balance),
         "generation_comparison": generation_comparison_figure(
             tables["generation_comparison"]
         ),
         "storage": storage_figure(
-            pd.concat([storage_dispatch, store_dispatch], axis=1),
-            pd.concat([storage_soc, store_energy], axis=1),
+            storage_dispatch, storage_soc, store_energy, run.base.stores.e_nom
         ),
-        "transmission": transmission_figure(link_flows, corridors),
+        "transmission": transmission_figure(flows, corridors),
         "ramps": ramp_figure(ramps),
+        "prices": price_figure(prices, system_price_timeseries(run, prices)),
+        "costs": cost_figure(costs, market, average_price(run, prices)),
     }
     if "monthly_generation" in tables:
         figures["monthly_generation"] = monthly_generation_figure(tables["monthly_generation"])

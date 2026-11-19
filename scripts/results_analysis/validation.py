@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 
 from .loaders import AnalysisRun
@@ -25,53 +24,67 @@ def chronology_validation(run: AnalysisRun) -> pd.DataFrame:
 
 
 def topology_validation(run: AnalysisRun) -> pd.DataFrame:
-    base = run.base
-    rows = []
-    for component in ("buses", "generators", "storage_units", "stores", "links", "loads"):
-        expected = getattr(base, component).index
-        mismatches = sum(
-            not expected.equals(getattr(network, component).index)
-            for network in run.networks[1:]
-        )
-        rows.append(
-            {
-                "component": component,
-                "component_count": len(expected),
-                "checkpoint_topology_mismatches": mismatches,
-            }
-        )
+    """Count components; stitching already requires every checkpoint to match."""
+    rows = [
+        {
+            "component": component,
+            "component_count": len(getattr(run.network, component)),
+            "checkpoints": max(len(run.windows), 1),
+        }
+        for component in ("buses", "generators", "storage_units", "stores", "links", "loads")
+    ]
     return pd.DataFrame(rows).set_index("component")
 
 
 def boundary_handoff_metrics(run: AnalysisRun, tolerance: float = 1e-6) -> pd.DataFrame:
-    """Audit state, transition, ramp, and storage handoffs between checkpoints."""
-    if len(run.networks) < 2:
+    """Audit state, transition, ramp, and storage handoffs between checkpoints.
+
+    Uses the stitched time series on both sides of each checkpoint start and
+    the initial storage levels recorded for each checkpoint.
+    """
+    windows = run.windows
+    if len(windows) < 2:
         return pd.DataFrame()
 
+    network = run.network
+    snapshots = run.snapshots
+    generators = network.generators
+    committable = generators.index[generators.committable.fillna(False)]
+    status = run.frame("generators", "status").reindex(columns=committable)
+    start_up = run.frame("generators", "start_up").reindex(columns=committable)
+    shut_down = run.frame("generators", "shut_down").reindex(columns=committable)
+    dispatch = run.frame("generators", "p").reindex(columns=committable)
+    soc = run.frame("storage_units", "state_of_charge")
+
+    nominal = generators.loc[committable, "p_nom"].fillna(0.0)
+    ramp_up = nominal * generators.loc[committable, "ramp_limit_up"].fillna(1.0)
+    ramp_down = nominal * generators.loc[committable, "ramp_limit_down"].fillna(1.0)
+    ramp_start = nominal * generators.loc[committable, "ramp_limit_start_up"].fillna(1.0)
+    ramp_shut = nominal * generators.loc[committable, "ramp_limit_shut_down"].fillna(1.0)
+    has_status = len(committable) and status.notna().any().any()
+
     rows = []
-    for prior, current in zip(run.networks[:-1], run.networks[1:]):
-        shared = prior.generators.index.intersection(current.generators.index)
-        committable = shared[current.generators.loc[shared, "committable"].fillna(False)]
+    for window in windows[1:]:
+        boundary = pd.Timestamp(window["start"])
+        position = snapshots.get_loc(boundary)
+        if position == 0:
+            continue
+        before = snapshots[position - 1]
         transition_error = pd.Series(dtype=float)
         ramp_up_violation = pd.Series(dtype=float)
         ramp_down_violation = pd.Series(dtype=float)
         fractional_count = 0
 
-        if len(committable) and not prior.generators_t.status.empty and not current.generators_t.status.empty:
-            status_before = prior.generators_t.status.iloc[-1].reindex(committable).fillna(0.0)
-            status_now = current.generators_t.status.iloc[0].reindex(committable).fillna(0.0)
-            start_now = current.generators_t.start_up.iloc[0].reindex(committable).fillna(0.0)
-            shut_now = current.generators_t.shut_down.iloc[0].reindex(committable).fillna(0.0)
-            transition_error = (status_now - status_before - start_now + shut_now).abs()
+        if has_status:
+            status_before = status.loc[before].fillna(0.0)
+            status_now = status.loc[boundary].fillna(0.0)
+            transition_error = (
+                status_now - status_before
+                - start_up.loc[boundary].fillna(0.0) + shut_down.loc[boundary].fillna(0.0)
+            ).abs()
             fractional_count = int(status_before.between(tolerance, 1.0 - tolerance).sum())
-
-            p_before = prior.generators_t.p.iloc[-1].reindex(committable).fillna(0.0)
-            p_now = current.generators_t.p.iloc[0].reindex(committable).fillna(0.0)
-            nominal = current.generators.loc[committable, "p_nom"].fillna(0.0)
-            ramp_up = nominal * current.generators.loc[committable, "ramp_limit_up"].fillna(1.0)
-            ramp_down = nominal * current.generators.loc[committable, "ramp_limit_down"].fillna(1.0)
-            ramp_start = nominal * current.generators.loc[committable, "ramp_limit_start_up"].fillna(1.0)
-            ramp_shut = nominal * current.generators.loc[committable, "ramp_limit_shut_down"].fillna(1.0)
+            p_before = dispatch.loc[before].fillna(0.0)
+            p_now = dispatch.loc[boundary].fillna(0.0)
             ramp_up_violation = (
                 p_now - p_before - ramp_up * status_before - ramp_start * (status_now - status_before)
             ).clip(lower=0.0)
@@ -80,15 +93,14 @@ def boundary_handoff_metrics(run: AnalysisRun, tolerance: float = 1e-6) -> pd.Da
             ).clip(lower=0.0)
 
         storage_error = 0.0
-        shared_storage = prior.storage_units.index.intersection(current.storage_units.index)
-        if len(shared_storage) and not prior.storage_units_t.state_of_charge.empty:
-            previous_soc = prior.storage_units_t.state_of_charge.iloc[-1].reindex(shared_storage)
-            initial_soc = current.storage_units.loc[shared_storage, "state_of_charge_initial"]
-            storage_error = float((initial_soc - previous_soc).abs().max())
+        initial = pd.Series(window.get("storage_soc_initial", {}), dtype=float)
+        shared = initial.index.intersection(soc.columns)
+        if len(shared):
+            storage_error = float((initial[shared] - soc.loc[before, shared]).abs().max())
 
         rows.append(
             {
-                "boundary_timestamp": pd.Timestamp(current.snapshots[0]),
+                "boundary_timestamp": boundary,
                 "fractional_units_before_boundary": fractional_count,
                 "max_transition_identity_error": float(transition_error.max()) if len(transition_error) else 0.0,
                 "max_ramp_up_violation_mw": float(ramp_up_violation.max()) if len(ramp_up_violation) else 0.0,

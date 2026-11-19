@@ -7,9 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-import numpy as np
 import pandas as pd
 import pypsa
+
+from .stitching import load_saved_stitched, save_stitched, stitch_networks
 
 
 def _is_dual_sidecar(path: Path) -> bool:
@@ -24,54 +25,75 @@ def _primal_network_files(paths: Iterable[Path]) -> list[Path]:
 
 @dataclass(frozen=True)
 class AnalysisRun:
-    """Normalized access to one solved run, irrespective of its storage layout."""
+    """One solved run as a single network, irrespective of its storage layout.
+
+    Rolling runs are stitched from their weekly checkpoints into one network
+    covering the whole run (see ``stitching``).
+    """
 
     result_dir: Path
     run_type: str
-    networks: tuple[pypsa.Network, ...]
+    network: pypsa.Network
     source_files: tuple[Path, ...]
     metadata: dict
 
     @property
     def base(self) -> pypsa.Network:
-        return self.networks[0]
+        return self.network
+
+    @property
+    def windows(self) -> list[dict]:
+        """Start time and initial storage of each stitched checkpoint, if any."""
+        return list((self.network.meta or {}).get("stitched", {}).get("windows", []))
 
     @property
     def snapshots(self) -> pd.DatetimeIndex:
-        values = np.concatenate([network.snapshots.values for network in self.networks])
-        return pd.DatetimeIndex(values).drop_duplicates().sort_values()
+        return pd.DatetimeIndex(self.network.snapshots)
 
     @property
     def weights(self) -> pd.Series:
-        parts: list[pd.Series] = []
-        for network in self.networks:
-            weightings = network.snapshot_weightings
-            if "generators" in weightings:
-                part = weightings["generators"].copy()
-            else:
-                part = pd.Series(1.0, index=network.snapshots)
-            part.index = pd.DatetimeIndex(part.index)
-            parts.append(part.astype(float))
-        combined = pd.concat(parts)
-        return combined.loc[~combined.index.duplicated(keep="first")].sort_index()
+        weightings = self.network.snapshot_weightings
+        if "generators" in weightings:
+            weights = weightings["generators"].astype(float)
+        else:
+            weights = pd.Series(1.0, index=self.network.snapshots)
+        weights.index = self.snapshots
+        return weights
 
     def frame(self, component: str, attribute: str) -> pd.DataFrame:
-        """Combine a PyPSA time-series attribute over all retained checkpoints."""
-        parts: list[pd.DataFrame] = []
-        namespace_name = f"{component}_t"
-        for network in self.networks:
-            namespace = getattr(network, namespace_name)
-            frame = getattr(namespace, attribute)
-            if frame is None or frame.empty:
-                continue
-            part = frame.copy()
-            part.index = pd.DatetimeIndex(part.index)
-            parts.append(part)
-        if not parts:
+        """Return a PyPSA time-series attribute, such as ``("generators", "p")``."""
+        frame = getattr(getattr(self.network, f"{component}_t"), attribute)
+        if frame is None or frame.empty:
             return pd.DataFrame(index=self.snapshots)
-        combined = pd.concat(parts).sort_index()
-        combined = combined.loc[~combined.index.duplicated(keep="first")]
-        return combined.reindex(self.snapshots)
+        frame = frame.copy()
+        frame.index = pd.DatetimeIndex(frame.index)
+        return frame.reindex(self.snapshots)
+
+
+def style_carriers(network: pypsa.Network) -> None:
+    """Give the network's carriers the report's names and colours.
+
+    PyPSA's statistics plots need a colour for every carrier and label groups
+    by ``nice_name``. Only the in-memory network changes.
+    """
+    from .config import CARRIER_COLORS, CARRIER_LABELS, MODEL_CARRIER_STYLES, canonical_carrier
+
+    used = set()
+    for component in network.components:
+        static = component.static
+        if "carrier" in static and component.name != "Carrier":
+            used.update(static.carrier.dropna().astype(str))
+    missing = sorted(used - set(network.carriers.index) - {""})
+    if missing:
+        network.add("Carrier", missing)
+    names, colors = [], []
+    for carrier in network.carriers.index:
+        name, color = MODEL_CARRIER_STYLES.get(carrier, (None, None))
+        report = canonical_carrier(carrier)
+        names.append(name or CARRIER_LABELS.get(report, str(carrier)))
+        colors.append(color or CARRIER_COLORS.get(report, "#7F7F7F"))
+    network.carriers["nice_name"] = names
+    network.carriers["color"] = colors
 
 
 def _infer_run_type(path: Path, network_count: int) -> str:
@@ -113,8 +135,14 @@ def _read_metadata(result_dir: Path, source_files: list[Path]) -> dict:
     return metadata
 
 
-def load_analysis_run(path: str | Path) -> AnalysisRun:
-    """Load a solved ``.nc`` file or a run directory containing solved results."""
+def load_analysis_run(path: str | Path, cache: bool = True) -> AnalysisRun:
+    """Load a solved ``.nc`` file or a run directory containing solved results.
+
+    For a rolling run, the weekly checkpoints are stitched into one network.
+    A saved ``stitched_network.nc`` in the run folder is used instead when it
+    was built from the checkpoints as they are now; otherwise the stitched
+    network is rebuilt and, with *cache*, saved there for next time.
+    """
     requested = Path(path).expanduser().resolve()
     if not requested.exists():
         raise FileNotFoundError(f"Result path does not exist: {requested}")
@@ -148,17 +176,28 @@ def load_analysis_run(path: str | Path) -> AnalysisRun:
     if not source_files:
         raise FileNotFoundError(f"No solved network files found below {result_dir}")
 
-    networks = tuple(pypsa.Network(source) for source in source_files)
+    if len(source_files) == 1:
+        network = pypsa.Network(source_files[0])
+    else:
+        network = load_saved_stitched(result_dir, source_files)
+        if network is None:
+            network = stitch_networks(
+                [pypsa.Network(source) for source in source_files], source_files
+            )
+            if cache:
+                saved = save_stitched(network, result_dir)
+                print(f"Saved the stitched run to {saved}")
+    style_carriers(network)
     metadata = _read_metadata(result_dir, source_files)
     run_type = str(
         metadata.get("run_mode")
         or metadata.get("mode")
-        or _infer_run_type(result_dir, len(networks))
+        or _infer_run_type(result_dir, len(source_files))
     )
     return AnalysisRun(
         result_dir=result_dir,
         run_type=run_type,
-        networks=networks,
+        network=network,
         source_files=tuple(source_files),
         metadata=metadata,
     )

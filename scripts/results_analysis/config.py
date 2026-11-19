@@ -4,6 +4,16 @@ from __future__ import annotations
 
 ANALYSIS_SCHEMA_VERSION = "1.0"
 
+# Currency of the model's marginal, start-up and other cost inputs.
+CURRENCY = "INR"
+
+# Carriers whose costs are model penalties rather than operating costs: load
+# shedding, the slack that reconciles reservoirs with measured storage, and
+# the small spill cost that breaks ties between spilling and storing.
+PENALTY_CARRIERS = frozenset(
+    {"unserved_energy", "water_balance_adjustment", "water_spill"}
+)
+
 CARRIER_ORDER = (
     "coal",
     "oil_gas",
@@ -32,6 +42,12 @@ CARRIER_LABELS = {
     "wind": "Wind",
     "imports": "Net imports",
     "unserved_energy": "Unserved energy",
+    "demand": "Demand incl. neighbouring-region loads",
+    "storage_charging": "Storage charging and pumping",
+    "transmission_losses": "Transmission losses",
+    "transmission": "Interstate transmission charges",
+    "water_balance_adjustment": "Measured-storage reconciliation (penalty)",
+    "water_spill": "Spill tie-break (penalty)",
 }
 
 CARRIER_COLORS = {
@@ -45,6 +61,24 @@ CARRIER_COLORS = {
     "wind": "#1B9E77",
     "imports": "#A6761D",
     "unserved_energy": "#D62728",
+    "small_hydro": "#A6CEE3",
+    "demand": "#9E9E9E",
+    "storage_charging": "#6A3D9A",
+    "transmission_losses": "#E7298A",
+}
+
+# Names and colours for model carriers outside the reporting taxonomy, so that
+# PyPSA's own plots (``n.statistics.<metric>.plot``) read clearly.
+MODEL_CARRIER_STYLES = {
+    "AC": ("AC transmission", "#BDBDBD"),
+    "DC": ("HVDC transmission", "#737373"),
+    "electricity": ("Demand", "#9E9E9E"),
+    "hydro_pump": ("Pumping", "#6A3D9A"),
+    "water_energy": ("Reservoir water", "#9ECAE1"),
+    "water_inflow": ("Reservoir inflow", "#C6DBEF"),
+    "water_spill": ("Spill", "#DEEBF7"),
+    "water_transfer": ("Water transfer", "#6BAED6"),
+    "water_balance_adjustment": ("Measured-storage reconciliation", "#FB6A4A"),
 }
 
 RENEWABLE_CARRIERS = ("solar", "wind")

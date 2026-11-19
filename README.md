@@ -207,6 +207,53 @@ That script:
    detailed analysis figures and tables, the full `validation.json`, and the
    resolved run configuration.
 
+The analysis is calculated with PyPSA's `n.statistics` at the electricity
+buses, so the water-energy layer (reservoir stores, natural inflows, spill)
+counts only where it reaches the grid through the hydro turbines. The report's
+figures are drawn from these statistics, with daily means for long periods.
+
+A rolling run is stored as one network per committed week. The analysis
+stitches them into one network covering the whole run
+(`scripts/results_analysis/stitching.py`): static data come from the first
+week, which also holds the run's initial conditions, and every time series is
+joined in time. Each week's start and initial storage are kept in
+`network.meta["stitched"]` for the rolling-boundary audit; the per-week
+objective values and energy-target constraints are dropped, so the stitched
+network is for analysis only, not for solving. It is saved as
+`stitched_network.nc` in the run folder and reused while the weekly files are
+unchanged (checked by name, size and modification time), so later analyses
+load one file instead of every week. To work with the whole year directly:
+
+```python
+from results_analysis import load_analysis_run
+
+run = load_analysis_run("results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed")
+n = run.network  # 8,760 snapshots
+n.statistics.supply(bus_carrier="AC", nice_names=False)
+n.statistics.supply.plot.bar(bus_carrier="AC")  # PyPSA's own plots work too
+```
+
+The loader gives the carriers the report's names and colours (in memory
+only), which PyPSA's plots need.
+
+| Output | Definition |
+| --- | --- |
+| Generation by carrier | `supply` from generators, storage discharge and the grid side of hydro turbines |
+| Installed capacity | `installed_capacity`; turbines at their grid-side rating. The comparison's `total` and model shares exclude the unserved-energy slack generators |
+| Balancing areas | Each bus's `energy_balance` split into generation, storage, net imports (Lines and AC/DC Links, with losses) and demand; the residual is zero |
+| Corridors | `transmission` on every Line and AC/DC Link; loading is relative to the operating limit (`s_nom * s_max_pu` or `p_nom * p_max_pu`), so 100% means the limit binds |
+| Storage units and stores | Discharge and charge from `supply` and `withdrawal` |
+| Operating costs | `opex` by carrier and cost type (marginal, start-up, shut-down, …) in million INR; `transmission` is the interstate-link charge. Model penalties are listed last and totalled separately from operating cost: unserved energy, `water_balance_adjustment` (the slack that makes reservoirs match measured storage) and the spill tie-break |
+| Marginal prices | `prices` per bus: time- and load-weighted means, percentiles, and hours at the unserved-energy price |
+| Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
+| System supply and demand (figure) | `energy_balance` summed over buses: supply stacked by carrier, with demand as a line; the gap between them is storage charging, pumping and transmission losses. Daily means for periods over a month |
+
+Marginal prices come from the solver's duals. Binary unit-commitment (`full`)
+solves have none, so for those runs the price table, market values and price
+figure are empty, and the system metrics mark the average price as not
+available. Relaxed and LP runs have prices; with relaxed commitment they
+reflect the continuous on/off approximation.
+
 Monthly runs keep no solved networks, so their report covers the runner's own
 outputs only. To rebuild a report for any existing run folder, for example
 after an interrupted rolling run:
