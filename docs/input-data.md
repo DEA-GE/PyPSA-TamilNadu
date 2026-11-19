@@ -214,6 +214,121 @@ index. The older `data/source/profile_onwind_2020.csv` and
 `data/source/profile_solar_2020.csv` are retained source files; the nine-area
 builder does not read them directly.
 
+### Offshore wind capacity factors
+
+Offshore wind is a scenario technology (see the scenario section of the
+README); the base model has none. `data/source/ts_power_150m_block2.xlsx`
+(sheet `wp1_ts_power`) holds one weather year, 8 January 2020 to 6 January
+2021, of hourly simulated output of an offshore wind farm ("block 2") of IEA
+15 MW reference turbines at 150 m hub height:
+
+| Column | Meaning |
+| --- | --- |
+| `Production_wp1 (GW)` | Farm output with wake effects, homogeneous layout (used) |
+| `WS150_wp1`, `WD150_wp1` | Area-mean wind speed (m/s) and direction (°) at 150 m, with wakes |
+| `WS150_wp0`, `WD150_wp0` | The same without wake effects |
+
+The output levels off at 1.020 GW in 1,426 hours, the rated output of
+68 turbines × 15 MW, so `scripts/prepare_offshore_wind_profile.py` divides it
+by 1,020 MW to get the capacity factor. It writes
+`data/model_inputs/offshore_wind_profiles.csv` (column `block2`, one value per
+model hour; mean 0.56, from 0.13 in March to 0.87 in August).
+
+The series comes from the NIWE / DTU Wind offshore wake study for Tamil Nadu
+([*Wake interaction*, NIWE, 2025](https://coe-osw.org/wp-content/uploads/2025/12/Wake_interaction_NIWE_finalized.pdf)):
+WRF 4.2.2 mesoscale simulations at 2 km resolution, driven by ERA5, for the
+representative year 2020, with the wind farms represented by DTU's Explicit
+Wake Parameterization. Block 2 is its Case 1 layout (68 IEA 15 MW turbines,
+1.02 GW, 5 MW/km²), with a capacity factor of 56.2 % including wakes, the
+same as the profile built here.
+
+- **Time zone.** Neither the workbook nor the report states one. WRF and its
+  ERA5 forcing run in UTC and WRF writes instantaneous values, so the
+  timestamps are taken as UTC and the values as instantaneous, like the
+  ERA5-based onshore wind profiles: model hour `L` (IST) takes the value at
+  `L − 5 h` UTC, the middle of the model hour.
+- **Weather year.** The 2020 weather year is mapped onto FY2025-26 by
+  calendar date and hour. 1–6 January come from the 2021 rows; 7 January, not
+  in the source, repeats 8 January 2020; 29 February 2020 is not used.
+- **Scaling.** Every MW of a site uses this farm's per-MW profile, so a larger
+  or smaller capacity is assumed to have the same wake losses.
+
+`config/technologies.yaml` allows offshore wind only in Tirunelveli, the
+southernmost balancing area.
+
+### Offshore wind cost
+
+`capital_cost` in `config/technologies.yaml` is the annualised cost per MW
+per year, including fixed O&M and the full grid connection. It comes from the
+Danish Energy Agency's *Cost estimates for the first offshore wind farms in
+India* (FIMOI v2, 2022), which is based on stakeholder and investor
+consultation, for Tamil Nadu zone B, 15 MW turbines, a 1 GW project and an
+investment decision in 2025:
+
+| FIMOI v2 input (2021 prices) | Value |
+| --- | --- |
+| Capex, including offshore and onshore substations, array and export cables | 207.5 million INR/MW |
+| Fixed O&M | 4.64 million INR/MW/year |
+| Technical lifetime | 27 years |
+| Net capacity factor (after 10 % wake, 5 % electrical and 4 % outage losses) | 53 % |
+| Financing | loans at 8 %, 10 % return on equity, 5 % inflation |
+| Basic LCOE (no GST or import duties) | 7.4 INR/kWh |
+
+The annualised cost is the LCOE times the energy one MW delivers in a year,
+in 2025 prices: 7.4 INR/kWh × 1.05⁴ (FIMOI's 5 % inflation, 2021 to 2025) ×
+0.53 × 8,760 h = **41.76 million INR per MW per year**, or 9.0 INR/kWh. This
+keeps FIMOI's financing, construction-period and O&M assumptions. Annualising
+the capex alone at an 8–10 % discount rate gives only about 5.3 INR/kWh,
+because it leaves those out. The same revenue-requirement basis is used for
+batteries (tender tariffs). It is consistent with later Indian evidence:
+
+- Developers estimated 9.7–9.8 INR/kWh for the first projects (45.0–45.5
+  million INR/MW/year on the same basis).
+- Indian offshore capex is quoted at 180–200 million INR/MW in 2025.
+- The 2025 seabed-lease tender for 4 GW off Tamil Nadu drew no bids; MNRE
+  plans to retender with viability-gap funding (up to 81 million INR/MW in
+  the Gujarat tranche).
+
+The model's block 2 profile has a capacity factor of 0.56, close to FIMOI's
+0.53, so the cost per MWh the model sees is 8.5 INR/kWh. GST and import
+duties (5 % and 13 % in FIMOI) are not included.
+
+Sources:
+
+- [Danish Energy Agency, FIMOI v2: Cost estimates for the first offshore wind farms in India (2022)](https://ens.dk/media/5021/download)
+- [New Avenues: Cost economics, challenges and opportunities in the offshore wind segment](https://powerline.net.in/2025/09/15/new-avenues-cost-economics-challenges-and-opportunities-in-the-offshore-wind-segment/) (Powerline, September 2025)
+- [Is viability gap funding enough to power India's offshore wind dreams?](https://www.downtoearth.org.in/renewable-energy/is-viability-gap-funding-enough-to-power-indias-offshore-wind-dreams) (Down To Earth)
+- [India reconsiders 1 GW offshore wind tender after earlier auctions fail to attract bidders](https://www.downtoearth.org.in/energy/india-reconsiders-1-gw-offshore-wind-tender-after-earlier-auctions-fail-to-attract-bidders-official-tells-dte) (Down To Earth)
+- [India's first offshore wind tenders fall flat and are canceled](https://maritime-executive.com/article/india-s-first-offshore-wind-tenders-fall-flat-and-are-canceled) (Maritime Executive)
+
+### Battery storage
+
+Batteries are a scenario technology; the base model has none (apart from the
+pumped-storage hydro unit). The parameters in `config/technologies.yaml`
+describe the battery Tamil Nadu is procuring: a standalone, grid-connected,
+2-hour lithium-ion system.
+
+| Parameter | Value | Basis |
+| --- | --- | --- |
+| Technology | Lithium-ion (LFP cells), standalone, 2 hours | TNGECL's 500 MW / 1,000 MWh standalone BESS tender (six projects, 2 hours, state viability-gap funding; awarded to NLC India Renewables, Bondada Engineering and Oriana Power) and NLC India's 250 MW / 500 MWh Tamil Nadu project, which requires LFP or NMC cells |
+| `max_hours` | 2 | Duration of those projects; TNGECL's later 375 MW / 1,500 MWh tender (November 2025) is 4-hour |
+| `efficiency_store`, `efficiency_dispatch` | 0.922 each | 85 % AC-to-AC round-trip efficiency (monthly), the requirement of Indian standalone BESS tenders (SECI, GUVNL, SJVN), split equally: √0.85 |
+| `standing_loss`, `marginal_cost` | 0 | Self-discharge and variable cost are small for lithium-ion over hours |
+| `capital_cost` | INR 2,760,000 per MW per year | INR 2.3 lakh per MW per month, the IEEFA-JMK indicative viable benchmark for 2-hour standalone tariffs; 2025–26 tenders cleared at INR 1.78–2.40 lakh (RVUNL 1.775, GUVNL 1.85–1.89 and 2.10, SJVN 1.97). A capacity tariff pays the developer's capital, O&M and return, so it is the annualised cost per MW of a 2-hour system |
+
+The capital cost is per MW of a 2-hour battery. For a 4-hour battery change
+`max_hours` and `capital_cost` together.
+
+Sources:
+
+- [TNGECL floats tender for 1 GWh BESS with VGF](https://renewablewatch.in/2025/03/18/tngecl-floats-tender-for-1-gwh-bess-with-vgf/) (Renewable Watch, March 2025)
+- [TNGECL awards 1000 MWh BESS tender to NLC, Bondada, Oriana](https://www.saurenergy.com/solar-energy-news/tngecl-awards-1000-mwh-bess-tender-to-nlc-bondada-oriana) (Saur Energy)
+- [NLC India invites EPC bids for 250 MW/500 MWh BESS in Tamil Nadu](https://www.saurenergy.com/solar-energy-news/nlc-india-invites-epc-bids-for-250-mw500-mwh-bess-project-in-tamil-nadu-with-2-hour-storage-10972962) (Saur Energy)
+- [TNGECL issues tender to develop 1.5 GWh standalone BESS](https://renewablewatch.in/2025/11/20/tngecl-issues-tender-to-develop-1-5-gwh-standalone-bess-in-tamil-nadu/) (Renewable Watch, November 2025)
+- [India awards 10.4 GW of standalone BESS capacity in 2025, but tariff viability remains a concern: IEEFA-JMK report](https://www.pv-magazine-india.com/?p=15030) (pv magazine India)
+- [Rajasthan's 1 GW/2 GWh battery storage tender sets new tariff benchmark](https://www.pv-magazine-india.com/?p=13143), [GUVNL's 2 GW/4 GWh tender](https://www.pv-magazine-india.com/?p=13553), [GUVNL's 335 MW/670 MWh tender](https://www.pv-magazine-india.com/?p=14197), [SJVN's 250 MW/500 MWh tender](https://www.pv-magazine-india.com/2026/02/16/sjvn-ltds-250-mw-500-mwh-bess-tender-yields-a-tariff-of-inr-1-97-lakh-mw-month) (pv magazine India)
+- [GUVNL 450 MW/900 MWh standalone BESS auction: 85 % monthly AC-to-AC efficiency](https://www.energetica-india.net/news/nlc-india-kp-group-win-guvnl-450-mw-900-mwh-standalone-bess-auction), [SECI clarification: minimum AC-to-AC RTE 85 %](https://www.seci.co.in/Upload/Tender/SECI000196-7902882-Clarification-01ESS327012025Final.pdf)
+
 ## Technologies, capacity, and location
 
 `data/source/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx`

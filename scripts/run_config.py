@@ -15,6 +15,12 @@ from typing import Any, Iterable, Mapping
 
 import yaml
 
+from scenario_technologies import (
+    TechnologyError,
+    needs_capacity_expansion,
+    validate_section,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULTS_PATH = ROOT / "config" / "defaults.yaml"
 
@@ -211,6 +217,21 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     ):
         if not isinstance(config[section][key], bool):
             raise ConfigError(f"{section}.{key} must be true or false")
+
+    technologies = config["technologies"]
+    try:
+        validate_section(technologies)
+        expansion = needs_capacity_expansion(technologies)
+    except TechnologyError as error:
+        raise ConfigError(str(error)) from error
+    if expansion and mode != "annual":
+        raise ConfigError(
+            "Sites with capacity_mw: optimise need run.mode: annual (one continuous "
+            "LP over the year); other modes solve periods separately. Run the "
+            "capacity expansion first and pass its result as "
+            "technologies.fixed_capacities, or use the Snakemake workflow, which "
+            "does both."
+        )
     return config
 
 
@@ -268,6 +289,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "profile": config["logging"]["profile"],
         "profile_log_level": config["logging"]["level"],
         "profile_sample_interval": config["logging"]["sample_interval"],
+        "technologies": config["technologies"],
     }
 
 

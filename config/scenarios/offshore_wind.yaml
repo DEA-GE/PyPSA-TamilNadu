@@ -1,0 +1,24 @@
+# Baseline plus offshore wind: IEA 15 MW turbines in the southernmost
+# balancing area (Tirunelveli), with the block 2 capacity factors
+# (config/technologies.yaml). The capacity setting is an EXAMPLE.
+
+run:
+  name: offshore_wind
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10
+
+technologies:
+  offshore_wind:
+    # Site name -> settings. Offshore wind connects only to Tirunelveli;
+    # profile is the column of the profile file (defaults to the site name).
+    block2:
+      bus: Tirunelveli
+      capacity_mw: optimise          # EXAMPLE: or an installed capacity in MW (15 MW per turbine)
+      max_mw: 4000                   # EXAMPLE

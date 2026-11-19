@@ -1,0 +1,34 @@
+# Baseline plus grid batteries and offshore wind: battery capacity optimised
+# in all nine balancing areas, offshore wind (IEA 15 MW turbines) in
+# Tirunelveli. Parameters are in config/technologies.yaml; the offshore
+# capacity setting is an EXAMPLE. Operational settings match the baseline.
+
+run:
+  name: battery_offshore_wind
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10
+
+technologies:
+  battery:
+    # Optimised by the model in every balancing area (site name = area).
+    Chennai North: {capacity_mw: optimise}
+    Chennai South: {capacity_mw: optimise}
+    Coimbatore: {capacity_mw: optimise}
+    Erode: {capacity_mw: optimise}
+    Madurai: {capacity_mw: optimise}
+    Tirunelveli: {capacity_mw: optimise}
+    Trichy: {capacity_mw: optimise}
+    Vellore: {capacity_mw: optimise}
+    Villupuram: {capacity_mw: optimise}
+  offshore_wind:
+    block2:
+      bus: Tirunelveli               # the only area offshore wind can connect to
+      capacity_mw: optimise          # EXAMPLE
+      max_mw: 4000                   # EXAMPLE
