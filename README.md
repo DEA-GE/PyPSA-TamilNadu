@@ -339,8 +339,7 @@ technologies:
     block2:
       bus: Tirunelveli           # the only balancing area offshore wind can connect to
       profile: block2            # column of the profile file; defaults to the site name
-      capacity_mw: optimise      # or MW; one IEA 15 MW turbine is 15 MW
-      max_mw: 4000
+      capacity_mw: 1020          # fixed scenario choice, whole 15 MW turbines (68 here)
   totals:                        # optional: total optimised MW per technology
     battery: {max_mw: 1500}      # min_mw = max_mw sets an exact target, placed optimally
   parameters:                    # optional: this scenario's changes to config/technologies.yaml
@@ -355,7 +354,10 @@ model hour, in Indian Standard Time, one column per profile). Values still to
 be provided are `null`; a run that adds a technology with a required value
 missing stops before solving and names the missing values. `capital_cost` is
 the annualised cost per MW per year in INR and is required only to optimise a
-capacity.
+capacity. Offshore wind capacity is an exogenous scenario choice
+(`optimisable: false` in `config/technologies.yaml`): each scenario sets it
+in whole 15 MW turbines, and `optimise` is rejected. Battery capacity is
+optimised by the model.
 
 Batteries are standalone 2-hour lithium-ion (LFP) systems, the technology of
 Tamil Nadu's battery tenders: 85 % round-trip efficiency and an annualised

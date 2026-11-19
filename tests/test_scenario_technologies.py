@@ -21,6 +21,7 @@ from scenario_technologies import (  # noqa: E402
     apply_technologies,
     needs_capacity_expansion,
     network_fingerprint,
+    validate_section,
     parse_sites,
     resolve_sites,
     write_optimised_capacities,
@@ -295,3 +296,24 @@ def test_offshore_profile_maps_the_weather_year_to_ist_model_hours():
     assert profile[pd.Timestamp("2026-01-03 12:00")] == capacity_factor[pd.Timestamp("2021-01-03 07:00")]
     # 7 January is not in the weather year; it takes 8 January 2020.
     assert profile[pd.Timestamp("2026-01-07 12:00")] == capacity_factor[pd.Timestamp("2020-01-08 07:00")]
+
+
+def test_offshore_wind_capacity_is_a_fixed_choice_in_whole_turbines():
+    shipped = {"data": "config/technologies.yaml"}
+    site = {"bus": "Tirunelveli", "profile": "block2"}
+
+    with pytest.raises(TechnologyError, match="scenario choice"):
+        validate_section({**shipped, "offshore_wind": {"block2": {**site, "capacity_mw": "optimise"}}})
+    with pytest.raises(TechnologyError, match="whole number of 15 MW turbines"):
+        validate_section({**shipped, "offshore_wind": {"block2": {**site, "capacity_mw": 1000}}})
+    validate_section({**shipped, "offshore_wind": {"block2": {**site, "capacity_mw": 1020}}})
+    # Batteries remain optimisable.
+    validate_section({**shipped, "battery": {"Erode": {"capacity_mw": "optimise"}}})
+
+
+def test_offshore_scenarios_need_no_capacity_expansion_for_offshore():
+    for name, optimised in (("offshore_wind", False), ("battery_offshore_wind", True)):
+        config = load_run_config(ROOT / "config" / "scenarios" / f"{name}.yaml", ["run.mode=annual", "formulation.unit_commitment=none"])
+        sites = parse_sites(config["technologies"])
+        assert all(not site.optimise for site in sites if site.technology == "offshore_wind")
+        assert needs_capacity_expansion(config["technologies"]) is optimised

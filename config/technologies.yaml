@@ -36,7 +36,10 @@ offshore_wind:
   # IEA 15 MW reference turbine (IEA-15-240-RWT), 150 m hub height. Capacities
   # are in MW; one turbine is 15 MW.
   turbine: IEA 15 MW reference turbine
-  turbine_mw: 15
+  turbine_mw: 15               # fixed capacities must be whole turbines
+  # Offshore wind capacity is an exogenous scenario choice: each scenario sets
+  # capacity_mw; the model does not optimise it.
+  optimisable: false
   # Offshore wind can connect only to the southernmost balancing area.
   allowed_buses: [Tirunelveli]
   # Hourly availability per MW (0..1) for every model hour of FY2025-26, in
@@ -54,4 +57,5 @@ offshore_wind:
   # net capacity factor of 53 %) = 41.76 million INR/MW/yr, i.e. 9.0 INR/kWh.
   # Indian developers' 2025 estimate of 9.7-9.8 INR/kWh would give 45.0-45.5
   # million. Sources and derivation: docs/input-data.md.
+  # Capacity is fixed per scenario, so this cost informs reporting only.
   capital_cost: 41760000       # INR per MW per year

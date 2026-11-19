@@ -1,6 +1,7 @@
 # Baseline plus offshore wind: IEA 15 MW turbines in the southernmost
 # balancing area (Tirunelveli), with the block 2 capacity factors
-# (config/technologies.yaml). The capacity setting is an EXAMPLE.
+# (config/technologies.yaml). The capacity is a scenario choice, not
+# optimised by the model.
 
 run:
   name: offshore_wind
@@ -20,5 +21,6 @@ technologies:
     # profile is the column of the profile file (defaults to the site name).
     block2:
       bus: Tirunelveli
-      capacity_mw: optimise          # EXAMPLE: or an installed capacity in MW (15 MW per turbine)
-      max_mw: 4000                   # EXAMPLE
+      # Installed capacity, a scenario choice (whole 15 MW turbines): one
+      # block 2 farm of 68 turbines. Change it to set the scenario.
+      capacity_mw: 1020

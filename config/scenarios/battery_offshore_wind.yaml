@@ -1,7 +1,7 @@
 # Baseline plus grid batteries and offshore wind: battery capacity optimised
 # in all nine balancing areas, offshore wind (IEA 15 MW turbines) in
-# Tirunelveli. Parameters are in config/technologies.yaml; the offshore
-# capacity setting is an EXAMPLE. Operational settings match the baseline.
+# Tirunelveli at a fixed, scenario-chosen capacity. Parameters are in
+# config/technologies.yaml. Operational settings match the baseline.
 
 run:
   name: battery_offshore_wind
@@ -30,5 +30,4 @@ technologies:
   offshore_wind:
     block2:
       bus: Tirunelveli               # the only area offshore wind can connect to
-      capacity_mw: optimise          # EXAMPLE
-      max_mw: 4000                   # EXAMPLE
+      capacity_mw: 1020              # scenario choice: one 68 x 15 MW block 2 farm

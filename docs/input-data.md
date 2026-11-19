@@ -259,7 +259,9 @@ southernmost balancing area.
 ### Offshore wind cost
 
 `capital_cost` in `config/technologies.yaml` is the annualised cost per MW
-per year, including fixed O&M and the full grid connection. It comes from the
+per year, including fixed O&M and the full grid connection. Offshore wind
+capacity is a fixed scenario choice, so this cost does not change any model
+decision; it is kept for reporting and for comparing scenarios' total costs. It comes from the
 Danish Energy Agency's *Cost estimates for the first offshore wind farms in
 India* (FIMOI v2, 2022), which is based on stakeholder and investor
 consultation, for Tamil Nadu zone B, 15 MW turbines, a 1 GW project and an

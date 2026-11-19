@@ -210,9 +210,30 @@ def validate_section(section: Mapping[str, Any]) -> None:
         )
     if not isinstance(section.get("parameters") or {}, Mapping):
         raise TechnologyError("technologies.parameters must map technologies to parameters")
-    parse_sites(section)
+    sites = parse_sites(section)
     parse_totals(section)
     read_fixed_capacities(section.get("fixed_capacities"))
+    _check_capacity_rules(sites, load_parameters(section))
+
+
+def _check_capacity_rules(sites: list[Site], parameters: Mapping[str, Mapping[str, Any]]) -> None:
+    """Apply per-technology rules: ``optimisable: false`` and whole units."""
+    for site in sites:
+        values = parameters.get(site.technology) or {}
+        label = f"technologies.{site.technology}.{site.name}"
+        if site.optimise and values.get("optimisable") is False:
+            raise TechnologyError(
+                f"{label}: {site.technology} capacity is a scenario choice; set "
+                "capacity_mw to MW instead of optimise"
+            )
+        unit = values.get("turbine_mw")
+        if unit and not site.optimise:
+            units = site.capacity_mw / float(unit)
+            if abs(units - round(units)) > 1e-6:
+                raise TechnologyError(
+                    f"{label}: capacity_mw {site.capacity_mw:g} is not a whole number of "
+                    f"{float(unit):g} MW turbines (e.g. {round(units) * float(unit):g})"
+                )
 
 
 def _deep_merge(base: dict, override: Mapping) -> dict:
