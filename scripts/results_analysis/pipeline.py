@@ -103,7 +103,7 @@ def analyze_run(
 
     if run.run_type in {"peak", "peak_week", "selected_week", "single_network"}:
         tables["peak_hour_by_area"] = peak_hour_by_area(run)
-    if run.run_type == "rolling" or len(run.networks) > 1:
+    if len(run.windows) > 1:
         tables["boundary_handoffs"] = boundary_handoff_metrics(run)
     if len(run.snapshots) >= 28 * 24:
         tables["monthly_generation"] = monthly_generation_comparison(

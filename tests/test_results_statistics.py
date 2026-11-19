@@ -12,6 +12,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from results_analysis.loaders import AnalysisRun  # noqa: E402
+from results_analysis.stitching import stitch_networks  # noqa: E402
 from results_analysis.metrics import (  # noqa: E402
     average_price,
     balancing_area_metrics,
@@ -136,7 +137,7 @@ def _run(prices: bool = True) -> AnalysisRun:
     return AnalysisRun(
         result_dir=Path("."),
         run_type="rolling",
-        networks=networks,
+        network=stitch_networks(networks),
         source_files=(),
         metadata={},
     )

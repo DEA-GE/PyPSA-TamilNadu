@@ -209,10 +209,32 @@ That script:
 
 The analysis is calculated with PyPSA's `n.statistics` at the electricity
 buses, so the water-energy layer (reservoir stores, natural inflows, spill)
-counts only where it reaches the grid through the hydro turbines. A rolling run
-is stored as one network per week; each is evaluated and the results are joined
-in time. PyPSA's own plotting (`n.statistics.<metric>.plot`) handles one
-network at a time, so the figures are drawn from the joined statistics instead.
+counts only where it reaches the grid through the hydro turbines. The report's
+figures are drawn from these statistics, with daily means for long periods.
+
+A rolling run is stored as one network per committed week. The analysis
+stitches them into one network covering the whole run
+(`scripts/results_analysis/stitching.py`): static data come from the first
+week, which also holds the run's initial conditions, and every time series is
+joined in time. Each week's start and initial storage are kept in
+`network.meta["stitched"]` for the rolling-boundary audit; the per-week
+objective values and energy-target constraints are dropped, so the stitched
+network is for analysis only, not for solving. It is saved as
+`stitched_network.nc` in the run folder and reused while the weekly files are
+unchanged (checked by name, size and modification time), so later analyses
+load one file instead of every week. To work with the whole year directly:
+
+```python
+from results_analysis import load_analysis_run
+
+run = load_analysis_run("results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed")
+n = run.network  # 8,760 snapshots
+n.statistics.supply(bus_carrier="AC", nice_names=False)
+n.statistics.supply.plot.bar(bus_carrier="AC")  # PyPSA's own plots work too
+```
+
+The loader gives the carriers the report's names and colours (in memory
+only), which PyPSA's plots need.
 
 | Output | Definition |
 | --- | --- |

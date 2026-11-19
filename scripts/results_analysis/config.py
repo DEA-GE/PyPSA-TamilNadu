@@ -67,6 +67,20 @@ CARRIER_COLORS = {
     "transmission_losses": "#E7298A",
 }
 
+# Names and colours for model carriers outside the reporting taxonomy, so that
+# PyPSA's own plots (``n.statistics.<metric>.plot``) read clearly.
+MODEL_CARRIER_STYLES = {
+    "AC": ("AC transmission", "#BDBDBD"),
+    "DC": ("HVDC transmission", "#737373"),
+    "electricity": ("Demand", "#9E9E9E"),
+    "hydro_pump": ("Pumping", "#6A3D9A"),
+    "water_energy": ("Reservoir water", "#9ECAE1"),
+    "water_inflow": ("Reservoir inflow", "#C6DBEF"),
+    "water_spill": ("Spill", "#DEEBF7"),
+    "water_transfer": ("Water transfer", "#6BAED6"),
+    "water_balance_adjustment": ("Measured-storage reconciliation", "#FB6A4A"),
+}
+
 RENEWABLE_CARRIERS = ("solar", "wind")
 DISPATCHABLE_CARRIERS = (
     "coal",

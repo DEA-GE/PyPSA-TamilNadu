@@ -1,10 +1,7 @@
-"""PyPSA ``n.statistics`` for single networks and rolling checkpoint series.
+"""PyPSA ``n.statistics`` on a run's network.
 
-``n.statistics`` works on one network. A rolling run is stored as one network
-per committed week, so time-varying statistics are evaluated per network with
-``groupby_time=False``, joined along the time axis and then weighted with the
-run's snapshot weightings. Static statistics, such as installed capacity, are
-taken from the first network, as the rest of the analysis does.
+Rolling runs are stitched into one network covering the whole run first (see
+``stitching``), so every statistic is a single ``n.statistics`` call.
 
 Every statistic is restricted to the electricity buses (``bus_carrier="AC"``).
 The model also has a water-energy layer: reservoir stores, natural inflow
@@ -50,25 +47,17 @@ def network_statistic(
 
 
 def statistic_timeseries(run: AnalysisRun, name: str, **kwargs) -> pd.DataFrame:
-    """Return an ``n.statistics`` metric per snapshot over all retained networks.
+    """Return an ``n.statistics`` metric per snapshot.
 
-    The result has one row per run snapshot and one column per group (for
-    example ``(component, carrier)``). Groups absent from a network are zero
-    in its snapshots.
+    The result has one row per snapshot and one column per group (for
+    example ``(component, carrier)``).
     """
-    parts: list[pd.DataFrame] = []
-    for network in run.networks:
-        values = network_statistic(network, name, groupby_time=False, **kwargs)
-        if values.empty:
-            continue
-        part = values.T
-        part.index = pd.DatetimeIndex(part.index)
-        parts.append(part)
-    if not parts:
+    values = network_statistic(run.network, name, groupby_time=False, **kwargs)
+    if values.empty:
         return pd.DataFrame(index=run.snapshots)
-    combined = pd.concat(parts).sort_index()
-    combined = combined.loc[~combined.index.duplicated(keep="first")]
-    return combined.reindex(run.snapshots).fillna(0.0)
+    hourly = values.T
+    hourly.index = pd.DatetimeIndex(hourly.index)
+    return hourly.reindex(run.snapshots).fillna(0.0)
 
 
 def statistic_total(run: AnalysisRun, name: str, **kwargs) -> pd.Series:
@@ -78,27 +67,12 @@ def statistic_total(run: AnalysisRun, name: str, **kwargs) -> pd.Series:
 
 
 def statistic_sum(run: AnalysisRun, name: str, **kwargs) -> pd.Series:
-    """Add up PyPSA's own period totals of a metric over the retained networks.
+    """Return PyPSA's own period total of a metric.
 
     Use this where PyPSA applies metric-specific time weights, as ``opex``
     does for start-up costs (unweighted) versus marginal costs (weighted).
-    The networks must cover disjoint periods, as rolling checkpoints and
-    selected weeks do.
     """
-    retained = sum(len(network.snapshots) for network in run.networks)
-    if retained != len(run.snapshots):
-        raise ValueError(
-            f"{name}: the retained networks overlap in time, so their totals "
-            "cannot be added"
-        )
-    parts = [
-        network_statistic(network, name, groupby_time="sum", **kwargs)
-        for network in run.networks
-    ]
-    parts = [part for part in parts if not part.empty]
-    if not parts:
-        return pd.Series(dtype=float)
-    return pd.concat(parts, axis=1).fillna(0.0).sum(axis=1)
+    return network_statistic(run.network, name, groupby_time="sum", **kwargs)
 
 
 def price_timeseries(run: AnalysisRun) -> pd.DataFrame:
@@ -106,21 +80,13 @@ def price_timeseries(run: AnalysisRun) -> pd.DataFrame:
 
     Empty when the solves carry no prices, as with binary unit commitment.
     """
-    parts: list[pd.DataFrame] = []
-    for network in run.networks:
-        if network.buses_t.marginal_price.empty:
-            continue
-        prices = network_statistic(
-            network, "prices", groupby_time=False, drop_zero=False, round=None
-        )
-        part = prices.T
-        part.index = pd.DatetimeIndex(part.index)
-        parts.append(part)
-    if not parts:
+    if run.network.buses_t.marginal_price.empty:
         return pd.DataFrame(index=run.snapshots)
-    combined = pd.concat(parts).sort_index()
-    combined = combined.loc[~combined.index.duplicated(keep="first")]
-    return combined.reindex(run.snapshots)
+    prices = network_statistic(
+        run.network, "prices", groupby_time=False, drop_zero=False, round=None
+    ).T
+    prices.index = pd.DatetimeIndex(prices.index)
+    return prices.reindex(run.snapshots)
 
 
 def is_transmission(components: pd.Index, carriers: pd.Index) -> pd.Index:
