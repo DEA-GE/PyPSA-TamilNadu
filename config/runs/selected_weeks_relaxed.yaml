@@ -1,0 +1,18 @@
+# Four independent seasonal test weeks with relaxed unit commitment.
+#   python scripts/run_model.py config/runs/selected_weeks_relaxed.yaml
+run:
+  name: seasonal_weeks_relaxed
+  mode: selected_weeks
+
+selected_weeks:
+  week_starts:
+    - "2025-04-07"                # dry / low hydro
+    - "2025-07-07"                # southwest-monsoon wind and hydro peak
+    - "2025-10-13"                # monsoon transition
+    - "2026-02-16"                # dry-season low renewables
+  warmup_days: 1
+  lookahead_days: 1
+  reservoir_initial_soc_fraction: 0.5
+
+formulation:
+  unit_commitment: relaxed

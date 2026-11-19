@@ -1,0 +1,14 @@
+# Full-year rolling run with relaxed unit commitment: 7 committed days plus
+# 1 look-ahead day per window, state carried between windows.
+#   python scripts/run_model.py config/runs/rolling_relaxed.yaml
+run:
+  name: rolling_relaxed
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10

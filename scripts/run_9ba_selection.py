@@ -50,6 +50,17 @@ from run_9ba_rolling import (
     run_rolling_year,
 )
 from results_analysis.loaders import load_observed_capacity
+from run_profiling import (
+    RunProfiler,
+    activate,
+    format_solve_breakdown,
+    format_summary,
+    get_profiler,
+    optimize_profiled,
+    report,
+    start_worker_profiler,
+    worker_profiler_config,
+)
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -65,6 +76,8 @@ HYDRO_PARAMETERS_FILE = MODEL_DIR / "hydro_reservoir_parameters.csv"
 HYDRO_MONTHLY_SOC_FILE = MODEL_DIR / "hydro_monthly_stored_energy.csv"
 DEFAULT_SOC_BOUNDARY_TOLERANCE_PU = 0.05
 UNIT_COMMITMENT_MODES = {"full", "relaxed", "none"}
+# Result-folder category per unit-commitment mode: <mode label><suffix>/<run name>/.
+UNIT_COMMITMENT_FOLDER_SUFFIX = {"full": "_UC", "relaxed": "_relaxed", "none": "_LP"}
 RUN_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
 # Importing the full-year network from the CSV folder is needlessly repeated
@@ -124,10 +137,13 @@ def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
     return result
 
 
-def _initialise_day_worker(base_network: pypsa.Network) -> None:
+def _initialise_day_worker(
+    base_network: pypsa.Network, profile_config: dict | None = None,
+) -> None:
     """Install one annual network copy in each independent-solve process."""
     global _DAY_WORKER_NETWORK
     _DAY_WORKER_NETWORK = base_network
+    start_worker_profiler(profile_config)
 
 
 def _solve_day_worker(task: tuple) -> dict[str, object]:
@@ -144,24 +160,27 @@ def _solve_day_worker(task: tuple) -> dict[str, object]:
         solver_threads,
         unit_commitment,
     ) = task
-    _, result = solve_day(
-        _DAY_WORKER_NETWORK,
-        date,
-        solver_name,
-        oil_gas_target,
-        oil_gas_share,
-        mip_rel_gap=mip_rel_gap,
-        linearized_unit_commitment=linearized_unit_commitment,
-        solver_threads=solver_threads,
-        unit_commitment=unit_commitment,
-    )
+    profiler = get_profiler()
+    with profiler.context(day=f"{date:%Y-%m-%d}"), profiler.phase("day"):
+        _, result = solve_day(
+            _DAY_WORKER_NETWORK,
+            date,
+            solver_name,
+            oil_gas_target,
+            oil_gas_share,
+            mip_rel_gap=mip_rel_gap,
+            linearized_unit_commitment=linearized_unit_commitment,
+            solver_threads=solver_threads,
+            unit_commitment=unit_commitment,
+        )
     return result
 
 
-def _initialise_selected_week_worker(context: tuple) -> None:
+def _initialise_selected_week_worker(context: tuple, profile_config: dict | None = None) -> None:
     """Install immutable selected-week inputs in each worker process."""
     global _SELECTED_WEEK_WORKER_CONTEXT
     _SELECTED_WEEK_WORKER_CONTEXT = context
+    start_worker_profiler(profile_config)
 
 
 def _solve_selected_week_worker(start: pd.Timestamp) -> pd.DataFrame:
@@ -333,6 +352,14 @@ def _validate_run_name(run_name: str) -> str:
             "and contain only letters, numbers, dots, underscores, or hyphens."
         )
     return value
+
+
+def _run_output_dir(
+    results_root: Path, base_label: str, unit_commitment: str, run_name: str
+) -> Path:
+    """Run folder ``<results_root>/<base label>_<UC|relaxed|LP>/<run name>``."""
+    suffix = UNIT_COMMITMENT_FOLDER_SUFFIX[unit_commitment]
+    return results_root / f"{base_label}{suffix}" / run_name
 
 
 def _ensure_available(dates: pd.DatetimeIndex, available: pd.DatetimeIndex) -> None:
@@ -554,34 +581,37 @@ def _solve_independent_days(
             f"active workers * solver_threads must not exceed the {logical_cpus} "
             "logical CPUs visible to Python"
         )
+    profiler = get_profiler()
     if effective_workers > 1:
-        print(
+        report(
             f"Solving {len(tasks)} independent days with {effective_workers} "
-            f"processes x {solver_threads} HiGHS thread(s) ...",
-            flush=True,
+            f"processes x {solver_threads} HiGHS thread(s) ..."
         )
-        with ProcessPoolExecutor(
+        with profiler.phase("process_pool", workers=effective_workers), ProcessPoolExecutor(
             max_workers=effective_workers,
             mp_context=get_context("spawn"),
             initializer=_initialise_day_worker,
-            initargs=(base_network,),
+            initargs=(base_network, worker_profiler_config(profiler)),
         ) as executor:
             rows.extend(executor.map(_solve_day_worker, tasks))
     else:
         for position, task in enumerate(tasks, start=1):
             date = task[0]
-            print(f"Solving {date.date()} ({position}/{len(dates)}) ...", flush=True)
-            last_network, result = solve_day(
-                base_network,
-                date,
-                solver_name,
-                task[2],
-                task[3],
-                mip_rel_gap=task[4],
-                linearized_unit_commitment=task[5],
-                solver_threads=solver_threads,
-                unit_commitment=unit_commitment,
-            )
+            report(f"Solving {date.date()} ({position}/{len(dates)}) ...")
+            with profiler.context(day=f"{date:%Y-%m-%d}"), profiler.phase("day"):
+                last_network, result = solve_day(
+                    base_network,
+                    date,
+                    solver_name,
+                    task[2],
+                    task[3],
+                    mip_rel_gap=task[4],
+                    linearized_unit_commitment=task[5],
+                    solver_threads=solver_threads,
+                    unit_commitment=unit_commitment,
+                )
+            if profiler.last_solve:
+                report(f"Day {date.date()}: {format_solve_breakdown(profiler.last_solve)}")
             rows.append(result)
     conditions.extend(str(result["termination_condition"]) for result in rows)
 
@@ -617,7 +647,9 @@ def _solve_peak_week(
     unit_commitment: str,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network]:
     snapshots = base_network.snapshots[base_network.snapshots.normalize().isin(dates)]
-    network = base_network.copy(snapshots=snapshots)
+    profiler = get_profiler()
+    with profiler.phase("copy_network"):
+        network = base_network.copy(snapshots=snapshots)
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
     gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
     drop_native_energy_targets(network)
@@ -647,15 +679,17 @@ def _solve_peak_week(
             )
         add_transmission_flow_cost(active_network, active_snapshots)
 
-    print(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...", flush=True)
+    report(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...")
     started = time.perf_counter()
     reset_highs_global_scheduler()
-    status, condition = network.optimize(
+    status, condition = optimize_profiled(
+        network,
         solver_name=solver_name,
         solver_options=highs_solver_options(
             unit_commitment, mip_rel_gap, solver_threads
         ),
         extra_functionality=extra_functionality,
+        tag=f"peak_{dates[0]:%Y%m%d}",
         transmission_losses=TRANSMISSION_LOSSES,
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
@@ -663,6 +697,8 @@ def _solve_peak_week(
     runtime = time.perf_counter() - started
     if status != "ok":
         raise RuntimeError(f"Peak-week solve failed: status={status}, condition={condition}")
+    if profiler.last_solve:
+        report(f"Peak week: {format_solve_breakdown(profiler.last_solve)}")
 
     modeled = _carrier_energy_by_day(network)
     gas_deviation = modeled["oil_gas"].reindex(dates).mul(1000.0).sub(gas_targets)
@@ -744,11 +780,11 @@ def _solve_selected_weeks(
             f"active workers * solver_threads must not exceed the {logical_cpus} "
             "logical CPUs visible to Python"
         )
+    profiler = get_profiler()
     if effective_workers > 1:
-        print(
+        report(
             f"Solving {len(starts)} independent weeks with {effective_workers} "
-            f"processes x {solver_threads} HiGHS thread(s) ...",
-            flush=True,
+            f"processes x {solver_threads} HiGHS thread(s) ..."
         )
         context = (
             base_network,
@@ -767,11 +803,11 @@ def _solve_selected_weeks(
             soc_boundary_tolerance_pu,
             resume,
         )
-        with ProcessPoolExecutor(
+        with profiler.phase("process_pool", workers=effective_workers), ProcessPoolExecutor(
             max_workers=effective_workers,
             mp_context=get_context("spawn"),
             initializer=_initialise_selected_week_worker,
-            initargs=(context,),
+            initargs=(context, worker_profiler_config(profiler)),
         ) as executor:
             modeled_parts.extend(executor.map(_solve_selected_week_worker, starts))
         for start in starts:
@@ -837,10 +873,9 @@ def _solve_selected_weeks(
                 )
             )
             if compatible:
-                print(
+                report(
                     f"Loading completed selected week {position}/{len(starts)}: "
-                    f"{start.date()}",
-                    flush=True,
+                    f"{start.date()}"
                 )
                 modeled = pd.read_csv(modeled_file, index_col="date", parse_dates=True)
                 modeled = modeled.reindex(retained_dates)
@@ -851,10 +886,7 @@ def _solve_selected_weeks(
                         output_dir / "selected_week_log.csv", index=False
                     )
                 continue
-            print(
-                f"Re-solving stale selected week {position}/{len(starts)}: {start.date()}",
-                flush=True,
-            )
+            report(f"Re-solving stale selected week {position}/{len(starts)}: {start.date()}")
 
         active_dates = pd.date_range(
             start - pd.Timedelta(days=warmup_days),
@@ -871,401 +903,414 @@ def _solve_selected_weeks(
                 f"found {len(snapshots)}."
             )
 
-        network = base_network.copy(snapshots=snapshots)
-        # Energy targets are added below for the exact days they cover:
-        # bio-power and small hydro over the retained week only, oil/gas and
-        # nuclear for every solved day.
-        drop_native_energy_targets(network)
-        reservoir_units = network.storage_units.index[
-            network.storage_units.carrier.eq("hydro")
-            & network.storage_units.p_min_pu.ge(0.0)
-        ]
-        if len(reservoir_units):
-            network.storage_units.loc[reservoir_units, "cyclic_state_of_charge"] = False
-            network.storage_units.loc[reservoir_units, "state_of_charge_initial"] = (
-                reservoir_initial_soc_fraction
-                * network.storage_units.loc[reservoir_units, "p_nom"]
-                * network.storage_units.loc[reservoir_units, "max_hours"]
-            )
-            # The selected-week observations are retained-week start/end
-            # boundaries. Do not add a third observed boundary at the warm-up
-            # day: discontinuities in the source series can otherwise require
-            # physically impossible filling before the retained week starts.
-            observed_initial = pd.Series(dtype=float)
-            observed_terminal = _soc_at_date(
+        with profiler.context(week=f"{start:%Y-%m-%d}"), profiler.phase("week"):
+            with profiler.phase("copy_network"):
+                network = base_network.copy(snapshots=snapshots)
+            # Energy targets are added below for the exact days they cover:
+            # bio-power and small hydro over the retained week only, oil/gas and
+            # nuclear for every solved day.
+            drop_native_energy_targets(network)
+            reservoir_units = network.storage_units.index[
+                network.storage_units.carrier.eq("hydro")
+                & network.storage_units.p_min_pu.ge(0.0)
+            ]
+            if len(reservoir_units):
+                network.storage_units.loc[reservoir_units, "cyclic_state_of_charge"] = False
+                network.storage_units.loc[reservoir_units, "state_of_charge_initial"] = (
+                    reservoir_initial_soc_fraction
+                    * network.storage_units.loc[reservoir_units, "p_nom"]
+                    * network.storage_units.loc[reservoir_units, "max_hours"]
+                )
+                # The selected-week observations are retained-week start/end
+                # boundaries. Do not add a third observed boundary at the warm-up
+                # day: discontinuities in the source series can otherwise require
+                # physically impossible filling before the retained week starts.
+                observed_initial = pd.Series(dtype=float)
+                observed_terminal = _soc_at_date(
+                    observed_soc,
+                    retained_dates[-1],
+                    reservoir_units.intersection(observed_daily_components),
+                )
+            else:
+                observed_terminal = pd.Series(dtype=float)
+            observed_store_initial = pd.Series(dtype=float)
+            observed_store_terminal = _soc_at_date(
                 observed_soc,
                 retained_dates[-1],
+                network.stores.index.intersection(observed_daily_components),
+            )
+            observed_week_start = _soc_at_date(
+                observed_soc,
+                retained_dates[0],
                 reservoir_units.intersection(observed_daily_components),
             )
-        else:
-            observed_terminal = pd.Series(dtype=float)
-        observed_store_initial = pd.Series(dtype=float)
-        observed_store_terminal = _soc_at_date(
-            observed_soc,
-            retained_dates[-1],
-            network.stores.index.intersection(observed_daily_components),
-        )
-        observed_week_start = _soc_at_date(
-            observed_soc,
-            retained_dates[0],
-            reservoir_units.intersection(observed_daily_components),
-        )
-        observed_store_week_start = _soc_at_date(
-            observed_soc,
-            retained_dates[0],
-            network.stores.index.intersection(observed_daily_components),
-        )
-        # Independent selected weeks initialize observed reservoirs from the
-        # retained-week start observation. The warm-up may optimize operations
-        # around that level, while the explicit start constraint below still
-        # enforces the exact observed boundary at the first retained snapshot.
-        if len(observed_week_start):
-            network.storage_units.loc[
-                observed_week_start.index, "state_of_charge_initial"
-            ] = observed_week_start
-        if len(observed_store_week_start):
-            network.stores.loc[observed_store_week_start.index, "e_initial"] = (
-                observed_store_week_start
+            observed_store_week_start = _soc_at_date(
+                observed_soc,
+                retained_dates[0],
+                network.stores.index.intersection(observed_daily_components),
             )
-        monthly_initial = _monthly_boundary_targets(boundary_parameters, retained_dates[0])
-        monthly_terminal = _monthly_boundary_targets(boundary_parameters, retained_dates[-1])
-        # Intermediate pondage and explicitly assumption-based reservoirs do
-        # not have a seasonal target.  Keep their retained-week water balance
-        # neutral instead of allowing the selected-week solve to draw down an
-        # arbitrary initial store.  The metadata identifies both StorageUnits
-        # and hydraulic Stores with the same boundary convention.
-        water_neutral_components = boundary_parameters.index[
-            boundary_parameters["weekly_balance_method"].eq("end_equals_start")
-        ]
-        pondage_units = reservoir_units.intersection(water_neutral_components)
-        pondage_stores = network.stores.index.intersection(water_neutral_components)
-        # A terminal tailwater Store has incoming turbine discharge but no
-        # outgoing hydraulic path.  Pinning its retained-week end level to its
-        # start level would force every upstream turbine to zero dispatch.  In
-        # particular, that contradicts a declining observed reservoir target
-        # at Papanasam, whose turbines discharge into Servalar_pondage.  Apply
-        # water neutrality only to genuine intermediate/closed pondages; a
-        # terminal routing sink must be free to absorb the week's net release.
-        link_bus0 = network.links.get("bus0", pd.Series(dtype=object))
-        outflow_buses = pd.Index(link_bus0.dropna().astype(str).unique())
-        stores_with_outflow = network.stores.index[
-            network.stores["bus"].astype(str).isin(outflow_buses)
-        ]
-        pondage_stores = pondage_stores.intersection(stores_with_outflow)
-        committable = network.generators.index[network.generators.committable]
-        if len(committable):
-            initially_down = (
-                network.generators.loc[committable, "down_time_before"].fillna(0.0) > 0.0
-            )
-            network.generators.loc[committable[initially_down], "p_init"] = np.nan
-
-        gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(active_dates)
-        if gas_targets.isna().any():
-            raise ValueError(f"Missing oil/gas targets for week starting {start.date()}.")
-
-        gas_units = network.generators.index[network.generators.carrier.eq("oil_gas")]
-        biomass_units = network.generators.index[
-            network.generators.carrier.eq("bio_power")
-        ]
-        if not len(biomass_units):
-            raise ValueError("Biomass target is configured but no bio_power units exist.")
-        retained_snapshots = network.snapshots[
-            network.snapshots.normalize().isin(retained_dates)
-        ]
-        biomass_target_mwh = bio_power_energy_target_mwh(
-            retained_snapshots,
-            network.snapshot_weightings.generators,
-        )
-        small_hydro_target_mwh = small_hydro_energy_target_mwh(
-            retained_snapshots,
-            network.snapshot_weightings.generators,
-        )
-
-        def extra_functionality(
-            active_network: pypsa.Network,
-            active_snapshots: pd.DatetimeIndex,
-        ) -> None:
-            add_nuclear_targets(active_network, active_snapshots)
-            terminal_snapshot = active_snapshots[
-                active_snapshots.normalize() == retained_dates[-1]
-            ][-1]
-            start_snapshot = active_snapshots[
-                active_snapshots.normalize() == retained_dates[0]
-            ][0]
-            dispatch = active_network.model["Generator-p"]
-            generator_dim = generator_dimension(dispatch)
-            biomass_weights = xr.DataArray(
-                active_network.snapshot_weightings.generators.reindex(retained_snapshots),
-                dims=["snapshot"],
-                coords={"snapshot": retained_snapshots},
-            )
-            biomass_dispatch = dispatch.sel(
-                {generator_dim: biomass_units, "snapshot": retained_snapshots}
-            )
-            active_network.model.add_constraints(
-                (biomass_dispatch * biomass_weights).sum() == biomass_target_mwh,
-                name=f"SelectedWeekBiomassEnergyTarget-{retained_dates[0]:%Y%m%d}",
-            )
-            small_hydro_dispatch = dispatch.sel(
-                {generator_dim: small_hydro_units, "snapshot": retained_snapshots}
-            )
-            active_network.model.add_constraints(
-                (small_hydro_dispatch * biomass_weights).sum()
-                == small_hydro_target_mwh,
-                name=f"SelectedWeekSmallHydroEnergyTarget-{retained_dates[0]:%Y%m%d}",
-            )
-            for date, target in gas_targets.items():
-                day_snapshots = active_snapshots[active_snapshots.normalize() == date]
-                expression = dispatch.sel(
-                    {generator_dim: gas_units, "snapshot": day_snapshots}
-                ).sum()
-                active_network.model.add_constraints(
-                    expression == float(target),
-                    name=f"SelectedWeekOilGasDailyTarget-{date:%Y%m%d}",
-                )
-            if len(observed_terminal):
-                soc = active_network.model["StorageUnit-state_of_charge"]
-                storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
-                target = xr.DataArray(
-                    observed_terminal.to_numpy(),
-                    dims=[storage_dim],
-                    coords={storage_dim: observed_terminal.index},
-                )
-                active_network.model.add_constraints(
-                    soc.sel({storage_dim: observed_terminal.index, "snapshot": terminal_snapshot}) == target,
-                    name=f"ObservedHydroTerminalSOC-{retained_dates[-1]:%Y%m%d}",
-                )
-            if len(observed_store_terminal):
-                store_e = active_network.model["Store-e"]
-                store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
-                target = xr.DataArray(
-                    observed_store_terminal.to_numpy(), dims=[store_dim],
-                    coords={store_dim: observed_store_terminal.index},
-                )
-                active_network.model.add_constraints(
-                    store_e.sel({store_dim: observed_store_terminal.index, "snapshot": terminal_snapshot}) == target,
-                    name=f"ObservedHydroStoreTerminalSOC-{retained_dates[-1]:%Y%m%d}",
-                )
+            # Independent selected weeks initialize observed reservoirs from the
+            # retained-week start observation. The warm-up may optimize operations
+            # around that level, while the explicit start constraint below still
+            # enforces the exact observed boundary at the first retained snapshot.
             if len(observed_week_start):
-                soc = active_network.model["StorageUnit-state_of_charge"]
-                storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
-                target = xr.DataArray(observed_week_start.to_numpy(), dims=[storage_dim], coords={storage_dim: observed_week_start.index})
-                active_network.model.add_constraints(soc.sel({storage_dim: observed_week_start.index, "snapshot": start_snapshot}) == target, name=f"ObservedHydroWeekStartSOC-{retained_dates[0]:%Y%m%d}")
+                network.storage_units.loc[
+                    observed_week_start.index, "state_of_charge_initial"
+                ] = observed_week_start
             if len(observed_store_week_start):
-                store_e = active_network.model["Store-e"]
-                store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
-                target = xr.DataArray(observed_store_week_start.to_numpy(), dims=[store_dim], coords={store_dim: observed_store_week_start.index})
-                active_network.model.add_constraints(store_e.sel({store_dim: observed_store_week_start.index, "snapshot": start_snapshot}) == target, name=f"ObservedHydroStoreWeekStartSOC-{retained_dates[0]:%Y%m%d}")
-            if len(pondage_units):
-                soc = active_network.model["StorageUnit-state_of_charge"]
-                storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
-                terminal_soc = soc.sel(
-                    {storage_dim: pondage_units, "snapshot": terminal_snapshot}
+                network.stores.loc[observed_store_week_start.index, "e_initial"] = (
+                    observed_store_week_start
                 )
-                start_soc = soc.sel(
-                    {storage_dim: pondage_units, "snapshot": start_snapshot}
-                ).assign_coords(snapshot=terminal_snapshot)
-                active_network.model.add_constraints(
-                    terminal_soc == start_soc,
-                    name=f"WeeklyWaterNeutralStorageUnits-{retained_dates[0]:%Y%m%d}",
+            monthly_initial = _monthly_boundary_targets(boundary_parameters, retained_dates[0])
+            monthly_terminal = _monthly_boundary_targets(boundary_parameters, retained_dates[-1])
+            # Intermediate pondage and explicitly assumption-based reservoirs do
+            # not have a seasonal target.  Keep their retained-week water balance
+            # neutral instead of allowing the selected-week solve to draw down an
+            # arbitrary initial store.  The metadata identifies both StorageUnits
+            # and hydraulic Stores with the same boundary convention.
+            water_neutral_components = boundary_parameters.index[
+                boundary_parameters["weekly_balance_method"].eq("end_equals_start")
+            ]
+            pondage_units = reservoir_units.intersection(water_neutral_components)
+            pondage_stores = network.stores.index.intersection(water_neutral_components)
+            # A terminal tailwater Store has incoming turbine discharge but no
+            # outgoing hydraulic path.  Pinning its retained-week end level to its
+            # start level would force every upstream turbine to zero dispatch.  In
+            # particular, that contradicts a declining observed reservoir target
+            # at Papanasam, whose turbines discharge into Servalar_pondage.  Apply
+            # water neutrality only to genuine intermediate/closed pondages; a
+            # terminal routing sink must be free to absorb the week's net release.
+            link_bus0 = network.links.get("bus0", pd.Series(dtype=object))
+            outflow_buses = pd.Index(link_bus0.dropna().astype(str).unique())
+            stores_with_outflow = network.stores.index[
+                network.stores["bus"].astype(str).isin(outflow_buses)
+            ]
+            pondage_stores = pondage_stores.intersection(stores_with_outflow)
+            committable = network.generators.index[network.generators.committable]
+            if len(committable):
+                initially_down = (
+                    network.generators.loc[committable, "down_time_before"].fillna(0.0) > 0.0
                 )
-            if len(pondage_stores):
-                store_e = active_network.model["Store-e"]
-                store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
-                terminal_e = store_e.sel(
-                    {store_dim: pondage_stores, "snapshot": terminal_snapshot}
-                )
-                start_e = store_e.sel(
-                    {store_dim: pondage_stores, "snapshot": start_snapshot}
-                ).assign_coords(snapshot=terminal_snapshot)
-                active_network.model.add_constraints(
-                    terminal_e == start_e,
-                    name=f"WeeklyWaterNeutralStores-{retained_dates[0]:%Y%m%d}",
-                )
-            # Monthly data are interpolated at the two boundaries only. The
-            # tolerance is in per-unit e_nom, not an invented hourly profile.
-            monthly_units = reservoir_units.intersection(monthly_initial.index)
-            if len(monthly_units):
-                soc = active_network.model["StorageUnit-state_of_charge"]
-                storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
-                tolerance = xr.DataArray(
-                    soc_boundary_tolerance_pu
-                    * active_network.storage_units.loc[monthly_units, "p_nom"].to_numpy()
-                    * active_network.storage_units.loc[monthly_units, "max_hours"].to_numpy(),
-                    dims=[storage_dim], coords={storage_dim: monthly_units},
-                )
-                for label, snapshot, targets in [("Initial", start_snapshot, monthly_initial), ("Terminal", terminal_snapshot, monthly_terminal)]:
-                    target = xr.DataArray(targets.reindex(monthly_units).to_numpy(), dims=[storage_dim], coords={storage_dim: monthly_units})
-                    expression = soc.sel({storage_dim: monthly_units, "snapshot": snapshot})
-                    active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydro{label}Lower-{retained_dates[0]:%Y%m%d}")
-                    active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydro{label}Upper-{retained_dates[0]:%Y%m%d}")
-            monthly_stores = network.stores.index.intersection(monthly_initial.index)
-            if len(monthly_stores):
-                store_e = active_network.model["Store-e"]
-                store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
-                tolerance = xr.DataArray(soc_boundary_tolerance_pu * active_network.stores.loc[monthly_stores, "e_nom"].to_numpy(), dims=[store_dim], coords={store_dim: monthly_stores})
-                for label, snapshot, targets in [("Initial", start_snapshot, monthly_initial), ("Terminal", terminal_snapshot, monthly_terminal)]:
-                    target = xr.DataArray(targets.reindex(monthly_stores).to_numpy(), dims=[store_dim], coords={store_dim: monthly_stores})
-                    expression = store_e.sel({store_dim: monthly_stores, "snapshot": snapshot})
-                    active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
-                    active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
-            add_transmission_flow_cost(active_network, active_snapshots)
+                network.generators.loc[committable[initially_down], "p_init"] = np.nan
 
-        print(
-            f"Solving selected week {position}/{len(starts)}: {start.date()} to "
-            f"{retained_dates[-1].date()} ({warmup_days} warm-up + 7 retained + "
-            f"{lookahead_days} look-ahead days)",
-            flush=True,
-        )
-        started = time.perf_counter()
-        reset_highs_global_scheduler()
-        status, condition = network.optimize(
-            solver_name=solver_name,
-            solver_options=highs_solver_options(
-                unit_commitment, mip_rel_gap, solver_threads
-            ),
-            extra_functionality=extra_functionality,
-            transmission_losses=TRANSMISSION_LOSSES,
-            include_objective_constant=False,
-            linearized_unit_commitment=unit_commitment == "relaxed",
-        )
-        runtime = time.perf_counter() - started
-        if status != "ok" or condition != "optimal":
-            raise RuntimeError(
-                f"Selected week {start.date()} failed: status={status}, "
-                f"condition={condition}."
+            gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(active_dates)
+            if gas_targets.isna().any():
+                raise ValueError(f"Missing oil/gas targets for week starting {start.date()}.")
+
+            gas_units = network.generators.index[network.generators.carrier.eq("oil_gas")]
+            biomass_units = network.generators.index[
+                network.generators.carrier.eq("bio_power")
+            ]
+            if not len(biomass_units):
+                raise ValueError("Biomass target is configured but no bio_power units exist.")
+            retained_snapshots = network.snapshots[
+                network.snapshots.normalize().isin(retained_dates)
+            ]
+            biomass_target_mwh = bio_power_energy_target_mwh(
+                retained_snapshots,
+                network.snapshot_weightings.generators,
+            )
+            small_hydro_target_mwh = small_hydro_energy_target_mwh(
+                retained_snapshots,
+                network.snapshot_weightings.generators,
             )
 
-        modeled = _carrier_energy_by_day(network).reindex(retained_dates)
-        modeled_parts.append(modeled)
-        terminal_snapshot = network.snapshots[
-            network.snapshots.normalize() == retained_dates[-1]
-        ][-1]
-        start_snapshot = network.snapshots[
-            network.snapshots.normalize() == retained_dates[0]
-        ][0]
-        residual = float(network.buses_t.p.sum(axis=1).abs().max())
-        loading = (
-            float(network.links_t.p0.abs().div(network.links.p_nom, axis=1).max().max() * 100)
-            if len(network.links)
-            else 0.0
-        )
-        gas_deviation = (
-            modeled["oil_gas"].mul(1_000.0)
-            - gas_targets.reindex(retained_dates)
-        ).abs().max()
-        nuclear_deviation = (
-            modeled["nuclear"].sub(observed["nuclear"].reindex(retained_dates)).mul(1_000.0)
-        ).abs().max()
-        biomass_generation_mwh = float(
-            network.generators_t.p.loc[retained_snapshots, biomass_units]
-            .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
-            .sum()
-            .sum()
-        )
-        small_hydro_generation_mwh = float(
-            network.generators_t.p.loc[retained_snapshots, small_hydro_units]
-            .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
-            .sum()
-            .sum()
-        )
-        pap_store = "Papanasam_reservoir"
-        serv_store = "Servalar_reservoir"
-        lower_store = "Papanasam_lower_pondage"
-        pap_links = network.links.index[
-            network.links.index.str.startswith("papanasam_turbine__")
-        ]
-        serv_links = network.links.index[
-            network.links.index.str.startswith("servalar_turbine__")
-        ]
-        pap_start_soc = float(network.stores_t.e.at[start_snapshot, pap_store])
-        pap_end_soc = float(network.stores_t.e.at[terminal_snapshot, pap_store])
-        pap_start_target = float(observed_store_week_start.at[pap_store])
-        pap_end_target = float(observed_store_terminal.at[pap_store])
-        serv_neutral_error = float(
-            network.stores_t.e.at[terminal_snapshot, serv_store]
-            - network.stores_t.e.at[start_snapshot, serv_store]
-        )
-        lower_neutral_error = float(
-            network.stores_t.e.at[terminal_snapshot, lower_store]
-            - network.stores_t.e.at[start_snapshot, lower_store]
-        )
-        pap_generation_mwh = float(
-            -network.links_t.p1.loc[retained_snapshots, pap_links].sum().sum()
-        )
-        serv_generation_mwh = float(
-            -network.links_t.p1.loc[retained_snapshots, serv_links].sum().sum()
-        )
-        cascade_buses = [
-            "water_papanasam_reservoir",
-            "water_servalar_reservoir",
-            "water_papanasam_lower_pondage",
-            "water_papanasam_downstream_river",
-        ]
-        cascade_residual = float(
-            network.buses_t.p.loc[retained_snapshots, cascade_buses].abs().max().max()
-        )
-        week_validation = {
-            "model_version": CHECKPOINT_MODEL_VERSION,
-            "pypsa_version": pypsa.__version__,
-            "formulation": "continuous selected week with warm-up and look-ahead",
-            "solver_status": str(status),
-            "solver_condition": str(condition),
-            "week_start": str(start.date()),
-            "week_end": str(retained_dates[-1].date()),
-            "warmup_days": warmup_days,
-            "lookahead_days": lookahead_days,
-            "biomass_target_mwh": biomass_target_mwh,
-            "biomass_generation_mwh": biomass_generation_mwh,
-            "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
-            "small_hydro_target_mwh": small_hydro_target_mwh,
-            "small_hydro_generation_mwh": small_hydro_generation_mwh,
-            "small_hydro_target_error_mwh": (
-                small_hydro_generation_mwh - small_hydro_target_mwh
-            ),
-            "solver_name": solver_name,
-            "solver_threads": solver_threads,
-            "unit_commitment": unit_commitment,
-            "mip_rel_gap": mip_rel_gap if unit_commitment == "full" else None,
-            "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
-            "soc_boundary_tolerance_pu": soc_boundary_tolerance_pu,
-            "observed_hydro_initial_soc_components": int(len(observed_initial)),
-            "observed_hydro_terminal_soc_components": int(len(observed_terminal)),
-            "observed_hydro_store_initial_soc_components": int(len(observed_store_initial)),
-            "observed_hydro_store_terminal_soc_components": int(len(observed_store_terminal)),
-            "observed_hydro_week_start_soc_components": int(len(observed_week_start)),
-            "observed_hydro_store_week_start_soc_components": int(len(observed_store_week_start)),
-            "monthly_interpolated_boundary_components": int(len(monthly_initial)),
-            "weekly_water_neutral_storage_units": int(len(pondage_units)),
-            "weekly_water_neutral_stores": int(len(pondage_stores)),
-            "papanasam_observed_start_soc_mwh": pap_start_soc,
-            "papanasam_observed_end_soc_mwh": pap_end_soc,
-            "papanasam_observed_soc_change_mwh": pap_end_soc - pap_start_soc,
-            "max_abs_papanasam_observed_soc_error_mwh": max(
-                abs(pap_start_soc - pap_start_target),
-                abs(pap_end_soc - pap_end_target),
-            ),
-            "servalar_generation_mwh": serv_generation_mwh,
-            "papanasam_generation_mwh": pap_generation_mwh,
-            "servalar_reservoir_weekly_neutral_error_mwh": serv_neutral_error,
-            "papanasam_lower_pondage_weekly_neutral_error_mwh": lower_neutral_error,
-            "max_abs_papanasam_cascade_nodal_residual_mw": cascade_residual,
-            "max_abs_gas_target_deviation_mwh": float(gas_deviation),
-            "max_abs_nuclear_target_deviation_mwh": float(nuclear_deviation),
-            "max_abs_nodal_residual_mw": residual,
-            "max_link_loading_pct": loading,
-            "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
-            "solver_runtime_seconds": runtime,
-        }
-        _write_outputs(
-            "selected_week",
-            retained_dates,
-            modeled,
-            observed,
-            week_validation,
-            week_dir,
-            network,
-        )
+            def extra_functionality(
+                active_network: pypsa.Network,
+                active_snapshots: pd.DatetimeIndex,
+            ) -> None:
+                add_nuclear_targets(active_network, active_snapshots)
+                terminal_snapshot = active_snapshots[
+                    active_snapshots.normalize() == retained_dates[-1]
+                ][-1]
+                start_snapshot = active_snapshots[
+                    active_snapshots.normalize() == retained_dates[0]
+                ][0]
+                dispatch = active_network.model["Generator-p"]
+                generator_dim = generator_dimension(dispatch)
+                biomass_weights = xr.DataArray(
+                    active_network.snapshot_weightings.generators.reindex(retained_snapshots),
+                    dims=["snapshot"],
+                    coords={"snapshot": retained_snapshots},
+                )
+                biomass_dispatch = dispatch.sel(
+                    {generator_dim: biomass_units, "snapshot": retained_snapshots}
+                )
+                active_network.model.add_constraints(
+                    (biomass_dispatch * biomass_weights).sum() == biomass_target_mwh,
+                    name=f"SelectedWeekBiomassEnergyTarget-{retained_dates[0]:%Y%m%d}",
+                )
+                small_hydro_dispatch = dispatch.sel(
+                    {generator_dim: small_hydro_units, "snapshot": retained_snapshots}
+                )
+                active_network.model.add_constraints(
+                    (small_hydro_dispatch * biomass_weights).sum()
+                    == small_hydro_target_mwh,
+                    name=f"SelectedWeekSmallHydroEnergyTarget-{retained_dates[0]:%Y%m%d}",
+                )
+                for date, target in gas_targets.items():
+                    day_snapshots = active_snapshots[active_snapshots.normalize() == date]
+                    expression = dispatch.sel(
+                        {generator_dim: gas_units, "snapshot": day_snapshots}
+                    ).sum()
+                    active_network.model.add_constraints(
+                        expression == float(target),
+                        name=f"SelectedWeekOilGasDailyTarget-{date:%Y%m%d}",
+                    )
+                if len(observed_terminal):
+                    soc = active_network.model["StorageUnit-state_of_charge"]
+                    storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
+                    target = xr.DataArray(
+                        observed_terminal.to_numpy(),
+                        dims=[storage_dim],
+                        coords={storage_dim: observed_terminal.index},
+                    )
+                    active_network.model.add_constraints(
+                        soc.sel({storage_dim: observed_terminal.index, "snapshot": terminal_snapshot}) == target,
+                        name=f"ObservedHydroTerminalSOC-{retained_dates[-1]:%Y%m%d}",
+                    )
+                if len(observed_store_terminal):
+                    store_e = active_network.model["Store-e"]
+                    store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
+                    target = xr.DataArray(
+                        observed_store_terminal.to_numpy(), dims=[store_dim],
+                        coords={store_dim: observed_store_terminal.index},
+                    )
+                    active_network.model.add_constraints(
+                        store_e.sel({store_dim: observed_store_terminal.index, "snapshot": terminal_snapshot}) == target,
+                        name=f"ObservedHydroStoreTerminalSOC-{retained_dates[-1]:%Y%m%d}",
+                    )
+                if len(observed_week_start):
+                    soc = active_network.model["StorageUnit-state_of_charge"]
+                    storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
+                    target = xr.DataArray(observed_week_start.to_numpy(), dims=[storage_dim], coords={storage_dim: observed_week_start.index})
+                    active_network.model.add_constraints(soc.sel({storage_dim: observed_week_start.index, "snapshot": start_snapshot}) == target, name=f"ObservedHydroWeekStartSOC-{retained_dates[0]:%Y%m%d}")
+                if len(observed_store_week_start):
+                    store_e = active_network.model["Store-e"]
+                    store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
+                    target = xr.DataArray(observed_store_week_start.to_numpy(), dims=[store_dim], coords={store_dim: observed_store_week_start.index})
+                    active_network.model.add_constraints(store_e.sel({store_dim: observed_store_week_start.index, "snapshot": start_snapshot}) == target, name=f"ObservedHydroStoreWeekStartSOC-{retained_dates[0]:%Y%m%d}")
+                if len(pondage_units):
+                    soc = active_network.model["StorageUnit-state_of_charge"]
+                    storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
+                    terminal_soc = soc.sel(
+                        {storage_dim: pondage_units, "snapshot": terminal_snapshot}
+                    )
+                    start_soc = soc.sel(
+                        {storage_dim: pondage_units, "snapshot": start_snapshot}
+                    ).assign_coords(snapshot=terminal_snapshot)
+                    active_network.model.add_constraints(
+                        terminal_soc == start_soc,
+                        name=f"WeeklyWaterNeutralStorageUnits-{retained_dates[0]:%Y%m%d}",
+                    )
+                if len(pondage_stores):
+                    store_e = active_network.model["Store-e"]
+                    store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
+                    terminal_e = store_e.sel(
+                        {store_dim: pondage_stores, "snapshot": terminal_snapshot}
+                    )
+                    start_e = store_e.sel(
+                        {store_dim: pondage_stores, "snapshot": start_snapshot}
+                    ).assign_coords(snapshot=terminal_snapshot)
+                    active_network.model.add_constraints(
+                        terminal_e == start_e,
+                        name=f"WeeklyWaterNeutralStores-{retained_dates[0]:%Y%m%d}",
+                    )
+                # Monthly data are interpolated at the two boundaries only. The
+                # tolerance is in per-unit e_nom, not an invented hourly profile.
+                monthly_units = reservoir_units.intersection(monthly_initial.index)
+                if len(monthly_units):
+                    soc = active_network.model["StorageUnit-state_of_charge"]
+                    storage_dim = next(dim for dim in soc.dims if dim != "snapshot")
+                    tolerance = xr.DataArray(
+                        soc_boundary_tolerance_pu
+                        * active_network.storage_units.loc[monthly_units, "p_nom"].to_numpy()
+                        * active_network.storage_units.loc[monthly_units, "max_hours"].to_numpy(),
+                        dims=[storage_dim], coords={storage_dim: monthly_units},
+                    )
+                    for label, snapshot, targets in [("Initial", start_snapshot, monthly_initial), ("Terminal", terminal_snapshot, monthly_terminal)]:
+                        target = xr.DataArray(targets.reindex(monthly_units).to_numpy(), dims=[storage_dim], coords={storage_dim: monthly_units})
+                        expression = soc.sel({storage_dim: monthly_units, "snapshot": snapshot})
+                        active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydro{label}Lower-{retained_dates[0]:%Y%m%d}")
+                        active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydro{label}Upper-{retained_dates[0]:%Y%m%d}")
+                monthly_stores = network.stores.index.intersection(monthly_initial.index)
+                if len(monthly_stores):
+                    store_e = active_network.model["Store-e"]
+                    store_dim = next(dim for dim in store_e.dims if dim != "snapshot")
+                    tolerance = xr.DataArray(soc_boundary_tolerance_pu * active_network.stores.loc[monthly_stores, "e_nom"].to_numpy(), dims=[store_dim], coords={store_dim: monthly_stores})
+                    for label, snapshot, targets in [("Initial", start_snapshot, monthly_initial), ("Terminal", terminal_snapshot, monthly_terminal)]:
+                        target = xr.DataArray(targets.reindex(monthly_stores).to_numpy(), dims=[store_dim], coords={store_dim: monthly_stores})
+                        expression = store_e.sel({store_dim: monthly_stores, "snapshot": snapshot})
+                        active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
+                        active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
+                add_transmission_flow_cost(active_network, active_snapshots)
+
+            report(
+                f"Solving selected week {position}/{len(starts)}: {start.date()} to "
+                f"{retained_dates[-1].date()} ({warmup_days} warm-up + 7 retained + "
+                f"{lookahead_days} look-ahead days)"
+            )
+            started = time.perf_counter()
+            reset_highs_global_scheduler()
+            status, condition = optimize_profiled(
+                network,
+                solver_name=solver_name,
+                solver_options=highs_solver_options(
+                    unit_commitment, mip_rel_gap, solver_threads
+                ),
+                extra_functionality=extra_functionality,
+                tag=f"week_{start:%Y%m%d}",
+                transmission_losses=TRANSMISSION_LOSSES,
+                include_objective_constant=False,
+                linearized_unit_commitment=unit_commitment == "relaxed",
+            )
+            runtime = time.perf_counter() - started
+            if status != "ok" or condition != "optimal":
+                raise RuntimeError(
+                    f"Selected week {start.date()} failed: status={status}, "
+                    f"condition={condition}."
+                )
+            solve_profile = profiler.last_solve or {}
+            if solve_profile:
+                report(f"Selected week {start.date()}: {format_solve_breakdown(solve_profile)}")
+
+            modeled = _carrier_energy_by_day(network).reindex(retained_dates)
+            modeled_parts.append(modeled)
+            terminal_snapshot = network.snapshots[
+                network.snapshots.normalize() == retained_dates[-1]
+            ][-1]
+            start_snapshot = network.snapshots[
+                network.snapshots.normalize() == retained_dates[0]
+            ][0]
+            residual = float(network.buses_t.p.sum(axis=1).abs().max())
+            loading = (
+                float(network.links_t.p0.abs().div(network.links.p_nom, axis=1).max().max() * 100)
+                if len(network.links)
+                else 0.0
+            )
+            gas_deviation = (
+                modeled["oil_gas"].mul(1_000.0)
+                - gas_targets.reindex(retained_dates)
+            ).abs().max()
+            nuclear_deviation = (
+                modeled["nuclear"].sub(observed["nuclear"].reindex(retained_dates)).mul(1_000.0)
+            ).abs().max()
+            biomass_generation_mwh = float(
+                network.generators_t.p.loc[retained_snapshots, biomass_units]
+                .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
+                .sum()
+                .sum()
+            )
+            small_hydro_generation_mwh = float(
+                network.generators_t.p.loc[retained_snapshots, small_hydro_units]
+                .mul(network.snapshot_weightings.generators.reindex(retained_snapshots), axis=0)
+                .sum()
+                .sum()
+            )
+            pap_store = "Papanasam_reservoir"
+            serv_store = "Servalar_reservoir"
+            lower_store = "Papanasam_lower_pondage"
+            pap_links = network.links.index[
+                network.links.index.str.startswith("papanasam_turbine__")
+            ]
+            serv_links = network.links.index[
+                network.links.index.str.startswith("servalar_turbine__")
+            ]
+            pap_start_soc = float(network.stores_t.e.at[start_snapshot, pap_store])
+            pap_end_soc = float(network.stores_t.e.at[terminal_snapshot, pap_store])
+            pap_start_target = float(observed_store_week_start.at[pap_store])
+            pap_end_target = float(observed_store_terminal.at[pap_store])
+            serv_neutral_error = float(
+                network.stores_t.e.at[terminal_snapshot, serv_store]
+                - network.stores_t.e.at[start_snapshot, serv_store]
+            )
+            lower_neutral_error = float(
+                network.stores_t.e.at[terminal_snapshot, lower_store]
+                - network.stores_t.e.at[start_snapshot, lower_store]
+            )
+            pap_generation_mwh = float(
+                -network.links_t.p1.loc[retained_snapshots, pap_links].sum().sum()
+            )
+            serv_generation_mwh = float(
+                -network.links_t.p1.loc[retained_snapshots, serv_links].sum().sum()
+            )
+            cascade_buses = [
+                "water_papanasam_reservoir",
+                "water_servalar_reservoir",
+                "water_papanasam_lower_pondage",
+                "water_papanasam_downstream_river",
+            ]
+            cascade_residual = float(
+                network.buses_t.p.loc[retained_snapshots, cascade_buses].abs().max().max()
+            )
+            week_validation = {
+                "model_version": CHECKPOINT_MODEL_VERSION,
+                "pypsa_version": pypsa.__version__,
+                "formulation": "continuous selected week with warm-up and look-ahead",
+                "solver_status": str(status),
+                "solver_condition": str(condition),
+                "week_start": str(start.date()),
+                "week_end": str(retained_dates[-1].date()),
+                "warmup_days": warmup_days,
+                "lookahead_days": lookahead_days,
+                "biomass_target_mwh": biomass_target_mwh,
+                "biomass_generation_mwh": biomass_generation_mwh,
+                "biomass_target_error_mwh": biomass_generation_mwh - biomass_target_mwh,
+                "small_hydro_target_mwh": small_hydro_target_mwh,
+                "small_hydro_generation_mwh": small_hydro_generation_mwh,
+                "small_hydro_target_error_mwh": (
+                    small_hydro_generation_mwh - small_hydro_target_mwh
+                ),
+                "solver_name": solver_name,
+                "solver_threads": solver_threads,
+                "unit_commitment": unit_commitment,
+                "mip_rel_gap": mip_rel_gap if unit_commitment == "full" else None,
+                "reservoir_initial_soc_fraction": reservoir_initial_soc_fraction,
+                "soc_boundary_tolerance_pu": soc_boundary_tolerance_pu,
+                "observed_hydro_initial_soc_components": int(len(observed_initial)),
+                "observed_hydro_terminal_soc_components": int(len(observed_terminal)),
+                "observed_hydro_store_initial_soc_components": int(len(observed_store_initial)),
+                "observed_hydro_store_terminal_soc_components": int(len(observed_store_terminal)),
+                "observed_hydro_week_start_soc_components": int(len(observed_week_start)),
+                "observed_hydro_store_week_start_soc_components": int(len(observed_store_week_start)),
+                "monthly_interpolated_boundary_components": int(len(monthly_initial)),
+                "weekly_water_neutral_storage_units": int(len(pondage_units)),
+                "weekly_water_neutral_stores": int(len(pondage_stores)),
+                "papanasam_observed_start_soc_mwh": pap_start_soc,
+                "papanasam_observed_end_soc_mwh": pap_end_soc,
+                "papanasam_observed_soc_change_mwh": pap_end_soc - pap_start_soc,
+                "max_abs_papanasam_observed_soc_error_mwh": max(
+                    abs(pap_start_soc - pap_start_target),
+                    abs(pap_end_soc - pap_end_target),
+                ),
+                "servalar_generation_mwh": serv_generation_mwh,
+                "papanasam_generation_mwh": pap_generation_mwh,
+                "servalar_reservoir_weekly_neutral_error_mwh": serv_neutral_error,
+                "papanasam_lower_pondage_weekly_neutral_error_mwh": lower_neutral_error,
+                "max_abs_papanasam_cascade_nodal_residual_mw": cascade_residual,
+                "max_abs_gas_target_deviation_mwh": float(gas_deviation),
+                "max_abs_nuclear_target_deviation_mwh": float(nuclear_deviation),
+                "max_abs_nodal_residual_mw": residual,
+                "max_link_loading_pct": loading,
+                "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
+                "solver_runtime_seconds": runtime,
+                "profile_build_model_seconds": solve_profile.get("build_model_s"),
+                "profile_extra_functionality_seconds": solve_profile.get("extra_functionality_s"),
+                "profile_lp_write_seconds": solve_profile.get("lp_write_s"),
+                "profile_highs_run_seconds": solve_profile.get("highs_run_s"),
+                "profile_model_rows": solve_profile.get("log_original_rows"),
+                "profile_presolved_rows": solve_profile.get("log_presolved_rows"),
+            }
+            _write_outputs(
+                "selected_week",
+                retained_dates,
+                modeled,
+                observed,
+                week_validation,
+                week_dir,
+                network,
+            )
+
         week_rows.append(week_validation)
         if write_progress_log:
             pd.DataFrame(week_rows).to_csv(output_dir / "selected_week_log.csv", index=False)
@@ -1291,138 +1336,142 @@ def _write_outputs(
     output_dir: Path,
     solved_network: pypsa.Network | None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, Path, Path | None]:
+    profiler = get_profiler()
     output_dir.mkdir(parents=True, exist_ok=True)
-    modeled_period = modeled.reindex(dates)
-    observed_period = observed.reindex(dates)
-    modeled_period.index.name = "date"
-    observed_period.index.name = "date"
-    modeled_period.to_csv(output_dir / "modeled_daily_generation.csv")
-    observed_period.to_csv(output_dir / "observed_daily_generation.csv")
+    with profiler.phase("write_comparison_tables"):
+        modeled_period = modeled.reindex(dates)
+        observed_period = observed.reindex(dates)
+        modeled_period.index.name = "date"
+        observed_period.index.name = "date"
+        modeled_period.to_csv(output_dir / "modeled_daily_generation.csv")
+        observed_period.to_csv(output_dir / "observed_daily_generation.csv")
 
-    annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
-    annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
-    uses_annual_benchmark = dates.equals(pd.date_range(annual_start, annual_end, freq="D"))
+        annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
+        annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
+        uses_annual_benchmark = dates.equals(pd.date_range(annual_start, annual_end, freq="D"))
 
-    comparison_rows = []
-    for carrier in COMPARISON_CATEGORIES:
-        modeled_values = modeled_period[carrier]
-        observed_values = observed_period[carrier]
-        difference = modeled_values - observed_values
-        pct = difference.div(observed_values.replace(0.0, np.nan)) * 100.0
-        for date in dates:
-            comparison_rows.append(
+        comparison_rows = []
+        for carrier in COMPARISON_CATEGORIES:
+            modeled_values = modeled_period[carrier]
+            observed_values = observed_period[carrier]
+            difference = modeled_values - observed_values
+            pct = difference.div(observed_values.replace(0.0, np.nan)) * 100.0
+            for date in dates:
+                comparison_rows.append(
+                    {
+                        "date": date,
+                        "carrier": carrier,
+                        "modeled_gwh": modeled_values.loc[date],
+                        "observed_gwh": observed_values.loc[date],
+                        "difference_gwh": difference.loc[date],
+                        "difference_pct": pct.loc[date],
+                    }
+                )
+        summary_rows = []
+        for carrier in SUMMARY_CATEGORIES:
+            modeled_total = float(modeled_period[carrier].sum())
+            if uses_annual_benchmark and carrier == "comparable_total":
+                # The NITI Dashboard Total includes the separately reported small
+                # hydro and bio-power rows. Daily source totals omit those rows,
+                # so retain the daily six-technology total everywhere else.
+                modeled_total = float(
+                    modeled_period[
+                        [
+                            "coal",
+                            "oil_gas",
+                            "nuclear",
+                            "hydro",
+                            "solar",
+                            "wind",
+                            "small_hydro",
+                            "bio_power",
+                        ]
+                    ].sum().sum()
+                )
+            if uses_annual_benchmark and carrier in observed_annual.index:
+                observed_total = float(observed_annual.at[carrier, "generation_gwh"])
+                observed_source = str(observed_annual.at[carrier, "source"])
+                observed_period_label = f"{annual_start.date()} to {annual_end.date()}"
+            elif carrier in observed_period and observed_period[carrier].notna().any():
+                observed_total = float(observed_period[carrier].sum())
+                observed_source = "daily historical generation"
+                observed_period_label = f"{dates[0].date()} to {dates[-1].date()}"
+            else:
+                observed_total = np.nan
+                observed_source = "not available"
+                observed_period_label = ""
+            summary_rows.append(
                 {
-                    "date": date,
                     "carrier": carrier,
-                    "modeled_gwh": modeled_values.loc[date],
-                    "observed_gwh": observed_values.loc[date],
-                    "difference_gwh": difference.loc[date],
-                    "difference_pct": pct.loc[date],
+                    "modeled_gwh": modeled_total,
+                    "observed_gwh": observed_total,
+                    "observed_source": observed_source,
+                    "observed_period": observed_period_label,
+                    "difference_gwh": modeled_total - observed_total,
+                    "difference_pct": (
+                        100.0 * (modeled_total - observed_total) / observed_total
+                        if pd.notna(observed_total) and observed_total
+                        else np.nan
+                    ),
                 }
             )
-    summary_rows = []
-    for carrier in SUMMARY_CATEGORIES:
-        modeled_total = float(modeled_period[carrier].sum())
-        if uses_annual_benchmark and carrier == "comparable_total":
-            # The NITI Dashboard Total includes the separately reported small
-            # hydro and bio-power rows. Daily source totals omit those rows,
-            # so retain the daily six-technology total everywhere else.
-            modeled_total = float(
-                modeled_period[
-                    [
-                        "coal",
-                        "oil_gas",
-                        "nuclear",
-                        "hydro",
-                        "solar",
-                        "wind",
-                        "small_hydro",
-                        "bio_power",
-                    ]
-                ].sum().sum()
-            )
-        if uses_annual_benchmark and carrier in observed_annual.index:
-            observed_total = float(observed_annual.at[carrier, "generation_gwh"])
-            observed_source = str(observed_annual.at[carrier, "source"])
-            observed_period_label = f"{annual_start.date()} to {annual_end.date()}"
-        elif carrier in observed_period and observed_period[carrier].notna().any():
-            observed_total = float(observed_period[carrier].sum())
-            observed_source = "daily historical generation"
-            observed_period_label = f"{dates[0].date()} to {dates[-1].date()}"
-        else:
-            observed_total = np.nan
-            observed_source = "not available"
-            observed_period_label = ""
-        summary_rows.append(
+        comparison = pd.DataFrame(comparison_rows)
+        summary = pd.DataFrame(summary_rows).set_index("carrier")
+        comparison.to_csv(output_dir / "daily_generation_comparison.csv", index=False)
+        summary.to_csv(output_dir / "generation_comparison_summary.csv")
+
+        validation.update(
             {
-                "carrier": carrier,
-                "modeled_gwh": modeled_total,
-                "observed_gwh": observed_total,
-                "observed_source": observed_source,
-                "observed_period": observed_period_label,
-                "difference_gwh": modeled_total - observed_total,
-                "difference_pct": (
-                    100.0 * (modeled_total - observed_total) / observed_total
-                    if pd.notna(observed_total) and observed_total
-                    else np.nan
-                ),
+                "run_mode": mode,
+                "start_date": str(dates[0].date()),
+                "end_date": str(dates[-1].date()),
             }
         )
-    comparison = pd.DataFrame(comparison_rows)
-    summary = pd.DataFrame(summary_rows).set_index("carrier")
-    comparison.to_csv(output_dir / "daily_generation_comparison.csv", index=False)
-    summary.to_csv(output_dir / "generation_comparison_summary.csv")
+        (output_dir / "validation.json").write_text(json.dumps(validation, indent=2), encoding="utf-8")
 
-    validation.update(
-        {
-            "run_mode": mode,
-            "start_date": str(dates[0].date()),
-            "end_date": str(dates[-1].date()),
-        }
-    )
-    (output_dir / "validation.json").write_text(json.dumps(validation, indent=2), encoding="utf-8")
-
-    plot_path = output_dir / "daily_generation_comparison.png"
-    n_plots = len(COMPARISON_CATEGORIES)
-    n_cols = 3
-    n_rows = int(np.ceil(n_plots / n_cols))
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(18, 5 * n_rows), sharex=True)
-    axes = np.asarray(axes).reshape(-1)
-    if mode == "selected_weeks":
-        gap_positions = np.flatnonzero(dates.to_series().diff().gt(pd.Timedelta(days=1)))
-        plot_blocks = np.split(dates, gap_positions)
-    else:
-        plot_blocks = [dates]
-    for axis, carrier in zip(axes, COMPARISON_CATEGORIES):
-        for block_number, block in enumerate(plot_blocks):
-            axis.plot(
-                block,
-                observed_period.loc[block, carrier],
-                label="Observed" if block_number == 0 else None,
-                linewidth=2.0,
-            )
-            axis.plot(
-                block,
-                modeled_period.loc[block, carrier],
-                label="Model" if block_number == 0 else None,
-                linewidth=1.7,
-            )
-        axis.set_title(PLOT_LABELS.get(carrier, carrier.replace("_", " ").title()))
-        axis.set_ylabel("GWh/day")
-        axis.grid(alpha=0.25)
-    for axis in axes[len(COMPARISON_CATEGORIES) :]:
-        axis.set_visible(False)
-    axes[0].legend()
-    fig.suptitle(f"9-BA {mode} dispatch: model versus observed", fontsize=15)
-    fig.autofmt_xdate()
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
-    fig.savefig(plot_path, dpi=170, bbox_inches="tight")
-    plt.close(fig)
+    with profiler.phase("write_plot"):
+        plot_path = output_dir / "daily_generation_comparison.png"
+        n_plots = len(COMPARISON_CATEGORIES)
+        n_cols = 3
+        n_rows = int(np.ceil(n_plots / n_cols))
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(18, 5 * n_rows), sharex=True)
+        axes = np.asarray(axes).reshape(-1)
+        if mode == "selected_weeks":
+            gap_positions = np.flatnonzero(dates.to_series().diff().gt(pd.Timedelta(days=1)))
+            plot_blocks = np.split(dates, gap_positions)
+        else:
+            plot_blocks = [dates]
+        for axis, carrier in zip(axes, COMPARISON_CATEGORIES):
+            for block_number, block in enumerate(plot_blocks):
+                axis.plot(
+                    block,
+                    observed_period.loc[block, carrier],
+                    label="Observed" if block_number == 0 else None,
+                    linewidth=2.0,
+                )
+                axis.plot(
+                    block,
+                    modeled_period.loc[block, carrier],
+                    label="Model" if block_number == 0 else None,
+                    linewidth=1.7,
+                )
+            axis.set_title(PLOT_LABELS.get(carrier, carrier.replace("_", " ").title()))
+            axis.set_ylabel("GWh/day")
+            axis.grid(alpha=0.25)
+        for axis in axes[len(COMPARISON_CATEGORIES) :]:
+            axis.set_visible(False)
+        axes[0].legend()
+        fig.suptitle(f"9-BA {mode} dispatch: model versus observed", fontsize=15)
+        fig.autofmt_xdate()
+        fig.tight_layout(rect=(0, 0, 1, 0.97))
+        fig.savefig(plot_path, dpi=170, bbox_inches="tight")
+        plt.close(fig)
 
     network_path = None
     if solved_network is not None:
         network_path = output_dir / "solved_network.nc"
-        solved_network.export_to_netcdf(network_path)
+        with profiler.phase("export_solved_network"):
+            solved_network.export_to_netcdf(network_path)
     return summary, comparison, plot_path, network_path
 
 
@@ -1448,8 +1497,81 @@ def run_selection(
     results_root: str | Path = DEFAULT_RESULTS_ROOT,
     resume: bool = True,
     max_windows: int | None = None,
+    profile: bool = True,
+    profile_log_level: str = "INFO",
+    profile_sample_interval: float = 1.0,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
+
+    ``peak`` means the continuous seven-day period containing the annual maximum
+    hourly demand. ``selected_weeks`` solves user-supplied seven-day periods
+    independently with configurable warm-up and look-ahead. Monthly runs use
+    independent daily solves. ``annual`` solves the full year as one no-UC LP.
+    ``rolling`` solves the full year in seven-day steps.
+
+    With ``profile=True`` (the default) the run writes a ``profile/`` folder
+    next to its results: a timestamped ``run.log``, per-phase timings and
+    resource use, one record per solver attempt with the build/write/solve
+    breakdown and HiGHS statistics, the HiGHS logs, a resource timeline and a
+    summary (see ``run_profiling``). ``profile_log_level="DEBUG"`` adds the
+    libraries' debug messages to ``run.log``; ``profile_sample_interval`` sets
+    the resource sampling period in seconds.
+    """
+    settings = {
+        key: value for key, value in locals().items()
+        if key not in {"profile", "profile_log_level", "profile_sample_interval"}
+    }
+    profiler = (
+        RunProfiler(
+            run_label=f"{run_mode}/{unit_commitment}/{run_name}",
+            settings=settings,
+            sample_interval=profile_sample_interval,
+            log_level=profile_log_level,
+        )
+        if profile
+        else get_profiler()
+    )
+    with activate(profiler):
+        try:
+            result = _run_selection(**settings)
+        except BaseException as error:
+            status = "interrupted" if isinstance(error, KeyboardInterrupt) else "failed"
+            profiler.close(status=status, error=error)
+            if profiler.profile_dir is not None:
+                print(f"Run {status}. Profile and logs: {profiler.profile_dir}", flush=True)
+            raise
+        summary = profiler.close(status="completed")
+    result["profile_dir"] = profiler.profile_dir
+    if summary:
+        print("\nRun profile (" + str(profiler.profile_dir) + "):", flush=True)
+        print(format_summary(summary, top_phases=15), flush=True)
+    return result
+
+
+def _run_selection(
+    run_mode: str = "daily",
+    reference_date: str = "2025-07-11",
+    *,
+    week_starts: list[str] | tuple[str, ...] | pd.DatetimeIndex | None = None,
+    warmup_days: int = 1,
+    lookahead_days: int = 1,
+    reservoir_initial_soc_fraction: float = 0.0,
+    soc_boundary_tolerance_pu: float = DEFAULT_SOC_BOUNDARY_TOLERANCE_PU,
+    solver_name: str = "highs",
+    mip_rel_gap: float = 0.01,
+    solver_threads: int | str | None = "Default",
+    simplex_strategy: int | None = None,
+    parallel_workers: int | str = "Default",
+    unit_commitment: str = "full",
+    run_name: str = "baseline",
+    rolling_time_limit: float | str | None = "Default",
+    rolling_max_time_limit_mip_gap: float = 0.05,
+    network_path: str | Path = DEFAULT_NETWORK,
+    results_root: str | Path = DEFAULT_RESULTS_ROOT,
+    resume: bool = True,
+    max_windows: int | None = None,
+) -> dict:
+    """Implementation of :func:`run_selection`; profiling is handled there.
 
     ``peak`` means the continuous seven-day period containing the annual maximum
     hourly demand. ``selected_weeks`` solves user-supplied seven-day periods
@@ -1478,10 +1600,9 @@ def run_selection(
             raise ValueError("rolling_time_limit must be 'Default', a positive number of seconds, or None")
         rolling_time_limit = DEFAULT_ROLLING_TIME_LIMIT_SECONDS[unit_commitment]
     if mode == "rolling" and rolling_time_limit is None:
-        print(
+        report(
             "ROLLING_TIME_LIMIT is None: windows run without a time limit, so a "
-            "stalled solve cannot be retried automatically.",
-            flush=True,
+            "stalled solve cannot be retried automatically."
         )
     # Validate early, before loading the relatively large annual network.
     highs_solver_options(unit_commitment, mip_rel_gap, solver_threads, simplex_strategy)
@@ -1496,14 +1617,28 @@ def run_selection(
     run_name = _validate_run_name(run_name)
     network_path = Path(network_path)
     results_root = Path(results_root)
-    print(f"Loading {network_path} ...", flush=True)
+    profiler = get_profiler()
+    report(f"Loading {network_path} ...")
     load_started = time.perf_counter()
-    base_network, from_cache = _load_base_network(network_path)
-    _configure_unit_commitment(base_network, unit_commitment)
+    with profiler.phase("load_network") as load_phase:
+        base_network, from_cache = _load_base_network(network_path)
+        _configure_unit_commitment(base_network, unit_commitment)
+        load_phase.update(
+            from_cache=from_cache,
+            snapshots=int(len(base_network.snapshots)),
+            generators=int(len(base_network.generators)),
+            committable_generators=int(base_network.generators.committable.sum()),
+            links=int(len(base_network.links)),
+            storage_units=int(len(base_network.storage_units)),
+            stores=int(len(base_network.stores)),
+            buses=int(len(base_network.buses)),
+        )
     load_source = "cached copy" if from_cache else "disk"
-    print(
-        f"Loaded network from {load_source} in {time.perf_counter() - load_started:.2f} s.",
-        flush=True,
+    report(
+        f"Loaded network from {load_source} in {time.perf_counter() - load_started:.2f} s "
+        f"({len(base_network.generators)} generators, "
+        f"{int(base_network.generators.committable.sum())} committable, "
+        f"{len(base_network.links)} links, {len(base_network.stores)} stores)."
     )
     biomass_annual_target_mwh = float(read_bio_power_monthly_targets().sum())
     full_horizon_weight = float(base_network.snapshot_weightings.generators.sum())
@@ -1522,21 +1657,108 @@ def run_selection(
         selected_starts = pd.DatetimeIndex([])
         dates, label = _dates_for_mode(mode, reference_date, total_load)
 
-    if unit_commitment != "full":
-        label = f"{label}_{unit_commitment}_uc"
-
-    observed = read_observed_generation()
-    comparison_observed = read_niti_observed_daily_generation()
-    observed_annual = read_observed_annual_generation()
-    oil_gas_budget = read_oil_gas_budget(observed)
+    with profiler.phase("read_observed_inputs"):
+        observed = read_observed_generation()
+        comparison_observed = read_niti_observed_daily_generation()
+        observed_annual = read_observed_annual_generation()
+        oil_gas_budget = read_oil_gas_budget(observed)
     missing_observed = dates.difference(observed.index)
     if len(missing_observed):
         raise ValueError(f"Observed generation is missing {len(missing_observed)} requested day(s).")
 
-    output_dir = results_root / label / run_name
-    capacity_comparison = _installed_capacity_comparison(base_network)
+    output_dir = _run_output_dir(results_root, label, unit_commitment, run_name)
     output_dir.mkdir(parents=True, exist_ok=True)
-    capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
+    profile_dir = profiler.attach(output_dir)
+    if profile_dir is not None:
+        report(f"Profiling this run: {profile_dir}")
+    profiler.log(
+        f"mode={mode} unit_commitment={unit_commitment} solver_threads={solver_threads} "
+        f"parallel_workers={parallel_workers} rolling_time_limit={rolling_time_limit} "
+        f"mip_rel_gap={mip_rel_gap} dates={dates[0].date()}..{dates[-1].date()} ({len(dates)} days)"
+    )
+    with profiler.phase("capacity_comparison"):
+        capacity_comparison = _installed_capacity_comparison(base_network)
+        capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
+    solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
+    with solve_phase:
+        modeled, validation, solved_network = _solve_mode(
+            mode, base_network, observed, oil_gas_budget, dates, selected_starts,
+            biomass_annual_target_mwh, full_horizon_weight, output_dir,
+            solver_name=solver_name, mip_rel_gap=mip_rel_gap,
+            solver_threads=solver_threads, simplex_strategy=simplex_strategy,
+            parallel_workers=parallel_workers, unit_commitment=unit_commitment,
+            rolling_time_limit=rolling_time_limit,
+            rolling_max_time_limit_mip_gap=rolling_max_time_limit_mip_gap,
+            warmup_days=warmup_days, lookahead_days=lookahead_days,
+            reservoir_initial_soc_fraction=reservoir_initial_soc_fraction,
+            soc_boundary_tolerance_pu=soc_boundary_tolerance_pu,
+            resume=resume, max_windows=max_windows,
+        )
+
+    validation["unit_commitment"] = unit_commitment
+    validation["run_name"] = run_name
+    validation["solver_threads"] = solver_threads
+    validation["simplex_strategy"] = simplex_strategy
+    validation.setdefault("parallel_workers", 1)
+
+    with profiler.phase("write_outputs"):
+        summary, comparison, plot_path, solved_network_path = _write_outputs(
+            mode,
+            dates,
+            modeled,
+            comparison_observed,
+            observed_annual,
+            validation,
+            output_dir,
+            solved_network,
+        )
+    report(f"Finished. Results: {output_dir}")
+    return {
+        "mode": mode,
+        "dates": dates,
+        "output_dir": output_dir,
+        "run_name": run_name,
+        "summary": summary,
+        "capacity_comparison": capacity_comparison,
+        "comparison": comparison,
+        "validation": validation,
+        "plot_path": plot_path,
+        "network_path": solved_network_path,
+        "week_dirs": (
+            [output_dir / f"week_{start:%Y-%m-%d}" for start in selected_starts]
+            if mode == "selected_weeks"
+            else []
+        ),
+    }
+
+
+def _solve_mode(
+    mode: str,
+    base_network: pypsa.Network,
+    observed: pd.DataFrame,
+    oil_gas_budget: pd.DataFrame,
+    dates: pd.DatetimeIndex,
+    selected_starts: pd.DatetimeIndex,
+    biomass_annual_target_mwh: float,
+    full_horizon_weight: float,
+    output_dir: Path,
+    *,
+    solver_name: str,
+    mip_rel_gap: float,
+    solver_threads: int,
+    simplex_strategy: int | None,
+    parallel_workers: int,
+    unit_commitment: str,
+    rolling_time_limit: float | None,
+    rolling_max_time_limit_mip_gap: float,
+    warmup_days: int,
+    lookahead_days: int,
+    reservoir_initial_soc_fraction: float,
+    soc_boundary_tolerance_pu: float,
+    resume: bool,
+    max_windows: int | None,
+) -> tuple[pd.DataFrame, dict, pypsa.Network | None]:
+    """Dispatch to the solver workflow of one run mode."""
     if mode == "annual":
         modeled, validation, solved_network = run_annual_no_uc(
             base_network,
@@ -1595,41 +1817,7 @@ def run_selection(
             unit_commitment,
             parallel_workers,
         )
-
-    validation["unit_commitment"] = unit_commitment
-    validation["run_name"] = run_name
-    validation["solver_threads"] = solver_threads
-    validation["simplex_strategy"] = simplex_strategy
-    validation.setdefault("parallel_workers", 1)
-
-    summary, comparison, plot_path, solved_network_path = _write_outputs(
-        mode,
-        dates,
-        modeled,
-        comparison_observed,
-        observed_annual,
-        validation,
-        output_dir,
-        solved_network,
-    )
-    print(f"Finished. Results: {output_dir}", flush=True)
-    return {
-        "mode": mode,
-        "dates": dates,
-        "output_dir": output_dir,
-        "run_name": run_name,
-        "summary": summary,
-        "capacity_comparison": capacity_comparison,
-        "comparison": comparison,
-        "validation": validation,
-        "plot_path": plot_path,
-        "network_path": solved_network_path,
-        "week_dirs": (
-            [output_dir / f"week_{start:%Y-%m-%d}" for start in selected_starts]
-            if mode == "selected_weeks"
-            else []
-        ),
-    }
+    return modeled, validation, solved_network
 
 
 if __name__ == "__main__":

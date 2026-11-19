@@ -24,7 +24,7 @@ def main() -> None:
     args = parser.parse_args()
     output = (
         Path(DEFAULT_RESULTS_ROOT)
-        / "rolling_2025-04-01_2026-03-31_none_uc"
+        / "rolling_2025-04-01_2026-03-31_LP"
         / "LP_IE_resolved_only_diagnostic"
     )
     if output.exists():

@@ -6,7 +6,7 @@ import pandas as pd
 
 
 run_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(
-    "results/run_results/rolling_2025-04-01_2026-03-31_none_uc/LP_solar_availability"
+    "results/run_results/rolling_2025-04-01_2026-03-31_LP/LP_solar_availability"
 )
 log = pd.read_csv(run_dir / "window_log.csv")
 values = log["peak_cpu_cores_sampled"].dropna()

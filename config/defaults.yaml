@@ -1,0 +1,72 @@
+# Default settings for scripts/run_model.py.
+#
+# Every run config in config/runs/ is merged on top of this file, so a run
+# config only needs the values that differ from these defaults. Unknown keys
+# are rejected so that typos fail before the network is loaded.
+#
+# Launch a run with:
+#   python scripts/run_model.py config/runs/<name>.yaml
+
+run:
+  # Output subfolder name: results/run_results/<mode_label>/<name>/.
+  # Starts with a letter or number; at most 80 characters of letters, numbers,
+  # ".", "_" or "-". Reusing a name resumes or overwrites that run.
+  name: null                      # required; set it in the run config
+  # daily | monthly | peak | selected_weeks | annual | rolling
+  mode: daily
+  # YYYY-MM-DD within 2025-04-01..2026-03-31; used by daily and monthly only.
+  reference_date: "2025-07-11"
+  # rolling / selected_weeks: reuse compatible completed checkpoints.
+  resume: true
+
+selected_weeks:                   # used by mode: selected_weeks only
+  week_starts:
+    - "2025-04-07"                # dry / low hydro
+    - "2025-07-07"                # southwest-monsoon wind and hydro peak
+    - "2025-10-13"                # monsoon transition
+    - "2026-02-16"                # dry-season low renewables
+  warmup_days: 1                  # extra solved days before each week; excluded from results
+  lookahead_days: 1               # extra solved days after each week; excluded from results
+  reservoir_initial_soc_fraction: 0.5   # 0..1 fallback where no observed/proxy level exists
+  soc_boundary_tolerance_pu: 0.05
+
+formulation:
+  # full: binary on/off (MIP); relaxed: continuous on/off (LP, approximate);
+  # none: no on/off decisions or minimum stable output. annual requires none.
+  # Result folders are categorised as _UC (full), _relaxed or _LP (none).
+  unit_commitment: relaxed
+
+solver:
+  name: highs
+  threads: Default                # "Default" (8 for full/relaxed, 3 for none) or 1..8
+  parallel_workers: Default       # "Default" (2) or a positive integer; independent solves only
+  mip_rel_gap: 0.01               # full only; 0.01 = 1 %
+  simplex_strategy: null          # annual/rolling only: HiGHS simplex_strategy override
+
+rolling:                          # used by mode: rolling only
+  # Seconds per window attempt. "Default" = per mode (none 300, relaxed 700,
+  # full 1800); null = unlimited, which disables automatic retries.
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10    # full only: largest gap accepted at the time limit
+  max_windows: null               # debugging: stop after this many windows
+
+paths:                            # relative paths are resolved from the repository root
+  network: model
+  results_root: results/run_results
+
+logging:
+  # Detailed run logging and profiling. When true, the run writes a profile/
+  # folder next to its results: run.log, the complete HiGHS log of every solve
+  # (profile/highs/), phase timings, solve breakdowns and resource use.
+  # Override per run with --profile / --no-profile.
+  profile: true
+  level: INFO                     # INFO | DEBUG | WARNING | ERROR; DEBUG adds library debug messages to run.log
+  sample_interval: 1.0            # seconds between resource samples in profile/resources.csv
+  # Copy console output to <results_root>/console_logs/<run name>_<UTC time>.log.
+  console_log: true
+
+analysis:
+  # Run scripts/build_results_report.py on the finished run.
+  enabled: true
+  # Compare against observed generation and capacity where available.
+  compare_observed: true
