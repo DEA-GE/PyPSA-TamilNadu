@@ -199,7 +199,14 @@ That script:
 1. runs the standardized `scripts/results_analysis/` pipeline on every solved
    network the run kept (`solved_network.nc`, rolling `weekly_networks/`
    checkpoints, or one network per selected week), and writes its tables and
-   figures to `analysis/` next to them;
+   figures to `analysis/` next to them. Generation and installed capacity come
+   from PyPSA's `n.statistics` at the electricity buses: generation is the
+   `supply` of generators, storage discharge and the grid side of hydro
+   turbines, so the water-side inflows that feed the turbines are not counted
+   again. For rolling runs each weekly network is evaluated and the results
+   are joined in time. In the capacity comparison, the `total` row and model
+   shares cover physical plant only, without the unserved-energy slack
+   generators;
 2. writes `results_report.html` in the run folder. The report contains status
    tiles (solver status, rolling progress, unserved energy, demand, solver
    time), generation and installed capacity compared with observed values, the

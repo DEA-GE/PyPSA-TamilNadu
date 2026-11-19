@@ -50,6 +50,7 @@ from run_9ba_rolling import (
     run_rolling_year,
 )
 from results_analysis.loaders import load_observed_capacity
+from results_analysis.metrics import capacity_comparison
 from run_profiling import (
     RunProfiler,
     activate,
@@ -92,49 +93,7 @@ _SELECTED_WEEK_WORKER_CONTEXT: tuple | None = None
 
 def _installed_capacity_comparison(network: pypsa.Network) -> pd.DataFrame:
     """Compare modeled nameplate capacity with the latest supplied benchmark."""
-    historical = load_observed_capacity()
-
-    carrier = network.generators.carrier.astype(str).replace(
-        {"hydro_run_of_river": "hydro", "market_import": "imports"}
-    )
-    modeled = network.generators.p_nom.groupby(carrier).sum()
-    if len(network.storage_units):
-        modeled.loc["storage"] = network.storage_units.p_nom.sum()
-        storage_carrier = network.storage_units.carrier.astype(str).replace(
-            {"pumped_hydro": "hydro", "reservoir_hydro": "hydro"}
-        )
-        modeled = modeled.add(
-            network.storage_units.p_nom.groupby(storage_carrier).sum(), fill_value=0.0
-        )
-    hydro_turbines = network.links.loc[
-        network.links.carrier.astype(str).eq("hydro_turbine")
-    ]
-    if len(hydro_turbines):
-        modeled.loc["hydro"] = modeled.get("hydro", 0.0) + (
-            hydro_turbines.p_nom * hydro_turbines.efficiency.fillna(1.0)
-        ).sum()
-    modeled.loc["total"] = modeled.drop(index=["total", "storage"], errors="ignore").sum()
-
-    result = historical.rename(
-        columns={
-            "installed_capacity_mw": "historical_capacity_mw",
-            "share_pct": "historical_share_pct",
-        }
-    )
-    result.insert(0, "modeled_capacity_mw", modeled.reindex(result.index))
-    reference_total = result.modeled_capacity_mw.sum()
-    result["modeled_share_pct"] = 100.0 * result.modeled_capacity_mw / reference_total
-    result["difference_mw"] = (
-        result.modeled_capacity_mw - result.historical_capacity_mw
-    )
-    result["difference_pct"] = (
-        100.0
-        * result.difference_mw
-        / result.historical_capacity_mw.replace(0.0, np.nan)
-    )
-    result["historical_source"] = historical["source"].iloc[0]
-    result.index.name = "carrier"
-    return result
+    return capacity_comparison(network, load_observed_capacity())
 
 
 def _initialise_day_worker(

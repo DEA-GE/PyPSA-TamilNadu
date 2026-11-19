@@ -4,75 +4,58 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pypsa
 
-from .config import CARRIER_ORDER, RENEWABLE_CARRIERS, canonical_carrier
+from .config import RENEWABLE_CARRIERS, canonical_carrier
 from .loaders import AnalysisRun
+from .statistics import (
+    GENERATING_COMPONENTS,
+    network_statistic,
+    order_carriers,
+    statistic_timeseries,
+    statistic_total,
+    to_report_carriers,
+)
 
-
-def _group_columns(frame: pd.DataFrame, groups: pd.Series) -> pd.DataFrame:
-    if frame.empty:
-        return pd.DataFrame(index=frame.index)
-    labels = groups.reindex(frame.columns).fillna("unknown").map(canonical_carrier)
-    return frame.T.groupby(labels).sum().T
+# Generator carriers that are modelling devices, not installed plant.
+NON_PLANT_CARRIERS = ("unserved_energy", "imports")
 
 
 def generation_by_carrier_timeseries(run: AnalysisRun) -> pd.DataFrame:
-    base = run.base
-    # Generator dispatch represents production in this model. Clip numerical
-    # negative tolerances (and malformed legacy values) before aggregation so
-    # energy totals and stacked plots share the same physical interpretation.
-    generator_p = run.frame("generators", "p").fillna(0.0).clip(lower=0.0)
-    generation = _group_columns(generator_p, base.generators.carrier)
+    """Return hourly electricity generation (MW) by reporting carrier.
 
-    storage_p = run.frame("storage_units", "p").fillna(0.0)
-    storage_discharge = _group_columns(
-        storage_p.clip(lower=0.0), base.storage_units.carrier
+    Generation is PyPSA's ``supply`` at the electricity buses from generators,
+    storage discharge and hydro-turbine output.
+    """
+    supply = statistic_timeseries(
+        run, "supply", components=GENERATING_COMPONENTS, groupby="carrier"
     )
-    generation = generation.add(storage_discharge, fill_value=0.0)
+    if supply.empty:
+        return pd.DataFrame(index=run.snapshots)
+    return order_carriers(to_report_carriers(supply, axis=1))
 
-    link_p1 = run.frame("links", "p1").fillna(0.0)
-    if not link_p1.empty:
-        turbine_links = base.links.index[
-            base.links.carrier.astype(str).eq("hydro_turbine")
-        ].intersection(link_p1.columns)
-        if len(turbine_links):
-            hydro_output = (-link_p1[turbine_links]).clip(lower=0.0).sum(axis=1)
-            generation["hydro"] = generation.get("hydro", 0.0) + hydro_output
 
-    ordered = [carrier for carrier in CARRIER_ORDER if carrier in generation]
-    extras = sorted(set(generation.columns) - set(ordered))
-    return generation.reindex(columns=ordered + extras, fill_value=0.0)
+def installed_generation_capacity(
+    network: pypsa.Network, levels: tuple[str, ...] = ()
+) -> pd.Series:
+    """Return generating power capacity (MW) at the electricity buses.
+
+    Hydro turbines count with their grid-side output rating (``p_nom`` times
+    efficiency). *levels* adds grouping levels such as ``"bus"``.
+    """
+    capacity = network_statistic(
+        network,
+        "installed_capacity",
+        components=GENERATING_COMPONENTS,
+        groupby=[*levels, "carrier"],
+    )
+    return to_report_carriers(capacity, levels=levels)
 
 
 def generation_by_carrier(run: AnalysisRun) -> pd.DataFrame:
     hourly = generation_by_carrier_timeseries(run)
     energy = hourly.mul(run.weights, axis=0).sum()
-
-    generator_capacity = (
-        run.base.generators.assign(
-            report_carrier=run.base.generators.carrier.map(canonical_carrier)
-        )
-        .groupby("report_carrier")["p_nom"]
-        .sum()
-    )
-    storage_capacity = (
-        run.base.storage_units.assign(
-            report_carrier=run.base.storage_units.carrier.map(canonical_carrier)
-        )
-        .groupby("report_carrier")["p_nom"]
-        .sum()
-    )
-    capacity = generator_capacity.add(storage_capacity, fill_value=0.0)
-    capacity.loc["storage"] = storage_capacity.sum()
-    turbine_links = run.base.links.loc[
-        run.base.links.carrier.astype(str).eq("hydro_turbine")
-    ]
-    if not turbine_links.empty:
-        hydro_link_capacity = (
-            turbine_links.p_nom * turbine_links.efficiency.fillna(1.0)
-        ).sum()
-        capacity.loc["hydro"] = capacity.get("hydro", 0.0) + hydro_link_capacity
-    capacity.loc["total"] = capacity.drop(index=["total", "storage"], errors="ignore").sum()
+    capacity = installed_generation_capacity(run.base)
     result = pd.DataFrame(
         {
             "capacity_mw": capacity.reindex(energy.index).fillna(0.0),
@@ -163,40 +146,40 @@ def generation_comparison(
 
 def installed_capacity_by_area(run: AnalysisRun) -> pd.DataFrame:
     """Return modeled generator and storage power capacity by electrical area."""
-    base = run.base
-    generators = base.generators[["bus", "carrier", "p_nom"]].copy()
-    generators["carrier"] = generators.carrier.map(canonical_carrier)
-    storage = base.storage_units[["bus", "carrier", "p_nom"]].copy()
-    storage["carrier"] = storage.carrier.map(canonical_carrier)
-    turbines = base.links.loc[
-        base.links.carrier.astype(str).eq("hydro_turbine"),
-        ["bus1", "p_nom", "efficiency"],
-    ].copy()
-    turbines["bus"] = turbines.pop("bus1")
-    turbines["carrier"] = "hydro"
-    turbines["p_nom"] = turbines.p_nom * turbines.efficiency.fillna(1.0)
-    combined = pd.concat(
-        [generators, storage, turbines[["bus", "carrier", "p_nom"]]],
-        ignore_index=True,
-    )
-    result = (
-        combined.groupby(["bus", "carrier"], as_index=False).p_nom.sum()
-        .rename(columns={"bus": "balancing_area", "p_nom": "capacity_mw"})
-        .set_index(["balancing_area", "carrier"])
+    return (
+        installed_generation_capacity(run.base, levels=("bus",))
+        .rename_axis(index=["balancing_area", "carrier"])
+        .rename("capacity_mw")
+        .to_frame()
         .sort_index()
     )
-    return result
 
 
 def installed_capacity_comparison(
     run: AnalysisRun, observed_capacity: pd.DataFrame | None
 ) -> pd.DataFrame:
     """Compare model capacity with the supplied existing-capacity benchmark."""
-    modeled = generation_by_carrier(run)[["capacity_mw"]].rename(
-        columns={"capacity_mw": "modeled_capacity_mw"}
+    return capacity_comparison(run.base, observed_capacity)
+
+
+def capacity_comparison(
+    network: pypsa.Network, observed_capacity: pd.DataFrame | None
+) -> pd.DataFrame:
+    """Compare a network's plant capacity with the existing-capacity benchmark.
+
+    The ``total`` row and the model shares cover physical plant only: the
+    unserved-energy slack generators and market imports are not installed
+    capacity. ``storage`` is the storage units' power rating, which is also
+    counted in its carrier (pumped storage in ``hydro``).
+    """
+    capacity = installed_generation_capacity(network)
+    plant = capacity.drop(list(NON_PLANT_CARRIERS), errors="ignore")
+    modeled = plant.rename("modeled_capacity_mw").to_frame()
+    modeled.loc["storage", "modeled_capacity_mw"] = float(
+        network_statistic(network, "installed_capacity", components="StorageUnit").sum()
     )
-    modeled.loc["storage"] = float(run.base.storage_units.p_nom.sum())
-    modeled.loc["total"] = modeled.drop(index=["total", "storage"], errors="ignore").sum()
+    modeled.loc["total", "modeled_capacity_mw"] = plant.sum()
+    modeled.index.name = "carrier"
     if observed_capacity is None:
         return modeled
     result = modeled.reindex(observed_capacity.index).join(
@@ -209,7 +192,7 @@ def installed_capacity_comparison(
         )
     )
     result["modeled_share_pct"] = (
-        100.0 * result.modeled_capacity_mw / result.modeled_capacity_mw.sum()
+        100.0 * result.modeled_capacity_mw / modeled.at["total", "modeled_capacity_mw"]
     )
     result["difference_mw"] = (
         result.modeled_capacity_mw - result.historical_capacity_mw
@@ -225,20 +208,20 @@ def installed_capacity_comparison(
 
 def renewable_generation_by_area(run: AnalysisRun) -> pd.DataFrame:
     """Return solar and wind energy by balancing area for the analyzed period."""
-    base = run.base
-    dispatch = run.frame("generators", "p").fillna(0.0).clip(lower=0.0)
-    metadata = base.generators[["bus", "carrier"]].reindex(dispatch.columns).copy()
-    metadata["carrier"] = metadata.carrier.map(canonical_carrier)
-    selected = metadata.index[metadata.carrier.isin(RENEWABLE_CARRIERS)]
-    if not len(selected):
+    energy = statistic_total(
+        run,
+        "supply",
+        components="Generator",
+        carrier=list(RENEWABLE_CARRIERS),
+        groupby=["bus", "carrier"],
+    )
+    if energy.empty:
         return pd.DataFrame(columns=["generation_gwh"])
-    energy = dispatch[selected].mul(run.weights, axis=0).sum() / 1_000.0
-    rows = metadata.loc[selected].copy()
-    rows["generation_gwh"] = energy
     return (
-        rows.groupby(["bus", "carrier"])["generation_gwh"]
-        .sum()
+        to_report_carriers(energy, levels=("bus",))
+        .div(1_000.0)
         .rename_axis(index=["balancing_area", "carrier"])
+        .rename("generation_gwh")
         .to_frame()
         .sort_index()
     )
