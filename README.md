@@ -206,7 +206,13 @@ That script:
    again. For rolling runs each weekly network is evaluated and the results
    are joined in time. In the capacity comparison, the `total` row and model
    shares cover physical plant only, without the unserved-energy slack
-   generators;
+   generators. The balancing-area table splits each bus's `energy_balance`
+   into generation, storage, net imports (Lines and AC/DC Links, with line
+   losses) and demand, so its residual is zero. Corridor metrics cover every
+   Line and AC/DC Link; loading is relative to the operating limit
+   (`s_nom * s_max_pu` or `p_nom * p_max_pu`), so 100% means the limit binds.
+   Storage and reservoir-store charge and discharge come from `withdrawal` and
+   `supply`;
 2. writes `results_report.html` in the run folder. The report contains status
    tiles (solver status, rolling progress, unserved energy, demand, solver
    time), generation and installed capacity compared with observed values, the

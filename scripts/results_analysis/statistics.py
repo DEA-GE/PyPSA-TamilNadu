@@ -30,6 +30,10 @@ ELECTRICITY_BUS_CARRIER = "AC"
 GENERATING_COMPONENTS = ("Generator", "StorageUnit", "Link")
 GENERATING_LINK_CARRIERS = frozenset({"hydro_turbine"})
 
+# Links that move electricity between areas: the AC ties and HVDC links. Lines
+# are always transmission.
+TRANSMISSION_LINK_CARRIERS = frozenset({"AC", "DC"})
+
 
 def network_statistic(
     network: pypsa.Network, name: str, **kwargs
@@ -70,6 +74,14 @@ def statistic_total(run: AnalysisRun, name: str, **kwargs) -> pd.Series:
     """Return a time-varying metric summed over the run with snapshot weights."""
     hourly = statistic_timeseries(run, name, **kwargs)
     return hourly.mul(run.weights, axis=0).sum()
+
+
+def is_transmission(components: pd.Index, carriers: pd.Index) -> pd.Index:
+    """Flag Line and AC/DC Link groups, given their component and carrier."""
+    return components.isin(["Line"]) | (
+        components.isin(["Link"])
+        & carriers.astype(str).isin(TRANSMISSION_LINK_CARRIERS)
+    )
 
 
 def _generating_rows(index: pd.MultiIndex) -> pd.Index:

@@ -77,17 +77,17 @@ def storage_figure(dispatch: pd.DataFrame, state_of_charge: pd.DataFrame):
 def transmission_figure(flows: pd.DataFrame, corridor_table: pd.DataFrame):
     figure, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
     if corridor_table.empty:
-        axes[0].text(0.5, 0.5, "No AC corridors", ha="center", va="center")
+        axes[0].text(0.5, 0.5, "No transmission corridors", ha="center", va="center")
         axes[1].axis("off")
         return figure
     top = corridor_table.head(8).index.intersection(flows.columns)
     flows[top].plot(ax=axes[0], linewidth=1.2)
     axes[0].set_title("Flows on the most heavily loaded corridors")
     axes[0].set_ylabel("MW")
-    capacities = corridor_table.loc[top, "capacity_mw"]
-    flows[top].abs().div(capacities, axis=1).mul(100).plot(ax=axes[1], linewidth=1.2)
+    limits = corridor_table.loc[top, "limit_mw"]
+    flows[top].abs().div(limits, axis=1).mul(100).plot(ax=axes[1], linewidth=1.2)
     axes[1].axhline(100.0, color="black", linestyle="--", linewidth=0.8)
-    axes[1].set_title("Absolute corridor loading")
+    axes[1].set_title("Corridor loading relative to the operating limit")
     axes[1].set_ylabel("%")
     axes[1].set_xlabel("Time")
     for axis in axes:

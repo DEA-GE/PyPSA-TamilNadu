@@ -12,6 +12,7 @@ from .metrics import (
     balancing_area_metrics,
     commitment_by_carrier,
     commitment_metrics,
+    corridor_flows,
     corridor_metrics,
     generation_by_carrier,
     generation_by_carrier_timeseries,
@@ -64,9 +65,9 @@ def analyze_run(
     storage_soc = run.frame("storage_units", "state_of_charge")
     store_dispatch = run.frame("stores", "p")
     store_energy = run.frame("stores", "e")
-    link_flows = run.frame("links", "p0")
+    flows = corridor_flows(run)
     ramps = ramp_timeseries(run)
-    corridors = corridor_metrics(run)
+    corridors = corridor_metrics(run, flows)
     unit_commitment = commitment_metrics(run)
 
     tables = {
@@ -113,7 +114,7 @@ def analyze_run(
             pd.concat([storage_dispatch, store_dispatch], axis=1),
             pd.concat([storage_soc, store_energy], axis=1),
         ),
-        "transmission": transmission_figure(link_flows, corridors),
+        "transmission": transmission_figure(flows, corridors),
         "ramps": ramp_figure(ramps),
     }
     if "monthly_generation" in tables:

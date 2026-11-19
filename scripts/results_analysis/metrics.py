@@ -9,7 +9,10 @@ import pypsa
 from .config import RENEWABLE_CARRIERS, canonical_carrier
 from .loaders import AnalysisRun
 from .statistics import (
+    ELECTRICITY_BUS_CARRIER,
     GENERATING_COMPONENTS,
+    TRANSMISSION_LINK_CARRIERS,
+    is_transmission,
     network_statistic,
     order_carriers,
     statistic_timeseries,
@@ -227,20 +230,36 @@ def renewable_generation_by_area(run: AnalysisRun) -> pd.DataFrame:
     )
 
 
+def _energy_by_name(
+    run: AnalysisRun, component: str, index: pd.Index, bus_carrier: str | None
+) -> tuple[pd.Series, pd.Series]:
+    """Return discharge and charge (GWh) per asset from ``supply``/``withdrawal``."""
+    options = {"components": component, "groupby": "name", "bus_carrier": bus_carrier}
+    discharge = statistic_total(run, "supply", **options)
+    charge = statistic_total(run, "withdrawal", **options)
+    return (
+        discharge.reindex(index, fill_value=0.0) / 1_000.0,
+        charge.reindex(index, fill_value=0.0) / 1_000.0,
+    )
+
+
 def storage_metrics(run: AnalysisRun) -> pd.DataFrame:
     base = run.base
     if base.storage_units.empty:
         return pd.DataFrame()
-    dispatch = run.frame("storage_units", "p").reindex(columns=base.storage_units.index).fillna(0.0)
-    soc = run.frame("storage_units", "state_of_charge").reindex(columns=base.storage_units.index)
-    weights = run.weights
-    result = pd.DataFrame(index=base.storage_units.index)
+    units = base.storage_units.index
+    soc = run.frame("storage_units", "state_of_charge").reindex(columns=units)
+    result = pd.DataFrame(index=units)
     result.index.name = "storage_unit"
     result["carrier"] = base.storage_units.carrier.map(canonical_carrier)
-    result["power_capacity_mw"] = base.storage_units.p_nom
+    result["power_capacity_mw"] = network_statistic(
+        base, "installed_capacity", components="StorageUnit", groupby="name",
+        bus_carrier=None,
+    ).reindex(units)
     result["energy_capacity_mwh"] = base.storage_units.p_nom * base.storage_units.max_hours
-    result["discharge_gwh"] = dispatch.clip(lower=0.0).mul(weights, axis=0).sum() / 1_000.0
-    result["charge_gwh"] = -dispatch.clip(upper=0.0).mul(weights, axis=0).sum() / 1_000.0
+    result["discharge_gwh"], result["charge_gwh"] = _energy_by_name(
+        run, "StorageUnit", units, bus_carrier=None
+    )
     result["minimum_soc_mwh"] = soc.min()
     result["maximum_soc_mwh"] = soc.max()
     result["equivalent_full_cycles"] = (
@@ -254,15 +273,19 @@ def store_metrics(run: AnalysisRun) -> pd.DataFrame:
     base = run.base
     if base.stores.empty:
         return pd.DataFrame()
-    dispatch = run.frame("stores", "p").reindex(columns=base.stores.index).fillna(0.0)
-    energy = run.frame("stores", "e").reindex(columns=base.stores.index)
-    result = pd.DataFrame(index=base.stores.index)
+    stores = base.stores.index
+    energy = run.frame("stores", "e").reindex(columns=stores)
+    result = pd.DataFrame(index=stores)
     result.index.name = "store"
     result["carrier"] = base.stores.carrier.map(canonical_carrier)
     result["bus"] = base.stores.bus
-    result["energy_capacity_mwh"] = base.stores.e_nom
-    result["discharge_gwh"] = dispatch.clip(lower=0.0).mul(run.weights, axis=0).sum() / 1_000.0
-    result["charge_gwh"] = -dispatch.clip(upper=0.0).mul(run.weights, axis=0).sum() / 1_000.0
+    result["energy_capacity_mwh"] = network_statistic(
+        base, "installed_capacity", components="Store", groupby="name",
+        bus_carrier=None,
+    ).reindex(stores)
+    result["discharge_gwh"], result["charge_gwh"] = _energy_by_name(
+        run, "Store", stores, bus_carrier=None
+    )
     result["minimum_stored_energy_mwh"] = energy.min()
     result["maximum_stored_energy_mwh"] = energy.max()
     return result
@@ -308,77 +331,107 @@ def commitment_by_carrier(unit_metrics: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def corridor_metrics(run: AnalysisRun) -> pd.DataFrame:
-    base = run.base
-    flows = run.frame("links", "p0")
-    corridors = base.links.index[base.links.carrier.astype(str).eq("AC")].intersection(flows.columns)
-    if not len(corridors):
+def corridor_flows(run: AnalysisRun) -> pd.DataFrame:
+    """Return hourly flow (MW, bus0 to bus1) on every Line and AC/DC Link.
+
+    PyPSA's ``transmission`` statistic covers branches whose two ends are
+    electricity buses, so hydro turbines and pumps are excluded.
+    """
+    flows = statistic_timeseries(run, "transmission", groupby="name")
+    if flows.empty:
+        return flows
+    flows.columns = flows.columns.get_level_values("name")
+    return flows
+
+
+def _corridor_ratings(network: pypsa.Network) -> pd.DataFrame:
+    lines = network.lines
+    links = network.links
+    links = links.loc[links.carrier.astype(str).isin(TRANSMISSION_LINK_CARRIERS)]
+    return pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "component": "Line",
+                    "carrier": lines.carrier,
+                    "bus0": lines.bus0,
+                    "bus1": lines.bus1,
+                    "capacity_mw": lines.s_nom,
+                    "limit_mw": lines.s_nom * lines.s_max_pu,
+                }
+            ),
+            pd.DataFrame(
+                {
+                    "component": "Link",
+                    "carrier": links.carrier,
+                    "bus0": links.bus0,
+                    "bus1": links.bus1,
+                    "capacity_mw": links.p_nom,
+                    "limit_mw": links.p_nom * links.p_max_pu,
+                }
+            ),
+        ]
+    )
+
+
+def corridor_metrics(
+    run: AnalysisRun, flows: pd.DataFrame | None = None
+) -> pd.DataFrame:
+    """Summarize flows and loading on every transmission Line and AC/DC Link.
+
+    Loading is the absolute flow relative to the corridor's operating limit
+    (``s_nom * s_max_pu`` for Lines, ``p_nom * p_max_pu`` for Links), so 100%
+    means the flow limit binds. ``capacity_mw`` is the nominal rating.
+    """
+    flows = corridor_flows(run) if flows is None else flows
+    if flows.empty:
         return pd.DataFrame()
-    flow = flows[corridors]
-    rating = base.links.loc[corridors, "p_nom"].replace(0.0, np.nan)
-    loading = flow.abs().div(rating, axis=1) * 100.0
-    result = pd.DataFrame(index=corridors)
+    result = _corridor_ratings(run.base).reindex(flows.columns)
     result.index.name = "corridor"
-    result["bus0"] = base.links.loc[corridors, "bus0"]
-    result["bus1"] = base.links.loc[corridors, "bus1"]
-    result["capacity_mw"] = rating
-    result["maximum_absolute_flow_mw"] = flow.abs().max()
+    loading = flows.abs().div(result.limit_mw.replace(0.0, np.nan), axis=1) * 100.0
+    result["maximum_absolute_flow_mw"] = flows.abs().max()
     result["maximum_loading_pct"] = loading.max()
     result["p95_loading_pct"] = loading.quantile(0.95)
     result["hours_at_or_above_99pct"] = loading.ge(99.0).sum()
-    result["net_energy_bus0_to_bus1_gwh"] = flow.mul(run.weights, axis=0).sum() / 1_000.0
+    result["net_energy_bus0_to_bus1_gwh"] = (
+        flows.mul(run.weights, axis=0).sum() / 1_000.0
+    )
     return result.sort_values("maximum_loading_pct", ascending=False)
 
 
 def _area_timeseries(run: AnalysisRun) -> dict[str, pd.DataFrame]:
-    base = run.base
-    areas = base.buses.index[base.buses.carrier.astype(str).eq("AC")]
-    generator_p = run.frame("generators", "p").fillna(0.0)
-    generation = generator_p.T.groupby(base.generators.bus.reindex(generator_p.columns)).sum().T
-    storage_p = run.frame("storage_units", "p").fillna(0.0)
-    storage = storage_p.T.groupby(base.storage_units.bus.reindex(storage_p.columns)).sum().T
-    load_p = run.frame("loads", "p").fillna(0.0)
-    if load_p.empty:
-        load_p = run.frame("loads", "p_set").fillna(0.0)
-    demand = load_p.T.groupby(base.loads.bus.reindex(load_p.columns)).sum().T
-    generation = generation.reindex(columns=areas, fill_value=0.0)
-    storage = storage.reindex(columns=areas, fill_value=0.0)
-    demand = demand.reindex(columns=areas, fill_value=0.0)
+    """Split each electricity bus's energy balance into its four parts (MW).
 
-    net_import = pd.DataFrame(0.0, index=run.snapshots, columns=areas)
-    p0 = run.frame("links", "p0").fillna(0.0)
-    p1 = run.frame("links", "p1").fillna(0.0)
-    links = base.links.index[base.links.carrier.astype(str).eq("AC")]
-    for link in links.intersection(p0.columns):
-        bus0 = base.links.at[link, "bus0"]
-        bus1 = base.links.at[link, "bus1"]
-        if bus0 in net_import:
-            net_import[bus0] -= p0[link]
-        if bus1 in net_import:
-            net_import[bus1] -= p1[link]
-
-    # Non-grid Links include hydro turbines, pumps, and water transfers. Add
-    # every electrical-bus injection (positive or negative) so turbine output
-    # and pumping demand are both reflected in the local balance.
-    non_grid_links = base.links.index[~base.links.carrier.astype(str).eq("AC")]
-    bus_columns = sorted(
-        column for column in base.links.columns
-        if column.startswith("bus") and column[3:].isdigit()
+    Built from PyPSA's ``energy_balance`` at the electricity buses, so the
+    parts close at every bus: generation + storage + net_import = demand.
+    ``generation`` includes hydro-turbine output less pumping demand;
+    ``net_import`` covers Lines and AC/DC Links, with line losses.
+    """
+    areas = run.base.buses.index[
+        run.base.buses.carrier.astype(str).eq(ELECTRICITY_BUS_CARRIER)
+    ]
+    balance = statistic_timeseries(
+        run, "energy_balance", groupby=["bus", "carrier"]
     )
-    for bus_column in bus_columns:
-        port = bus_column[3:]
-        port_flow = run.frame("links", f"p{port}").fillna(0.0)
-        for link in non_grid_links.intersection(port_flow.columns):
-            bus = base.links.at[link, bus_column]
-            if bus in generation.columns:
-                generation[bus] -= port_flow[link]
-
-    return {
-        "generation": generation,
-        "storage": storage,
-        "demand": demand,
-        "net_import": net_import,
-    }
+    columns = balance.columns
+    components = columns.get_level_values("component")
+    part = np.select(
+        [
+            components == "Load",
+            components == "StorageUnit",
+            is_transmission(components, columns.get_level_values("carrier")),
+        ],
+        ["demand", "storage", "net_import"],
+        default="generation",
+    )
+    buses = columns.get_level_values("bus")
+    frames = {}
+    for name in ("generation", "storage", "demand", "net_import"):
+        selected = balance.loc[:, part == name]
+        frame = selected.T.groupby(buses[part == name]).sum().T
+        frames[name] = frame.reindex(index=run.snapshots, columns=areas, fill_value=0.0)
+    frames["demand"] = -frames["demand"]
+    return frames
 
 
 def balancing_area_metrics(run: AnalysisRun) -> pd.DataFrame:
