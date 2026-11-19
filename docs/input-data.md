@@ -17,6 +17,8 @@ an explicit `snapshot` timestamp.
 | Statewide hourly demand | `data/build_template/loads-p_set.csv` | Sum the nine columns of `model/loads-p_set.csv` |
 | Balancing-area demand | `data/model_inputs/tamil_nadu_balancing_area_demand.xlsx`, `FY2025-26 Calibration` | `model/loads-p_set.csv`, `model/demand_allocation.csv` |
 | Wind and solar availability | `data/model_inputs/renewable_profiles.csv` | `model/generators-p_max_pu.csv` |
+| Solar capacity through the year | `data/model_inputs/tamil_nadu_installed_capacity_monthly_2019_2026.csv`, `tamil_nadu_re_capacity_releases_FY2025_26.csv` | `model/solar_capacity_trajectory.csv`, `model/solar_availability_calibration.csv` |
+| Seasonal solar correction | `data/model_inputs/solar_seasonal_correction_factors.csv`, `era5_daily_weather_tn_areas_FY2020_26.csv` | `model/solar_seasonal_correction.csv` |
 | Plant capacities and technologies | `data/source/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx`, `PlantInfo` and `District Allocation`; `data/build_template/generators.csv` | `model/generators.csv`, `model/storage_units.csv`, `model/component_metadata.csv` |
 | July 2026 capacity additions | `data/model_inputs/additional_capacity_2026_07.csv` | `model/additional_capacity_2026_07.csv`, `model/capacity_reconciliation_2026_07.csv` |
 | Hydro assets and observations | `data/model_inputs/hydro_asset_registry.csv`, `data/model_inputs/hydro_fleet_reconciliation.csv`, `data/reservoirs/tn_reservoir_daily_FY2025_26.csv` | `model/hydro_reservoir_parameters.csv`, `model/hydro_reservoir_inflow.csv`, `model/hydro_observed_soc.csv` |
@@ -109,29 +111,98 @@ each area's technology profile to its corresponding wind or solar generators
 and writes component-level availability to `model/generators-p_max_pu.csv`.
 The builder checks timestamps, required columns, missing values, and bounds.
 
-The active profiles come from the area-specific wind and solar CSVs under
-`model/TamilNadu9BAs_profiles_2025_2026/2025/` and `2026/`. The 2025 files
-cover the full calendar year; the 2026 files cover January through April.
-The FY2025-26 series uses 2025-04-01 through 2026-03-31 and is shifted five
-hours later to match the model's hourly convention. The final five FY hours
-wrap to the beginning. The constructed table is
-`model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv`.
-To activate the corrected FY table and rebuild the generator profiles, run:
+**Solar columns** come from the LAVA/atlite `9BA` area profiles (CSi panel,
+latitude-optimal fixed tilt, ERA5). `scripts/prepare_lava_profiles.py` reads
+the UTC source window in `data/source/lava_profiles_fy2025_26/`. atlite
+labels each value at the end of its UTC hour, while model hours begin at their
+IST label. Each model hour is therefore the mean of the two atlite hours it
+overlaps. The window extends beyond the fiscal year, so nothing wraps around.
+The method and checks are in
+[Solar availability methodology §7](solar-availability-methodology.md#7-profile-time-alignment).
 
-```powershell
-Copy-Item model/TamilNadu9BAs_profiles_2025_2026/renewable_profiles_FY2025_26.csv data/model_inputs/renewable_profiles.csv
-python scripts/build_9ba_model.py
-python scripts/construct_and_compare_re_profiles_fy2025_26.py
-```
+**Wind columns** come from the LAVA `AggrPCWiderCUF` area profiles, through
+the same script and source folder. LAVA labels values with the ERA5 cutout's
+UTC timestamps, and ERA5 100 m wind is instantaneous. Each IST model hour
+therefore takes the value at its midpoint, 5 hours earlier in UTC. The script
+also writes the fiscal-year wind table
+`data/model_inputs/Onshorewind_9BAs_AggrPCWiderCUF_FY2025-26.csv`. Until
+November 2026 that table and the model's wind columns used the UTC timestamps
+as if they were IST, putting wind about 5 hours early.
 
-The construction script checks that the corrected series agree with the active
-input and all renewable generators. The previous model input is archived at
-`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv`. The
-comparison notebook at `notebooks/compare_external_re_profiles_FY2025_26.ipynb`
-uses that archive as its baseline. The older workbook
+Earlier versions built both technologies with
+`scripts/construct_and_compare_re_profiles_fy2025_26.py`. That script shifted
+the series 5 hours later and wrapped the last five hours of the year to its
+start, and it needs source files no longer in the repository. The previous
+model input is archived at
+`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for
+`notebooks/compare_external_re_profiles_FY2025_26.ipynb`. The older workbook
 `data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx` is retained for
-comparison; `scripts/prepare_renewable_profiles.py` now checks or regenerates
-the archived baseline by default, leaving the active input unchanged.
+comparison; `scripts/prepare_renewable_profiles.py` checks or regenerates the
+archived baseline, leaving the active input unchanged.
+
+### Solar capacity through the year
+
+The [Solar availability methodology](solar-availability-methodology.md)
+describes the complete solar method, from capacity to annual calibration.
+
+Solar `p_nom` is the July 2026 fleet (14,045.55 MW, off-grid excluded), but
+Tamil Nadu's grid-connected solar grew from 10,083 MW on 31 March 2025 to
+13,505 MW on 31 March 2026. The builder therefore multiplies every solar
+generator's availability by the installed share of the fleet at each hour
+(`scripts/solar_capacity_trajectory.py`). The inputs are:
+
+- `data/model_inputs/tamil_nadu_installed_capacity_monthly_2019_2026.csv`:
+  month-end Tamil Nadu installed capacity by source, January 2019 to August
+  2026. It is tidied from the NITI Dashboard (ICED) export in
+  `data/source/NITI dashboard/monthly installed capacity Tamil Nadu/`. It
+  supplies total solar at each month end.
+- `data/model_inputs/tamil_nadu_re_capacity_releases_FY2025_26.csv`: eight
+  MNRE state-wise (location based) releases for FY2025-26, with solar split
+  into ground-mounted, rooftop, and off-grid. Source URLs and checksums are in
+  `data/source/re_capacity_releases_fy2025_26/`. The builder checks that the
+  NITI series equals MNRE's solar total in all eight months. It subtracts
+  off-grid solar (70.4 to 74.55 MW), interpolated between releases.
+
+A value "as on D" is the capacity at the end of day D; hourly capacity is
+interpolated linearly between month ends. The data are statewide, so every
+area is scaled by the same share and the area distribution of the fleet is
+unchanged. `model/solar_capacity_trajectory.csv` lists each month end and the
+installed share of the fleet.
+
+One availability multiplier then makes the year's solar potential equal the
+NITI Dashboard's observed 19,690.99 GWh
+(`data/model_inputs/niti_dashboard_annual_generation_FY2025_26.csv`). With the
+capacity trajectory and the seasonal correction below, the multiplier is
+1.1863 (0.9304 with the previous constant fleet and no correction).
+`model/solar_availability_calibration.csv` records the potentials, which
+include the seasonal correction, and the multiplier.
+
+### Seasonal solar correction
+
+Before the annual multiplier, `scripts/solar_seasonal_correction.py` corrects
+the atlite profile for effects atlite does not model. The full method,
+parameters, validation and references are in the
+[Solar availability methodology](solar-availability-methodology.md#3-seasonal-correction).
+
+- **Physical layer:** daily soiling and wind cooling of modules, with
+  literature parameters. It is driven by ERA5 daily precipitation and wind at
+  each area centroid (`data/model_inputs/era5_daily_weather_tn_areas_FY2020_26.csv`,
+  provenance in `data/source/era5_open_meteo/`).
+- **Seasonal layer:** one factor per calendar month (0.93 in March to 1.10
+  in July), the median over FY2020-21 to FY2024-25. Observed monthly
+  generation (`data/source/NITI dashboard/monthly solar generation Tamil Nadu/`)
+  is compared with monthly installed capacity
+  (`tamil_nadu_installed_capacity_monthly_2019_2026.csv`) times an ERA5
+  reconstruction of the profile.
+
+FY2025-26 is not used in the fit. On it, the monthly RMSE of solar potential
+against observed generation falls from 108 GWh to 40 GWh.
+`data/model_inputs/solar_seasonal_correction_factors.csv` stores the factors,
+the per-year ratios, and a hash of the profile they were fitted to. The
+builder refuses factors fitted to a different profile. After changing
+`renewable_profiles.csv`, run `python scripts/solar_seasonal_correction.py`
+before rebuilding. `model/solar_seasonal_correction.csv` reports the applied
+monthly correction.
 
 If `renewable_profiles.csv` is absent, the builder generates a **fallback**:
 the same statewide wind shape in all areas and one capacity-weighted solar

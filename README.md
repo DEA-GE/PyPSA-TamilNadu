@@ -13,7 +13,9 @@ network = pypsa.Network("model")
 ```
 
 For the location, table structure, units, provenance, and limitations of each
-input, see [Input data guide](docs/input-data.md).
+input, see [Input data guide](docs/input-data.md). How hourly solar
+availability is derived and validated is described in the
+[Solar availability methodology](docs/solar-availability-methodology.md).
 
 ## Repository layout
 
@@ -632,15 +634,30 @@ below upstream generation does not fill an artificial bottleneck.
 
 `data/model_inputs/renewable_profiles.csv` contains 8,760 hourly rows and
 separate wind and solar capacity factors for each of the nine balancing areas.
-The active profiles were assembled from the area-specific 2025 and 2026 CSVs
-under `model/TamilNadu9BAs_profiles_2025_2026/`, restricted to FY2025-26,
-then shifted five hours later with a fiscal-year boundary wrap. The previous
+Both come from the LAVA/atlite area profiles (solar `9BA`, wind
+`AggrPCWiderCUF`), whose timestamps are UTC. `scripts/prepare_lava_profiles.py`
+converts them to the model's hour-beginning IST hours without wrapping the
+year. Solar averages the two overlapping hour-ending ERA5 hours; wind takes the
+instantaneous value at the middle of each IST hour, a 5-hour shift. The previous
 model profiles are archived in
 `data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for the
 [comparison notebook](notebooks/compare_external_re_profiles_FY2025_26.ipynb).
 See the [Input data guide](docs/input-data.md#wind-and-solar-availability)
 for the source and validation details. The builder uses statewide template
 shapes as a fallback only if the active CSV is absent.
+
+Solar availability also follows the capacity installed through the year.
+The NITI Dashboard's monthly installed capacity (MNRE's monthly series) puts
+Tamil Nadu's grid-connected solar at 10,083 MW on 31 March 2025 and 13,505 MW
+on 31 March 2026, against the 14,045.55 MW July 2026 fleet in
+`generators.csv`. Each hour's solar availability is scaled by the installed
+share of that fleet. A seasonal correction follows: soiling and wind cooling
+from literature parameters, plus monthly factors fitted on FY2020-21 to
+FY2024-25 observed generation. One multiplier (1.1863) then keeps annual solar
+potential equal to the observed 19,690.99 GWh. See the [Solar availability methodology](docs/solar-availability-methodology.md)
+for the method, validation and limitations, and the
+[Input data guide](docs/input-data.md#solar-capacity-through-the-year) for the
+files.
 
 ## Generated files and Git
 
