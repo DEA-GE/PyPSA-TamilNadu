@@ -42,6 +42,7 @@ def highs_solver_options(
     threads: int,
     simplex_strategy: int | None = None,
     lp_solver: str | None = None,
+    crossover: bool = True,
 ) -> dict[str, object]:
     """Return explicit, formulation-appropriate HiGHS options.
 
@@ -50,7 +51,9 @@ def highs_solver_options(
     commitment uses the interior-point solver with crossover (basic solution
     and duals); no-UC uses the parallel PAMI dual simplex. ``lp_solver``
     ("ipm" or "simplex") overrides the mode default; an explicit
-    ``simplex_strategy`` implies the simplex.
+    ``simplex_strategy`` implies the simplex. ``crossover=False`` stops the
+    interior-point solver at its interior solution (no basis; faster on very
+    large LPs, with duals of interior-point accuracy).
     """
     if isinstance(threads, bool) or not isinstance(threads, int) or threads < 1:
         raise ValueError("solver_threads must be a positive integer")
@@ -84,7 +87,7 @@ def highs_solver_options(
         if lp_solver not in {"ipm", "simplex"}:
             raise ValueError(f"lp_solver must be 'ipm' or 'simplex', not {lp_solver!r}")
         if lp_solver == "ipm":
-            options.update({"solver": "ipm", "run_crossover": "on"})
+            options.update({"solver": "ipm", "run_crossover": "on" if crossover else "off"})
         else:
             options.update(
                 {

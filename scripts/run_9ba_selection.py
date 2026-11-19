@@ -1465,6 +1465,8 @@ def run_selection(
     profile_log_level: str = "INFO",
     profile_sample_interval: float = 1.0,
     technologies: Mapping[str, Any] | None = None,
+    lp_method: str = "Default",
+    crossover: bool = True,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1536,6 +1538,8 @@ def _run_selection(
     resume: bool = True,
     max_windows: int | None = None,
     technologies: Mapping[str, Any] | None = None,
+    lp_method: str = "Default",
+    crossover: bool = True,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1556,7 +1560,15 @@ def _run_selection(
             raise ValueError("solver_threads must be 'Default' or an integer from 1 to 8")
         solver_threads = None
     if solver_threads is None:
-        solver_threads = 8 if unit_commitment in {"full", "relaxed"} else 3
+        # The weekly no-UC simplex solves scale poorly beyond 3 threads; the
+        # full-year annual LP uses the interior-point method on 8.
+        solver_threads = 8 if unit_commitment in {"full", "relaxed"} or mode == "annual" else 3
+    lp_method = str(lp_method).strip().lower()
+    if lp_method not in {"default", "ipm", "simplex"}:
+        raise ValueError("lp_method must be 'Default', 'ipm' or 'simplex'")
+    if lp_method != "default" and mode != "annual":
+        raise ValueError("lp_method applies to the annual mode only")
+    annual_lp_solver = "ipm" if lp_method == "default" else lp_method
     if isinstance(parallel_workers, str):
         if parallel_workers.strip().casefold() != "default":
             raise ValueError("parallel_workers must be 'Default' or a positive integer")
@@ -1681,6 +1693,7 @@ def _run_selection(
             reservoir_initial_soc_fraction=reservoir_initial_soc_fraction,
             soc_boundary_tolerance_pu=soc_boundary_tolerance_pu,
             resume=resume, max_windows=max_windows,
+            annual_lp_solver=annual_lp_solver, crossover=crossover,
         )
 
     validation["unit_commitment"] = unit_commitment
@@ -1745,6 +1758,8 @@ def _solve_mode(
     soc_boundary_tolerance_pu: float,
     resume: bool,
     max_windows: int | None,
+    annual_lp_solver: str = "ipm",
+    crossover: bool = True,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network | None]:
     """Dispatch to the solver workflow of one run mode."""
     if mode == "annual":
@@ -1755,6 +1770,8 @@ def _solve_mode(
             solver_name=solver_name,
             solver_threads=solver_threads,
             simplex_strategy=simplex_strategy,
+            lp_solver=annual_lp_solver,
+            crossover=crossover,
         )
     elif mode == "rolling":
         modeled, validation, solved_network = run_rolling_year(
