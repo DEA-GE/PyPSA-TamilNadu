@@ -25,6 +25,8 @@ CARRIER_ORDER = (
     "hydro",
     "solar",
     "wind",
+    "offshore_wind",
+    "battery",
     "imports",
     "unserved_energy",
 )
@@ -40,6 +42,8 @@ CARRIER_LABELS = {
     "hydro": "Hydro incl. pumped-storage discharge",
     "solar": "Solar",
     "wind": "Wind",
+    "offshore_wind": "Offshore wind",
+    "battery": "Battery discharge",
     "imports": "Net imports",
     "unserved_energy": "Unserved energy",
     "demand": "Demand incl. neighbouring-region loads",
@@ -59,6 +63,8 @@ CARRIER_COLORS = {
     "hydro": "#1F78B4",
     "solar": "#E6AB02",
     "wind": "#1B9E77",
+    "offshore_wind": "#17BECF",
+    "battery": "#E377C2",
     "imports": "#A6761D",
     "unserved_energy": "#D62728",
     "small_hydro": "#A6CEE3",
@@ -81,7 +87,7 @@ MODEL_CARRIER_STYLES = {
     "water_balance_adjustment": ("Measured-storage reconciliation", "#FB6A4A"),
 }
 
-RENEWABLE_CARRIERS = ("solar", "wind")
+RENEWABLE_CARRIERS = ("solar", "wind", "offshore_wind")
 DISPATCHABLE_CARRIERS = (
     "coal",
     "oil_gas",

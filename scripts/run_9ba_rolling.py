@@ -1391,6 +1391,9 @@ def run_rolling_year(
         measured_store_targets = _measured_store_targets(
             observed_soc, hydro_parameters, base_network
         )
+    # Content hash of the input network (set by run_9ba_selection), so that
+    # checkpoints solved with a different network are not reused.
+    input_fingerprint = (base_network.meta or {}).get("input_fingerprint")
 
     step = pd.Timedelta(days=commit_days)
     horizon = pd.Timedelta(days=commit_days + lookahead_days)
@@ -1442,6 +1445,7 @@ def run_rolling_year(
                 if (checkpoint_meta.get("model_version") == CHECKPOINT_MODEL_VERSION
                         and checkpoint_meta.get("pypsa_version") == pypsa.__version__
                         and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
+                        and checkpoint_meta.get("input_fingerprint") == input_fingerprint
                         and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
                         and np.isclose(
                             checkpoint_meta.get("bio_power_target_mwh", np.nan),
@@ -1646,6 +1650,7 @@ def run_rolling_year(
                 "model_version": CHECKPOINT_MODEL_VERSION,
                 "pypsa_version": pypsa.__version__,
                 "hydro_input_hash": hydro_input_hash,
+                "input_fingerprint": input_fingerprint,
                 "hydro_terminal_targets": len(terminal_targets),
                 "hydro_terminal_band_violation_mwh": hydro_total_error,
                 "hydro_max_terminal_band_violation_mwh": hydro_max_error,
@@ -1742,6 +1747,7 @@ def run_rolling_year(
         "model_version": CHECKPOINT_MODEL_VERSION,
         "pypsa_version": pypsa.__version__,
         "hydro_input_hash": hydro_input_hash,
+        "input_fingerprint": input_fingerprint,
         "unit_commitment": unit_commitment,
         "formulation": f"rolling {commit_days}-day commitment with {lookahead_days}-day look-ahead",
         "snapshots_solved_and_retained": completed_snapshots,

@@ -37,3 +37,6 @@ results/*
 
 # Linked worktrees are local development state, never repository content.
 /.worktrees/
+
+# Snakemake workflow state
+.snakemake/

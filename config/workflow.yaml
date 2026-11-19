@@ -1,0 +1,32 @@
+# Settings of the Snakemake scenario workflow (Snakefile in the repository root).
+#
+#   snakemake --cores 8                                    every scenario
+#   snakemake --cores 8 --config scenarios=[baseline,battery]
+#   snakemake --cores 8 -n                                 show what would run
+#
+# Values can be changed for one invocation with --config key=value.
+
+# Folder of scenario configs; every *.yaml file there is a scenario, except
+# files whose name starts with "_".
+scenario_dir: config/scenarios
+# Scenarios to run, by file name without .yaml; empty runs them all.
+scenarios: []
+# Where each scenario's runs and the cross-scenario comparison are written.
+results_dir: results/scenarios
+# Scenario the others are compared with in the effects reports.
+baseline_scenario: baseline
+
+# Extra run settings applied to every scenario's operational run, as
+# section.key=value; e.g. ["rolling.max_windows=2"] for a quick test.
+overrides: []
+
+capacity_expansion:
+  # Scenarios with capacity_mw: optimise first solve one annual LP without
+  # unit commitment to choose those capacities. Extra settings for that run:
+  overrides: []
+  # Build the results report for the capacity-expansion run as well.
+  analysis: false
+
+# Cores reserved per run when Snakemake schedules runs side by side (each run
+# uses the solver threads of its own config; "Default" is up to 8).
+threads_per_run: 8

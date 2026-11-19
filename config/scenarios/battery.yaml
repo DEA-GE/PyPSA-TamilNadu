@@ -1,0 +1,33 @@
+# Baseline plus grid batteries: 2-hour lithium-ion (LFP) standalone
+# batteries, as tendered in Tamil Nadu (parameters and costs in
+# config/technologies.yaml). The model chooses how much to build in each of
+# the nine balancing areas in an annual capacity-expansion LP; the rolling
+# run then operates them. Operational settings match the baseline.
+#
+# Each site also takes min_mw / max_mw bounds, and technologies.totals can
+# limit or set the total, e.g. totals: {battery: {min_mw: 1000, max_mw: 1000}}.
+
+run:
+  name: battery
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10
+
+technologies:
+  battery:
+    # Optimised by the model in every balancing area (site name = area).
+    Chennai North: {capacity_mw: optimise}
+    Chennai South: {capacity_mw: optimise}
+    Coimbatore: {capacity_mw: optimise}
+    Erode: {capacity_mw: optimise}
+    Madurai: {capacity_mw: optimise}
+    Tirunelveli: {capacity_mw: optimise}
+    Trichy: {capacity_mw: optimise}
+    Vellore: {capacity_mw: optimise}
+    Villupuram: {capacity_mw: optimise}

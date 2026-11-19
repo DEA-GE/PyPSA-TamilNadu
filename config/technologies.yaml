@@ -1,0 +1,61 @@
+# Parameters of the technologies that scenarios can add to the base network
+# (see the technologies section of config/defaults.yaml and config/scenarios/).
+#
+# Values left as null are to be provided. A run that adds a technology with a
+# required value still null stops before solving and names the missing values.
+# A scenario can change any value for itself under technologies.parameters.
+#
+# Units: power in MW, energy in MWh, costs in INR. capital_cost is the
+# annualised cost per MW of capacity per year (annuity of investment plus fixed
+# O&M), so that it is comparable with one year of operating costs in the
+# annual capacity-expansion LP. It is needed only when a capacity is optimised.
+
+battery:
+  carrier: battery
+  # Standalone grid-scale lithium-ion battery (LFP cells), 2-hour, as in
+  # Tamil Nadu's tenders: TNGECL's 500 MW / 1,000 MWh standalone BESS (2025,
+  # awarded) and NLC India's 250 MW / 500 MWh project (LFP or NMC cells).
+  # TNGECL's later 375 MW x 4 h tender (2025) is a 4-hour alternative; change
+  # max_hours and capital_cost together for it. Sources: docs/input-data.md.
+  technology: Lithium-ion (LFP), standalone, 2-hour
+  max_hours: 2                 # energy-to-power ratio, h (energy capacity = MW x max_hours)
+  # Indian standalone BESS tenders require 85 % AC-to-AC round-trip
+  # efficiency (monthly), split equally: sqrt(0.85) = 0.922 each way.
+  efficiency_store: 0.922
+  efficiency_dispatch: 0.922
+  standing_loss: 0.0           # share of stored energy lost per hour
+  marginal_cost: 0.0           # INR/MWh discharged
+  # Annualised cost of a 2-hour battery: INR 2.3 lakh per MW per month, the
+  # IEEFA-JMK indicative viable benchmark for 2-hour standalone BESS tariffs
+  # (2025 tenders cleared at INR 1.78-2.40 lakh). A capacity tariff pays the
+  # developer's capital, O&M and return, so it is the annualised cost per MW.
+  capital_cost: 2760000        # INR per MW per year (2.3 lakh x 12)
+
+offshore_wind:
+  carrier: offshore_wind
+  # IEA 15 MW reference turbine (IEA-15-240-RWT), 150 m hub height. Capacities
+  # are in MW; one turbine is 15 MW.
+  turbine: IEA 15 MW reference turbine
+  turbine_mw: 15               # fixed capacities must be whole turbines
+  # Offshore wind capacity is an exogenous scenario choice: each scenario sets
+  # capacity_mw; the model does not optimise it.
+  optimisable: false
+  # Offshore wind can connect only to the southernmost balancing area.
+  allowed_buses: [Tirunelveli]
+  # Hourly availability per MW (0..1) for every model hour of FY2025-26, in
+  # Indian Standard Time. Column block2: the simulated 68 x 15 MW farm of
+  # data/source/ts_power_150m_block2.xlsx with wake effects (NIWE / DTU WRF
+  # wake study, Case 1; timestamps UTC), built by
+  # scripts/prepare_offshore_wind_profile.py (mean capacity factor 0.56).
+  profiles: data/model_inputs/offshore_wind_profiles.csv
+  marginal_cost: 0.0           # INR/MWh; O&M is in capital_cost
+  # Annualised cost per MW, including fixed O&M and the full grid connection
+  # (offshore and onshore substations, export cable), from the Danish Energy
+  # Agency's FIMOI v2 report (2022) for Tamil Nadu zone B, 15 MW turbines,
+  # investment decision 2025: basic LCOE 7.4 INR/kWh (2021 prices) x 1.05^4
+  # (FIMOI's 5 %/yr inflation, to 2025 prices) x 4,643 MWh/MW/yr (FIMOI's
+  # net capacity factor of 53 %) = 41.76 million INR/MW/yr, i.e. 9.0 INR/kWh.
+  # Indian developers' 2025 estimate of 9.7-9.8 INR/kWh would give 45.0-45.5
+  # million. Sources and derivation: docs/input-data.md.
+  # Capacity is fixed per scenario, so this cost informs reporting only.
+  capital_cost: 41760000       # INR per MW per year

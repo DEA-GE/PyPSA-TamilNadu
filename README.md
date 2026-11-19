@@ -27,7 +27,8 @@ availability is derived and validated is described in the
 | `data/source/` | Source workbooks and supporting datasets |
 | `data/reservoirs/` | Validated reservoir observations used by the hydro model |
 | `scripts/` | Build, run, validation, analysis, and data-collection utilities |
-| `config/` | YAML run configurations: `defaults.yaml` plus one file per run in `runs/` |
+| `config/` | YAML run configurations: `defaults.yaml`, one file per run in `runs/`, one file per scenario in `scenarios/`, technology parameters in `technologies.yaml`, and the Snakemake settings in `workflow.yaml` |
+| `Snakefile` | Scenario workflow: capacity expansion, operational run and comparison for every scenario |
 | `notebooks/` | Interactive analysis workflows |
 | `results/` | Local generated outputs; ignored by Git except for its README |
 
@@ -124,6 +125,9 @@ python scripts/run_model.py config/runs/rolling_relaxed.yaml --no-profile
 
 # Repeat an earlier run exactly from its saved settings
 python scripts/run_model.py results/run_results/daily_2025-07-11_relaxed/daily_demo/run_config.yaml
+
+# Also write a short YAML summary (run folder, report, status), as the Snakemake workflow does
+python scripts/run_model.py config/runs/daily_demo.yaml --summary daily_demo_summary.yaml
 ```
 
 `run_model.py` exits with 0 on success, with 1 if the config is invalid or the
@@ -158,6 +162,7 @@ the run's `profile/highs/` folder instead.
 | `logging.level` | `INFO` (the default), `DEBUG`, `WARNING`, or `ERROR`. `DEBUG` adds the PyPSA and Linopy debug messages to `profile/run.log`. Used only when `logging.profile` is `true`. |
 | `logging.sample_interval` | Seconds between resource samples in `profile/resources.csv`; default `1.0`. |
 | `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
+| `technologies.*` | Batteries and offshore wind added for a scenario; empty by default, so runs use the model as it is. See [Scenarios](#scenarios-batteries-and-offshore-wind). |
 
 ### Run logging and profiling
 
@@ -296,6 +301,138 @@ be missed. The thread count covers the whole Python process and may include
 library threads in addition to HiGHS threads. The same metrics are stored in
 each window's checkpoint JSON. Resumed checkpoints created before these
 metrics were added will have empty values for the new columns.
+
+Resumed rolling windows and selected weeks are reused only if they were
+solved with the same input network, checked with a content fingerprint of the
+network including any scenario technologies. Checkpoints written before this
+check existed are solved again once.
+
+### Scenarios: batteries and offshore wind
+
+Scenarios add technologies to the model and are run with
+[Snakemake](https://snakemake.readthedocs.io/). Each scenario is one config file
+in `config/scenarios/`; add a scenario by adding a file there.
+
+| File | Scenario |
+| --- | --- |
+| `baseline.yaml` | The model as it is |
+| `battery.yaml` | Baseline plus 2-hour lithium-ion batteries, capacity optimised in all nine balancing areas |
+| `offshore_wind.yaml` | Baseline plus offshore wind (IEA 15 MW turbines) in Tirunelveli |
+| `battery_offshore_wind.yaml` | Baseline plus both |
+
+A scenario config is a run config (any section of `config/defaults.yaml`)
+plus a `technologies` section. All four use the same operational settings as
+`config/runs/rolling_relaxed.yaml`, so their results compare like for like.
+The offshore-wind capacity settings are examples to replace with the
+project data. Each site's capacity is either fixed or optimised:
+
+```yaml
+technologies:
+  battery:                       # site name -> settings; bus defaults to the site name
+    Chennai North:
+      capacity_mw: 500           # installed capacity, MW
+    Tirunelveli:
+      capacity_mw: optimise      # chosen by the model
+      min_mw: 0                  # optional bounds
+      max_mw: 2000
+  offshore_wind:
+    block2:
+      bus: Tirunelveli           # the only balancing area offshore wind can connect to
+      profile: block2            # column of the profile file; defaults to the site name
+      capacity_mw: 1020          # fixed scenario choice, whole 15 MW turbines (68 here)
+  totals:                        # optional: total optimised MW per technology
+    battery: {max_mw: 1500}      # min_mw = max_mw sets an exact target, placed optimally
+  parameters:                    # optional: this scenario's changes to config/technologies.yaml
+    battery: {max_hours: 2}
+```
+
+Technology parameters are in `config/technologies.yaml`: battery duration
+(`max_hours`), charging and discharging efficiencies, standing loss, costs,
+and for offshore wind the turbine, the balancing areas it may connect to
+(`allowed_buses`) and the profile file (hourly availability per MW for every
+model hour, in Indian Standard Time, one column per profile). Values still to
+be provided are `null`; a run that adds a technology with a required value
+missing stops before solving and names the missing values. `capital_cost` is
+the annualised cost per MW per year in INR and is required only to optimise a
+capacity. Offshore wind capacity is an exogenous scenario choice
+(`optimisable: false` in `config/technologies.yaml`): each scenario sets it
+in whole 15 MW turbines, and `optimise` is rejected. Battery capacity is
+optimised by the model.
+
+Batteries are standalone 2-hour lithium-ion (LFP) systems, the technology of
+Tamil Nadu's battery tenders: 85 % round-trip efficiency and an annualised
+cost of INR 2.3 lakh per MW per month, the benchmark for 2-hour standalone
+battery tariffs in India; see
+[docs/input-data.md](docs/input-data.md#battery-storage). Offshore wind
+costs INR 41.8 million per MW per year including O&M and grid connection
+(9.0 INR/kWh), from the Danish Energy Agency's FIMOI cost study for Tamil
+Nadu; see [docs/input-data.md](docs/input-data.md#offshore-wind-cost).
+
+Offshore wind uses the IEA 15 MW reference turbine and can be installed only
+in Tirunelveli, the southernmost balancing area. Its capacity factors
+(`data/model_inputs/offshore_wind_profiles.csv`, column `block2`, mean 0.56)
+are built by `scripts/prepare_offshore_wind_profile.py` from the simulated
+68-turbine farm in `data/source/ts_power_150m_block2.xlsx`; see
+[docs/input-data.md](docs/input-data.md#offshore-wind-capacity-factors).
+
+Batteries are PyPSA storage units with a fixed energy-to-power ratio; offshore
+wind farms are generators with an hourly availability profile, connected
+directly to a balancing-area bus. Both appear in the results analysis as
+`battery` and `offshore_wind`.
+
+Run the scenarios:
+
+```powershell
+snakemake --cores 8                                       # every scenario
+snakemake --cores 8 --config scenarios=[baseline,battery] # a selection
+snakemake --cores 8 -n                                    # list what would run
+snakemake --cores 8 --config 'overrides=["rolling.max_windows=2"]'   # quick test
+```
+
+For each scenario the workflow:
+
+1. **Capacity expansion** (only if a site is `optimise`): solves the full year
+   as one LP without unit commitment (`run.mode: annual`), with the optimised
+   capacities as decision variables, and saves the chosen capacities to
+   `results/scenarios/<scenario>/optimised_capacities.csv`. Rolling, monthly and
+   selected-week runs solve periods separately and could not choose one
+   capacity for the year, so capacities are sized in this one continuous LP.
+2. **Operation**: runs the scenario's own settings (here the rolling year with
+   relaxed unit commitment) with those capacities fixed
+   (`technologies.fixed_capacities`). Results and the report are in
+   `results/scenarios/<scenario>/<mode label>/operation/`.
+3. **Comparison**: writes headline tables of all scenarios side by side to
+   `results/scenarios/comparison/`: system metrics, generation and capacity by
+   carrier, operating costs, and the capacities each scenario added.
+4. **Effects**: for every scenario other than the baseline (when the baseline
+   runs too), quantifies what its added technologies change, in
+   `results/scenarios/effects/<scenario>/effects_report.html` with the tables as
+   CSV. For offshore wind: available, generated and curtailed energy, capacity
+   factor, market value and capture ratio; what each MWh of offshore wind
+   replaces (by carrier, in net imports into Tamil Nadu, and in onshore
+   curtailment); the operating-cost saving against the offshore annualised
+   cost, net benefit and break-even cost; avoided CO2 and abatement cost; and
+   the loading of the corridors at the offshore connection. CO2 uses the
+   indicative factors in `config/emission_factors.yaml` (the model's carriers
+   carry none). A battery section will follow. Run it for any two runs with
+   `python scripts/workflow/scenario_effects.py <baseline summary> <scenario summary> <output folder>`.
+
+Each run records where it wrote its results in
+`results/scenarios/<scenario>/<capacity_expansion|operation>.yaml`. Snakemake
+reruns a scenario when its config, `config/defaults.yaml`,
+`config/technologies.yaml`, the profile file or the `model/` network changes.
+Workflow settings, including extra run settings for every scenario, are in
+`config/workflow.yaml`.
+
+A scenario config also runs without Snakemake. A scenario with only fixed
+capacities runs directly; one with optimised sites needs the capacity
+expansion first:
+
+```powershell
+python scripts/run_model.py config/scenarios/battery.yaml --set run.mode=annual --set formulation.unit_commitment=none --set run.name=battery_capacity --summary capacity.yaml
+python scripts/workflow/extract_capacities.py capacity.yaml battery_capacities.csv
+python scripts/run_model.py config/scenarios/battery.yaml --set technologies.fixed_capacities=battery_capacities.csv
+```
 
 ### Selected-week seasonal tests
 

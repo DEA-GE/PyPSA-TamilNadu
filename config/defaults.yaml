@@ -70,3 +70,26 @@ analysis:
   enabled: true
   # Compare against observed generation and capacity where available.
   compare_observed: true
+
+technologies:
+  # Technologies added to the base network for scenario studies; see
+  # config/scenarios/ and the scenario section of README.md. The defaults add
+  # nothing, so a run without this section solves the model as it is.
+  #
+  # Technology parameters (efficiencies, duration, costs, profile file).
+  data: config/technologies.yaml
+  # Changes to those parameters for this run, e.g. {battery: {max_hours: 2}}.
+  parameters: {}
+  # Sites per technology: site name -> settings. capacity_mw is either an
+  # installed capacity in MW (fixed) or "optimise" to let a capacity-expansion
+  # run choose it, optionally within min_mw / max_mw. bus defaults to the site
+  # name (a balancing area, e.g. "Tirunelveli"); offshore_wind sites also take
+  # profile, a column of the profile file (defaults to the site name).
+  battery: {}
+  offshore_wind: {}
+  # Limits on the total optimised capacity per technology, in MW, e.g.
+  # {battery: {min_mw: 1000, max_mw: 3000}}.
+  totals: {}
+  # CSV of capacities chosen by a capacity-expansion run (written by the
+  # Snakemake workflow); they replace "optimise" for an operational run.
+  fixed_capacities: null

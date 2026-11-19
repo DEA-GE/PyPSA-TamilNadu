@@ -9,6 +9,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import get_context
 from pathlib import Path
+from typing import Any, Mapping
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,6 +50,7 @@ from run_9ba_rolling import (
     run_annual_no_uc,
     run_rolling_year,
 )
+from scenario_technologies import apply_technologies, network_fingerprint
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
 from run_profiling import (
@@ -806,6 +808,8 @@ def _solve_selected_weeks(
             compatible = (
                 saved_validation.get("model_version") == CHECKPOINT_MODEL_VERSION
                 and saved_validation.get("pypsa_version") == pypsa.__version__
+                and saved_validation.get("input_fingerprint")
+                == (base_network.meta or {}).get("input_fingerprint")
                 and saved_validation.get("warmup_days") == warmup_days
                 and saved_validation.get("lookahead_days") == lookahead_days
                 and saved_validation.get("solver_name") == solver_name
@@ -1205,6 +1209,7 @@ def _solve_selected_weeks(
             week_validation = {
                 "model_version": CHECKPOINT_MODEL_VERSION,
                 "pypsa_version": pypsa.__version__,
+                "input_fingerprint": (base_network.meta or {}).get("input_fingerprint"),
                 "formulation": "continuous selected week with warm-up and look-ahead",
                 "solver_status": str(status),
                 "solver_condition": str(condition),
@@ -1459,6 +1464,7 @@ def run_selection(
     profile: bool = True,
     profile_log_level: str = "INFO",
     profile_sample_interval: float = 1.0,
+    technologies: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1529,6 +1535,7 @@ def _run_selection(
     results_root: str | Path = DEFAULT_RESULTS_ROOT,
     resume: bool = True,
     max_windows: int | None = None,
+    technologies: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1599,6 +1606,26 @@ def _run_selection(
         f"{int(base_network.generators.committable.sum())} committable, "
         f"{len(base_network.links)} links, {len(base_network.stores)} stores)."
     )
+    with profiler.phase("apply_technologies"):
+        added_technologies = apply_technologies(base_network, technologies)
+    if not added_technologies.empty:
+        report(
+            "Added scenario technologies: "
+            + ", ".join(
+                f"{row.component} ({'optimised' if row.optimise else f'{row.capacity_mw:,.0f} MW'})"
+                for row in added_technologies.itertuples()
+            )
+        )
+        if added_technologies.optimise.any() and mode in {"rolling", "monthly", "selected_weeks"}:
+            raise ValueError(
+                f"Optimised capacities cannot be sized in mode '{mode}', which solves "
+                "periods separately; use mode 'annual' for the capacity expansion."
+            )
+    # Lets resumable modes reject checkpoints solved with a different network.
+    base_network.meta = {
+        **(base_network.meta or {}),
+        "input_fingerprint": network_fingerprint(base_network),
+    }
     biomass_annual_target_mwh = float(read_bio_power_monthly_targets().sum())
     full_horizon_weight = float(base_network.snapshot_weightings.generators.sum())
 
@@ -1638,6 +1665,8 @@ def _run_selection(
     with profiler.phase("capacity_comparison"):
         capacity_comparison = _installed_capacity_comparison(base_network)
         capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
+    if not added_technologies.empty:
+        added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
     with solve_phase:
         modeled, validation, solved_network = _solve_mode(

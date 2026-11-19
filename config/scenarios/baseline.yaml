@@ -1,0 +1,19 @@
+# Baseline: the model as it is, with no added technologies.
+#
+# A scenario config is a run config (see config/defaults.yaml) plus an
+# optional technologies section. Every *.yaml file in this folder is a
+# scenario of the Snakemake workflow; add a scenario by adding a file.
+#   snakemake --cores 8                          all scenarios
+#   python scripts/run_model.py config/scenarios/baseline.yaml   this one only
+
+run:
+  name: baseline
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10

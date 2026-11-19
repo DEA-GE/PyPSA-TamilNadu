@@ -98,6 +98,27 @@ def _save_resolved_config(
     return text
 
 
+def _write_summary(
+    path: Path | None, config: dict, output_dir: Path, report: Path | None, status: str
+) -> None:
+    """Record where a finished run wrote its results (``--summary``)."""
+    if path is None:
+        return
+    import yaml
+
+    summary = {
+        "status": status,
+        "run_name": config["run"]["name"],
+        "mode": config["run"]["mode"],
+        "unit_commitment": config["formulation"]["unit_commitment"],
+        "output_dir": str(output_dir),
+        "report": str(report) if report is not None else None,
+        "finished_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump(summary, sort_keys=False), encoding="utf-8")
+
+
 def _print_environment(config: dict) -> None:
     print("Python:", sys.executable)
     for package in ("pypsa", "linopy", "highspy"):
@@ -139,6 +160,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Validate and print the resolved config only"
+    )
+    parser.add_argument(
+        "--summary",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Write a YAML summary of the finished run (run folder, report, status) to PATH; "
+        "used by the Snakemake workflow",
     )
     args = parser.parse_args(argv)
     if args.profile is not None:
@@ -186,6 +215,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.no_analysis or not config["analysis"]["enabled"]:
             print("Results analysis disabled.")
+            _write_summary(args.summary, config, output_dir, None, "completed")
             return 0
 
         from build_results_report import build_report
@@ -204,8 +234,10 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
                 flush=True,
             )
+            _write_summary(args.summary, config, output_dir, None, "analysis_failed")
             return 2
         print(f"Open the report: {report.as_uri()}", flush=True)
+        _write_summary(args.summary, config, output_dir, report, "completed")
         return 0
     finally:
         _stop_console_log(log_handle)

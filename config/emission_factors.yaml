@@ -1,0 +1,25 @@
+# CO2 emission factors used by the scenario comparison
+# (scripts/results_analysis/scenario_effects.py), in tCO2 per MWh generated.
+#
+# The model's carriers carry no emissions. These indicative factors are
+# derived from IPCC 2006 default fuel emission factors and typical Indian
+# station heat rates; replace them with station-level values (for example
+# the CEA CO2 Baseline Database) when available.
+#
+#   coal:    95 kg CO2/GJ (IPCC, bituminous/sub-bituminous) x 10.5 GJ/MWh
+#            (about 2,500 kcal/kWh, typical Indian subcritical units)  = 1.00
+#   oil_gas: 56.1 kg CO2/GJ (IPCC, natural gas) x 7.1 GJ/MWh
+#            (about 1,700 kcal/kWh, combined cycle)                    = 0.40
+#   diesel:  74.1 kg CO2/GJ (IPCC, gas/diesel oil) x 10.5 GJ/MWh       = 0.78
+#
+# Nuclear, hydro, solar, wind, offshore wind, batteries and bio-power
+# (biogenic) count as zero.
+
+carriers:
+  coal: 1.00
+  oil_gas: 0.40
+  diesel: 0.78
+
+# Net imports into Tamil Nadu: CEA CO2 Baseline Database v20.0 weighted
+# average emission factor of the Indian grid, FY2023-24 (0.727 tCO2/MWh).
+net_imports: 0.727
