@@ -30,13 +30,27 @@ TABLE_TITLES = {
     "offshore_value": "Offshore wind: value, cost and emissions",
     "offshore_corridors": "Offshore wind: corridors at the connection",
     "offshore_monthly": "Offshore wind: by month (GWh)",
+    "battery_summary": "Batteries: operation and arbitrage",
+    "battery_sites": "Batteries: by balancing area",
+    "battery_displacement": "Batteries: what each MWh discharged changes",
+    "battery_value": "Batteries: value, cost, emissions and prices",
+    "battery_daily_profile": "Batteries: average day",
+    "battery_monthly": "Batteries: by month (GWh)",
+    "scenario_value": "All added technologies: combined value and cost",
     "system_change": "System metrics: baseline and scenario",
     "generation_change": "Generation by carrier",
+}
+OPEN_TABLES = {
+    "scenario_value", "offshore_summary", "offshore_value", "offshore_displacement",
+    "battery_summary", "battery_value",
 }
 FIGURE_TITLES = {
     "offshore_displacement": "What offshore wind changes over the year",
     "offshore_monthly": "Offshore generation and the change it causes, by month",
     "offshore_corridors": "Loading duration of the corridors at the offshore connection",
+    "battery_profile": "Battery operation and system price over an average day",
+    "battery_displacement": "What the batteries change over the year",
+    "battery_monthly": "Battery discharge and the change it causes, by month",
 }
 
 
@@ -52,9 +66,15 @@ def _headline_tiles(headline: dict[str, float]) -> str:
         "operating_cost_saving_million": ("Operating-cost saving", "INR {:,.0f} million"),
         "net_benefit_million": ("Net benefit after offshore cost", "INR {:,.0f} million"),
         "co2_avoided_mt": ("CO2 avoided", "{:.2f} Mt"),
+        "battery_power_mw": ("Battery power", "{:,.0f} MW"),
+        "battery_energy_mwh": ("Battery energy", "{:,.0f} MWh"),
+        "battery_discharge_gwh": ("Battery discharge", "{:,.0f} GWh"),
+        "battery_cycles_per_year": ("Battery cycles", "{:,.0f} per year"),
+        "battery_net_benefit_million": ("Battery net benefit", "INR {:,.0f} million"),
     }
+    negative_warns = {"net_benefit_million", "battery_net_benefit_million"}
     tiles = [
-        _tile(label, fmt.format(headline[key]), "warn" if key == "net_benefit_million" and headline[key] < 0 else "")
+        _tile(label, fmt.format(headline[key]), "warn" if key in negative_warns and headline[key] < 0 else "")
         for key, (label, fmt) in labels.items()
         if key in headline
     ]
@@ -90,13 +110,14 @@ def main(argv: list[str] | None = None) -> int:
         f"Scenario: <code>{_esc(scenario_dir)}</code><br>Generated {_esc(generated)}. "
         "CO2 uses the indicative factors in config/emission_factors.yaml.</p>",
         _headline_tiles(bundle.headline),
+        *(f'<p class="meta"><strong>Note:</strong> {_esc(note)}</p>' for note in bundle.notes),
     ]
     figures = "".join(_figure_html(path, FIGURE_TITLES.get(key, key)) for key, path in figure_paths.items())
     if figures:
         sections.append(f'<div class="figures">{figures}</div>')
     for table_name in TABLE_TITLES:
         if table_name in bundle.tables:
-            open_attr = " open" if table_name in {"offshore_summary", "offshore_value", "offshore_displacement"} else ""
+            open_attr = " open" if table_name in OPEN_TABLES else ""
             sections.append(
                 f"<details{open_attr}><summary>{_esc(TABLE_TITLES[table_name])}</summary>"
                 f"{_table_html(bundle.tables[table_name])}</details>"
