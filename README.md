@@ -778,10 +778,12 @@ weekly observations.
 cascade water buses are represented as `water_inflow` generators. Observed
 daily SOC targets are in `model/hydro_observed_soc.csv`. The selected-week
 runner applies these as independent start/end boundary conditions. The rolling
-runner starts from observed or labelled proxy storage, guides each committed
-week's terminal storage toward quality-weighted seasonal targets, and carries
-the optimized state across contiguous windows. Its terminal-band violations
-are recorded in `window_log.csv`.
+runner starts from observed or labelled proxy storage, holds the directly
+measured reservoirs (Mettur, Periyar, Parambikulam, Sholayar, Papanasam) to
+their observed level at the end of every day, and carries the optimized state
+across contiguous windows. The other storages follow from the weekly CEA
+generation targets and their water balance; their storage levels are not
+constrained.
 
 Upper Kodayar uses an assumed half-full starting level and a daily water
 balance: Pechiparai daily inflow scaled by the published Upper Kodayar to

@@ -56,11 +56,6 @@ configure_for_pypsa_124()
 # or solver-quality criteria.
 CHECKPOINT_MODEL_VERSION = "coal-only-commitment-coal-costs-v9"
 
-# Widths are fractions of usable storage capacity. Proxy observations receive
-# wider bands than direct Agriculture measurements. Slack costs use the same
-# currency per MWh as generator marginal costs in the network objective.
-HYDRO_BAND_PU = {"high": 0.05, "medium": 0.15, "low": 0.25}
-HYDRO_SLACK_COST = {"high": 6000.0, "medium": 1500.0, "low": 500.0}
 WATER_BALANCE_ADJUSTMENT_COST = 1_000_000.0
 WATER_BALANCE_ADJUSTMENT_CAPACITY_MW = 10_000.0
 WATER_BALANCE_SINK = "measured_storage_balance_sink"
@@ -346,7 +341,7 @@ def _hydro_storage_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, s
     parameters = pd.read_csv(paths[1]).drop_duplicates("pypsa_component", keep="last")
     required_observed = {"date", "pypsa_component", "soc_mwh", "data_quality"}
     required_parameters = {
-        "pypsa_component", "initial_soc_method", "terminal_soc_method",
+        "pypsa_component", "initial_soc_method",
         "boundary_data_resolution", "e_nom_mwh", "data_quality",
     }
     if required_observed - set(observed) or required_parameters - set(parameters):
@@ -367,11 +362,11 @@ def _hydro_storage_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, s
     return observed, parameters, monthly, digest.hexdigest()
 
 
-def _hydro_targets_at(
+def _hydro_opening_levels(
     date: pd.Timestamp, observed: pd.DataFrame, parameters: pd.DataFrame,
-    monthly: pd.DataFrame, *, initial: bool = False,
+    monthly: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Use only actual dated evidence; interpolate the optional monthly series."""
+    """Opening storage levels from dated evidence; interpolate the optional monthly series."""
     day = pd.Timestamp(date).normalize()
     rows = []
     if day in observed.index.get_level_values("date"):
@@ -379,12 +374,7 @@ def _hydro_targets_at(
         for component, record in daily.iterrows():
             if component not in parameters.index:
                 continue
-            method = parameters.at[
-                component, "initial_soc_method" if initial else "terminal_soc_method"
-            ]
-            allowed = ({"observed_daily", "proxy_fraction"} if initial
-                       else {"observed_daily_target", "proxy_target"})
-            if method not in allowed:
+            if parameters.at[component, "initial_soc_method"] not in {"observed_daily", "proxy_fraction"}:
                 continue
             rows.append((component, float(record.soc_mwh), str(record.data_quality)))
     if not monthly.empty:
@@ -404,92 +394,6 @@ def _hydro_targets_at(
     if not np.isfinite(targets.target_mwh).all():
         raise ValueError(f"Non-finite hydro storage target at {day.date()}")
     return targets.set_index("component")
-
-
-def _add_hydro_terminal_targets(
-    network: pypsa.Network,
-    committed: pd.DatetimeIndex,
-    targets: pd.DataFrame,
-    *,
-    name_suffix: str = "",
-) -> None:
-    """Price violations outside quality-based terminal storage bands."""
-    if targets.empty:
-        return
-    model = network.model
-    terminal = committed[-1]
-    penalty = 0
-    for kind, frame, variable_name in [
-        ("StorageUnit", network.storage_units, "StorageUnit-state_of_charge"),
-        ("Store", network.stores, "Store-e"),
-    ]:
-        if variable_name not in model.variables:
-            continue
-        variables = model[variable_name]
-        dimension = next(dim for dim in variables.dims if dim != "snapshot")
-        component_targets = targets.loc[targets.index.intersection(frame.index)]
-        if component_targets.empty:
-            continue
-        component_index = pd.Index(component_targets.index, name=dimension)
-        shortfalls = model.add_variables(
-            lower=0,
-            coords=[component_index],
-            name=f"{kind}-hydro_shortfall{name_suffix}",
-        )
-        excesses = model.add_variables(
-            lower=0,
-            coords=[component_index],
-            name=f"{kind}-hydro_excess{name_suffix}",
-        )
-        for component, row in component_targets.iterrows():
-            capacity = (float(frame.at[component, "p_nom"]) * float(frame.at[component, "max_hours"])
-                        if kind == "StorageUnit" else float(frame.at[component, "e_nom"]))
-            if not np.isfinite(capacity) or capacity <= 0:
-                raise ValueError(f"Invalid storage capacity for {component}")
-            quality = row.quality if row.quality in HYDRO_BAND_PU else "low"
-            target = float(row.target_mwh)
-            if not 0 <= target <= capacity * (1 + 1e-6):
-                raise ValueError(f"Hydro target outside capacity for {component}: {target}")
-            band = HYDRO_BAND_PU[quality] * capacity
-            lower = max(0.0, target - band)
-            upper = min(capacity, target + band)
-            shortfall = shortfalls.sel({dimension: component})
-            excess = excesses.sel({dimension: component})
-            state = variables.sel({dimension: component, "snapshot": terminal})
-            model.add_constraints(
-                state + shortfall >= lower,
-                name=f"GlobalConstraint-HydroLower-{component}{name_suffix}",
-            )
-            model.add_constraints(
-                state - excess <= upper,
-                name=f"GlobalConstraint-HydroUpper-{component}{name_suffix}",
-            )
-            penalty = penalty + HYDRO_SLACK_COST[quality] * (shortfall + excess)
-    if not isinstance(penalty, int):
-        model.add_objective(model.objective.expression + penalty, overwrite=True)
-
-
-def _hydro_terminal_error(
-    network: pypsa.Network,
-    targets: pd.DataFrame,
-    *,
-    snapshot: pd.Timestamp | None = None,
-) -> tuple[float, float]:
-    """Return the total and largest MWh violation of committed-end bands."""
-    snapshot = network.snapshots[-1] if snapshot is None else snapshot
-    violations = []
-    for component, row in targets.iterrows():
-        if component in network.storage_units.index:
-            state = float(network.storage_units_t.state_of_charge.at[snapshot, component])
-            capacity = float(network.storage_units.at[component, "p_nom"] * network.storage_units.at[component, "max_hours"])
-        elif component in network.stores.index:
-            state = float(network.stores_t.e.at[snapshot, component])
-            capacity = float(network.stores.at[component, "e_nom"])
-        else:
-            continue
-        band = HYDRO_BAND_PU.get(row.quality, HYDRO_BAND_PU["low"]) * capacity
-        violations.append(max(0.0, abs(state - row.target_mwh) - band))
-    return float(sum(violations)), float(max(violations, default=0.0))
 
 
 NODAL_BALANCE_DUAL = "Bus-nodal_balance"
@@ -544,33 +448,6 @@ def _write_shadow_prices(network: pypsa.Network, path: Path) -> int:
     duals.to_netcdf(temporary, engine="netcdf4", encoding=encoding)
     temporary.replace(path)
     return len(duals.data_vars)
-
-
-def _hydro_terminal_slacks(network: pypsa.Network) -> pd.DataFrame:
-    """Return solved terminal-band slack variables in a portable tabular form."""
-    rows = []
-    for component_type in ("StorageUnit", "Store"):
-        values: dict[str, pd.Series] = {}
-        for direction in ("shortfall", "excess"):
-            name = f"{component_type}-hydro_{direction}"
-            if name not in network.model.variables:
-                continue
-            variable = network.model[name]
-            dimensions = [dim for dim in variable.dims if dim != "snapshot"]
-            if len(dimensions) != 1:
-                raise ValueError(f"Unexpected dimensions for {name}: {variable.dims}")
-            values[direction] = variable.solution.to_series()
-        if not values:
-            continue
-        table = pd.DataFrame(values).fillna(0.0)
-        table.index.name = "component"
-        table.insert(0, "component_type", component_type)
-        rows.append(table.reset_index())
-    if not rows:
-        return pd.DataFrame(
-            columns=["component_type", "component", "shortfall", "excess"]
-        )
-    return pd.concat(rows, ignore_index=True)
 
 
 class _SolveResourceMonitor:
@@ -1121,8 +998,8 @@ def run_annual_no_uc(
     if len(network.stores):
         network.stores.loc[:, "e_cyclic"] = False
     _set_initial_state(network, None, "none")
-    opening = _hydro_targets_at(
-        snapshots[0], observed_soc, hydro_parameters, monthly_soc, initial=True
+    opening = _hydro_opening_levels(
+        snapshots[0], observed_soc, hydro_parameters, monthly_soc
     )
     for component, row in opening.iterrows():
         if component in network.storage_units.index:
@@ -1134,10 +1011,6 @@ def run_annual_no_uc(
     gas_targets = oil_gas_budget["daily_energy_target_mwh"].reindex(dates)
     if gas_targets.isna().any():
         raise ValueError("Missing oil/gas target in annual horizon")
-    terminal_targets = [
-        (period[-1], _hydro_targets_at(period[-1], observed_soc, hydro_parameters, monthly_soc))
-        for period in constraint_periods
-    ]
 
     def extra_functionality(
         active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex,
@@ -1148,7 +1021,7 @@ def run_annual_no_uc(
             active_network, active_snapshots, measured_store_targets,
         )
         with get_profiler().phase("weekly_period_targets", periods=len(constraint_periods)):
-            for period, (terminal, targets) in zip(constraint_periods, terminal_targets):
+            for period in constraint_periods:
                 _timed("cascade_targets", _add_weekly_cascade_targets, active_network, period, cascade_targets)
                 _timed(
                     "biomass_target", _add_committed_biomass_target,
@@ -1157,13 +1030,6 @@ def run_annual_no_uc(
                 _timed(
                     "small_hydro_target", _add_committed_small_hydro_target,
                     active_network, period, small_hydro_monthly_targets_mwh,
-                )
-                _timed(
-                    "hydro_terminal_targets", _add_hydro_terminal_targets,
-                    active_network,
-                    period,
-                    targets,
-                    name_suffix=f"-{terminal:%Y%m%d}",
                 )
         _timed("transmission_flow_cost", add_transmission_flow_cost, active_network, active_snapshots)
 
@@ -1203,10 +1069,6 @@ def run_annual_no_uc(
     measured_error = float(water_balance.opening_error_mwh.abs().max())
     if measured_error > 1e-3:
         raise RuntimeError(f"Measured storage opening error is {measured_error:.6g} MWh")
-    terminal_errors = [
-        _hydro_terminal_error(network, targets, snapshot=terminal)
-        for terminal, targets in terminal_targets
-    ]
     residual = float(network.buses_t.p.sum(axis=1).abs().max())
     loading = (
         float(network.links_t.p0.abs().div(network.links.p_nom, axis=1).max().max() * 100)
@@ -1234,9 +1096,6 @@ def run_annual_no_uc(
         "constraint_periods": len(constraint_periods),
         "max_abs_gas_target_deviation_mwh": float(gas_deviation.abs().max()),
         "max_abs_nuclear_target_deviation_mwh": float(nuclear_deviation.abs().max()),
-        "max_hydro_terminal_band_violation_mwh": max(
-            (maximum for _, maximum in terminal_errors), default=0.0
-        ),
         "measured_storage_max_error_mwh": measured_error,
         "upper_kodayar_balance_max_residual_mwh": kodayar_residual,
         "total_unserved_gwh": float(modeled["unserved_energy"].sum()),
@@ -1424,13 +1283,9 @@ def run_rolling_year(
                 base_network.snapshot_weightings.generators,
                 small_hydro_monthly_targets_mwh,
             )
-            terminal_targets = _hydro_targets_at(
-                committed[-1], observed_soc, hydro_parameters, monthly_soc
-            ).drop(index=measured_store_targets.columns, errors="ignore")
             checkpoint = chunks_dir / f"window_{number:03d}_{start:%Y-%m-%d}.nc"
             daily_file = checkpoint.with_suffix(".daily.csv")
             dual_file = checkpoint.with_suffix(".duals.nc")
-            slack_file = checkpoint.with_suffix(".hydro_terminal_slacks.csv")
             meta_file = checkpoint.with_suffix(".json")
 
             if (
@@ -1438,7 +1293,6 @@ def run_rolling_year(
                 and checkpoint.exists()
                 and daily_file.exists()
                 and dual_file.exists()
-                and slack_file.exists()
                 and meta_file.exists()
             ):
                 checkpoint_meta = json.loads(meta_file.read_text(encoding="utf-8"))
@@ -1490,8 +1344,8 @@ def run_rolling_year(
                     network.stores.loc[:, "e_cyclic"] = False
                 _set_initial_state(network, previous, unit_commitment)
                 if previous is None:
-                    opening = _hydro_targets_at(
-                        active[0], observed_soc, hydro_parameters, monthly_soc, initial=True
+                    opening = _hydro_opening_levels(
+                        active[0], observed_soc, hydro_parameters, monthly_soc
                     )
                     for component, row in opening.iterrows():
                         if component in network.storage_units.index:
@@ -1529,7 +1383,6 @@ def run_rolling_year(
                     "small_hydro_target", _add_committed_small_hydro_target,
                     n, committed, small_hydro_monthly_targets_mwh,
                 )
-                _timed("hydro_terminal_targets", _add_hydro_terminal_targets, n, committed, terminal_targets)
                 _timed("transmission_flow_cost", add_transmission_flow_cost, n, s)
                 _timed("measured_storage", _add_exact_measured_storage, n, s, measured_store_targets)
                 if unit_commitment == "relaxed":
@@ -1609,9 +1462,6 @@ def run_rolling_year(
 
             with profiler.phase("write_shadow_prices"):
                 shadow_price_constraints = _write_shadow_prices(network, dual_file)
-            with profiler.phase("hydro_slacks"):
-                hydro_slacks = _hydro_terminal_slacks(network)
-                hydro_slacks.to_csv(slack_file, index=False)
 
             # The checkpoint contains only accepted hours. It is also the complete
             # state source for the next window and for restart/resume.
@@ -1639,7 +1489,6 @@ def run_rolling_year(
                 raise RuntimeError(
                     f"Measured storage opening error is {max_measured_error:.6g} MWh"
                 )
-            hydro_total_error, hydro_max_error = _hydro_terminal_error(previous, terminal_targets)
             residual = float(previous.buses_t.p.sum(axis=1).abs().max())
             loading = (
                 float(previous.links_t.p0.abs().div(previous.links.p_nom, axis=1).max().max() * 100)
@@ -1651,9 +1500,6 @@ def run_rolling_year(
                 "pypsa_version": pypsa.__version__,
                 "hydro_input_hash": hydro_input_hash,
                 "input_fingerprint": input_fingerprint,
-                "hydro_terminal_targets": len(terminal_targets),
-                "hydro_terminal_band_violation_mwh": hydro_total_error,
-                "hydro_max_terminal_band_violation_mwh": hydro_max_error,
                 "measured_storage_max_error_mwh": max_measured_error,
                 "balancing_inflow_mwh": float(water_balance_daily.balancing_inflow_mwh.sum()),
                 "balancing_outflow_mwh": float(water_balance_daily.balancing_outflow_mwh.sum()),
@@ -1682,7 +1528,6 @@ def run_rolling_year(
                 "shadow_prices_recorded": True,
                 "shadow_price_constraints": shadow_price_constraints,
                 "shadow_price_file": dual_file.name,
-                "hydro_terminal_slack_file": slack_file.name,
                 "mip_gap": mip_gap,
                 "time_limit_seconds": time_limit,
                 "max_time_limit_mip_gap": (
