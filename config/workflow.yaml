@@ -13,6 +13,8 @@ scenario_dir: config/scenarios
 scenarios: []
 # Where each scenario's runs and the cross-scenario comparison are written.
 results_dir: results/scenarios
+# Scenario the others are compared with in the effects reports.
+baseline_scenario: baseline
 
 # Extra run settings applied to every scenario's operational run, as
 # section.key=value; e.g. ["rolling.max_windows=2"] for a quick test.

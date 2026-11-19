@@ -404,6 +404,18 @@ For each scenario the workflow:
 3. **Comparison**: writes headline tables of all scenarios side by side to
    `results/scenarios/comparison/`: system metrics, generation and capacity by
    carrier, operating costs, and the capacities each scenario added.
+4. **Effects**: for every scenario other than the baseline (when the baseline
+   runs too), quantifies what its added technologies change, in
+   `results/scenarios/effects/<scenario>/effects_report.html` with the tables as
+   CSV. For offshore wind: available, generated and curtailed energy, capacity
+   factor, market value and capture ratio; what each MWh of offshore wind
+   replaces (by carrier, in net imports into Tamil Nadu, and in onshore
+   curtailment); the operating-cost saving against the offshore annualised
+   cost, net benefit and break-even cost; avoided CO2 and abatement cost; and
+   the loading of the corridors at the offshore connection. CO2 uses the
+   indicative factors in `config/emission_factors.yaml` (the model's carriers
+   carry none). A battery section will follow. Run it for any two runs with
+   `python scripts/workflow/scenario_effects.py <baseline summary> <scenario summary> <output folder>`.
 
 Each run records where it wrote its results in
 `results/scenarios/<scenario>/<capacity_expansion|operation>.yaml`. Snakemake

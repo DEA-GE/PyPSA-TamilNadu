@@ -15,7 +15,10 @@ For each scenario:
    optimised capacities fixed, writes its results and report under
    <results_dir>/<scenario>/;
 3. compare: headline tables of all scenarios side by side in
-   <results_dir>/comparison/.
+   <results_dir>/comparison/;
+4. effects: for every scenario other than the baseline, what its added
+   technologies change against the baseline (displacement, costs, CO2,
+   congestion), in <results_dir>/effects/<scenario>/effects_report.html.
 
 The base network is model/ as built by scripts/build_9ba_model.py; rebuild it
 there when its inputs change. Each run records where it wrote its results in
@@ -40,6 +43,7 @@ RESULTS = Path(config["results_dir"])
 OVERRIDES = list(config.get("overrides") or [])
 EXPANSION = config.get("capacity_expansion") or {}
 THREADS = int(config.get("threads_per_run", 8))
+BASELINE = str(config.get("baseline_scenario", "baseline"))
 
 
 def _scenario_names():
@@ -56,6 +60,8 @@ def _scenario_names():
 
 
 SCENARIOS = _scenario_names()
+# Scenarios compared with the baseline (only when the baseline runs too).
+EFFECT_SCENARIOS = [name for name in SCENARIOS if name != BASELINE] if BASELINE in SCENARIOS else []
 
 
 def _scenario_file(name):
@@ -97,6 +103,7 @@ rule all:
     input:
         expand(str(RESULTS / "{scenario}" / "operation.yaml"), scenario=SCENARIOS),
         RESULTS / "comparison" / "system_metrics.csv",
+        expand(str(RESULTS / "effects" / "{scenario}" / "effects_report.html"), scenario=EFFECT_SCENARIOS),
 
 
 rule capacity_expansion:
@@ -156,5 +163,24 @@ rule compare:
         runs = [f"{name}={path}" for name, path in zip(SCENARIOS, input)]
         subprocess.run(
             [sys.executable, "scripts/workflow/compare_scenarios.py", str(RESULTS / "comparison"), *runs],
+            check=True,
+        )
+
+
+rule effects:
+    input:
+        baseline=RESULTS / BASELINE / "operation.yaml",
+        scenario=RESULTS / "{scenario}" / "operation.yaml",
+    output:
+        RESULTS / "effects" / "{scenario}" / "effects_report.html",
+    wildcard_constraints:
+        scenario=rf"(?!{BASELINE}$)[^/\\]+",
+    run:
+        subprocess.run(
+            [
+                sys.executable, "scripts/workflow/scenario_effects.py",
+                input.baseline, input.scenario, str(Path(output[0]).parent),
+                "--name", wildcards.scenario,
+            ],
             check=True,
         )
