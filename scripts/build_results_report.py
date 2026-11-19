@@ -61,7 +61,7 @@ INLINE_TABLES = (
     ("topology_validation", "Topology checks"),
 )
 FIGURE_TITLES = {
-    "energy_balance": "System electricity balance",
+    "energy_balance": "System electricity supply and demand",
     "generation_comparison": "Generation versus observed",
     "monthly_generation": "Monthly generation",
     "resource_seasonality": "Resource seasonality",

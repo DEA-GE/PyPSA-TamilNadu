@@ -224,7 +224,7 @@ network at a time, so the figures are drawn from the joined statistics instead.
 | Operating costs | `opex` by carrier and cost type (marginal, start-up, shut-down, …) in million INR; `transmission` is the interstate-link charge. Model penalties are listed last and totalled separately from operating cost: unserved energy, `water_balance_adjustment` (the slack that makes reservoirs match measured storage) and the spill tie-break |
 | Marginal prices | `prices` per bus: time- and load-weighted means, percentiles, and hours at the unserved-energy price |
 | Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
-| System electricity balance (figure) | `energy_balance` summed over buses: supply stacked above zero, demand, storage charging and losses below; daily means for periods over a month |
+| System supply and demand (figure) | `energy_balance` summed over buses: supply stacked by carrier, with demand as a line; the gap between them is storage charging, pumping and transmission losses. Daily means for periods over a month |
 
 Marginal prices come from the solver's duals. Binary unit-commitment (`full`)
 solves have none, so for those runs the price table, market values and price

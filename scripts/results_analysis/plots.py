@@ -23,25 +23,32 @@ def _for_display(frame: pd.DataFrame) -> tuple[pd.DataFrame, str]:
 
 
 def energy_balance_figure(balance: pd.DataFrame):
-    """Stack supply above and use below zero, as PyPSA's energy-balance plot."""
+    """Stack electricity supply and draw demand as a line on top.
+
+    The gap between the top of the stack and the demand line is storage
+    charging, pumping and transmission losses.
+    """
     figure, axis = plt.subplots(figsize=(14, 6))
     data, resolution = _for_display(balance)
     supply = data.loc[:, data.ge(0.0).all()]
-    use = data.drop(columns=supply.columns)
-    for part in (supply, use):
-        if part.empty:
-            continue
+    if not supply.empty:
         axis.stackplot(
-            part.index,
-            part.T.values,
-            labels=[CARRIER_LABELS.get(column, column) for column in part],
-            colors=_colors(part.columns),
+            supply.index,
+            supply.T.values,
+            labels=[CARRIER_LABELS.get(column, column) for column in supply],
+            colors=_colors(supply.columns),
             linewidth=0,
             alpha=0.9,
         )
-    axis.axhline(0.0, color="black", linewidth=0.7)
-    axis.set_title(f"System electricity balance ({resolution})")
-    axis.set_ylabel("MW (supply positive, use negative)")
+    if "demand" in data:
+        # Matplotlib, not pandas: pandas' time-series axis would shift the stack.
+        axis.plot(
+            data.index, -data["demand"], color="black", linewidth=1.2,
+            label=CARRIER_LABELS["demand"],
+        )
+    axis.set_ylim(bottom=0.0)
+    axis.set_title(f"System electricity supply and demand ({resolution})")
+    axis.set_ylabel("MW")
     axis.set_xlabel("Time")
     axis.legend(ncol=4, loc="upper center", bbox_to_anchor=(0.5, -0.16))
     axis.grid(alpha=0.2)
