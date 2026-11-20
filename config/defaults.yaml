@@ -78,6 +78,8 @@ energy_targets:
   #   availability no equality; each dispatchable unit's p_max_pu is scaled per
   #                availability_period so available energy equals observed
   #                energy, and cost optimisation decides how much is used
+  #   must_run     as availability, with minimum output equal to availability,
+  #                so the plant produces its available energy whatever its cost
   #   free         no equality and the network's own availability
   # Fixed REA export reservations keep their schedules in every mode.
   oil_gas: target
@@ -92,8 +94,9 @@ energy_targets:
   availability_source: plant      # plant | carrier
 
 marginal_costs:
-  # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier;
-  # null keeps the network's values (see docs/input-data.md).
+  # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier,
+  # for sensitivity runs; null keeps the network's official plant costs
+  # (data/model_inputs/plant_operating_costs.csv, docs/input-data.md).
   oil_gas: null
   diesel: null
   bio_power: null

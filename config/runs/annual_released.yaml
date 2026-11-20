@@ -1,0 +1,17 @@
+# Annual no-UC LP with the thermal energy targets released: oil/gas, bio-power
+# and small hydro follow plant-level (oil/gas) or state-level availability
+# profiles at their official costs, and nuclear is must-run at its plant-level
+# availability. Compare with config/runs/annual_lp.yaml (targets on).
+#   python scripts/run_model.py config/runs/annual_released.yaml
+run:
+  name: annual_released
+  mode: annual
+
+formulation:
+  unit_commitment: none
+
+energy_targets:
+  oil_gas: availability
+  nuclear: must_run
+  bio_power: availability
+  small_hydro: availability

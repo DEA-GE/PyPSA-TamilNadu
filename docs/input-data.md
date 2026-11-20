@@ -498,21 +498,58 @@ INR 100,000/MWh unserved-energy cost to INR 6,908/MWh.
 
 ### Other marginal costs
 
-The remaining thermal marginal costs are still the original placeholders in
-`scripts/build_unit_level_model.py`. A check against 2024+ Indian sources:
+`data/model_inputs/plant_operating_costs.csv` gives official per-station
+energy charges for oil/gas, nuclear and bio-power (and the diesel
+placeholder). Rows are matched to components of their carrier by
+`component_regex` in file order, the first match wins, and every component
+must match; `scripts/build_9ba_model.py` (`apply_plant_operating_costs`)
+writes the applied values to `model/plant_operating_cost_audit.csv`. The
+values are not fitted to observed generation; a mismatch between released runs
+and observations is a finding about missing constraints (for example must-run
+or contract obligations), not a reason to change the costs.
 
-| Carrier | Model (INR/MWh) | 2024+ reference | Assessment |
+| Station(s) | INR/MWh | Basis | Source |
 |---|---:|---|---|
-| Oil and gas | 6,025 | Valuthur 5,290, Kuttalam 5,470, Thirumakottai 6,570 (TNERC FY2023-24 actual); PPAC domestic gas price ceiling USD 6.75/MMBtu for FY2025-26 | consistent |
-| Diesel | 6,025 | no station charge found; secondary-oil prices of INR 75,600–77,600/kL in CERC's 2026 orders 647/GT/2025 and 111/GT/2026 imply more than INR 6,025/MWh at any realistic engine heat rate | probably low |
-| Bio-power | 4,512.5 | 5,200 (TNERC FY2023-24 actual, 2.4 MU only); 6,100 for Tamil Nadu (CERC RE tariff order FY2025-26, 6/SM/2025, normative) | low |
-| Nuclear | 800 | only full tariffs available (MAPS 2,730, Kudankulam 4,690, JERC FY2025-26) | not checkable; nuclear output is fixed by energy targets |
+| Valuthur GTPS | 5,290 | FY2023-24 approved after true-up | TNERC true-up, Table 2-42 |
+| Kuttalam GTPS | 5,470 | FY2023-24 approved after true-up | TNERC true-up, Table 2-42 |
+| Thirumakottai GTPS | 6,570 | FY2023-24 approved after true-up (normative heat rate; TNPDCL filed 14,440) | TNERC true-up, Table 2-42 |
+| Basin Bridge GTPS (naphtha) | 13,570 | FY2019-20 approved (pre-2024: no generation in FY2023-24) | TNERC Order 07/2022, Table 3-47 |
+| PPN (Pillaiperumalnallur) | 6,410 | FY2016-17 approved (pre-2024: no purchases in FY2023-24) | TNERC Order 07/2022, Table 3-49 |
+| Kudankulam (incl. REA export reservations) | 4,690 | FY2025-26 single-part tariff | JERC 24 Sep 2025, Table 5-14 |
+| MAPS (incl. REA export reservation) | 2,730 | FY2025-26 single-part tariff | JERC 24 Sep 2025, Table 5-14 |
+| Bagasse co-generation (sugar mills, 36 components, 729 MW) | 4,380 | FY2025-26 normative variable cost, Tamil Nadu | CERC 06/SM/2025, p.29 |
+| Other bio-power (biomass, non-bagasse co-generation, waste-to-energy, biogas; 45 components, 299 MW) | 6,100 | FY2025-26 normative variable cost, biomass Rankine (water-cooled, travelling grate), Tamil Nadu | CERC 06/SM/2025, pp.27–28 |
+| Diesel (Samayanallur, Samalpatti) | 6,025 | placeholder | none found |
 
-Sources: https://ppac.gov.in/natural-gas/gas-price,
-https://www.cercind.gov.in/2025/orders/6-SM-2025.pdf,
-https://www.cercind.gov.in/2026/Orders/647-GT-2025.pdf,
-https://www.cercind.gov.in/2026/Orders/111-GT-2026.pdf, and the TNERC and
-JERC orders above.
+- Nuclear has only single-part tariffs (no separate fuel or energy
+  charge). Its cost therefore matters for total system cost and comparisons
+  only: in released runs nuclear is must-run (`energy_targets.nuclear:
+  must_run`) and produces exactly its available energy.
+- Bagasse co-generation is identified by name (`sugar`, `eid_parry`, and the
+  aggregate "biomass/bagasse based co-gen" components); `synergy_sakthi_renewable_energy`
+  is treated as biomass. The TNERC FY2023-24 true-up records biomass purchases
+  at 5,200 (2.4 MU only) and co-generation only as all-in costs.
+- Diesel: TNERC's last recorded purchase is Samayanallur at 4,100 in
+  FY2016-17; TNPDCL bought nothing from either plant in FY2023-24, and the
+  secondary-oil prices of INR 75,600–77,600/kL in CERC's 2026 orders
+  647/GT/2025 and 111/GT/2026 imply more than INR 6,025/MWh at any realistic
+  engine heat rate. The placeholder is kept.
+- Gas plants that did not run in FY2025-26 (Basin Bridge, PPN, Thirumakottai)
+  get no availability with plant-level availability profiles, so their older
+  charges matter only in `availability_source: carrier` or `free` runs.
+
+Sources:
+- TNERC, *Approval of True Up of TNPDCL (formerly TANGEDCO) for FY 2023-24*,
+  30 April 2025 (M.P. No. 18 of 2025), see the coal section above.
+- TNERC, Order No. 07 of 2022 (tariff order, 9 September 2022).
+  https://jmkresearch.com/wp-content/uploads/2022/09/tnerc-tariff-order-FY-2023.pdf
+- JERC, Electricity Department of Puducherry tariff order of 24 September
+  2025 (Petition 139/2025), see the coal section above.
+- CERC, *Determination of generic levellised generation tariff for RE
+  projects for FY2025-26*, 9 July 2025 (Petition 06/SM/2025).
+  https://www.cercind.gov.in/2025/orders/6-SM-2025.pdf
+- https://www.cercind.gov.in/2026/Orders/647-GT-2025.pdf,
+  https://www.cercind.gov.in/2026/Orders/111-GT-2026.pdf
 
 ## Hydro: assets, water, and storage
 

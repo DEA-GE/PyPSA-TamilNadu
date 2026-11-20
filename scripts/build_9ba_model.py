@@ -49,6 +49,7 @@ TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 # Station energy charges and physical unit sizes for every coal component
 # (sources in docs/input-data.md).
 COAL_OPERATING_COST_FILE = SOURCE_DIR / "coal_operating_costs.csv"
+PLANT_OPERATING_COST_FILE = SOURCE_DIR / "plant_operating_costs.csv"
 # CEA, "Recommendations on Operational norms of secondary fuel oil
 # consumption" to CERC (13 Jan 2025): oil per hot start-up (kl) by unit
 # series. Used only to scale the Tuticorin (210 MW) cycling cost per MW to
@@ -1985,6 +1986,48 @@ def apply_coal_operating_costs(
     return generators, pd.DataFrame(audit_rows)
 
 
+def apply_plant_operating_costs(
+    generators: pd.DataFrame, path: Path = PLANT_OPERATING_COST_FILE,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Set official energy charges for oil/gas, nuclear, bio-power and diesel.
+
+    Rows of ``plant_operating_costs.csv`` are matched to components of their
+    carrier by ``component_regex`` in file order; the first matching row wins,
+    so a catch-all row (``.*``) can follow specific ones. Every component of a
+    listed carrier must match a row.
+    """
+    table = pd.read_csv(path, dtype={"component_regex": str})
+    generators = generators.copy()
+    audit_rows: list[dict[str, object]] = []
+    for carrier, rows in table.groupby("carrier", sort=False):
+        units = generators.index[generators["carrier"].eq(carrier)]
+        if not len(units):
+            raise ValueError(f"Operating-cost rows for {carrier} but no {carrier} components")
+        names = generators.loc[units, "name"].astype(str)
+        unmatched = pd.Series(True, index=units)
+        for _, row in rows.iterrows():
+            hits = unmatched & names.str.contains(row["component_regex"], regex=True)
+            if not hits.any():
+                raise ValueError(f"{carrier} cost row matches no component: {row['component_regex']}")
+            for index in units[hits.to_numpy()]:
+                generators.at[index, "marginal_cost"] = float(row["energy_charge_inr_per_mwh"])
+                audit_rows.append({
+                    "name": names[index],
+                    "carrier": carrier,
+                    "station": row["station"],
+                    "p_nom_mw": float(generators.at[index, "p_nom"]),
+                    "energy_charge_inr_per_mwh": float(row["energy_charge_inr_per_mwh"]),
+                    "basis": row["basis"],
+                    "source": row["source"],
+                })
+            unmatched &= ~hits
+        if unmatched.any():
+            raise ValueError(
+                f"{carrier} components without an operating-cost row: {names[unmatched].tolist()}"
+            )
+    return generators, pd.DataFrame(audit_rows)
+
+
 def set_coal_initially_online(generators: pd.DataFrame) -> pd.DataFrame:
     """Start committable coal units online instead of cold.
 
@@ -3070,10 +3113,12 @@ def main() -> None:
         generators["carrier"].eq("solar"), "marginal_cost"
     ] = SOLAR_CURTAILMENT_PREFERENCE_COST
     generators, coal_operating_cost_audit = apply_coal_operating_costs(generators)
+    generators, plant_operating_cost_audit = apply_plant_operating_costs(generators)
     generators = set_coal_initially_online(generators)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     coal_operating_cost_audit.to_csv(OUTPUT_DIR / "coal_operating_cost_audit.csv", index=False)
+    plant_operating_cost_audit.to_csv(OUTPUT_DIR / "plant_operating_cost_audit.csv", index=False)
     # Earlier builds wrote annual energy GlobalConstraints; a stale file would
     # still be imported by PyPSA and make part-year solves infeasible.
     (OUTPUT_DIR / "global_constraints.csv").unlink(missing_ok=True)

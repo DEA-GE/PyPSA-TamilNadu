@@ -192,6 +192,17 @@ def test_every_unit_must_map_to_one_plant(tmp_path, monkeypatch):
         policy_module.plant_groups(network, "oil_gas")
 
 
+def test_must_run_fixes_output_at_availability(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [1500.0, 1500.0]}))
+    network = _gas_network()
+    apply_energy_target_policy(network, {"oil_gas": "must_run"}, {})
+    p_max = network.generators_t.p_max_pu[["base_1", "idle_1"]]
+    p_min = network.generators_t.p_min_pu[["base_1", "idle_1"]]
+    assert p_min.equals(p_max)
+    assert not target_enabled(network, "oil_gas")
+
+
 def test_shipped_plant_mapping_covers_the_model():
     network = pypsa.Network(str(ROOT / "model"))
     for carrier in policy_module.PLANT_LEVEL_CARRIERS:

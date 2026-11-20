@@ -764,6 +764,9 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   Cost optimisation then decides how much of that energy is used, so the
   carrier follows the observed seasonal pattern only if its marginal cost
   places it in the merit order.
+- `must_run`: as `availability`, with minimum output equal to the scaled
+  availability, so the carrier produces exactly its available energy whatever
+  its cost (nuclear is must-run under the grid code).
 - `free`: no equality and the network's own availability.
 
 With `availability_source: plant` (the default), oil/gas and nuclear are
@@ -786,15 +789,24 @@ scales oil/gas and nuclear the same way.
 Units on a fixed schedule (`p_min_pu` equal to `p_max_pu`, the REA export
 reservations: 5,491 GWh of nuclear and 5 GWh of bio-power) are never rescaled;
 their energy is subtracted from the observed total (per plant) first. Minimum outputs above
-the new availability are lowered to it. The `marginal_costs` section overrides
-the marginal cost of every unit of `oil_gas`, `diesel`, `bio_power`, `nuclear`
-or `small_hydro` (INR/MWh), for calibrating prices against the released runs:
+the new availability are lowered to it.
+
+Released runs use the official station costs in
+`data/model_inputs/plant_operating_costs.csv` (see
+[docs/input-data.md](docs/input-data.md#other-marginal-costs)); they are not
+fitted to observed generation. Where a released run departs from observations,
+that is evidence for a missing constraint, assessed separately.
+`config/runs/annual_released.yaml` releases all four carriers, with nuclear
+must-run:
 
 ```yaml
-energy_targets: {oil_gas: availability, nuclear: availability,
+energy_targets: {oil_gas: availability, nuclear: must_run,
                  bio_power: availability, small_hydro: availability}
-marginal_costs: {oil_gas: 3500, bio_power: 3000}
 ```
+
+The `marginal_costs` section overrides the marginal cost of every unit of
+`oil_gas`, `diesel`, `bio_power`, `nuclear` or `small_hydro` (INR/MWh) for
+sensitivity runs.
 
 Each run writes `energy_target_availability.csv` (observed, scheduled and
 available energy per carrier and period, and any shortfall) and

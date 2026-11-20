@@ -11,6 +11,10 @@ observed energy with equality constraints. Each carrier now has a mode:
     equals the observed energy. Cost optimisation then decides how much of it
     to use, so the carrier keeps the observed seasonal pattern only when its
     marginal cost places it in the merit order.
+``must_run``
+    As ``availability``, and ``p_min_pu`` is set to the scaled ``p_max_pu``,
+    so the units produce exactly their available energy whatever their cost
+    (for plants that are must-run under the grid code, such as nuclear).
 ``free``
     No equality constraint and the network's own availability.
 
@@ -44,7 +48,7 @@ PLANT_GENERATION_FILE = ROOT / "data" / "model_inputs" / "niti_iced_tamil_nadu_m
 PLANT_MAPPING_FILE = ROOT / "data" / "model_inputs" / "niti_iced_plant_mapping.csv"
 
 TARGET_CARRIERS = ("oil_gas", "nuclear", "bio_power", "small_hydro")
-TARGET_MODES = ("target", "availability", "free")
+TARGET_MODES = ("target", "availability", "must_run", "free")
 AVAILABILITY_PERIODS = {"monthly": "MS", "daily": "D"}
 AVAILABILITY_SOURCES = ("plant", "carrier")
 # Carriers with plant-level monthly observations (NITI ICED).
@@ -278,7 +282,7 @@ def apply_availability_profiles(
     months = pd.DatetimeIndex(network.snapshots.to_period("M").to_timestamp(how="start"))
     rows: list[dict[str, object]] = []
     for carrier in TARGET_CARRIERS:
-        if policy[carrier] != "availability":
+        if policy[carrier] not in ("availability", "must_run"):
             continue
         units = network.generators.index[network.generators.carrier.eq(carrier)]
         if not len(units):
@@ -352,9 +356,16 @@ def apply_availability_profiles(
                     ),
                 })
             scaled_columns.append(scaled)
-            # A minimum output above the new availability would make the model infeasible.
-            clipped = p_min.where(p_min <= scaled, scaled)
-            changed = clipped.columns[(clipped != p_min).any()]
+            if policy[carrier] == "must_run":
+                # Output is fixed at the availability profile.
+                clipped = scaled.copy()
+            else:
+                # A minimum output above the new availability would make the model infeasible.
+                clipped = p_min.where(p_min <= scaled, scaled)
+            changed = (
+                clipped.columns if policy[carrier] == "must_run"
+                else clipped.columns[(clipped != p_min).any()]
+            )
             if len(changed):
                 clipped_minimum.append(clipped[changed])
         scaled_all = pd.concat(scaled_columns, axis=1)
