@@ -15,12 +15,14 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from generator_outages import (  # noqa: E402
     OutageError,
+    allocate_declared,
     apply_outages,
     forced_outage_parameters,
     hourly_outage,
     out_of_service_units,
     read_auxiliary,
     read_capability,
+    read_declared,
     read_record,
     sample_forced_outages,
     validate_section,
@@ -48,7 +50,7 @@ def _network(hours: pd.DatetimeIndex = HOURS, demand: list[float] | np.ndarray |
 
 def _files(
     tmp_path: Path, rows: list[dict], aux: dict[str, float] | None = None,
-    capability: dict[str, float] | None = None,
+    capability: dict[str, float] | None = None, declared: pd.Series | None = None,
 ) -> dict:
     record = pd.DataFrame(rows, columns=["component", "date", "kind", "reason", "outage_days", "capacity_mw"])
     record_path = tmp_path / "record.csv"
@@ -61,10 +63,22 @@ def _files(
     pd.DataFrame({"component": list(capability), "capability_pu": list(capability.values())}).to_csv(
         capability_path, index=False
     )
+    # One central station "st" made of coal_a and coal_b (100 MW each).
+    declared_path = tmp_path / "declared.csv"
+    hours = HOURS if declared is None else declared.index
+    values = pd.Series(200.0, index=hours) if declared is None else declared
+    pd.DataFrame({"st": values.to_numpy()}, index=pd.Index(hours, name="snapshot")).to_csv(declared_path)
+    units_path = tmp_path / "declared_units.csv"
+    pd.DataFrame({"station": "st", "component": ["coal_a", "coal_b"], "unit_rating_mw": 100.0}).to_csv(
+        units_path, index=False
+    )
     return {
         "enabled": True, "base_availability": "net_of_auxiliary", "partial_derating": "demonstrated",
+        "central_availability": "record", "resolution": "hourly",
         "planned": "actual", "forced": "actual", "seed": 1, "record": str(record_path),
-        "auxiliary": str(aux_path), "capability": str(capability_path), "maintenance_schedule": None,
+        "auxiliary": str(aux_path), "capability": str(capability_path),
+        "declared_capacity": str(declared_path), "declared_units": str(units_path),
+        "maintenance_schedule": None,
     }
 
 
@@ -128,6 +142,81 @@ def test_demonstrated_capability_caps_running_units(tmp_path):
     network = _network()
     apply_outages(network, {**settings, "partial_derating": "none"})
     assert network.generators_t.p_max_pu["coal_a"]["2025-04-01"].eq(0.92).all()
+
+
+def test_declared_capacity_goes_to_as_few_units_as_possible_above_minimum_load():
+    hours = pd.date_range("2025-04-01", periods=5, freq="h")
+    declared = pd.Series([942.0, 510.0, 471.25, 260.0, 0.0], index=hours)
+    priority = pd.DataFrame(1.0, index=hours, columns=["u1", "u2", "u3"])
+    priority.loc[hours[0], "u2"] = 0.0  # u2 is out in the record: the others run
+    mw = allocate_declared(declared, 500.0, priority, p_min_pu=0.55)
+    assert mw.iloc[0].tolist() == [471.0, 0.0, 471.0]
+    assert mw.iloc[1].tolist() == [500.0, 0.0, 0.0]      # 2 x 255 MW would be below minimum load
+    assert mw.iloc[2].tolist() == [471.25, 0.0, 0.0]
+    assert mw.iloc[3].sum() == 0.0                         # 260 MW is below one unit's minimum load
+    assert mw.iloc[4].sum() == 0.0
+    # Without a minimum load (no unit commitment) any amount is usable.
+    assert allocate_declared(declared, 500.0, priority).iloc[3].tolist() == [260.0, 0.0, 0.0]
+
+
+def test_declared_capacity_replaces_the_record_hour_by_hour(tmp_path):
+    declared = pd.Series(np.repeat([200.0, 100.0, 50.0, 150.0], 24), index=HOURS)
+    settings = _files(tmp_path, [_row("coal_a", DAYS[1], "planned")], declared=declared)
+    settings["central_availability"] = "declared"
+    network = _network()
+    result = apply_outages(network, settings)
+    p_max = network.generators_t.p_max_pu[["coal_a", "coal_b"]]
+    assert p_max.loc["2025-04-01"].eq(1.0).all().all()                    # ex-bus MW / rating
+    assert p_max.loc["2025-04-02"].mean().tolist() == [0.0, 1.0]          # coal_a is in maintenance
+    assert p_max.loc["2025-04-03"].mean().tolist() == [0.5, 0.0]
+    assert p_max.loc["2025-04-04"].mean().tolist() == [0.75, 0.75]
+    assert result.units.availability_source.str.startswith("declared capacity, hourly").all()
+    # On a gross basis declared capacity is divided by (1 - auxiliary consumption).
+    network = _network()
+    apply_outages(network, {**settings, "base_availability": "gross"})
+    gross = network.generators_t.p_max_pu.loc["2025-04-04"].mean()
+    assert gross["coal_a"] == pytest.approx(0.75 / 0.92)
+    assert gross["coal_b"] == pytest.approx(0.75 / 0.94)
+
+
+def test_declared_capacity_becomes_a_station_factor_with_sampled_or_optimised_outages(tmp_path):
+    # The record leaves 2 x 100 MW x (1 - aux) available; the station declares 150 MW.
+    declared = pd.Series(150.0, index=HOURS)
+    settings = {**_files(tmp_path, [], declared=declared), "central_availability": "declared", "forced": "none"}
+    network = _network()
+    result = apply_outages(network, settings)
+    factor = 150.0 / (100.0 * 0.92 + 100.0 * 0.94)
+    assert result.units.loc["coal_a", "capability_pu"] == pytest.approx(factor)
+    assert np.allclose(network.generators_t.p_max_pu["coal_a"], 0.92 * factor)
+    assert result.units.availability_source.str.endswith("station factor").all()
+
+
+def test_monthly_and_annual_resolution_smooth_availability_and_scale_minimum_load(tmp_path):
+    hours = pd.date_range("2025-04-01", "2025-05-31 23:00", freq="h")
+    network = _network(hours)
+    network.generators.loc[["coal_a", "coal_b"], "committable"] = True
+    network.generators.loc[["coal_a", "coal_b"], "p_min_pu"] = 0.5
+    april = pd.date_range("2025-04-01", "2025-04-15", freq="D")
+    rows = [_row("coal_a", day, "planned") for day in april]
+    rows += [_row("coal_b", day, "commissioning") for day in pd.date_range("2025-04-01", "2025-05-09", freq="D")]
+    settings = _files(tmp_path, rows)
+    monthly = network.copy()
+    apply_outages(monthly, {**settings, "resolution": "monthly"})
+    p_max, p_min = monthly.generators_t.p_max_pu, monthly.generators_t.p_min_pu
+    assert np.allclose(p_max["coal_a"]["2025-04"], 0.92 * 0.5)      # out half of April
+    assert np.allclose(p_max["coal_a"]["2025-05"], 0.92)
+    assert np.allclose(p_min["coal_a"]["2025-04"], 0.25)            # a half-size unit
+    assert np.allclose(p_min["coal_a"]["2025-05"], 0.5)
+    # Commissioning stays exact: coal_b is unavailable until 10 May, fully available after.
+    assert p_max["coal_b"][:"2025-05-09"].eq(0.0).all()
+    assert np.allclose(p_max["coal_b"]["2025-05-10":], 0.94)
+    annual = network.copy()
+    apply_outages(annual, {**settings, "resolution": "annual"})
+    share = 1.0 - 15 / 61
+    assert np.allclose(annual.generators_t.p_max_pu["coal_a"], 0.92 * share)
+    assert np.allclose(annual.generators_t.p_min_pu["coal_a"], 0.5 * share)
+    status, _ = annual.optimize(solver_name="highs")
+    assert status == "ok"
 
 
 def test_choices_switch_kinds_and_base_availability(tmp_path):
@@ -196,13 +285,19 @@ def test_sampled_outages_are_reproducible_per_unit_and_match_the_rate():
 
 def test_settings_are_validated():
     good = validate_section({
-        "enabled": True, "base_availability": "Gross", "partial_derating": "none", "planned": "actual",
+        "enabled": True, "base_availability": "Gross", "partial_derating": "none",
+        "central_availability": "declared", "resolution": "Monthly", "planned": "actual",
         "forced": "sampled", "seed": 3, "record": "r.csv", "auxiliary": "a.csv", "capability": "c.csv",
-        "maintenance_schedule": None,
+        "declared_capacity": "d.csv", "declared_units": "u.csv", "maintenance_schedule": None,
     })
     assert good["base_availability"] == "gross"
+    assert good["resolution"] == "monthly"
     with pytest.raises(OutageError, match="partial_derating"):
         validate_section({**good, "partial_derating": "observed"})
+    with pytest.raises(OutageError, match="resolution"):
+        validate_section({**good, "resolution": "weekly"})
+    with pytest.raises(OutageError, match="ex-bus"):
+        validate_section({**good, "base_availability": "model"})
     with pytest.raises(OutageError, match="planned"):
         validate_section({**good, "planned": "sometimes"})
     with pytest.raises(OutageError, match="maintenance_schedule"):
@@ -248,6 +343,13 @@ def test_shipped_outage_data_covers_every_committable_coal_unit():
     assert capability["north_chennai_tps__unit_04"] == pytest.approx(0.76)
     static = capability * (1.0 - auxiliary / 100.0)
     assert (static >= generators.loc[static.index, "p_min_pu"]).all()
+    # Declared capacity: every hour of FY2025-26 for the seven central stations,
+    # never above the station rating; their 18 units are committable coal units.
+    declared, stations = read_declared()
+    assert len(declared) == 8760 and declared.notna().all().all()
+    assert set(stations.component) <= coal and len(stations) == 18
+    rating = stations.groupby("station").unit_rating_mw.sum()
+    assert (declared[rating.index] <= rating + 1e-6).all().all()
 
 
 def test_maintenance_is_optimised_into_low_demand_days(tmp_path):

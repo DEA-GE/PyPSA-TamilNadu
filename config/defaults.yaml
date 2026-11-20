@@ -110,6 +110,15 @@ outages:
   # best whole day of FY2025-26 without outage, as a share of its rating; none
   # leaves units at their full rating.
   partial_derating: demonstrated
+  # Central coal stations (Vallur, NTPL, NNTPS, four NLC stations): declared
+  # uses their declared capacity from the SRPC Regional Energy Accounts, hour
+  # by hour with planned and forced outages both actual, otherwise as one
+  # factor per station; record treats them like the other units.
+  central_availability: declared
+  # hourly, or monthly / annual: availability averaged per month or year for a
+  # less restricted run (a partly available unit acts as a smaller unit, its
+  # minimum load scaled likewise).
+  resolution: hourly
   # Planned maintenance: actual (FY2025-26 record), optimise (PyPSA's
   # maintenance scheduling chooses the dates for each unit's FY2025-26
   # maintenance duration, in one annual MILP at daily resolution) or none.
@@ -125,6 +134,10 @@ outages:
   record: data/model_inputs/coal_unit_outages_FY2025_26.csv
   auxiliary: data/model_inputs/coal_auxiliary_consumption.csv
   capability: data/model_inputs/coal_unit_capability_FY2025_26.csv
+  # Declared capacity of the central stations and their units, from
+  # scripts/prepare_declared_capacity.py.
+  declared_capacity: data/model_inputs/central_station_declared_capacity_FY2025_26.csv
+  declared_units: data/model_inputs/central_station_units.csv
   # planned: optimise only: CSV of a maintenance schedule written by an earlier
   # run (maintenance_schedule.csv in its folder), used instead of scheduling
   # again. The Snakemake workflow schedules once and shares it.

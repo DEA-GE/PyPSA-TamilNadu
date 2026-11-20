@@ -120,6 +120,8 @@ def scenario_inputs(wildcards):
     outages = _outages(wildcards.scenario)
     if outages["enabled"]:
         files += [outages["record"], outages["auxiliary"], outages["capability"]]
+        if outages["central_availability"] == "declared":
+            files += [outages["declared_capacity"], outages["declared_units"]]
     files += sorted(str(path) for path in Path("model").glob("*.csv"))
     return files
 

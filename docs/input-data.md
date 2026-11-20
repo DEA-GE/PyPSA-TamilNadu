@@ -28,6 +28,7 @@ an explicit `snapshot` timestamp.
 | Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
 | Historical four-station capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/tn_export_capacity_allocations.csv` (reference only) |
 | Coal unit outages, auxiliary consumption and capability | `data/source/NITI dashboard/unit outages Tamil Nadu`, `auxiliary consumption Tamil Nadu`; `data/model_inputs/coal_unit_outages_FY2025_26.csv`, `coal_auxiliary_consumption.csv`, `coal_unit_capability_FY2025_26.csv` | Applied at run time with `outages.enabled` (`scripts/generator_outages.py`); not in `model/` |
+| Central coal station declared capacity | `data/source/REA data/*.zip` (SRPC REA, not in Git); `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`, `central_station_units.csv` | Applied at run time with `outages.enabled` and `central_availability: declared` |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -522,6 +523,7 @@ The `outages` section of a run config (off by default) sets the hourly
 
     base availability × capability × (1 − share of the hour the unit is out)
 
+or, for the seven central stations, to their declared capacity
 (`scripts/generator_outages.py`). Without it, every coal unit has a static
 `p_max_pu` of 0.85: the "85% availability" of CEA's *Report on Resource
 Adequacy Plan (Generation) for Tamil Nadu* (April 2026), which equals CERC's
@@ -650,12 +652,63 @@ shutdowns. NERC GADS (Generating Unit Statistical Brochure 3, 2021–2025)
 reports weighted forced-outage rates of 6.4–15.0% by size class for US coal
 units, 8.0% overall.
 
+**Central stations: declared capacity.** For the seven central coal
+stations, `central_availability: declared` (the default) uses the capacity
+they declared to the Southern Regional Load Dispatch Centre for every
+15-minute block, from the SRPC Regional Energy Accounts
+(`commercial_on_off_dc_isgs.csv` in each month's archive). Declared capacity
+is ex-bus and covers whole-unit outages, partial deratings and fuel; CERC pays
+the stations' capacity charge on it. On-bar (units running) and off-bar
+(available units shut down) declarations are added, so reserve shutdowns
+still count as available. `scripts/prepare_declared_capacity.py` reads the
+twelve archives (`data/source/REA data`, not in Git) and writes the hourly
+means to `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`
+and the station units to `central_station_units.csv`:
+
+| Station (REA code) | Units | Rating (MW) | Mean declared (MW) | Share |
+|---|---:|---:|---:|---:|
+| NTECL Vallur (`vallur`) | 3 × 500 | 1,500 | 1,250 | 0.83 |
+| NTPL Tuticorin (`ntpl`) | 2 × 500 | 1,000 | 851 | 0.85 |
+| NLC NNTPS (`nntpp`) | 2 × 500 | 1,000 | 625 | 0.63 |
+| NLC TPS-I Expansion (`nlcexp`) | 2 × 210 | 420 | 244 | 0.58 |
+| NLC TPS-II Stage I (`nlc21`) | 3 × 210 | 630 | 269 | 0.43 |
+| NLC TPS-II Stage II (`nlc22`) | 4 × 210 | 840 | 343 | 0.41 |
+| NLC TPS-II Expansion (`nlc2exp`) | 2 × 250 | 500 | 201 | 0.40 |
+
+The outage record follows declared capacity closely in time (hourly
+correlation 0.85–0.97), but the record alone overstates the NLC stations and
+NNTPS by 21–58%, while the capability cap understates Vallur and NTPL by
+9–14%.
+
+With `planned: actual` and `forced: actual` declared capacity replaces the
+record and the capability cap of these 18 units hour by hour. Each hour a
+station's capacity is spread evenly over the number of its identical units
+that gives the most usable capacity, each at or below its rating and at or
+above its minimum load, preferring fewer units (942 MW at Vallur is two units
+at 471 MW); units the record shows available are used first. This keeps 98.7%
+of the declared capacity; the rest is hours when a station declared less than
+one unit's minimum load. In the other modes each station gets one factor in
+place of the capability cap, its declared capacity over the capacity the
+record leaves available (Vallur 1.00, NTPL 1.03, NNTPS 0.83, NLC TPS-I
+Expansion 0.78, TPS-II Expansion 0.77, TPS-II Stage I 0.65, Stage II 0.63), and
+maintenance and forced outages come from those modes. `central_availability:
+record` treats the stations like the other units.
+
+**Resolution.** `resolution: hourly` (the default) keeps the hourly
+availability. `monthly` and `annual` replace each unit's availability by its
+mean over the month or the year, for a less restricted run without outage
+timing. A unit available on average a share of its best hour then acts as a
+smaller unit: its minimum load (`p_min_pu`) is scaled by the same share, so it
+can still run. Means are taken over the hours after commissioning, and the
+commissioning dates stay exact. Means are preserved, so the available energy
+is the same as hourly.
+
 Limitations:
 
-- Partial deratings are approximated by each unit's best day without outage,
-  constant over the year; the record itself has only whole-unit outages.
-  SRPC's 15-minute declared capacity of the central stations would measure
-  them directly.
+- Partial deratings are measured for the central stations (declared
+  capacity) and approximated for the other units by each unit's best day
+  without outage, constant over the year; the record itself has only
+  whole-unit outages.
 - Outages are known in advance within each solve (perfect foresight), as for
   all other inputs.
 - Auxiliary consumption is normative or from 2017-18, and constant over the
@@ -669,8 +722,8 @@ Limitations:
   down in it.
 
 Each run with outages writes `coal_unit_availability.csv` (per unit:
-auxiliary consumption, capability, base availability, hours out by kind, mean
-availability), and
+availability source, auxiliary consumption, capability or station factor, base
+availability, hours out by kind, mean availability), and
 `forced_outage_parameters.csv` or `maintenance_schedule.csv` when used.
 
 ## Hydro: assets, water, and storage
