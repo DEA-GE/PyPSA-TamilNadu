@@ -414,7 +414,16 @@ For each scenario the workflow:
    cost, net benefit and break-even cost; avoided CO2 and abatement cost; and
    the loading of the corridors at the offshore connection. CO2 uses the
    indicative factors in `config/emission_factors.yaml` (the model's carriers
-   carry none). A battery section will follow. Run it for any two runs with
+   carry none). For batteries: power and energy capacity, charged and
+   discharged energy, losses and cycles; the prices at which they charge and
+   discharge and the arbitrage revenue, per balancing area too; what each MWh
+   discharged changes; the operating-cost saving against the annualised cost,
+   net benefit and break-even cost; avoided CO2; the change in system price,
+   peak prices and the daily price spread; and an average day of charging,
+   discharging and prices. When a scenario adds both, a combined table sets
+   the joint savings against the joint cost, and each technology section
+   reports the joint change, which cannot be split between them. Run it for
+   any two runs with
    `python scripts/workflow/scenario_effects.py <baseline summary> <scenario summary> <output folder>`.
 
 Each run records where it wrote its results in
