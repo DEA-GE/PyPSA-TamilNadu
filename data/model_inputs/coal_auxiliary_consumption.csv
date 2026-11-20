@@ -1,0 +1,50 @@
+component,plant_name,unit_no,capacity_mw,auxiliary_consumption_pct,basis,source
+itpcl_or_cuddalore_tpp__unit_01,ITPCL or Cuddalore TPP,1,600.0,7.51,"CEA actual 2017-18 (ITPCL or Cuddalore TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+itpcl_or_cuddalore_tpp__unit_02,ITPCL or Cuddalore TPP,2,600.0,7.51,"CEA actual 2017-18 (ITPCL or Cuddalore TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+mettur_tps__unit_01,Mettur TPS,1,210.0,8.64,"CEA actual 2017-18 (Mettur TPS, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+mettur_tps__unit_02,Mettur TPS,2,210.0,8.64,"CEA actual 2017-18 (Mettur TPS, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+mettur_tps__unit_03,Mettur TPS,3,210.0,8.64,"CEA actual 2017-18 (Mettur TPS, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+mettur_tps__unit_04,Mettur TPS,4,210.0,8.64,"CEA actual 2017-18 (Mettur TPS, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+mettur_tps__unit_05,Mettur TPS,5,600.0,6.79,"CEA actual 2017-18 (Mettur TPS, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+muthiara_tpp__unit_01,Muthiara TPP,1,600.0,7.07,"CEA actual 2017-18 (Muthiara TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+muthiara_tpp__unit_02,Muthiara TPP,2,600.0,7.07,"CEA actual 2017-18 (Muthiara TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_ext_tps_i__unit_01,Neyveli (EXT) TPS I,1,210.0,7.7,"CEA actual 2017-18 (Neyveli (EXT) TPS I, vintage 2000-2009)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_ext_tps_i__unit_02,Neyveli (EXT) TPS I,2,210.0,7.7,"CEA actual 2017-18 (Neyveli (EXT) TPS I, vintage 2000-2009)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_ext_tps_ii__unit_01,Neyveli (EXT) TPS II,1,250.0,12.61,"CEA actual 2017-18 (Neyveli (EXT) TPS II, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_ext_tps_ii__unit_02,Neyveli (EXT) TPS II,2,250.0,12.61,"CEA actual 2017-18 (Neyveli (EXT) TPS II, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_new_tpp_neyveli_extension__unit_01,Neyveli (New) TPP /Neyveli Extension,1,500.0,6.75,CERC 2024 norm: 500 MW set with steam-driven boiler feed pumps 5.25% + 1.5 percentage points for lignite CFBC (pump drive assumed),"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+neyveli_new_tpp_neyveli_extension__unit_02,Neyveli (New) TPP /Neyveli Extension,2,500.0,6.75,CERC 2024 norm: 500 MW set with steam-driven boiler feed pumps 5.25% + 1.5 percentage points for lignite CFBC (pump drive assumed),"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+neyveli_tps_z__unit_01,Neyveli TPS (Z),1,250.0,9.78,"CEA actual 2017-18 (Neyveli TPS (Z), vintage 2000-2009)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_03,Neyveli TPS II,3,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_02,Neyveli TPS II,2,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_01,Neyveli TPS II,1,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_04,Neyveli TPS II,4,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_05,Neyveli TPS II,5,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_06,Neyveli TPS II,6,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+neyveli_tps_ii__unit_07,Neyveli TPS II,7,210.0,9.25,"CEA actual 2017-18 (Neyveli TPS II, vintage 1980-1989)",NITI ICED auxiliary consumption export (CEA plant data)
+north_chennai_tps__unit_01,North Chennai TPS,1,210.0,7.97,"CEA actual 2017-18 (North Chennai TPS, vintage 1990-1999)",NITI ICED auxiliary consumption export (CEA plant data)
+north_chennai_tps__unit_02,North Chennai TPS,2,210.0,7.97,"CEA actual 2017-18 (North Chennai TPS, vintage 1990-1999)",NITI ICED auxiliary consumption export (CEA plant data)
+north_chennai_tps__unit_03,North Chennai TPS,3,210.0,7.97,"CEA actual 2017-18 (North Chennai TPS, vintage 1990-1999)",NITI ICED auxiliary consumption export (CEA plant data)
+north_chennai_tps__unit_05,North Chennai TPS,5,600.0,7.0,TNERC approved FY2025-26 (NCTPS II),"TNERC Order No. 07 of 2022 (T.P. No. 1 of 2022), Table 4-41, approved FY2025-26; https://jmkresearch.com/wp-content/uploads/2022/09/tnerc-tariff-order-FY-2023.pdf"
+north_chennai_tps__unit_04,North Chennai TPS,4,600.0,7.0,TNERC approved FY2025-26 (NCTPS II),"TNERC Order No. 07 of 2022 (T.P. No. 1 of 2022), Table 4-41, approved FY2025-26; https://jmkresearch.com/wp-content/uploads/2022/09/tnerc-tariff-order-FY-2023.pdf"
+north_chennai_tps__unit_06,North Chennai TPS,6,800.0,7.0,TNERC approved FY2025-26 (NCTPS Stage-III),"TNERC Order No. 07 of 2022 (T.P. No. 1 of 2022), Table 4-41, approved FY2025-26; https://jmkresearch.com/wp-content/uploads/2022/09/tnerc-tariff-order-FY-2023.pdf"
+opg_power_generation_private_ltd__unit_01,OPG Power Generation Private Ltd.,1,77.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+opg_power_generation_private_ltd__unit_02,OPG Power Generation Private Ltd.,2,77.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+opg_power_generation_private_ltd__unit_03,OPG Power Generation Private Ltd.,3,80.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+opg_power_generation_private_ltd__unit_04,OPG Power Generation Private Ltd.,4,180.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+tcp_limited__unit_01,TCP Limited,1,63.5,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+tulsyan_nec_limited__unit_01,Tulsyan NEC Limited,1,35.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+tulsyan_nec_limited__unit_02,Tulsyan NEC Limited,2,35.0,10.0,assumption: CERC sets no norm for units below 200 MW,"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+tuticorin_p_tpp__unit_01,Tuticorin (P) TPP,1,150.0,12.36,"CEA actual 2017-18 (Tuticorin (P) TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_p_tpp__unit_02,Tuticorin (P) TPP,2,150.0,12.36,"CEA actual 2017-18 (Tuticorin (P) TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_joint_venture__unit_01,Tuticorin Joint Venture,1,500.0,8.59,"CEA actual 2017-18 (Tuticorin Joint Venture, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_joint_venture__unit_02,Tuticorin Joint Venture,2,500.0,8.59,"CEA actual 2017-18 (Tuticorin Joint Venture, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_tps__unit_01,Tuticorin TPS,1,210.0,8.28,"CEA actual 2017-18 (Tuticorin TPS, vintage 1970-1979)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_tps__unit_02,Tuticorin TPS,2,210.0,8.28,"CEA actual 2017-18 (Tuticorin TPS, vintage 1970-1979)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_tps__unit_03,Tuticorin TPS,3,210.0,8.28,"CEA actual 2017-18 (Tuticorin TPS, vintage 1970-1979)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_tps__unit_05,Tuticorin TPS,5,210.0,8.28,"CEA actual 2017-18 (Tuticorin TPS, vintage 1970-1979)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_tps__unit_04,Tuticorin TPS,4,210.0,8.28,"CEA actual 2017-18 (Tuticorin TPS, vintage 1970-1979)",NITI ICED auxiliary consumption export (CEA plant data)
+tuticorin_thermal_power_plant__unit_01,Tuticorin Thermal Power Plant,1,525.0,5.25,CERC 2024 norm: 500 MW and above with steam-driven boiler feed pumps (pump drive assumed),"CERC (Terms and Conditions of Tariff) Regulations 2024, Reg. 70(E); https://www.cercind.gov.in/regulations/notification-2024.pdf"
+vallur_tpp__unit_01,Vallur TPP,1,500.0,6.46,"CEA actual 2017-18 (Vallur TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+vallur_tpp__unit_02,Vallur TPP,2,500.0,6.46,"CEA actual 2017-18 (Vallur TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
+vallur_tpp__unit_03,Vallur TPP,3,500.0,6.46,"CEA actual 2017-18 (Vallur TPP, vintage 2010-2019)",NITI ICED auxiliary consumption export (CEA plant data)
