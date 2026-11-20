@@ -93,3 +93,39 @@ technologies:
   # CSV of capacities chosen by a capacity-expansion run (written by the
   # Snakemake workflow); they replace "optimise" for an operational run.
   fixed_capacities: null
+
+outages:
+  # Coal unit availability (scripts/generator_outages.py): auxiliary
+  # consumption, planned maintenance and forced outages of the committable coal
+  # units. Off by default, so a run without this section solves the model as
+  # it is (static coal p_max_pu 0.85). When on, days before commissioning,
+  # commercial unavailability (no fuel supply agreement, no PPA) and units out
+  # of service all year are always imposed; reserve shutdowns never are.
+  enabled: false
+  # Static availability under the outages: net_of_auxiliary (1 - auxiliary
+  # consumption; Tamil Nadu demand is ex-bus), gross (1.0) or model (keep the
+  # network's p_max_pu).
+  base_availability: net_of_auxiliary
+  # Partial deratings of running units: demonstrated caps each unit at its
+  # best whole day of FY2025-26 without outage, as a share of its rating; none
+  # leaves units at their full rating.
+  partial_derating: demonstrated
+  # Planned maintenance: actual (FY2025-26 record), optimise (PyPSA's
+  # maintenance scheduling chooses the dates for each unit's FY2025-26
+  # maintenance duration, in one annual MILP at daily resolution) or none.
+  planned: actual
+  # Forced outages: actual (FY2025-26 record), sampled (random, from the
+  # record's outage rates and durations per unit size class) or none.
+  forced: actual
+  # Random seed of the sampled forced outages; each unit has its own stream,
+  # so every scenario with the same seed gets the same outages.
+  seed: 1
+  # Outage record, auxiliary consumption and demonstrated capability, from
+  # scripts/prepare_coal_outages.py.
+  record: data/model_inputs/coal_unit_outages_FY2025_26.csv
+  auxiliary: data/model_inputs/coal_auxiliary_consumption.csv
+  capability: data/model_inputs/coal_unit_capability_FY2025_26.csv
+  # planned: optimise only: CSV of a maintenance schedule written by an earlier
+  # run (maintenance_schedule.csv in its folder), used instead of scheduling
+  # again. The Snakemake workflow schedules once and shares it.
+  maintenance_schedule: null
