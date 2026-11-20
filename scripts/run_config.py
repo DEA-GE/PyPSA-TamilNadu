@@ -165,6 +165,14 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
         solver["parallel_workers"], "solver.parallel_workers"
     )
     solver["mip_rel_gap"] = _number(solver["mip_rel_gap"], "solver.mip_rel_gap")
+    lp_method = str(solver["lp_method"]).strip().lower()
+    if lp_method not in {"default", "ipm", "simplex"}:
+        raise ConfigError("solver.lp_method must be 'Default', 'ipm' or 'simplex'")
+    solver["lp_method"] = "Default" if lp_method == "default" else lp_method
+    if solver["lp_method"] != "Default" and mode != "annual":
+        raise ConfigError("solver.lp_method applies to run.mode: annual only")
+    if not isinstance(solver["crossover"], bool):
+        raise ConfigError("solver.crossover must be true or false")
     if solver["simplex_strategy"] is not None:
         if isinstance(solver["simplex_strategy"], bool) or not isinstance(
             solver["simplex_strategy"], int
@@ -290,6 +298,8 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "profile_log_level": config["logging"]["level"],
         "profile_sample_interval": config["logging"]["sample_interval"],
         "technologies": config["technologies"],
+        "lp_method": config["solver"]["lp_method"],
+        "crossover": config["solver"]["crossover"],
     }
 
 

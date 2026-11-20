@@ -1078,8 +1078,14 @@ def run_annual_no_uc(
     solver_name: str,
     solver_threads: int,
     simplex_strategy: int | None = None,
+    lp_solver: str | None = "ipm",
+    crossover: bool = True,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network]:
     """Solve all annual snapshots as one continuous no-unit-commitment LP.
+
+    The full-year LP (about 2 million rows after presolve) is solved with the
+    interior-point method by default; the dual simplex, the default for the
+    small no-UC weekly windows, is far slower at this size.
 
     This keeps the operational constraints used by the rolling workflow, but
     adds them to a single chronological optimisation model.  There are no
@@ -1178,7 +1184,9 @@ def run_annual_no_uc(
             network,
             solver_name=solver_name,
             solver_options=highs_solver_options(
-                "none", None, solver_threads, simplex_strategy
+                "none", None, solver_threads, simplex_strategy,
+                lp_solver=None if simplex_strategy is not None else lp_solver,
+                crossover=crossover,
             ),
             extra_functionality=extra_functionality,
             tag="annual_no_uc",
@@ -1222,6 +1230,8 @@ def run_annual_no_uc(
         "pypsa_version": pypsa.__version__,
         "hydro_input_hash": hydro_input_hash,
         "unit_commitment": "none",
+        "lp_solver": "simplex" if simplex_strategy is not None else lp_solver,
+        "crossover": crossover,
         "formulation": "single 8,760-hour no-unit-commitment LP",
         "snapshots_solved": len(snapshots),
         "full_horizon_snapshots": len(snapshots),

@@ -42,6 +42,12 @@ solver:
   parallel_workers: Default       # "Default" (2) or a positive integer; independent solves only
   mip_rel_gap: 0.01               # full only; 0.01 = 1 %
   simplex_strategy: null          # annual/rolling only: HiGHS simplex_strategy override
+  # annual only: LP algorithm. "Default" = interior point (ipm), much faster
+  # than the simplex on the full-year LP; or ipm | simplex.
+  lp_method: Default
+  # annual with ipm only: run crossover to a basic solution. false skips it
+  # (faster; capacities and dispatch are exact, duals of interior-point accuracy).
+  crossover: true
 
 rolling:                          # used by mode: rolling only
   # Seconds per window attempt. "Default" = per mode (none 300, relaxed 700,

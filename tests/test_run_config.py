@@ -147,3 +147,28 @@ def test_resolved_config_round_trips(tmp_path):
     original = load_run_config(ROOT / "config" / "runs" / "selected_weeks_relaxed.yaml")
     saved = _write(tmp_path / "run_config.yaml", "# header\n" + run_config.dump_config(original))
     assert load_run_config(saved) == original
+
+
+def test_annual_lp_method_and_crossover_settings(tmp_path):
+    from highs_solver_options import highs_solver_options
+
+    annual = ["run.name=x", "run.mode=annual", "formulation.unit_commitment=none"]
+    config = load_run_config(None, annual)
+    assert config["solver"]["lp_method"] == "Default"
+    assert config["solver"]["crossover"] is True
+    assert run_selection_kwargs(config)["lp_method"] == "Default"
+
+    config = load_run_config(None, [*annual, "solver.lp_method=IPM", "solver.crossover=false"])
+    assert config["solver"]["lp_method"] == "ipm"
+    assert run_selection_kwargs(config)["crossover"] is False
+
+    with pytest.raises(ConfigError, match="annual only"):
+        load_run_config(None, ["run.name=x", "solver.lp_method=ipm"])
+    with pytest.raises(ConfigError, match="lp_method"):
+        load_run_config(None, [*annual, "solver.lp_method=barrier"])
+    with pytest.raises(ConfigError, match="crossover"):
+        load_run_config(None, [*annual, "solver.crossover=maybe"])
+
+    assert highs_solver_options("none", None, 8, lp_solver="ipm", crossover=False)["run_crossover"] == "off"
+    assert highs_solver_options("none", None, 8, lp_solver="ipm")["run_crossover"] == "on"
+    assert highs_solver_options("none", None, 3)["solver"] == "simplex"  # weekly windows unchanged
