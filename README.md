@@ -808,6 +808,11 @@ The `marginal_costs` section overrides the marginal cost of every unit of
 `oil_gas`, `diesel`, `bio_power`, `nuclear` or `small_hydro` (INR/MWh) for
 sensitivity runs.
 
+`scripts/compare_energy_target_runs.py NAME=RUN_DIR ... --output DIR` compares
+solved runs by month: energy by carrier against observed generation, oil/gas
+and nuclear energy by plant against the ICED plant data, the load-weighted
+Tamil Nadu price, and operating cost by carrier.
+
 Each run writes `energy_target_availability.csv` (observed, scheduled and
 available energy per carrier and period, and any shortfall) and
 `marginal_cost_overrides.csv`; the resolved policy is in `validation.json`.
