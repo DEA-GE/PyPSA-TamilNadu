@@ -1078,14 +1078,15 @@ def run_annual_no_uc(
     solver_name: str,
     solver_threads: int,
     simplex_strategy: int | None = None,
-    lp_solver: str | None = "ipm",
+    lp_solver: str | None = "simplex",
     crossover: bool = True,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network]:
     """Solve all annual snapshots as one continuous no-unit-commitment LP.
 
     The full-year LP (about 2 million rows after presolve) is solved with the
-    interior-point method by default; the dual simplex, the default for the
-    small no-UC weekly windows, is far slower at this size.
+    dual simplex by default. The interior-point method (``lp_solver="ipm"``)
+    was far slower on the battery capacity-expansion LP: HiGHS' IPX took about
+    28 min to build its starting basis and 21 min per iteration.
 
     This keeps the operational constraints used by the rolling workflow, but
     adds them to a single chronological optimisation model.  There are no
