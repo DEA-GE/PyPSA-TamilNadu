@@ -750,6 +750,42 @@ placeholder availability profile cannot supply the observed energy, these
 solves make small hydro dispatchable between zero and nameplate; the weekly
 energy is fixed while its hourly and daily timing remains optimized.
 
+## Releasing the energy targets
+
+The equalities above are the default. The `energy_targets` section of a run
+config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
+`small_hydro`):
+
+- `target`: the observed-energy equalities described above (default).
+- `availability`: no equality. Each dispatchable unit's `p_max_pu` is scaled,
+  per `availability_period` (`monthly` or `daily`), so that the carrier's
+  available energy equals the observed energy; existing outages and
+  commissioning dates (zero availability) are kept and no unit exceeds 1.0.
+  Cost optimisation then decides how much of that energy is used, so the
+  carrier follows the observed seasonal pattern only if its marginal cost
+  places it in the merit order.
+- `free`: no equality and the network's own availability.
+
+Units on a fixed schedule (`p_min_pu` equal to `p_max_pu`, the REA export
+reservations: 5,491 GWh of nuclear and 5 GWh of bio-power) are never rescaled;
+their energy is subtracted from the observed total first. Minimum outputs above
+the new availability are lowered to it. The `marginal_costs` section overrides
+the marginal cost of every unit of `oil_gas`, `diesel`, `bio_power`, `nuclear`
+or `small_hydro` (INR/MWh), for calibrating prices against the released runs:
+
+```yaml
+energy_targets: {oil_gas: availability, nuclear: availability,
+                 bio_power: availability, small_hydro: availability}
+marginal_costs: {oil_gas: 3500, bio_power: 3000}
+```
+
+Each run writes `energy_target_availability.csv` (observed, scheduled and
+available energy per carrier and period, and any shortfall) and
+`marginal_cost_overrides.csv`; the resolved policy is in `validation.json`.
+A non-default policy changes the checkpoint fingerprint, so rolling runs do not
+resume from checkpoints solved with other targets. The monthly availability
+reaches the observed energy in every month for all four carriers.
+
 ## Reservoir hydro and seasonal inflow
 
 `data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while

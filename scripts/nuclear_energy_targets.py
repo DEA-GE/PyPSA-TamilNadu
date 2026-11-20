@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from energy_target_policy import target_enabled
+
 BUDGET = Path(__file__).resolve().parents[1] / "model" / "nuclear_daily_energy_budget.csv"
 
 
@@ -16,6 +18,8 @@ def generator_dimension(variable):
 
 
 def add_nuclear_targets(network, snapshots):
+    if not target_enabled(network, "nuclear"):
+        return
     budget = pd.read_csv(BUDGET, parse_dates=["date"]).set_index("date")
     snapshots = pd.DatetimeIndex(snapshots)
     units = network.generators.index[network.generators.carrier.eq("nuclear")]
@@ -37,6 +41,6 @@ def validate_nuclear_targets(network):
     units = network.generators.index[network.generators.carrier.eq("nuclear")]
     daily = network.generators_t.p[units].sum(axis=1).mul(network.snapshot_weightings.generators).groupby(network.snapshots.normalize()).sum()
     deviation = float((daily - budget.loc[daily.index, "daily_energy_target_mwh"]).abs().max())
-    if not np.isfinite(deviation) or deviation > 1e-5:
+    if target_enabled(network, "nuclear") and (not np.isfinite(deviation) or deviation > 1e-5):
         raise ValueError(f"Nuclear daily equality deviation: {deviation} MWh")
     return deviation

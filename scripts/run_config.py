@@ -15,6 +15,7 @@ from typing import Any, Iterable, Mapping
 
 import yaml
 
+from energy_target_policy import normalise_cost_overrides, normalise_policy
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -226,6 +227,12 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(config[section][key], bool):
             raise ConfigError(f"{section}.{key} must be true or false")
 
+    try:
+        config["energy_targets"] = normalise_policy(config["energy_targets"])
+        normalise_cost_overrides(config["marginal_costs"])
+    except ValueError as error:
+        raise ConfigError(str(error)) from error
+
     technologies = config["technologies"]
     try:
         validate_section(technologies)
@@ -300,6 +307,8 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "technologies": config["technologies"],
         "lp_method": config["solver"]["lp_method"],
         "crossover": config["solver"]["crossover"],
+        "energy_targets": dict(config["energy_targets"]),
+        "marginal_costs": dict(config["marginal_costs"]),
     }
 
 

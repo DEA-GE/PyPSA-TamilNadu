@@ -36,6 +36,7 @@ from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
 )
+from energy_target_policy import target_enabled
 from period_energy_targets import drop_native_energy_targets
 from run_profiling import (
     format_solve_breakdown,
@@ -922,6 +923,8 @@ def _add_daily_targets(
     gas_targets: pd.Series,
 ) -> None:
     add_nuclear_targets(network, snapshots)
+    if not target_enabled(network, "oil_gas"):
+        return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
     dispatch = network.model["Generator-p"]
     generator_dim = generator_dimension(dispatch)
@@ -953,6 +956,8 @@ def _add_committed_biomass_target(
     double-counting that look-ahead. Month-crossing windows receive a prorated
     share from each month they cover.
     """
+    if not target_enabled(network, "bio_power"):
+        return
     biomass_units = network.generators.index[
         network.generators.carrier.eq("bio_power")
     ]
@@ -987,6 +992,8 @@ def _add_committed_small_hydro_target(
     monthly_targets_mwh: pd.Series,
 ) -> None:
     """Fix weekly small-hydro energy while leaving its hourly dispatch free."""
+    if not target_enabled(network, "small_hydro"):
+        return
     units = network.generators.index[network.generators.carrier.eq("small_hydro")]
     if not len(units):
         raise ValueError("Small-hydro target is configured but no small_hydro units exist")

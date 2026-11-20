@@ -71,6 +71,30 @@ logging:
   # Copy console output to <results_root>/console_logs/<run name>_<UTC time>.log.
   console_log: true
 
+energy_targets:
+  # How the observed FY2025-26 energy of each carrier is imposed:
+  #   target       energy equality constraints (daily for oil/gas and nuclear,
+  #                month-prorated for bio-power and small hydro)
+  #   availability no equality; each dispatchable unit's p_max_pu is scaled per
+  #                availability_period so available energy equals observed
+  #                energy, and cost optimisation decides how much is used
+  #   free         no equality and the network's own availability
+  # Fixed REA export reservations keep their schedules in every mode.
+  oil_gas: target
+  nuclear: target
+  bio_power: target
+  small_hydro: target
+  availability_period: monthly    # monthly | daily
+
+marginal_costs:
+  # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier;
+  # null keeps the network's values (see docs/input-data.md).
+  oil_gas: null
+  diesel: null
+  bio_power: null
+  nuclear: null
+  small_hydro: null
+
 analysis:
   # Run scripts/build_results_report.py on the finished run.
   enabled: true
