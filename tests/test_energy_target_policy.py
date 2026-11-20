@@ -74,7 +74,7 @@ def test_availability_profile_keeps_fixed_schedules_and_matches_daily_energy(mon
         policy_module, "observed_energy_mwh", _observed({"nuclear": [1200.0, 1200.0]})
     )
     resolved, _, availability, _ = apply_energy_target_policy(
-        network, {"nuclear": "availability", "availability_period": "daily"}, {}
+        network, {"nuclear": "availability", "availability_period": "daily", "availability_source": "carrier"}, {}
     )
     p_max = network.generators_t.p_max_pu
     assert (p_max["export"] == 0.5).all()
@@ -96,7 +96,7 @@ def test_static_availability_becomes_a_flat_profile(monkeypatch):
         policy_module, "observed_energy_mwh", _observed({"oil_gas": [240.0, 480.0]})
     )
     apply_energy_target_policy(
-        network, {"oil_gas": "availability", "availability_period": "daily"}, {}
+        network, {"oil_gas": "availability", "availability_period": "daily", "availability_source": "carrier"}, {}
     )
     gas = network.generators_t.p_max_pu["gas"]
     assert gas.iloc[:24].unique().tolist() == pytest.approx([0.2])
@@ -134,6 +134,72 @@ def test_policy_validation_and_fingerprint_tag():
         normalise_cost_overrides({"oil_gas": True})
     with pytest.raises(ValueError, match="Unknown"):
         normalise_cost_overrides({"coal": 3000})
+
+
+def _plant_files(tmp_path, monkeypatch, generation_rows):
+    mapping = tmp_path / "mapping.csv"
+    mapping.write_text(
+        "source,plant_name,carrier,component_regex,note\n"
+        "oil-gas,Base,oil_gas,^base_,\n"
+        "oil-gas,Idle,oil_gas,^idle_,\n"
+        "oil-gas,Gone,oil_gas,,not in the model\n",
+        encoding="utf-8",
+    )
+    generation = tmp_path / "generation.csv"
+    generation.write_text(
+        "source,plant_name,sector,fiscal_year,month,generation_mu\n"
+        + "".join(f"oil-gas,{plant},state,2025-26,2025-04-01,{mu}\n" for plant, mu in generation_rows),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(policy_module, "PLANT_MAPPING_FILE", mapping)
+    monkeypatch.setattr(policy_module, "PLANT_GENERATION_FILE", generation)
+
+
+def _gas_network() -> pypsa.Network:
+    network = pypsa.Network()
+    network.set_snapshots(pd.date_range("2025-04-01", periods=48, freq="h"))
+    network.add("Bus", "bus")
+    network.add("Generator", "base_1", bus="bus", carrier="oil_gas", p_nom=100.0, p_max_pu=0.9)
+    network.add("Generator", "idle_1", bus="bus", carrier="oil_gas", p_nom=300.0, p_max_pu=0.9)
+    return network
+
+
+def test_plant_level_availability_follows_each_plants_share(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [1500.0, 1500.0]}))
+    network = _gas_network()
+    _, _, availability, _ = apply_energy_target_policy(network, {"oil_gas": "availability"}, {})
+    p_max = network.generators_t.p_max_pu
+    # The whole 3,000 MWh goes to the plant that generated: 3,000 / (100 MW x 48 h).
+    assert p_max["base_1"].unique().tolist() == pytest.approx([0.625])
+    assert (p_max["idle_1"] == 0.0).all()
+    assert set(availability["plant"]) == {"Base", "Idle", "Gone"}
+    assert availability["shortfall_mwh"].sum() == pytest.approx(0.0)
+
+
+def test_plant_generation_without_model_units_is_rejected(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 1.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [1500.0, 1500.0]}))
+    with pytest.raises(ValueError, match="no dispatchable model units"):
+        apply_energy_target_policy(_gas_network(), {"oil_gas": "availability"}, {})
+
+
+def test_every_unit_must_map_to_one_plant(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    network = _gas_network()
+    network.add("Generator", "unmapped_1", bus="bus", carrier="oil_gas", p_nom=10.0)
+    with pytest.raises(ValueError, match="exactly one plant"):
+        policy_module.plant_groups(network, "oil_gas")
+
+
+def test_shipped_plant_mapping_covers_the_model():
+    network = pypsa.Network(str(ROOT / "model"))
+    for carrier in policy_module.PLANT_LEVEL_CARRIERS:
+        groups = policy_module.plant_groups(network, carrier)
+        shares = policy_module.plant_monthly_shares(carrier, list(groups))
+        fy = shares.loc["2025-04-01":"2026-03-01"]
+        assert len(fy) == 12
+        assert fy.sum(axis=1).to_numpy() == pytest.approx(1.0)
 
 
 @pytest.mark.parametrize("carrier", ["nuclear", "oil_gas", "bio_power", "small_hydro"])

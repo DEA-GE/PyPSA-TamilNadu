@@ -1,0 +1,2395 @@
+Source,Plant Name,State,Year,Month,Sector,Monthly Generation (In MU)
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,12.23
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,13.30
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,6.23
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,5.13
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,8.14
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,13.31
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,3.14
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,3.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.66
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,1.35
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,8.22
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,1.15
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,1.72
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.66
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,0.34
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,13.67
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,0.05
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.16
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,10.16
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,April,state,17.68
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,August,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,July,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,June,state,13.06
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,May,state,6.58
+hydro,Kadmparai Power House,Tamil Nadu,2026-27,September,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,April,state,1.86
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,August,state,4.34
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,July,state,2.70
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,June,state,10.47
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,May,state,2.54
+hydro,Kodayar I & II Power House,Tamil Nadu,2026-27,September,state,1.69
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,98.02
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,101.77
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,79.43
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,84.19
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,92.17
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,93.40
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,2.71
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,8.69
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,6.97
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.76
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,1.71
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,47.10
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,8.53
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,11.69
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,9.74
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,7.01
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,6.47
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,16.15
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,August,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,July,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,June,state,0.01
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2026-27,September,state,52.77
+hydro,Moyar Power House,Tamil Nadu,2026-27,April,state,10.17
+hydro,Moyar Power House,Tamil Nadu,2026-27,August,state,9.17
+hydro,Moyar Power House,Tamil Nadu,2026-27,July,state,5.50
+hydro,Moyar Power House,Tamil Nadu,2026-27,June,state,7.48
+hydro,Moyar Power House,Tamil Nadu,2026-27,May,state,8.82
+hydro,Moyar Power House,Tamil Nadu,2026-27,September,state,10.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,4.03
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,15.86
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,15.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,13.05
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,0.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,10.16
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,0.27
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,0.58
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.60
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,2.70
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,3.32
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,5.34
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,43.46
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,19.52
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,20.30
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,0.08
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,39.80
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,3.61
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,0.32
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,3.15
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,5.78
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,0.00
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,28.04
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,27.88
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,19.39
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,18.51
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,21.60
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,31.21
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,16.66
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,7.48
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,16.13
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,August,state,76.19
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,July,state,61.06
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,June,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2026-27,September,state,49.92
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,April,state,1.71
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,August,state,5.96
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,July,state,1.68
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,June,state,0.87
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,May,state,0.23
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2026-27,September,state,5.97
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,7.54
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,28.66
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,9.62
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,1.19
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,3.39
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,35.88
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,30.40
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,9.27
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,5.36
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,12.03
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,15.64
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,15.33
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,1.08
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,14.70
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,8.49
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,1.36
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,6.71
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,7.24
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,30.71
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,2.31
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,0.40
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,8.78
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,11.31
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,12.78
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,2.28
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,13.96
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,8.60
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,0.20
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,7.35
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,10.69
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,9.45
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,0.20
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,1.29
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,11.41
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,9.04
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,15.75
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,0.11
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,11.09
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,8.20
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,6.34
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,8.17
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,6.92
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,0.90
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,0.14
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,8.13
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,10.23
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,12.42
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,April,state,20.42
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,August,state,28.82
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,December,state,24.79
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,February,state,13.24
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,January,state,20.35
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,July,state,23.84
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,June,state,25.34
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,March,state,14.10
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,May,state,20.49
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,November,state,27.26
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,October,state,21.72
+hydro,Kadmparai Power House,Tamil Nadu,2025-26,September,state,17.60
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,April,state,2.68
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,August,state,8.08
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,December,state,6.30
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,February,state,1.95
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,January,state,3.36
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,July,state,1.92
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,June,state,9.60
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,March,state,2.02
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,May,state,8.92
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,November,state,8.94
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,October,state,9.67
+hydro,Kodayar I & II Power House,Tamil Nadu,2025-26,September,state,8.33
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,93.67
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,223.41
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,84.18
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,15.61
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,40.71
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,176.38
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,159.94
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,51.97
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,131.85
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,139.23
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,168.15
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,172.91
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,4.40
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,56.02
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,37.15
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,9.05
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,26.80
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,41.55
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,23.48
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,9.13
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,3.30
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,36.89
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,45.73
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,57.29
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,7.87
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,26.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,15.80
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,14.76
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,15.23
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,34.83
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,17.87
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,13.52
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,8.25
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,12.56
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,19.90
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,24.56
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,August,state,96.08
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,December,state,44.09
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,January,state,23.33
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,July,state,133.45
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,June,state,61.12
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,November,state,54.49
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,October,state,94.25
+hydro,Mettur Tunnel,Tamil Nadu,2025-26,September,state,95.26
+hydro,Moyar Power House,Tamil Nadu,2025-26,April,state,5.17
+hydro,Moyar Power House,Tamil Nadu,2025-26,August,state,10.02
+hydro,Moyar Power House,Tamil Nadu,2025-26,December,state,4.92
+hydro,Moyar Power House,Tamil Nadu,2025-26,February,state,2.17
+hydro,Moyar Power House,Tamil Nadu,2025-26,January,state,1.88
+hydro,Moyar Power House,Tamil Nadu,2025-26,July,state,9.74
+hydro,Moyar Power House,Tamil Nadu,2025-26,June,state,6.81
+hydro,Moyar Power House,Tamil Nadu,2025-26,March,state,5.26
+hydro,Moyar Power House,Tamil Nadu,2025-26,May,state,7.56
+hydro,Moyar Power House,Tamil Nadu,2025-26,November,state,16.38
+hydro,Moyar Power House,Tamil Nadu,2025-26,October,state,16.14
+hydro,Moyar Power House,Tamil Nadu,2025-26,September,state,9.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,3.90
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,21.89
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,14.19
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,14.57
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,13.42
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,22.14
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,18.42
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,6.10
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,5.85
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,13.30
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,4.55
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,15.93
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,6.84
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,7.35
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,0.02
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,5.76
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,3.59
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,4.06
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,7.49
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,5.73
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,79.94
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,84.50
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,36.06
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,64.19
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,120.54
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,100.33
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,22.64
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,4.75
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,80.03
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,90.83
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,65.99
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,0.57
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,8.93
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,1.53
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,8.35
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,2.28
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,0.02
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,0.09
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,4.71
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,4.49
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,5.45
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,14.86
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,72.74
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,16.12
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,7.19
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,5.45
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,85.91
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,50.84
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,16.93
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,33.26
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,49.20
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,46.53
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,46.32
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,15.72
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,15.15
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,7.32
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,15.88
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,6.54
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,3.88
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,13.15
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,17.03
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,15.44
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,14.19
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,14.42
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,14.66
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,August,state,75.29
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,December,state,12.80
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,February,state,33.13
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,January,state,27.61
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,July,state,74.40
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,June,state,55.88
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,May,state,1.29
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,November,state,44.09
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,October,state,23.92
+hydro,Sholayar I Power House,Tamil Nadu,2025-26,September,state,40.43
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,April,state,6.17
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,August,state,17.86
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,December,state,15.92
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,February,state,0.93
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,January,state,11.49
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,July,state,15.34
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,June,state,7.16
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,March,state,0.52
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,May,state,4.96
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,November,state,16.33
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,October,state,18.23
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2025-26,September,state,15.84
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,6.87
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,20.60
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,16.05
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,4.52
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,9.04
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,26.73
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,6.98
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,12.80
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,7.05
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,12.60
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,17.45
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,14.25
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,0.73
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,11.60
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,2.67
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,6.62
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,2.43
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,3.73
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,0.41
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,5.34
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,21.64
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,34.78
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,10.46
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,2.26
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,0.06
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,7.25
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,1.60
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,1.68
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,1.83
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,2.35
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,6.61
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,1.14
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,1.86
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,9.70
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,1.94
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,6.91
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,0.56
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,0.19
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,0.53
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.01
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,6.31
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,10.23
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,16.24
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,April,state,42.32
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,August,state,40.52
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,December,state,32.18
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,February,state,37.27
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,January,state,43.52
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,July,state,62.75
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,June,state,34.71
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,March,state,30.55
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,May,state,15.31
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,November,state,32.02
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,October,state,28.73
+hydro,Kadmparai Power House,Tamil Nadu,2024-25,September,state,29.21
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,April,state,17.20
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,August,state,13.75
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,December,state,12.84
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,February,state,2.10
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,January,state,7.36
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,July,state,26.58
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,June,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,March,state,3.03
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,May,state,15.88
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,November,state,4.94
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,October,state,6.05
+hydro,Kodayar I & II Power House,Tamil Nadu,2024-25,September,state,10.07
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,37.43
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,126.36
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,204.04
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,93.05
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,142.27
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,157.98
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,35.68
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,89.07
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,24.78
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,192.21
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,141.22
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,110.66
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,6.14
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,47.06
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,4.42
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,1.62
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,27.92
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,7.45
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,6.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,5.72
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,6.03
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,25.50
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,39.74
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,65.13
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,7.16
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,26.90
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,5.36
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,1.14
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,4.94
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,7.64
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,6.83
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,8.16
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,8.73
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,11.68
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,14.84
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,22.84
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,August,state,104.63
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,December,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,January,state,40.44
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,July,state,13.17
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,June,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,November,state,28.66
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,October,state,44.58
+hydro,Mettur Tunnel,Tamil Nadu,2024-25,September,state,122.69
+hydro,Moyar Power House,Tamil Nadu,2024-25,April,state,8.86
+hydro,Moyar Power House,Tamil Nadu,2024-25,August,state,0.00
+hydro,Moyar Power House,Tamil Nadu,2024-25,December,state,8.89
+hydro,Moyar Power House,Tamil Nadu,2024-25,February,state,7.33
+hydro,Moyar Power House,Tamil Nadu,2024-25,January,state,7.26
+hydro,Moyar Power House,Tamil Nadu,2024-25,July,state,0.00
+hydro,Moyar Power House,Tamil Nadu,2024-25,June,state,0.00
+hydro,Moyar Power House,Tamil Nadu,2024-25,March,state,6.11
+hydro,Moyar Power House,Tamil Nadu,2024-25,May,state,0.92
+hydro,Moyar Power House,Tamil Nadu,2024-25,November,state,6.63
+hydro,Moyar Power House,Tamil Nadu,2024-25,October,state,0.14
+hydro,Moyar Power House,Tamil Nadu,2024-25,September,state,0.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,3.05
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,15.79
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,13.21
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,14.26
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,10.61
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,14.32
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,8.28
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,5.35
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,3.59
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,16.91
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,8.25
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,13.37
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,11.79
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,4.96
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,4.01
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,8.69
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,4.01
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,2.65
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,3.39
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,5.62
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,65.62
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,72.17
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,28.52
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,55.41
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,84.47
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,37.06
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,18.48
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,66.18
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,59.81
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,66.69
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,1.81
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,2.24
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,1.26
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,1.38
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,1.68
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,1.67
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,0.73
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,0.52
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,1.45
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,3.36
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,3.18
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,1.84
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,25.22
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,44.63
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,29.86
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,21.57
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,25.58
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,38.96
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,19.76
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,16.86
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,16.67
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,37.06
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,36.41
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,32.86
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,5.67
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,12.17
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,13.32
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,11.52
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,5.13
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,15.27
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,13.94
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,12.94
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,15.22
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,August,state,26.58
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,December,state,29.97
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,February,state,5.75
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,January,state,46.44
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,July,state,64.38
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,June,state,7.26
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,November,state,31.31
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,October,state,26.80
+hydro,Sholayar I Power House,Tamil Nadu,2024-25,September,state,35.02
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,April,state,2.93
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,August,state,18.13
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,December,state,17.89
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,February,state,8.80
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,January,state,13.06
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,July,state,8.98
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,June,state,2.92
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,March,state,7.66
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,May,state,0.44
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,November,state,14.51
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,October,state,14.85
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2024-25,September,state,13.28
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,9.30
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,15.25
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,9.08
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,4.06
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,4.72
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,9.69
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,10.38
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,2.09
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,1.74
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,7.96
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,13.28
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,10.82
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,17.62
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.60
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,13.32
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,17.16
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,4.34
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,25.06
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,11.77
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,2.55
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,3.79
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,15.67
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,9.22
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,2.65
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,9.02
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,10.78
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,13.45
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,6.78
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,2.44
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,April,state,21.22
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,August,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,December,state,3.70
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,February,state,18.16
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,January,state,35.61
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,July,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,June,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,March,state,30.42
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,May,state,23.25
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,November,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,October,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2023-24,September,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,April,state,2.72
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,August,state,7.54
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,December,state,16.83
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,February,state,17.43
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,January,state,17.97
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,July,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,June,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,March,state,19.12
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,May,state,4.19
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,November,state,14.02
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,October,state,20.71
+hydro,Kodayar I & II Power House,Tamil Nadu,2023-24,September,state,15.79
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,160.20
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,140.33
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,115.20
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,31.08
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,98.96
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,118.25
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,117.45
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,34.66
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,151.95
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,97.98
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,144.02
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,119.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,4.66
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,43.92
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,8.16
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.06
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,55.27
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,29.94
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,3.09
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,4.63
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.65
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,9.47
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,32.80
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,11.78
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,3.13
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,5.33
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,3.68
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,14.02
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,14.54
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,5.17
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,12.41
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.73
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,4.47
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,8.18
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,August,state,38.69
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,December,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,February,state,5.43
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,January,state,0.02
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,July,state,52.77
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,June,state,36.45
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,November,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,October,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2023-24,September,state,11.29
+hydro,Moyar Power House,Tamil Nadu,2023-24,April,state,7.20
+hydro,Moyar Power House,Tamil Nadu,2023-24,August,state,11.24
+hydro,Moyar Power House,Tamil Nadu,2023-24,December,state,8.99
+hydro,Moyar Power House,Tamil Nadu,2023-24,February,state,6.39
+hydro,Moyar Power House,Tamil Nadu,2023-24,January,state,7.44
+hydro,Moyar Power House,Tamil Nadu,2023-24,July,state,6.90
+hydro,Moyar Power House,Tamil Nadu,2023-24,June,state,5.32
+hydro,Moyar Power House,Tamil Nadu,2023-24,March,state,6.01
+hydro,Moyar Power House,Tamil Nadu,2023-24,May,state,7.45
+hydro,Moyar Power House,Tamil Nadu,2023-24,November,state,5.22
+hydro,Moyar Power House,Tamil Nadu,2023-24,October,state,10.86
+hydro,Moyar Power House,Tamil Nadu,2023-24,September,state,9.20
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.45
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,7.55
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,11.52
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,18.58
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,16.96
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,7.71
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,0.58
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,12.41
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,4.31
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,15.56
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,9.83
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,8.04
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,1.46
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,0.23
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.44
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,1.76
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.06
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,6.78
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,5.33
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.16
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,25.75
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,85.76
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,76.06
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,52.91
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,25.82
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,16.48
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,31.69
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,30.60
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,68.40
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,26.45
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.38
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,1.79
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,0.63
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,0.27
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,24.12
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,41.56
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,28.47
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,20.80
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,24.39
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,26.98
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,15.42
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,19.47
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,21.47
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,15.37
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,38.65
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,31.59
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,3.76
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,8.51
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,12.35
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,6.86
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,15.12
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,1.11
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,14.41
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,15.49
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,August,state,48.91
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,December,state,13.62
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,February,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,January,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,July,state,1.02
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,June,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,November,state,36.91
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,October,state,33.00
+hydro,Sholayar I Power House,Tamil Nadu,2023-24,September,state,69.41
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,April,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,August,state,1.63
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,December,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,February,state,13.81
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,January,state,6.12
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,July,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,June,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,March,state,4.65
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,May,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,November,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,October,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2023-24,September,state,0.28
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,8.24
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,25.04
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,10.74
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,8.20
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,17.52
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,21.25
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,11.95
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,4.33
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,5.03
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,16.51
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,13.41
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,26.38
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,2.53
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,4.37
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,3.21
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,10.21
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,12.30
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,0.25
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,3.46
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,4.68
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,9.35
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,6.85
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,1.31
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,4.39
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,3.44
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,0.58
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,12.78
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,11.82
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,14.79
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,3.94
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,1.63
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,9.83
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,7.76
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,3.27
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,10.81
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,9.84
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,10.74
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,14.75
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,9.05
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,6.63
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,April,state,30.12
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,August,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,December,state,33.90
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,February,state,33.92
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,January,state,41.67
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,July,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,June,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,March,state,23.27
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,May,state,26.61
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,November,state,32.68
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,October,state,37.94
+hydro,Kadmparai Power House,Tamil Nadu,2022-23,September,state,3.40
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,April,state,26.44
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,August,state,27.89
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,December,state,27.16
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,February,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,January,state,24.42
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,July,state,33.10
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,June,state,25.68
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,March,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,May,state,23.81
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,November,state,39.37
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,October,state,33.15
+hydro,Kodayar I & II Power House,Tamil Nadu,2022-23,September,state,31.41
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,94.88
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,198.03
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,133.54
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,139.05
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,171.39
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,149.75
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,95.70
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,129.95
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,97.03
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,150.35
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,137.44
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,193.77
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,5.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,18.21
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,41.54
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,3.84
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,47.02
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,45.88
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,43.29
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,6.02
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,8.70
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,62.19
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,37.05
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,32.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,11.77
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,33.05
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,12.91
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,7.18
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,18.60
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,30.38
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,19.77
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,9.91
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,15.92
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,20.68
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,22.85
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,23.83
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,August,state,133.81
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,December,state,61.51
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,January,state,58.01
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,July,state,109.25
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,June,state,71.56
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,May,state,9.83
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,November,state,103.96
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,October,state,121.89
+hydro,Mettur Tunnel,Tamil Nadu,2022-23,September,state,127.24
+hydro,Moyar Power House,Tamil Nadu,2022-23,April,state,9.29
+hydro,Moyar Power House,Tamil Nadu,2022-23,August,state,12.72
+hydro,Moyar Power House,Tamil Nadu,2022-23,December,state,9.88
+hydro,Moyar Power House,Tamil Nadu,2022-23,February,state,10.99
+hydro,Moyar Power House,Tamil Nadu,2022-23,January,state,8.58
+hydro,Moyar Power House,Tamil Nadu,2022-23,July,state,11.20
+hydro,Moyar Power House,Tamil Nadu,2022-23,June,state,9.49
+hydro,Moyar Power House,Tamil Nadu,2022-23,March,state,10.33
+hydro,Moyar Power House,Tamil Nadu,2022-23,May,state,8.49
+hydro,Moyar Power House,Tamil Nadu,2022-23,November,state,12.86
+hydro,Moyar Power House,Tamil Nadu,2022-23,October,state,12.33
+hydro,Moyar Power House,Tamil Nadu,2022-23,September,state,12.88
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,4.85
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,14.90
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,11.62
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,11.94
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,14.04
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,12.84
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,10.74
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,5.32
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,4.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,13.39
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,7.77
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,17.92
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,4.59
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,3.71
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,16.14
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,0.52
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,9.39
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,5.37
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,4.94
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,107.54
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,40.24
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,43.57
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,88.59
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,110.62
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,35.73
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,21.07
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,39.87
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,62.41
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,112.26
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,0.03
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,8.50
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,2.94
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,2.51
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,3.24
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,2.32
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,0.01
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,1.92
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,3.16
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,4.37
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,6.33
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,31.72
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,64.28
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,28.77
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,37.12
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,35.92
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,45.24
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,31.52
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,31.32
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,28.94
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,40.78
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,34.97
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,52.93
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,14.97
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,7.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,8.18
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,14.07
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,15.22
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,14.06
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,6.34
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,6.81
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,16.07
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,14.39
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,August,state,73.77
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,December,state,57.40
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,February,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,January,state,48.34
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,July,state,63.45
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,June,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,November,state,9.86
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,October,state,4.82
+hydro,Sholayar I Power House,Tamil Nadu,2022-23,September,state,40.55
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,April,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,August,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,December,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,February,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,January,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,July,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,June,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,March,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,May,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,November,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,October,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2022-23,September,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,5.21
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,17.43
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,0.46
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,13.62
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,6.60
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,1.01
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,6.66
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,11.04
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,8.36
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.41
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,1.60
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,15.59
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,10.72
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,0.98
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,10.72
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,12.93
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,1.46
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,8.43
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,14.89
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,9.60
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.43
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,1.37
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,6.12
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,11.78
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,11.49
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,11.85
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,7.12
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,10.91
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,6.61
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,6.06
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,9.46
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,April,state,1.86
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,August,state,42.85
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,December,state,36.70
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,February,state,28.73
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,January,state,36.24
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,July,state,2.76
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,June,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,March,state,35.16
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,May,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,November,state,32.81
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,October,state,22.23
+hydro,Kadmparai Power House,Tamil Nadu,2021-22,September,state,26.29
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,April,state,27.91
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,August,state,26.41
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,December,state,24.27
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,February,state,19.77
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,January,state,25.87
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,July,state,32.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,June,state,33.83
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,March,state,26.26
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,May,state,5.77
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,November,state,7.93
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,October,state,16.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2021-22,September,state,0.00
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,123.62
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,135.13
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,139.31
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,134.72
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,132.36
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,145.34
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,142.74
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,138.83
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,117.92
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,141.70
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,170.61
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,130.52
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,3.32
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,51.92
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,49.11
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,5.62
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,28.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,44.67
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,24.53
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,8.01
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,3.87
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,21.47
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,7.58
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,43.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,8.05
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,10.31
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,20.89
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,9.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,5.76
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,8.69
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,13.02
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,11.95
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,10.04
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,23.16
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,2.27
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,12.12
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,August,state,56.88
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,December,state,71.93
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,January,state,37.64
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,July,state,56.38
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,June,state,36.73
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,November,state,82.76
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,October,state,5.31
+hydro,Mettur Tunnel,Tamil Nadu,2021-22,September,state,44.86
+hydro,Moyar Power House,Tamil Nadu,2021-22,April,state,5.47
+hydro,Moyar Power House,Tamil Nadu,2021-22,August,state,11.92
+hydro,Moyar Power House,Tamil Nadu,2021-22,December,state,10.18
+hydro,Moyar Power House,Tamil Nadu,2021-22,February,state,9.19
+hydro,Moyar Power House,Tamil Nadu,2021-22,January,state,6.95
+hydro,Moyar Power House,Tamil Nadu,2021-22,July,state,9.27
+hydro,Moyar Power House,Tamil Nadu,2021-22,June,state,6.12
+hydro,Moyar Power House,Tamil Nadu,2021-22,March,state,10.44
+hydro,Moyar Power House,Tamil Nadu,2021-22,May,state,0.51
+hydro,Moyar Power House,Tamil Nadu,2021-22,November,state,11.30
+hydro,Moyar Power House,Tamil Nadu,2021-22,October,state,11.79
+hydro,Moyar Power House,Tamil Nadu,2021-22,September,state,11.33
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,2.45
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,18.85
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,15.12
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,13.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,13.26
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,20.79
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,19.07
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,10.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,4.63
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,19.85
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,12.87
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,13.39
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,3.70
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,4.84
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,4.98
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,3.84
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,4.89
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,4.47
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,3.92
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,6.58
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,3.91
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,6.76
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,79.12
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,71.06
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,39.84
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,61.78
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,94.90
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,87.73
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,20.74
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,30.63
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,103.33
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,98.41
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,84.86
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,0.01
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,0.04
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,0.02
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,0.05
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,16.56
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,34.67
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,30.59
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,27.35
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,23.02
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,26.45
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,20.05
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,33.34
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,2.29
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,34.13
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,39.79
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,34.13
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,15.36
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,15.49
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,8.66
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,15.03
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,15.64
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,0.56
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,15.99
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,13.64
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,12.09
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,14.46
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,16.49
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,August,state,42.37
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,December,state,27.29
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,February,state,52.26
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,January,state,41.23
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,July,state,39.79
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,June,state,18.44
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,March,state,34.44
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,November,state,45.23
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,October,state,52.88
+hydro,Sholayar I Power House,Tamil Nadu,2021-22,September,state,46.22
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,April,state,6.82
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,August,state,12.76
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,December,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,February,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,January,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,July,state,0.77
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,June,state,4.01
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,March,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,May,state,6.85
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,November,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,October,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2021-22,September,state,2.03
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,4.62
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,20.70
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,18.99
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,0.24
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,8.22
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,7.69
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,6.50
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,13.11
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,16.51
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,22.63
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,3.22
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,12.73
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,14.17
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,1.20
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,1.51
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,16.66
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,7.64
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,0.59
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.71
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,15.30
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,13.82
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,14.14
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,13.55
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,3.29
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,1.03
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,0.18
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,15.92
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,8.43
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,0.54
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,9.09
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,14.52
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,14.68
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,9.86
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,0.92
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,1.46
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,11.25
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,6.25
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,7.26
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,12.44
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,11.51
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,April,state,33.83
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,August,state,54.07
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,December,state,27.40
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,February,state,15.17
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,January,state,22.16
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,July,state,39.51
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,June,state,30.75
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,March,state,7.51
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,May,state,46.51
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,November,state,24.01
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,October,state,21.65
+hydro,Kadmparai Power House,Tamil Nadu,2020-21,September,state,31.14
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,April,state,13.79
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,August,state,20.63
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,December,state,38.93
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,February,state,29.32
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,January,state,41.18
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,July,state,14.37
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,June,state,2.86
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,March,state,31.80
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,May,state,11.68
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,November,state,37.08
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,October,state,29.84
+hydro,Kodayar I & II Power House,Tamil Nadu,2020-21,September,state,21.78
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,123.39
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,177.50
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,163.11
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,117.94
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,144.48
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,134.72
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,121.68
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,139.17
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,140.92
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,161.45
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,150.37
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,146.71
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,5.11
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,45.32
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,7.73
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,7.55
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,4.75
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,51.10
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,28.14
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,8.08
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,1.01
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,29.43
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,52.41
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,49.86
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,8.83
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,14.59
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,7.82
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,10.73
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,6.63
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,13.58
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,11.88
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,11.56
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,3.64
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,12.78
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,13.06
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,18.71
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,August,state,66.79
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,December,state,1.91
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,January,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,July,state,58.53
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,June,state,34.50
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,November,state,33.07
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,October,state,73.36
+hydro,Mettur Tunnel,Tamil Nadu,2020-21,September,state,69.00
+hydro,Moyar Power House,Tamil Nadu,2020-21,April,state,8.14
+hydro,Moyar Power House,Tamil Nadu,2020-21,August,state,13.92
+hydro,Moyar Power House,Tamil Nadu,2020-21,December,state,11.52
+hydro,Moyar Power House,Tamil Nadu,2020-21,February,state,8.92
+hydro,Moyar Power House,Tamil Nadu,2020-21,January,state,11.44
+hydro,Moyar Power House,Tamil Nadu,2020-21,July,state,6.73
+hydro,Moyar Power House,Tamil Nadu,2020-21,June,state,8.81
+hydro,Moyar Power House,Tamil Nadu,2020-21,March,state,7.53
+hydro,Moyar Power House,Tamil Nadu,2020-21,May,state,9.09
+hydro,Moyar Power House,Tamil Nadu,2020-21,November,state,9.77
+hydro,Moyar Power House,Tamil Nadu,2020-21,October,state,8.60
+hydro,Moyar Power House,Tamil Nadu,2020-21,September,state,7.76
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,4.32
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,14.36
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,13.99
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,12.85
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,19.69
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,5.78
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,4.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,7.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,5.01
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,16.94
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,10.62
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,17.18
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,2.72
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,7.50
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,2.60
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,3.28
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,3.90
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,5.77
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,4.13
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,8.34
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,2.94
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,3.74
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,5.96
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,96.79
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,78.52
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,31.79
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,39.94
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,20.35
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,88.90
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,99.98
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,91.76
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,0.03
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,0.01
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,0.00
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,23.99
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,45.36
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,33.00
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,27.03
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,33.39
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,20.47
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,25.58
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,23.58
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,29.07
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,28.70
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,27.06
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,20.71
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,15.80
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,9.38
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,13.36
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,13.50
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,12.09
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,0.46
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,13.91
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,14.36
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,13.22
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,15.73
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,15.48
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,August,state,57.96
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,December,state,49.62
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,February,state,17.83
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,January,state,10.29
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,July,state,46.35
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,June,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,November,state,43.83
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,October,state,32.54
+hydro,Sholayar I Power House,Tamil Nadu,2020-21,September,state,32.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,April,state,0.70
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,August,state,13.26
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,December,state,19.38
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,February,state,14.61
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,January,state,21.26
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,July,state,1.61
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,June,state,1.09
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,March,state,4.97
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,May,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,November,state,12.73
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,October,state,8.29
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2020-21,September,state,13.20
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,5.33
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,17.84
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,1.72
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,2.70
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,5.48
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,10.14
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,9.14
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,20.56
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,0.46
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,8.16
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,7.90
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,1.13
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,8.44
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.84
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.42
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.95
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.91
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,11.52
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,11.79
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,10.87
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,2.58
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,8.99
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,9.48
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,9.87
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,0.31
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,13.82
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,11.94
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,6.40
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,5.53
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,14.53
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,9.41
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,April,state,0.79
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,August,state,48.60
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,December,state,40.39
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,February,state,38.21
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,January,state,39.53
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,July,state,19.25
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,June,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,March,state,44.37
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,May,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,November,state,47.10
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,October,state,45.39
+hydro,Kadmparai Power House,Tamil Nadu,2019-20,September,state,46.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,April,state,4.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,August,state,12.70
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,December,state,23.15
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,February,state,15.27
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,January,state,17.15
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,July,state,9.57
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,June,state,9.38
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,March,state,16.29
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,May,state,7.19
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,November,state,20.38
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,October,state,18.23
+hydro,Kodayar I & II Power House,Tamil Nadu,2019-20,September,state,21.49
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,99.86
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,121.45
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,158.63
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,138.61
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,149.49
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,87.97
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,92.10
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,135.20
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,114.53
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,142.05
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,165.36
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,153.97
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,8.58
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,30.51
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,26.78
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,4.53
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,34.04
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,2.86
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,1.75
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,5.56
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,3.21
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,38.83
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,49.27
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,39.26
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,5.43
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,13.96
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,14.88
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,7.06
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,13.22
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,4.81
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,3.71
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,8.61
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,5.44
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,16.10
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,25.78
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,26.61
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,April,state,5.91
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,August,state,39.76
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,December,state,27.39
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,January,state,40.20
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,July,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,June,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,November,state,50.53
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,October,state,100.39
+hydro,Mettur Tunnel,Tamil Nadu,2019-20,September,state,107.85
+hydro,Moyar Power House,Tamil Nadu,2019-20,April,state,5.86
+hydro,Moyar Power House,Tamil Nadu,2019-20,August,state,15.96
+hydro,Moyar Power House,Tamil Nadu,2019-20,December,state,14.46
+hydro,Moyar Power House,Tamil Nadu,2019-20,February,state,8.48
+hydro,Moyar Power House,Tamil Nadu,2019-20,January,state,13.05
+hydro,Moyar Power House,Tamil Nadu,2019-20,July,state,3.39
+hydro,Moyar Power House,Tamil Nadu,2019-20,June,state,3.88
+hydro,Moyar Power House,Tamil Nadu,2019-20,March,state,11.78
+hydro,Moyar Power House,Tamil Nadu,2019-20,May,state,7.32
+hydro,Moyar Power House,Tamil Nadu,2019-20,November,state,14.15
+hydro,Moyar Power House,Tamil Nadu,2019-20,October,state,14.21
+hydro,Moyar Power House,Tamil Nadu,2019-20,September,state,15.06
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,1.42
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,7.33
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,18.90
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,13.93
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,16.23
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,4.32
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.16
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,8.33
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.16
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,12.68
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,6.13
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,17.04
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,6.85
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,3.01
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,0.07
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,1.02
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.44
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,0.62
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,2.20
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,4.94
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,73.94
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,77.89
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,8.29
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,44.27
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,7.52
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.03
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,102.57
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,89.85
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,97.70
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,0.04
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,8.77
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,0.29
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.01
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,0.61
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,8.18
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,18.10
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,48.32
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,42.23
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,24.31
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,37.02
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,11.80
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,12.77
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,34.09
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,21.95
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,40.87
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,35.67
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,44.99
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,14.47
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,0.03
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,10.74
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,15.72
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,13.67
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.35
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,16.78
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,12.14
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,11.92
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,12.53
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,9.59
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,August,state,57.53
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,December,state,39.98
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,February,state,8.87
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,January,state,54.10
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,July,state,12.61
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,June,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,November,state,28.25
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,October,state,30.54
+hydro,Sholayar I Power House,Tamil Nadu,2019-20,September,state,58.51
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,April,state,7.10
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,August,state,9.37
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,December,state,22.91
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,February,state,3.97
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,January,state,16.01
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,July,state,1.07
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,June,state,0.17
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,March,state,2.74
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,May,state,0.82
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,November,state,19.44
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,October,state,16.91
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2019-20,September,state,14.99
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,4.77
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,11.03
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,7.68
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,0.02
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,13.75
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,11.32
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.48
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,10.44
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,11.83
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,7.11
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,3.03
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.23
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,0.49
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.90
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,3.80
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,14.58
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,16.94
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,12.37
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,12.83
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,0.15
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,7.85
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,3.65
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,0.03
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.01
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,4.64
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,16.37
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,19.26
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,10.42
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,6.38
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,3.94
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,11.99
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,1.33
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,April,state,39.84
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,August,state,49.69
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,December,state,21.11
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,February,state,24.84
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,January,state,29.01
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,July,state,48.07
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,June,state,58.29
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,March,state,20.95
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,May,state,42.98
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,November,state,26.01
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,October,state,39.35
+hydro,Kadmparai Power House,Tamil Nadu,2018-19,September,state,34.61
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,April,state,23.83
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,August,state,31.27
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,December,state,11.89
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,February,state,10.73
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,January,state,24.24
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,July,state,8.01
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,June,state,10.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,March,state,0.00
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,May,state,20.23
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,November,state,10.18
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,October,state,21.51
+hydro,Kodayar I & II Power House,Tamil Nadu,2018-19,September,state,21.86
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,123.58
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,203.15
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,127.04
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,92.33
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,84.91
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,158.62
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,132.25
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,125.45
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,102.54
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,133.56
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,174.08
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,151.48
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.08
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,31.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,38.97
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,3.39
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,23.73
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,8.18
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,1.66
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,4.26
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,2.25
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,8.64
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,44.62
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,53.53
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,33.36
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,13.82
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,3.80
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,9.25
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,19.06
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,2.30
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,5.71
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,3.07
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,7.27
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,18.86
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,31.46
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,August,state,127.18
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,December,state,51.26
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,February,state,0.66
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,January,state,23.01
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,July,state,55.24
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,June,state,0.02
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,March,state,0.69
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,November,state,5.23
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,October,state,66.06
+hydro,Mettur Tunnel,Tamil Nadu,2018-19,September,state,111.24
+hydro,Moyar Power House,Tamil Nadu,2018-19,April,state,15.58
+hydro,Moyar Power House,Tamil Nadu,2018-19,August,state,23.30
+hydro,Moyar Power House,Tamil Nadu,2018-19,December,state,11.11
+hydro,Moyar Power House,Tamil Nadu,2018-19,February,state,7.43
+hydro,Moyar Power House,Tamil Nadu,2018-19,January,state,10.59
+hydro,Moyar Power House,Tamil Nadu,2018-19,July,state,17.40
+hydro,Moyar Power House,Tamil Nadu,2018-19,June,state,10.92
+hydro,Moyar Power House,Tamil Nadu,2018-19,March,state,9.76
+hydro,Moyar Power House,Tamil Nadu,2018-19,May,state,11.89
+hydro,Moyar Power House,Tamil Nadu,2018-19,November,state,9.56
+hydro,Moyar Power House,Tamil Nadu,2018-19,October,state,17.27
+hydro,Moyar Power House,Tamil Nadu,2018-19,September,state,17.18
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.98
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,18.52
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,13.15
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,12.10
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,16.05
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,17.17
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,6.17
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,5.86
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,1.32
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,9.06
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,5.63
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,14.90
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,1.59
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,12.83
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,1.17
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,0.35
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,1.31
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,9.77
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,1.14
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.57
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,2.09
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,4.99
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,10.13
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,122.39
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,62.66
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,17.75
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,34.45
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,103.78
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,60.61
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,2.36
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,77.92
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,116.44
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,104.64
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,14.74
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,0.04
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,0.43
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,4.35
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.01
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,2.48
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,44.72
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,93.90
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,32.24
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,21.95
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,31.69
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,53.51
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,30.29
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,27.50
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,35.35
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,27.54
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,49.26
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,60.01
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,15.90
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,12.38
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,16.32
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,14.14
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,14.24
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,18.21
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,12.71
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,13.79
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,11.96
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,August,state,31.35
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,December,state,30.93
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,February,state,21.18
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,January,state,24.37
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,July,state,15.64
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,June,state,0.02
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,March,state,10.25
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,November,state,34.12
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,October,state,28.22
+hydro,Sholayar I Power House,Tamil Nadu,2018-19,September,state,24.78
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,April,state,6.64
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,August,state,15.16
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,December,state,1.55
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,February,state,2.59
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,January,state,3.23
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,July,state,1.28
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,June,state,2.01
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,March,state,1.46
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,May,state,7.91
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,November,state,16.09
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,October,state,18.54
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2018-19,September,state,16.09
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,19.42
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,4.96
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,11.50
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,2.77
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.02
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,6.08
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,5.55
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,18.15
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,21.63
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,6.82
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,6.48
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.83
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.28
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,2.55
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.05
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,7.18
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,7.96
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,12.91
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,2.13
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,7.43
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,0.00
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,April,state,20.94
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,August,state,42.44
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,December,state,49.48
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,February,state,36.80
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,January,state,50.12
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,July,state,10.70
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,June,state,3.79
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,March,state,48.73
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,May,state,1.55
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,November,state,49.11
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,October,state,38.48
+hydro,Kadmparai Power House,Tamil Nadu,2017-18,September,state,32.36
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,April,state,13.55
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,August,state,5.77
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,December,state,10.89
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,February,state,7.46
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,January,state,18.18
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,July,state,2.24
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,June,state,4.56
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,March,state,0.16
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,May,state,8.64
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,November,state,20.97
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,October,state,16.20
+hydro,Kodayar I & II Power House,Tamil Nadu,2017-18,September,state,15.40
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,62.41
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,49.01
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,85.37
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,80.42
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,78.50
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,44.46
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,43.25
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,102.74
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,43.20
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,64.44
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,71.28
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,80.95
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,5.32
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,21.83
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,19.90
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.20
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,1.71
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,25.96
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,47.48
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,9.55
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.04
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,5.87
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,4.10
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,3.75
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.06
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,1.46
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,10.21
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,19.52
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,7.19
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,August,state,0.01
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,December,state,26.51
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,January,state,20.99
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,July,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,June,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,November,state,24.30
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,October,state,85.00
+hydro,Mettur Tunnel,Tamil Nadu,2017-18,September,state,6.53
+hydro,Moyar Power House,Tamil Nadu,2017-18,April,state,10.06
+hydro,Moyar Power House,Tamil Nadu,2017-18,August,state,5.39
+hydro,Moyar Power House,Tamil Nadu,2017-18,December,state,10.40
+hydro,Moyar Power House,Tamil Nadu,2017-18,February,state,10.16
+hydro,Moyar Power House,Tamil Nadu,2017-18,January,state,9.80
+hydro,Moyar Power House,Tamil Nadu,2017-18,July,state,3.25
+hydro,Moyar Power House,Tamil Nadu,2017-18,June,state,2.16
+hydro,Moyar Power House,Tamil Nadu,2017-18,March,state,13.27
+hydro,Moyar Power House,Tamil Nadu,2017-18,May,state,4.12
+hydro,Moyar Power House,Tamil Nadu,2017-18,November,state,8.19
+hydro,Moyar Power House,Tamil Nadu,2017-18,October,state,7.66
+hydro,Moyar Power House,Tamil Nadu,2017-18,September,state,10.00
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,2.88
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,6.33
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,16.53
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,12.22
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,19.84
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,4.24
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,6.65
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,6.71
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,2.89
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,11.15
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,17.04
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,8.83
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,1.64
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,5.73
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,2.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,1.44
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.75
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.48
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,4.83
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,2.83
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,3.73
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,3.67
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,86.23
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,3.08
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,35.26
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,71.09
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,54.29
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,37.11
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.02
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,0.89
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,0.02
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.05
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,0.00
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,30.81
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,15.56
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,31.20
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,29.51
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,29.78
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,8.92
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,7.79
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,39.19
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,10.66
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,24.19
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,22.95
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,23.52
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,12.60
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,12.42
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,7.97
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,13.06
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,9.94
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,16.64
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,12.82
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,April,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,August,state,37.68
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,December,state,9.06
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,February,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,January,state,0.55
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,July,state,23.29
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,June,state,1.59
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,November,state,26.47
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,October,state,29.28
+hydro,Sholayar I Power House,Tamil Nadu,2017-18,September,state,29.80
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,April,state,2.97
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,August,state,4.23
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,December,state,15.99
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,February,state,2.63
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,January,state,4.67
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,July,state,0.62
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,June,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,March,state,4.99
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,May,state,0.02
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,November,state,16.72
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,October,state,11.89
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2017-18,September,state,5.98
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,5.70
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,4.70
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,4.83
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,1.67
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,1.83
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,4.62
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,1.03
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,4.44
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,16.87
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,6.02
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,7.46
+hydro,Aliyar Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,2.56
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,0.95
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,1.15
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,0.46
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.05
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,0.08
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,2.17
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,1.04
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.68
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,1.29
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,12.19
+hydro,Bhavani Kattalai Barrage I Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,0.53
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,0.40
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.17
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.00
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,1.52
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,13.57
+hydro,Bhavani Kattalai Barrage II Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,4.17
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,0.13
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,2.17
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.00
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,0.81
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,10.34
+hydro,Bhavani Kattalai Barrage III Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,4.02
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,April,state,44.98
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,August,state,21.05
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,December,state,27.05
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,February,state,29.72
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,January,state,21.85
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,July,state,10.37
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,June,state,1.28
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,March,state,33.08
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,May,state,20.47
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,November,state,30.30
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,October,state,27.42
+hydro,Kadmparai Power House,Tamil Nadu,2016-17,September,state,21.82
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,April,state,28.24
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,August,state,14.42
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,December,state,17.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,February,state,13.82
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,January,state,11.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,July,state,14.09
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,June,state,10.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,March,state,16.33
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,May,state,16.32
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,November,state,13.47
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,October,state,1.13
+hydro,Kodayar I & II Power House,Tamil Nadu,2016-17,September,state,12.62
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,181.76
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,23.72
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,50.18
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,44.49
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,43.03
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,57.82
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,71.95
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,59.21
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,113.66
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,63.52
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,87.79
+hydro,Kundah I to V Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,18.48
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,3.79
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,2.60
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,2.81
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.08
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,1.03
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,9.70
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,1.27
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,2.98
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,5.77
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,45.11
+hydro,Lower Mettur I to IV Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,17.13
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,5.92
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,3.26
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,2.86
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.67
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,1.28
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,6.20
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,3.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.50
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,4.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,4.39
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,6.08
+hydro,Mettur Dam Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,6.43
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,April,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,August,state,0.17
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,December,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,February,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,January,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,July,state,4.13
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,June,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,March,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,May,state,0.00
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,November,state,1.11
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,October,state,52.17
+hydro,Mettur Tunnel,Tamil Nadu,2016-17,September,state,23.15
+hydro,Moyar Power House,Tamil Nadu,2016-17,April,state,15.91
+hydro,Moyar Power House,Tamil Nadu,2016-17,August,state,2.12
+hydro,Moyar Power House,Tamil Nadu,2016-17,December,state,3.77
+hydro,Moyar Power House,Tamil Nadu,2016-17,February,state,2.24
+hydro,Moyar Power House,Tamil Nadu,2016-17,January,state,2.61
+hydro,Moyar Power House,Tamil Nadu,2016-17,July,state,4.12
+hydro,Moyar Power House,Tamil Nadu,2016-17,June,state,4.79
+hydro,Moyar Power House,Tamil Nadu,2016-17,March,state,3.59
+hydro,Moyar Power House,Tamil Nadu,2016-17,May,state,8.34
+hydro,Moyar Power House,Tamil Nadu,2016-17,November,state,3.12
+hydro,Moyar Power House,Tamil Nadu,2016-17,October,state,9.32
+hydro,Moyar Power House,Tamil Nadu,2016-17,September,state,1.59
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,4.08
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,10.81
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,2.82
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,1.34
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,2.19
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,15.51
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,10.71
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,2.94
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,4.93
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,2.83
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,1.09
+hydro,Papanasam Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,7.29
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,5.61
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,0.03
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,1.33
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,2.08
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,1.42
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,0.18
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.05
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,6.41
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,3.02
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,1.22
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,2.60
+hydro,Parson's Valley Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,34.60
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,20.59
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,3.40
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,0.00
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,10.96
+hydro,Periyar Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,24.36
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,0.02
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,2.23
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.04
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,5.68
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.92
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.04
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,0.00
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,0.86
+hydro,Pykara Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,2.95
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,57.98
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,4.69
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,12.19
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,8.13
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,9.14
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,7.29
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,14.74
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,12.56
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,24.90
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,10.79
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,27.80
+hydro,Pykara Ultimate Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,2.34
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,7.67
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,3.32
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,8.25
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,3.12
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,0.00
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,10.90
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,12.94
+hydro,Sarkarpathy Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,17.09
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,April,state,6.09
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,August,state,50.79
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,December,state,2.77
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,February,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,January,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,July,state,60.80
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,June,state,2.28
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,March,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,May,state,0.00
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,November,state,10.58
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,October,state,45.86
+hydro,Sholayar I Power House,Tamil Nadu,2016-17,September,state,48.94
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,April,state,5.57
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,August,state,4.64
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,December,state,2.13
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,February,state,0.15
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,January,state,1.67
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,July,state,5.09
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,June,state,0.00
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,March,state,3.76
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,May,state,5.83
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,November,state,5.93
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,October,state,3.34
+hydro,Suruliyar Hydroelectric Power Project,Tamil Nadu,2016-17,September,state,4.60

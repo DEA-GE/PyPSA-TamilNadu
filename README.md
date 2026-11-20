@@ -766,9 +766,26 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   places it in the merit order.
 - `free`: no equality and the network's own availability.
 
+With `availability_source: plant` (the default), oil/gas and nuclear are
+scaled plant by plant. Each plant receives the carrier's observed energy in the
+period (the daily budgets above) times its share of the carrier's monthly
+generation in the NITI Dashboard (ICED) plant data
+(`data/model_inputs/niti_iced_tamil_nadu_monthly_generation.csv`, built by
+`scripts/data_preparation/prepare_niti_iced_monthly_generation.py`; plants are
+matched to model units in `data/model_inputs/niti_iced_plant_mapping.csv`).
+Plants that did not generate get no availability. In FY2025-26 only Kuttalam
+(100 MW, 20–84% of capacity by month) and Valuthur (186 MW, 24–50%) ran; Basin
+Bridge, PPN and Thirumakottai (558 MW) are unavailable. Nuclear outages fall on
+the right plant (MAPS is unavailable in September and October 2025). In
+June, July, February and March ICED reports Kudankulam above its 2,000 MW
+nameplate (by 0.8–2.4%, likely gross generation), so 144.5 GWh (1% of nuclear)
+cannot be made available. Bio-power and small hydro are observed only as state
+totals and are always scaled per carrier; `availability_source: carrier`
+scales oil/gas and nuclear the same way.
+
 Units on a fixed schedule (`p_min_pu` equal to `p_max_pu`, the REA export
 reservations: 5,491 GWh of nuclear and 5 GWh of bio-power) are never rescaled;
-their energy is subtracted from the observed total first. Minimum outputs above
+their energy is subtracted from the observed total (per plant) first. Minimum outputs above
 the new availability are lowered to it. The `marginal_costs` section overrides
 the marginal cost of every unit of `oil_gas`, `diesel`, `bio_power`, `nuclear`
 or `small_hydro` (INR/MWh), for calibrating prices against the released runs:
@@ -783,8 +800,10 @@ Each run writes `energy_target_availability.csv` (observed, scheduled and
 available energy per carrier and period, and any shortfall) and
 `marginal_cost_overrides.csv`; the resolved policy is in `validation.json`.
 A non-default policy changes the checkpoint fingerprint, so rolling runs do not
-resume from checkpoints solved with other targets. The monthly availability
-reaches the observed energy in every month for all four carriers.
+resume from checkpoints solved with other targets. With carrier-level scaling
+the monthly availability reaches the observed energy in every month for all
+four carriers; with plant-level scaling only the Kudankulam months above fall
+short.
 
 ## Reservoir hydro and seasonal inflow
 

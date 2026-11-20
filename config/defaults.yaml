@@ -85,6 +85,11 @@ energy_targets:
   bio_power: target
   small_hydro: target
   availability_period: monthly    # monthly | daily
+  # plant: oil/gas and nuclear are scaled plant by plant with each plant's
+  # share of NITI ICED monthly generation (idle plants get no availability);
+  # carrier: one scaling for all units of a carrier. Bio-power and small hydro
+  # are observed only as state totals and are always scaled per carrier.
+  availability_source: plant      # plant | carrier
 
 marginal_costs:
   # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier;
