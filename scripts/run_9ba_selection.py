@@ -1559,16 +1559,22 @@ def _run_selection(
         if solver_threads.strip().casefold() != "default":
             raise ValueError("solver_threads must be 'Default' or an integer from 1 to 8")
         solver_threads = None
-    if solver_threads is None:
-        # The weekly no-UC simplex solves scale poorly beyond 3 threads; the
-        # full-year annual LP uses the interior-point method on 8.
-        solver_threads = 8 if unit_commitment in {"full", "relaxed"} or mode == "annual" else 3
     lp_method = str(lp_method).strip().lower()
     if lp_method not in {"default", "ipm", "simplex"}:
         raise ValueError("lp_method must be 'Default', 'ipm' or 'simplex'")
     if lp_method != "default" and mode != "annual":
         raise ValueError("lp_method applies to the annual mode only")
-    annual_lp_solver = "ipm" if lp_method == "default" else lp_method
+    # The annual LP defaults to the dual simplex: on the battery
+    # capacity-expansion LP, HiGHS' interior point (IPX) needed about 28 min to
+    # build its starting basis and 21 min per iteration.
+    annual_lp_solver = "simplex" if lp_method == "default" else lp_method
+    if solver_threads is None:
+        # No-UC simplex solves scale poorly beyond 3 threads; an explicitly
+        # chosen annual interior-point solve uses 8.
+        solver_threads = (
+            8 if unit_commitment in {"full", "relaxed"}
+            or (mode == "annual" and annual_lp_solver == "ipm") else 3
+        )
     if isinstance(parallel_workers, str):
         if parallel_workers.strip().casefold() != "default":
             raise ValueError("parallel_workers must be 'Default' or a positive integer")
@@ -1758,7 +1764,7 @@ def _solve_mode(
     soc_boundary_tolerance_pu: float,
     resume: bool,
     max_windows: int | None,
-    annual_lp_solver: str = "ipm",
+    annual_lp_solver: str = "simplex",
     crossover: bool = True,
 ) -> tuple[pd.DataFrame, dict, pypsa.Network | None]:
     """Dispatch to the solver workflow of one run mode."""
