@@ -1121,7 +1121,8 @@ def run_annual_no_uc(
     network = base_network.copy()
     # The source profile is a placeholder. The period-energy constraints below
     # are the operating evidence, so dispatch remains available at nameplate.
-    network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+    if target_enabled(network, "small_hydro"):
+        network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
     measured_store_targets = _measured_store_targets(
         observed_soc, hydro_parameters, network
     )
@@ -1404,7 +1405,8 @@ def run_rolling_year(
         # The inherited placeholder profile cannot supply the observed monthly
         # energy. Weekly energy equalities replace that profile as the operating
         # evidence, so availability is nameplate and timing is optimized.
-        base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+        if target_enabled(base_network, "small_hydro"):
+            base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
         observed_soc, hydro_parameters, monthly_soc, hydro_input_hash = _hydro_storage_inputs()
         measured_store_targets = _measured_store_targets(
             observed_soc, hydro_parameters, base_network
