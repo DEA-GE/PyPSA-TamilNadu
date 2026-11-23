@@ -75,8 +75,9 @@ DEFAULT_POLICY: dict[str, Any] = {
     "cap_period": "annual",
     "oil_gas_cap_availability": 0.9,
     "bio_power_cap_availability": 0.6,
-    "cap_transfer": "prorate",
-    "cap_source": "",
+    "cap_transfer": "allocation",
+    # Produced by config/runs/annual_capped_monthly.yaml.
+    "cap_source": "results/run_results/annual_2025-04-01_2026-03-31_LP/annual_capped_monthly",
 }
 _ALLOWED_VALUES = {
     "availability_period": tuple(AVAILABILITY_PERIODS),
@@ -575,7 +576,11 @@ def load_cap_source(policy: Mapping[str, Any]) -> pypsa.Network:
         path = ROOT / path
     network_file = path / "solved_network.nc" if path.is_dir() else path
     if not network_file.exists():
-        raise ValueError(f"energy_targets.cap_source has no solved network: {network_file}")
+        raise ValueError(
+            f"energy_targets.cap_source has no solved network: {network_file}. Run the annual LP "
+            "with the same energy caps first (python scripts/run_model.py "
+            "config/runs/annual_capped_monthly.yaml), or set energy_targets.cap_transfer: prorate."
+        )
     return pypsa.Network(str(network_file))
 
 

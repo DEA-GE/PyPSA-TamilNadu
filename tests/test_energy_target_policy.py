@@ -218,7 +218,7 @@ def test_energy_cap_sets_flat_availability_and_plant_caps(tmp_path, monkeypatch)
     monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [600.0, 600.0]}))
     network = _cheap_gas_network()
     _, _, report, _ = apply_energy_target_policy(
-        network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {}
+        network, {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {}
     )
     p_max = network.generators_t.p_max_pu
     assert set(p_max["base_1"].unique()) == {0.9} and set(p_max["idle_1"].unique()) == {0.9}
@@ -238,7 +238,7 @@ def test_energy_cap_binds_and_is_prorated(tmp_path, monkeypatch, hours, expected
         policy_module, "observed_energy_mwh",
         lambda carrier, frequency: pd.Series([1200.0], index=[pd.Timestamp("2025-04-01")]),
     )
-    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {})
+    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {})
     solved = network.copy(snapshots=network.snapshots[:hours])
     solved.optimize(
         solver_name="highs",
@@ -256,7 +256,7 @@ def _capped_source(tmp_path, monkeypatch) -> tuple[pypsa.Network, Path]:
     network = _cheap_gas_network()
     backup_cost = pd.Series([100.0] * 24 + [50.0] * 24, index=network.snapshots)
     network.generators_t.marginal_cost["backup"] = backup_cost
-    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {})
+    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {})
     network.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
     folder = tmp_path / "source"
     folder.mkdir()
@@ -304,7 +304,7 @@ def test_cap_transfer_needs_a_source(tmp_path, monkeypatch):
     monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [300.0, 300.0]}))
     with pytest.raises(ValueError, match="cap_source"):
         apply_energy_target_policy(
-            _cheap_gas_network(), {"oil_gas": "energy_cap", "cap_transfer": "allocation"}, {}
+            _cheap_gas_network(), {"oil_gas": "energy_cap", "cap_transfer": "allocation", "cap_source": ""}, {}
         )
 
 
@@ -334,12 +334,12 @@ def _solve_with_caps(network: pypsa.Network) -> pypsa.Network:
 def test_sparse_annual_cap_matches_a_dense_row(monkeypatch):
     # The annual cap spans April and May here, so it is written with monthly auxiliaries.
     sparse = _two_month_bio_network(monkeypatch, 500.0, 700.0)
-    apply_energy_target_policy(sparse, {"bio_power": "energy_cap", "cap_period": "annual"}, {})
+    apply_energy_target_policy(sparse, {"bio_power": "energy_cap", "cap_period": "annual", "cap_transfer": "prorate"}, {})
     _solve_with_caps(sparse)
     assert "EnergyCap_bio_power_0_2025043000_monthly_energy" in sparse.model.variables
 
     dense = _two_month_bio_network(monkeypatch, 500.0, 700.0)
-    apply_energy_target_policy(dense, {"bio_power": "energy_cap", "cap_period": "annual"}, {})
+    apply_energy_target_policy(dense, {"bio_power": "energy_cap", "cap_period": "annual", "cap_transfer": "prorate"}, {})
     caps = dense.meta[policy_module.CAPS_KEY]
     dense.meta = {**dense.meta, policy_module.CAPS_KEY: []}
 
@@ -359,7 +359,7 @@ def test_monthly_caps_stay_separate_in_a_multi_month_solve(monkeypatch):
     # April may use 300 MWh, May nothing; a merged cap would let May use April's fuel.
     # Caps refer to the hours each period has in the network (here one day each).
     network = _two_month_bio_network(monkeypatch, 300.0, 0.0)
-    apply_energy_target_policy(network, {"bio_power": "energy_cap", "cap_period": "monthly"}, {})
+    apply_energy_target_policy(network, {"bio_power": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {})
     _solve_with_caps(network)
     bio = network.generators_t.p[["bio_1", "bio_2"]].sum(axis=1)
     assert bio.iloc[:24].sum() == pytest.approx(300.0)

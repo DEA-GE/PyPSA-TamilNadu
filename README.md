@@ -791,17 +791,26 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   the whole year). The annual-cap annual LP has not been rerun with it.
 
   A rolling window cannot see the rest of the year, so `cap_transfer` sets how
-  a cap reaches solves shorter than its period. `prorate` (default) gives each
-  solve the cap times its share of the period's hours. The two-stage options
-  use an annual LP run with the same caps (`cap_source`, its results folder):
-  `allocation` makes each plant's daily dispatch in that run its cap, so a
-  window may use what the annual LP used on its days; `shadow_price` recovers
-  each cap's shadow price from the annual LP (price minus marginal cost in
-  hours the plant runs part-loaded, or the midpoint of the bounds from hours
-  it is off or at full output), adds it to the plant's marginal cost and drops
-  the cap (zero caps stay). `config/runs/rolling_relaxed_cap_allocation.yaml`
-  and `rolling_relaxed_cap_shadow_price.yaml` compare the two after
-  `annual_capped_annual` has run.
+  a cap reaches solves shorter than its period (the annual mode solves whole
+  periods and always enforces caps exactly). The default, `allocation`, is
+  two-stage: an annual LP with the same caps (`cap_source`, by default the
+  results of `config/runs/annual_capped_monthly.yaml`, which must be run
+  first) allocates the fuel over the year, and each plant's daily dispatch in
+  it becomes its cap, summed over the days a window solves. `prorate` gives each
+  solve the cap times its share of the period's hours. `shadow_price` is
+  experimental: it recovers each cap's shadow price from the annual LP (price
+  minus marginal cost in hours the plant runs part-loaded, or the midpoint of
+  the bounds from hours it is off or at full output), adds it to the plant's
+  marginal cost and drops the cap (zero caps stay).
+
+  In the relaxed rolling year (`config/runs/rolling_relaxed_cap_allocation.yaml`
+  and `rolling_relaxed_cap_shadow_price.yaml`, 63–67 min each), allocation kept
+  bio-power at 190 GWh against its 189 GWh cap and gas at 180 GWh, matching the
+  annual LP. The shadow-price transfer produced 679 GWh of bio-power: its cost
+  plus a small scarcity adder sits close to typical prices, so the different
+  prices of rolling relaxed unit commitment swing it, and a month whose cap did
+  not bind in the annual LP (January) gets no adder at all. It needs further
+  development (for example keeping a prorated cap as a backstop) before use.
 - `free`: no equality and the network's own availability.
 
 With `availability_source: plant` (the default), oil/gas and nuclear are

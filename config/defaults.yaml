@@ -101,16 +101,20 @@ energy_targets:
   cap_period: annual              # annual | monthly
   oil_gas_cap_availability: 0.9
   bio_power_cap_availability: 0.6
-  # How caps reach solves shorter than their period (rolling windows, days):
-  #   prorate       cap x share of the period's hours solved
+  # How caps reach solves shorter than their period (rolling windows, days).
+  # The annual mode solves whole periods and always enforces caps exactly.
   #   allocation    each plant's daily dispatch in the cap_source annual LP
-  #                 becomes its cap (the annual LP allocates the year's fuel)
-  #   shadow_price  the cap's shadow price recovered from the cap_source
-  #                 annual LP is added to marginal cost; positive caps dropped
-  cap_transfer: prorate           # prorate | allocation | shadow_price
+  #                 becomes its cap (the annual LP allocates the year's fuel);
+  #                 kept within 1% of the annual LP in the rolling test
+  #   prorate       cap x share of the period's hours solved
+  #   shadow_price  experimental: the cap's shadow price from the cap_source
+  #                 annual LP is added to marginal cost and positive caps are
+  #                 dropped; overshot the bio-power cap 3.6x in the rolling test
+  cap_transfer: allocation        # allocation | prorate | shadow_price
   # Results folder (or solved_network.nc) of an annual run with the same caps;
-  # required for allocation and shadow_price. Relative to the repository root.
-  cap_source: ""
+  # used by allocation and shadow_price, relative to the repository root.
+  # Produce it with: python scripts/run_model.py config/runs/annual_capped_monthly.yaml
+  cap_source: results/run_results/annual_2025-04-01_2026-03-31_LP/annual_capped_monthly
 
 marginal_costs:
   # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier,

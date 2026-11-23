@@ -1664,7 +1664,13 @@ def _run_selection(
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
-        ) = apply_energy_target_policy(base_network, energy_targets, marginal_costs)
+        ) = apply_energy_target_policy(
+            base_network,
+            # The annual LP solves whole cap periods: caps apply exactly and
+            # it is the source of any allocation, so no transfer is needed.
+            {**(energy_targets or {}), "cap_transfer": "prorate"} if mode == "annual" else energy_targets,
+            marginal_costs,
+        )
     released = [
         f"{carrier}: {energy_target_policy[carrier]}"
         for carrier in TARGET_CARRIERS if energy_target_policy[carrier] != "target"
