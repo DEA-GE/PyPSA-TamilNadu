@@ -30,6 +30,7 @@ from highs_solver_options import (
     solve_attempts,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from generator_outages import coal_own_use
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
 
 from nuclear_energy_targets import (
@@ -1047,6 +1048,12 @@ def _window_metrics(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> dict
     output["comparable_total"] = output[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum(axis=1)
+    # Auxiliary consumption of net (ex-bus) coal dispatch, added back when
+    # comparing with observed gross generation.
+    own_use = coal_own_use(network).reindex(snapshots).mul(weights, axis=0)
+    output["coal_own_use"] = (
+        own_use.groupby(own_use.index.normalize()).sum().div(1000.0).reindex(output.index).fillna(0.0)
+    )
     output.index.name = "date"
     return output
 

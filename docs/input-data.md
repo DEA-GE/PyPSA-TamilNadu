@@ -747,9 +747,14 @@ Limitations:
   all other inputs.
 - Auxiliary consumption is normative or from 2017-18, and constant over the
   year; part-load running raises it in reality.
-- The results report compares net model coal output with gross observed
-  generation; divide model coal by (1 − auxiliary consumption) for a like-for-like
-  comparison (`coal_unit_availability.csv` in the run folder lists the values).
+- Model coal dispatch is net, observed generation gross. With
+  `net_of_auxiliary`, every coal generator carries an `auxiliary_consumption`
+  share (the REA export reservations take their station's capacity-weighted
+  value, from `model/coal_operating_cost_audit.csv`), and the comparisons with
+  observed generation add the auxiliary consumption back: the runner's daily
+  table has a `coal_own_use` column (GWh) that the runner's and the report's
+  comparisons add to coal, and the report's generation tables show it as
+  `own_use_gwh`. All other results (dispatch, energy balance, costs) stay net.
 - The REA export reservation generators keep their observed hourly schedules.
 - Daily, monthly, peak and selected-week runs start each solve with the
   units online, as without outages; a unit out in a solve's first hour is shut

@@ -660,6 +660,13 @@ def apply_outages(
         availability, p_min_scale = smooth_availability(availability, commissioned, settings["resolution"])
         notes.append(f"Availability averaged per {'month' if settings['resolution'] == 'monthly' else 'year'}.")
     _set_availability(network, units, base, availability, p_min_scale)
+    if settings["base_availability"] == "net_of_auxiliary":
+        # Coal dispatch is ex-bus; comparisons with observed (gross)
+        # generation add this auxiliary consumption back (coal_own_use).
+        if AUXILIARY_ATTRIBUTE not in network.generators:
+            network.generators[AUXILIARY_ATTRIBUTE] = 0.0
+        share = coal_auxiliary_by_generator(network, auxiliary)
+        network.generators.loc[share.index, AUXILIARY_ATTRIBUTE] = share.to_numpy()
 
     # Units out at the first hour start the horizon offline instead of being
     # shut down (and paying the shut-down cost) in it.
@@ -682,6 +689,64 @@ def apply_outages(
         summary[f"{kind}_hours"] = frame.reindex(columns=units, fill_value=0.0).sum() if frame is not None else 0.0
     summary["mean_availability"] = availability.mean()
     return OutageResult(units=summary, forced_parameters=forced_parameters, maintenance_schedule=schedule, notes=notes)
+
+
+COST_AUDIT = ROOT / "model" / "coal_operating_cost_audit.csv"
+AUXILIARY_ATTRIBUTE = "auxiliary_consumption"
+
+
+def coal_auxiliary_by_generator(
+    network: pypsa.Network, auxiliary: pd.Series, audit_path: Path = COST_AUDIT
+) -> pd.Series:
+    """Auxiliary consumption (share of gross output) of every coal generator.
+
+    Committable units take their own value. Other coal generators (the REA
+    export reservations) take the capacity-weighted mean of the units of their
+    station (``model/coal_operating_cost_audit.csv``), or of the whole fleet
+    when the station is unknown.
+    """
+    coal = network.generators.index[network.generators.carrier.eq("coal")]
+    share = (auxiliary / 100.0).reindex(coal)
+    rating = network.generators.p_nom
+    known = share.dropna()
+    fleet = float((known * rating[known.index]).sum() / rating[known.index].sum()) if len(known) else 0.0
+    station = pd.Series(dtype=str)
+    if Path(audit_path).exists():
+        station = pd.read_csv(audit_path).set_index("name")["station"]
+    for generator in share.index[share.isna()]:
+        members = station.index[station.eq(station.get(generator))].intersection(known.index)
+        if generator in station.index and len(members):
+            share[generator] = float((known[members] * rating[members]).sum() / rating[members].sum())
+        else:
+            share[generator] = fleet
+    return share
+
+
+def coal_own_use(network: pypsa.Network) -> pd.Series:
+    """Hourly auxiliary consumption (MW) on top of the coal generators' net output.
+
+    Zero unless the outage module set ``auxiliary_consumption`` (base
+    availability net of auxiliary consumption): the model then dispatches net
+    (ex-bus) coal output, while observed generation is gross.
+    """
+    dispatch = network.generators_t.p
+    if AUXILIARY_ATTRIBUTE not in network.generators or dispatch.empty:
+        return pd.Series(0.0, index=network.snapshots)
+    share = network.generators[AUXILIARY_ATTRIBUTE].fillna(0.0)
+    share = share[(share > 0) & share.index.isin(dispatch.columns)]
+    return dispatch[share.index].mul(share / (1.0 - share), axis=1).sum(axis=1)
+
+
+def gross_coal_for_comparison(daily: pd.DataFrame) -> pd.DataFrame:
+    """Daily generation with coal (and totals) on the gross basis of observed data."""
+    if "coal_own_use" not in daily:
+        return daily
+    result = daily.copy()
+    own_use = result["coal_own_use"].fillna(0.0)
+    for column in ("coal", "comparable_total", "system_plant_generation"):
+        if column in result:
+            result[column] = result[column] + own_use
+    return result
 
 
 def _combine(
