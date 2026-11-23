@@ -807,8 +807,10 @@ def _add_cap_constraint(
     month_index = pd.Index([str(month) for month in unique_months], name=f"{label}_month")
     monthly = model.add_variables(lower=0.0, coords=[month_index], name=f"{label}_monthly_energy")
     for month in unique_months:
+        # drop=True: a scalar month coordinate left on each row would conflict
+        # between the rows when linopy collects all duals into one dataset.
         model.add_constraints(
-            monthly.sel({month_index.name: str(month)}) - energy(hours[months == month]) == 0.0,
+            monthly.sel({month_index.name: str(month)}, drop=True) - energy(hours[months == month]) == 0.0,
             name=f"{name}-{month}",
         )
     model.add_constraints(monthly.sum() <= limit, name=name)

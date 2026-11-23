@@ -337,8 +337,13 @@ def test_sparse_annual_cap_matches_a_dense_row(monkeypatch):
     apply_energy_target_policy(sparse, {"bio_power": "energy_cap", "cap_period": "annual", "cap_transfer": "prorate"}, {})
     _solve_with_caps(sparse)
     assert "EnergyCap_bio_power_0_2025043000_monthly_energy" in sparse.model.variables
+    # The rolling run saves every constraint's dual; the per-month rows must
+    # not carry their month as a conflicting scalar coordinate.
+    duals = sparse.model.dual
+    assert "EnergyCap-bio_power-0-2025043000-2025-04" in duals
+    assert "EnergyCap-bio_power-0-2025043000-2025-05" in duals
 
-    dense = _two_month_bio_network(monkeypatch, 500.0, 700.0)
+    dense =_two_month_bio_network(monkeypatch, 500.0, 700.0)
     apply_energy_target_policy(dense, {"bio_power": "energy_cap", "cap_period": "annual", "cap_transfer": "prorate"}, {})
     caps = dense.meta[policy_module.CAPS_KEY]
     dense.meta = {**dense.meta, policy_module.CAPS_KEY: []}
