@@ -15,6 +15,11 @@ observed energy with equality constraints. Each carrier now has a mode:
     As ``availability``, and ``p_min_pu`` is set to the scaled ``p_max_pu``,
     so the units produce exactly their available energy whatever their cost
     (for plants that are must-run under the grid code, such as nuclear).
+``energy_cap`` (oil/gas and bio-power only)
+    No equality constraint. Availability is flat (``<carrier>_cap_availability``)
+    and energy over each ``cap_period`` (annual or monthly) is capped at the
+    observed energy, per plant for oil/gas: the CEA planning treatment of
+    fuel-limited gas and biomass (see :func:`apply_energy_caps`).
 ``free``
     No equality constraint and the network's own availability.
 
@@ -36,6 +41,7 @@ from typing import Any, Mapping
 import numpy as np
 import pandas as pd
 import pypsa
+import xarray as xr
 
 from bio_power_targets import read_bio_power_monthly_targets
 from small_hydro_targets import read_small_hydro_monthly_targets
@@ -49,25 +55,39 @@ PLANT_MAPPING_FILE = ROOT / "data" / "model_inputs" / "niti_iced_plant_mapping.c
 
 TARGET_CARRIERS = ("oil_gas", "nuclear", "bio_power", "small_hydro")
 TARGET_MODES = ("target", "availability", "must_run", "free")
+# Modes per carrier; energy_cap applies to the fuel-limited carriers only.
+CARRIER_MODES = {
+    "oil_gas": TARGET_MODES + ("energy_cap",),
+    "bio_power": TARGET_MODES + ("energy_cap",),
+    "nuclear": TARGET_MODES,
+    "small_hydro": TARGET_MODES,
+}
+CAP_PERIODS = {"annual": "YS-APR", "monthly": "MS"}
 AVAILABILITY_PERIODS = {"monthly": "MS", "daily": "D"}
 AVAILABILITY_SOURCES = ("plant", "carrier")
 # Carriers with plant-level monthly observations (NITI ICED).
 PLANT_LEVEL_CARRIERS = ("oil_gas", "nuclear")
-DEFAULT_POLICY: dict[str, str] = {
+DEFAULT_POLICY: dict[str, Any] = {
     **{carrier: "target" for carrier in TARGET_CARRIERS},
     "availability_period": "monthly",
     "availability_source": "plant",
+    "cap_period": "annual",
+    "oil_gas_cap_availability": 0.9,
+    "bio_power_cap_availability": 0.6,
 }
 _ALLOWED_VALUES = {
     "availability_period": tuple(AVAILABILITY_PERIODS),
     "availability_source": AVAILABILITY_SOURCES,
+    "cap_period": tuple(CAP_PERIODS),
+    **CARRIER_MODES,
 }
+_FRACTION_KEYS = ("oil_gas_cap_availability", "bio_power_cap_availability")
 # Carriers whose marginal cost a run config may override, in INR/MWh.
 COST_OVERRIDE_CARRIERS = ("oil_gas", "diesel", "bio_power", "nuclear", "small_hydro")
 META_KEY = "energy_targets"
 
 
-def normalise_policy(policy: Mapping[str, Any] | None) -> dict[str, str]:
+def normalise_policy(policy: Mapping[str, Any] | None) -> dict[str, Any]:
     """Return a complete, validated policy; missing keys take the defaults."""
     resolved = dict(DEFAULT_POLICY)
     for key, value in (policy or {}).items():
@@ -75,8 +95,19 @@ def normalise_policy(policy: Mapping[str, Any] | None) -> dict[str, str]:
             raise ValueError(
                 f"Unknown energy_targets key '{key}'. Known keys: {sorted(resolved)}"
             )
+        if key in _FRACTION_KEYS:
+            if isinstance(value, bool):
+                raise ValueError(f"energy_targets.{key} must be a number in (0, 1]")
+            try:
+                number = float(value)
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"energy_targets.{key} must be a number in (0, 1]") from error
+            if not 0.0 < number <= 1.0:
+                raise ValueError(f"energy_targets.{key} must be a number in (0, 1]")
+            resolved[key] = number
+            continue
         value = str(value).strip().lower()
-        allowed = _ALLOWED_VALUES.get(key, TARGET_MODES)
+        allowed = _ALLOWED_VALUES[key]
         if value not in allowed:
             raise ValueError(f"energy_targets.{key} must be one of {sorted(allowed)}, got {value!r}")
         resolved[key] = value
@@ -411,6 +442,131 @@ def apply_marginal_cost_overrides(
     return pd.DataFrame(rows)
 
 
+CAPS_KEY = "energy_caps"
+
+
+def _cap_groups(network: pypsa.Network, carrier: str) -> tuple[dict[str, pd.Index], pd.DataFrame | None]:
+    """Unit groups that share a cap: ICED plants for oil/gas, the whole carrier otherwise."""
+    if carrier in PLANT_LEVEL_CARRIERS:
+        groups = plant_groups(network, carrier)
+        return groups, plant_monthly_shares(carrier, list(groups))
+    units = network.generators.index[network.generators.carrier.eq(carrier)]
+    return {"": units}, None
+
+
+def apply_energy_caps(network: pypsa.Network, policy: Mapping[str, Any]) -> pd.DataFrame:
+    """Flat availability and per-period energy caps for ``energy_cap`` carriers.
+
+    Following CEA's planning studies (NEP 2022-32, optimal generation mix
+    2029-30), gas and bio-power are dispatchable plants with a flat
+    availability (``<carrier>_cap_availability``) whose energy is limited by
+    fuel supply. The cap is the observed FY2025-26 energy over each
+    ``cap_period`` (the year or each month): per NITI ICED plant for oil/gas
+    (the carrier's observed energy times the plant's share of ICED generation),
+    for the whole carrier for bio-power. Plants that did not generate get a
+    zero cap. Units with zero availability (commissioning, fixed schedules)
+    keep it. The caps are stored in ``network.meta`` and added to each solve by
+    :func:`add_energy_caps`.
+    """
+    frequency = CAP_PERIODS[policy["cap_period"]]
+    weights = network.snapshot_weightings.generators.reindex(network.snapshots).astype(float)
+    caps: list[dict[str, object]] = []
+    for carrier in TARGET_CARRIERS:
+        if policy[carrier] != "energy_cap":
+            continue
+        availability = float(policy[f"{carrier}_cap_availability"])
+        monthly = observed_energy_mwh(carrier, "MS")
+        groups, shares = _cap_groups(network, carrier)
+        for plant, members in groups.items():
+            fixed = fixed_schedule_units(network, members) if len(members) else pd.Index([])
+            dispatchable = members.difference(fixed)
+            if shares is None:
+                plant_monthly = monthly.copy()
+            else:
+                share = shares.reindex(monthly.index)
+                if share.isna().any().any():
+                    raise ValueError(f"No plant-level {carrier} generation for some FY2025-26 months")
+                plant_monthly = monthly * share[plant]
+            fixed_energy = (
+                _per_unit_series(network, "p_max_pu", fixed)
+                .mul(network.generators.loc[fixed, "p_nom"], axis=1)
+                .sum(axis=1)
+                .mul(weights)
+            )
+            fixed_monthly = fixed_energy.groupby(
+                network.snapshots.to_period("M").to_timestamp(how="start")
+            ).sum().reindex(plant_monthly.index, fill_value=0.0)
+            dispatchable_monthly = (plant_monthly - fixed_monthly).clip(lower=0.0)
+            per_period = dispatchable_monthly.resample(frequency).sum()
+            if len(dispatchable):
+                base = _per_unit_series(network, "p_max_pu", dispatchable)
+                flat = base.where(base <= 0.0, availability)
+                p_max_t = network.generators_t.p_max_pu
+                network.generators_t.p_max_pu = pd.concat(
+                    [p_max_t.drop(columns=p_max_t.columns.intersection(dispatchable)), flat], axis=1
+                )
+                p_min = _per_unit_series(network, "p_min_pu", dispatchable)
+                clipped = p_min.where(p_min <= flat, flat)
+                changed = clipped.columns[(clipped != p_min).any()]
+                if len(changed):
+                    p_min_t = network.generators_t.p_min_pu
+                    network.generators_t.p_min_pu = pd.concat(
+                        [p_min_t.drop(columns=p_min_t.columns.intersection(changed)), clipped[changed]],
+                        axis=1,
+                    )
+            elif float(per_period.sum()) > 1e-6:
+                raise ValueError(
+                    f"{carrier} plant {plant!r} generated but has no dispatchable model units"
+                )
+            capacity = float(network.generators.loc[dispatchable, "p_nom"].sum())
+            for start, cap in per_period.items():
+                end = start + pd.tseries.frequencies.to_offset(frequency)
+                hours = (network.snapshots >= start) & (network.snapshots < end)
+                caps.append({
+                    "carrier": carrier,
+                    "plant": plant,
+                    "units": [str(unit) for unit in dispatchable],
+                    "period_start": start.isoformat(),
+                    "period_end": end.isoformat(),
+                    "period_hours": float(weights[hours].sum()),
+                    "cap_mwh": float(cap),
+                    "dispatchable_capacity_mw": capacity,
+                    "cap_capacity_factor": float(cap) / max(capacity * float(weights[hours].sum()), 1e-12),
+                })
+    network.meta = {**(network.meta or {}), CAPS_KEY: caps}
+    return pd.DataFrame([{key: value for key, value in row.items() if key != "units"} for row in caps])
+
+
+def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None:
+    """Add the stored energy caps to the model being solved over ``snapshots``.
+
+    A cap applies to the solved hours inside its period; when a solve covers
+    only part of a period (daily, weekly or rolling windows, or a monthly cap
+    in a week), the cap is prorated by the share of the period's hours solved.
+    """
+    caps = (network.meta or {}).get(CAPS_KEY) or []
+    if not caps:
+        return
+    snapshots = pd.DatetimeIndex(snapshots)
+    weights = network.snapshot_weightings.generators.reindex(snapshots).astype(float)
+    dispatch = network.model["Generator-p"]
+    dimension = next(dim for dim in dispatch.dims if dim != "snapshot")
+    for position, cap in enumerate(caps):
+        if not cap["units"]:
+            continue
+        start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
+        hours = snapshots[(snapshots >= start) & (snapshots < end)]
+        if not len(hours):
+            continue
+        share = float(weights.loc[hours].sum()) / float(cap["period_hours"])
+        hour_weights = xr.DataArray(weights.loc[hours].to_numpy(), dims="snapshot", coords={"snapshot": hours})
+        energy = (dispatch.sel({dimension: list(cap["units"]), "snapshot": hours}) * hour_weights).sum()
+        network.model.add_constraints(
+            energy <= float(cap["cap_mwh"]) * min(share, 1.0),
+            name=f"EnergyCap-{cap['carrier']}-{position}-{hours[0]:%Y%m%d%H}",
+        )
+
+
 def apply_energy_target_policy(
     network: pypsa.Network,
     policy: Mapping[str, Any] | None,
@@ -421,5 +577,10 @@ def apply_energy_target_policy(
     costs = normalise_cost_overrides(cost_overrides)
     cost_report = apply_marginal_cost_overrides(network, costs)
     availability_report = apply_availability_profiles(network, resolved)
+    cap_report = apply_energy_caps(network, resolved)
+    if not cap_report.empty:
+        availability_report = pd.concat(
+            [availability_report, cap_report.assign(kind="energy_cap")], ignore_index=True
+        )
     network.meta = {**(network.meta or {}), META_KEY: resolved}
     return resolved, costs, availability_report, cost_report

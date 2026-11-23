@@ -31,7 +31,7 @@ import xarray as xr
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from run_profiling import get_profiler, optimize_profiled
-from energy_target_policy import target_enabled
+from energy_target_policy import add_energy_caps, target_enabled
 from nuclear_energy_targets import add_nuclear_targets, generator_dimension, validate_nuclear_targets
 from period_energy_targets import (
     add_prorated_monthly_targets,
@@ -434,6 +434,7 @@ def solve_day(
 
     def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
         add_nuclear_targets(active_network, active_snapshots)
+        add_energy_caps(active_network, active_snapshots)
         if target_enabled(active_network, "oil_gas"):
             dispatch = active_network.model["Generator-p"]
             gas_units = active_network.generators.index[active_network.generators.carrier.eq("oil_gas")]

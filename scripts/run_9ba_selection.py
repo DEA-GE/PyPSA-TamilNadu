@@ -52,6 +52,7 @@ from run_9ba_rolling import (
 )
 from energy_target_policy import (
     TARGET_CARRIERS,
+    add_energy_caps,
     apply_energy_target_policy,
     is_default,
     policy_tag,
@@ -630,6 +631,7 @@ def _solve_peak_week(
 
     def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
         add_nuclear_targets(active_network, active_snapshots)
+        add_energy_caps(active_network, active_snapshots)
         period_targets.update(
             add_prorated_monthly_targets(active_network, active_snapshots, f"peak-{dates[0]:%Y%m%d}")
         )
@@ -994,6 +996,7 @@ def _solve_selected_weeks(
                 active_snapshots: pd.DatetimeIndex,
             ) -> None:
                 add_nuclear_targets(active_network, active_snapshots)
+                add_energy_caps(active_network, active_snapshots)
                 terminal_snapshot = active_snapshots[
                     active_snapshots.normalize() == retained_dates[-1]
                 ][-1]

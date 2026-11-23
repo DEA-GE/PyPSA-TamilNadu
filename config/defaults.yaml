@@ -80,6 +80,10 @@ energy_targets:
   #                energy, and cost optimisation decides how much is used
   #   must_run     as availability, with minimum output equal to availability,
   #                so the plant produces its available energy whatever its cost
+  #   energy_cap   oil_gas and bio_power only: no equality; flat availability
+  #                (<carrier>_cap_availability) and energy per cap_period capped
+  #                at the observed energy (per ICED plant for oil/gas), as in
+  #                CEA's planning studies for fuel-limited gas and biomass
   #   free         no equality and the network's own availability
   # Fixed REA export reservations keep their schedules in every mode.
   oil_gas: target
@@ -92,6 +96,11 @@ energy_targets:
   # carrier: one scaling for all units of a carrier. Bio-power and small hydro
   # are observed only as state totals and are always scaled per carrier.
   availability_source: plant      # plant | carrier
+  # energy_cap mode: cap period (annual = FY2025-26, or each month) and flat
+  # availability (CEA NEP 2022-32 / LT-NRAP: gas 90%, biomass 60%).
+  cap_period: annual              # annual | monthly
+  oil_gas_cap_availability: 0.9
+  bio_power_cap_availability: 0.6
 
 marginal_costs:
   # Marginal-cost overrides in INR/MWh, applied to every unit of the carrier,

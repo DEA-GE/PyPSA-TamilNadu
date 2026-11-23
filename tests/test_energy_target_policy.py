@@ -203,6 +203,62 @@ def test_must_run_fixes_output_at_availability(tmp_path, monkeypatch):
     assert not target_enabled(network, "oil_gas")
 
 
+def _cheap_gas_network(hours: int = 48) -> pypsa.Network:
+    """Cheap gas (base plant) against expensive backup, so the cap binds."""
+    network = _gas_network()
+    network.set_snapshots(pd.date_range("2025-04-01", periods=hours, freq="h"))
+    network.generators.loc[["base_1", "idle_1"], "marginal_cost"] = 10.0
+    network.add("Load", "load", bus="bus", p_set=50.0)
+    network.add("Generator", "backup", bus="bus", carrier="coal", p_nom=100.0, marginal_cost=100.0)
+    return network
+
+
+def test_energy_cap_sets_flat_availability_and_plant_caps(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [600.0, 600.0]}))
+    network = _cheap_gas_network()
+    _, _, report, _ = apply_energy_target_policy(
+        network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {}
+    )
+    p_max = network.generators_t.p_max_pu
+    assert set(p_max["base_1"].unique()) == {0.9} and set(p_max["idle_1"].unique()) == {0.9}
+    caps = report.loc[report["kind"].eq("energy_cap")].set_index("plant")["cap_mwh"]
+    assert caps["Base"] == pytest.approx(1200.0)
+    assert caps["Idle"] == 0.0 and caps["Gone"] == 0.0
+    assert not target_enabled(network, "oil_gas")
+
+
+@pytest.mark.parametrize("hours, expected", [(48, 1200.0), (24, 600.0)])
+def test_energy_cap_binds_and_is_prorated(tmp_path, monkeypatch, hours, expected):
+    # April has 720 hours; the 1,200 MWh monthly cap is prorated to the solved hours.
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [600.0, 600.0]}))
+    network = _cheap_gas_network(hours=720)
+    monkeypatch.setattr(
+        policy_module, "observed_energy_mwh",
+        lambda carrier, frequency: pd.Series([1200.0], index=[pd.Timestamp("2025-04-01")]),
+    )
+    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {})
+    solved = network.copy(snapshots=network.snapshots[:hours])
+    solved.optimize(
+        solver_name="highs",
+        extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s),
+    )
+    gas = solved.generators_t.p[["base_1", "idle_1"]]
+    assert gas["idle_1"].sum() == pytest.approx(0.0, abs=1e-6)
+    assert gas["base_1"].sum() == pytest.approx(1200.0 * hours / 720, rel=1e-6)
+
+
+def test_energy_cap_validation():
+    with pytest.raises(ValueError, match="must be one of"):
+        normalise_policy({"nuclear": "energy_cap"})
+    with pytest.raises(ValueError, match=r"\(0, 1\]"):
+        normalise_policy({"oil_gas_cap_availability": 1.5})
+    resolved = normalise_policy({"oil_gas": "energy_cap", "cap_period": "Monthly",
+                                 "bio_power_cap_availability": "0.5"})
+    assert resolved["cap_period"] == "monthly" and resolved["bio_power_cap_availability"] == 0.5
+
+
 def test_shipped_plant_mapping_covers_the_model():
     network = pypsa.Network(str(ROOT / "model"))
     for carrier in policy_module.PLANT_LEVEL_CARRIERS:

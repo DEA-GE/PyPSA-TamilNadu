@@ -1,0 +1,19 @@
+# Annual no-UC LP with gas and bio-power as fuel-limited dispatchable plants
+# (CEA planning treatment): flat availability (gas 90%, biomass 60%) and
+# annual energy caps at observed FY2025-26 energy (per plant for gas). Nuclear
+# is must-run and small hydro follows its availability profile, as in
+# annual_released.yaml. Compare annual_capped_annual with annual_capped_monthly.
+#   python scripts/run_model.py config/runs/annual_capped_annual.yaml
+run:
+  name: annual_capped_annual
+  mode: annual
+
+formulation:
+  unit_commitment: none
+
+energy_targets:
+  oil_gas: energy_cap
+  nuclear: must_run
+  bio_power: energy_cap
+  small_hydro: availability
+  cap_period: annual

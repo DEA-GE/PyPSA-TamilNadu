@@ -767,6 +767,20 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
 - `must_run`: as `availability`, with minimum output equal to the scaled
   availability, so the carrier produces exactly its available energy whatever
   its cost (nuclear is must-run under the grid code).
+- `energy_cap` (`oil_gas` and `bio_power` only): no equality. Units get a
+  flat availability (`oil_gas_cap_availability`, default 0.9;
+  `bio_power_cap_availability`, default 0.6) and their energy over each
+  `cap_period` (`annual` FY2025-26 or `monthly`) is capped at the observed
+  energy: per ICED plant for oil/gas (plants that did not generate get a zero
+  cap), for the whole carrier for bio-power. This is how CEA's planning
+  studies treat fuel-limited gas and biomass (NEP 2022-32 §5.6.11: gas fuel
+  "limited as per the actual gas based generation during 2021-22"; Optimal
+  Generation Mix 2029-30 §7.7: biomass annual PLF of 25–30%; availability 90%
+  and 60% in the NEP and the 2026 Tamil Nadu resource-adequacy report). Caps
+  are exact in the annual mode; shorter solves (days, weeks, rolling windows)
+  get the cap prorated to the share of the period's hours they cover.
+  `config/runs/annual_capped_annual.yaml` and `annual_capped_monthly.yaml`
+  compare annual and monthly caps.
 - `free`: no equality and the network's own availability.
 
 With `availability_source: plant` (the default), oil/gas and nuclear are

@@ -36,7 +36,7 @@ from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
 )
-from energy_target_policy import target_enabled
+from energy_target_policy import add_energy_caps, target_enabled
 from period_energy_targets import drop_native_energy_targets
 from run_profiling import (
     format_solve_breakdown,
@@ -923,6 +923,7 @@ def _add_daily_targets(
     gas_targets: pd.Series,
 ) -> None:
     add_nuclear_targets(network, snapshots)
+    add_energy_caps(network, snapshots)
     if not target_enabled(network, "oil_gas"):
         return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
