@@ -67,6 +67,40 @@ parallel link used within a gateway. The audit output records every hourly
 gateway value, the original share, available capacity, any capacity-driven
 redistribution, and explicit included/excluded status for distributed flows.
 
+**Metered interchange.** Summing REA transactions leaves Tamil Nadu short of
+supply in April–May and in surplus in the wind season: 20.8 TWh of imports
+cannot be attributed to a plant (all from sellers outside Tamil Nadu, but
+partly trading and duplication), and 7.5 TWh of interstate-grid wind and
+solar inside Tamil Nadu is sold to other states without passing through Tamil
+Nadu's account. The build therefore matches the measured total instead
+(`INTERCHANGE_BASIS = "metered"`, the default; `python
+scripts/build_9ba_model.py --interchange transactions` restores the
+transaction-only exchange). `scripts/prepare_metered_interchange.py` reads
+from the twelve SRPC REA archives (`data/source/REA data`, not in Git):
+
+- the actual metered net drawal of Tamil Nadu's control area from the
+  interstate grid (`commercial_dev2022_tamilnadu.csv`, `act_total`): 67.85
+  TWh, 1.1% below schedule;
+- the output of the interstate-grid plants inside Tamil Nadu, which reaches
+  the state as drawal: central stations including Kudankulam and MAPS
+  (station-wide schedules, 39.66 TWh), Coastal Energen and ITPCL (schedules to
+  Tamil Nadu, 6.98 TWh) and the wind and solar at Tuticorin, Karur and
+  Pugalur (7.48 TWh).
+
+Their difference, 13.72 TWh, is the physical net import of the Tamil Nadu
+area (`data/model_inputs/tn_metered_interchange_FY2025_26.csv`, hourly). The
+transaction loads deliver 4.3 TWh, so each hour a correction load
+(`interstate_metered_correction_import_*` or `_export_*`, measure
+`metered_correction` in the audit) is added at the gateways, split by the
+same shares and within gateway capacity, so that the net import delivered
+into Tamil Nadu after the 3% interconnector loss equals the metered value. The
+correction adds 13.35 TWh of imports and 1.87 TWh of exports at the gateways:
+2.4 TWh in April, 1.6 TWh in May, near zero in June–September. Limitations:
+Coastal Energen and ITPCL sales to other states are not subtracted; the
+interstate-grid wind and solar inside Tamil Nadu follow the model's wind and
+solar profiles, not their scheduled output; the transaction loads keep their
+gateway routing, so the correction changes totals, not routes.
+
 The grid is imported with PyPSA's `Network.import_from_excel()` API. To replace
 only the grid in an already-built model (without rebuilding generation, demand,
 or hydro inputs), run `python scripts/import_grid_from_excel.py`.

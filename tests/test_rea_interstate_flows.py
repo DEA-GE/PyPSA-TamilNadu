@@ -51,7 +51,8 @@ def test_model_uses_only_confirmed_imports() -> None:
 
     loads = pd.read_csv(MODEL / "loads.csv")
     interstate = loads.loc[loads["name"].str.startswith("interstate_")]
-    assert len(interstate) == 12
+    # 12 transaction loads plus an import and an export metered correction per gateway.
+    assert len(interstate) == 20
     assert not interstate["name"].str.startswith(
         "interstate_unresolved_distributed_import_"
     ).any()
@@ -135,3 +136,23 @@ def test_verified_rea_plant_exports_are_reserved_without_changing_flow_totals() 
     assert set(legacy["application_status"]) == {
         "reference_only_superseded_by_verified_rea_plant_schedules"
     }
+
+
+def test_metered_correction_delivers_the_metered_net_import() -> None:
+    metered = pd.read_csv(INPUT / "tn_metered_interchange_FY2025_26.csv", index_col=0, parse_dates=True)
+    parts = metered.actual_drawal_mw - metered.central_stations_mw - metered.tn_ipps_mw - metered.interstate_re_mw
+    assert np.allclose(metered.net_import_mw, parts, atol=0.01)
+    # FY2025-26: 67.8 TWh metered drawal, 13.7 TWh net import of the Tamil Nadu area.
+    assert np.isclose(metered.actual_drawal_mw.sum() / 1e6, 67.85, atol=0.01)
+    assert np.isclose(metered.net_import_mw.sum() / 1e6, 13.72, atol=0.01)
+
+    profiles = pd.read_csv(MODEL / "loads-p_set.csv", index_col=0)
+    imports = -profiles[[c for c in profiles if "_import_" in c]].sum(axis=1)
+    exports = profiles[[c for c in profiles if "_export_" in c]].sum(axis=1)
+    delivered = 0.97 * imports - exports / 0.97
+    assert np.allclose(delivered.to_numpy(), metered.net_import_mw.to_numpy(), atol=1e-3)
+
+    audit = pd.read_csv(MODEL / "interstate_flow_audit.csv")
+    correction = audit.loc[audit["measure"].eq("metered_correction")]
+    assert correction["included_in_model"].all()
+    assert set(correction["status"]) == {"metered_correction"}

@@ -61,7 +61,7 @@ STATION_NAMES = {
 }
 
 
-def _read_member(source_dir: Path, virtual_path: str, cache: dict) -> bytes:
+def read_archive_member(source_dir: Path, virtual_path: str, cache: dict) -> bytes:
     """Read a file inside nested zip archives (``outer.zip!inner.zip!file``)."""
     parts = virtual_path.split("!")
     if parts[0] not in cache:
@@ -84,7 +84,7 @@ def read_declared_capacity(source_dir: Path = SOURCE_DIR, inventory: Path = INVE
     cache: dict = {}
     parts = []
     for member in members.itertuples():
-        frame = pd.read_csv(io.BytesIO(_read_member(source_dir, member.virtual_path, cache)))
+        frame = pd.read_csv(io.BytesIO(read_archive_member(source_dir, member.virtual_path, cache)))
         stamp = pd.to_datetime(frame["date"]) + pd.to_timedelta(frame["time"].astype(str))
         columns = {}
         for code in STATIONS:
