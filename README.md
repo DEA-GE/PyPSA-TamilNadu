@@ -783,9 +783,12 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   compare annual and monthly caps. The monthly-cap annual LP solved in 169
   minutes; the annual-cap one did not finish: after about 2.3 h HiGHS stopped
   the presolved LP short of optimality and restarted a single-core dual
-  simplex on the full LP, which was stopped after 3.8 h. Each annual cap is one
-  very dense row (bio-power: about 80 units x 8,760 hours), which is the likely
-  cause; monthly caps are recommended for the annual LP.
+  simplex on the full LP, which was stopped after 3.8 h. Each annual cap was one
+  very dense row (bio-power: about 80 units x 8,760 hours), the likely cause.
+  Caps whose solved hours span several months are now written sparsely: one
+  auxiliary energy variable per month, defined over that month's hours, and
+  one row capping their sum (the same constraint without a row that couples
+  the whole year). The annual-cap annual LP has not been rerun with it.
 
   A rolling window cannot see the rest of the year, so `cap_transfer` sets how
   a cap reaches solves shorter than its period. `prorate` (default) gives each

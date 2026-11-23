@@ -308,6 +308,64 @@ def test_cap_transfer_needs_a_source(tmp_path, monkeypatch):
         )
 
 
+def _two_month_bio_network(monkeypatch, april_mwh: float, may_mwh: float) -> pypsa.Network:
+    """30 April and 1 May: cheap bio-power (two units) against expensive backup."""
+    network = pypsa.Network()
+    network.set_snapshots(pd.date_range("2025-04-30", periods=48, freq="h"))
+    network.add("Bus", "bus")
+    network.add("Load", "load", bus="bus", p_set=pd.Series([40.0] * 24 + [60.0] * 24, index=network.snapshots))
+    network.add("Generator", "bio_1", bus="bus", carrier="bio_power", p_nom=50.0, marginal_cost=10.0)
+    network.add("Generator", "bio_2", bus="bus", carrier="bio_power", p_nom=50.0, marginal_cost=20.0)
+    network.add("Generator", "backup", bus="bus", carrier="coal", p_nom=200.0, marginal_cost=100.0)
+    monkeypatch.setattr(
+        policy_module, "observed_energy_mwh",
+        lambda carrier, frequency: pd.Series(
+            [april_mwh, may_mwh], index=pd.DatetimeIndex(["2025-04-01", "2025-05-01"])
+        ),
+    )
+    return network
+
+
+def _solve_with_caps(network: pypsa.Network) -> pypsa.Network:
+    network.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
+    return network
+
+
+def test_sparse_annual_cap_matches_a_dense_row(monkeypatch):
+    # The annual cap spans April and May here, so it is written with monthly auxiliaries.
+    sparse = _two_month_bio_network(monkeypatch, 500.0, 700.0)
+    apply_energy_target_policy(sparse, {"bio_power": "energy_cap", "cap_period": "annual"}, {})
+    _solve_with_caps(sparse)
+    assert "EnergyCap_bio_power_0_2025043000_monthly_energy" in sparse.model.variables
+
+    dense = _two_month_bio_network(monkeypatch, 500.0, 700.0)
+    apply_energy_target_policy(dense, {"bio_power": "energy_cap", "cap_period": "annual"}, {})
+    caps = dense.meta[policy_module.CAPS_KEY]
+    dense.meta = {**dense.meta, policy_module.CAPS_KEY: []}
+
+    def dense_row(n, s):
+        p = n.model["Generator-p"]
+        dim = next(d for d in p.dims if d != "snapshot")
+        n.model.add_constraints(p.sel({dim: ["bio_1", "bio_2"]}).sum() <= caps[0]["cap_mwh"], name="dense_cap")
+
+    dense.optimize(solver_name="highs", extra_functionality=dense_row)
+    assert caps[0]["cap_mwh"] == pytest.approx(1200.0)
+    assert sparse.objective == pytest.approx(dense.objective)
+    bio = sparse.generators_t.p[["bio_1", "bio_2"]].sum().sum()
+    assert bio == pytest.approx(1200.0)
+
+
+def test_monthly_caps_stay_separate_in_a_multi_month_solve(monkeypatch):
+    # April may use 300 MWh, May nothing; a merged cap would let May use April's fuel.
+    # Caps refer to the hours each period has in the network (here one day each).
+    network = _two_month_bio_network(monkeypatch, 300.0, 0.0)
+    apply_energy_target_policy(network, {"bio_power": "energy_cap", "cap_period": "monthly"}, {})
+    _solve_with_caps(network)
+    bio = network.generators_t.p[["bio_1", "bio_2"]].sum(axis=1)
+    assert bio.iloc[:24].sum() == pytest.approx(300.0)
+    assert bio.iloc[24:].sum() == pytest.approx(0.0, abs=1e-6)
+
+
 def test_energy_cap_validation():
     with pytest.raises(ValueError, match="must be one of"):
         normalise_policy({"nuclear": "energy_cap"})

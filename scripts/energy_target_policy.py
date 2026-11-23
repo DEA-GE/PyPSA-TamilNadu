@@ -628,6 +628,8 @@ def allocate_caps_from_source(
                 "period_end": (day + pd.Timedelta(days=1)).isoformat(),
                 "period_hours": float(weights.loc[source.snapshots.normalize() == day].sum()),
                 "cap_mwh": max(float(energy), 0.0),
+                # Allocations are summed over each solve rather than enforced per day.
+                "allocated": True,
             })
         rows.append({"carrier": carrier, "plant": plant, "cap_mwh": total_cap,
                      "allocated_mwh": float(daily.sum()), "allocated_days": int((daily > 1e-6).sum())})
@@ -720,11 +722,19 @@ def apply_cap_shadow_prices(
 def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None:
     """Add the stored energy caps to the model being solved over ``snapshots``.
 
-    One constraint per capped group (plant or carrier): its energy over the
-    solved hours is at most the sum, over the cap periods the solve touches,
-    of each period's cap times the share of that period's hours solved. A solve
-    covering whole periods gets their caps exactly; shorter solves (daily,
-    weekly or rolling windows) get the prorated share.
+    Each cap period (a month or the year) gets one constraint over the solved
+    hours inside it, with the cap times the share of the period's hours solved:
+    a solve covering whole periods gets their caps exactly, shorter solves
+    (daily, weekly or rolling windows) the prorated share. Daily allocations
+    from ``cap_transfer: allocation`` are instead summed over the solve into
+    one constraint per group, so a window may shift energy between its days.
+
+    A constraint whose hours span several months is written sparsely: one
+    auxiliary energy variable per month, defined by a row over that month's
+    hours, and one row capping their sum. This is the same constraint as a
+    single row over all hours, but no row couples the whole year; a dense
+    annual row (bio-power: about 80 units x 8,760 hours) stalled HiGHS's dual
+    simplex in the annual LP.
     """
     caps = (network.meta or {}).get(CAPS_KEY) or []
     if not caps:
@@ -733,27 +743,70 @@ def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None
     weights = network.snapshot_weightings.generators.reindex(snapshots).astype(float)
     dispatch = network.model["Generator-p"]
     dimension = next(dim for dim in dispatch.dims if dim != "snapshot")
-    limits: dict[tuple[str, str], float] = {}
+    stamp = f"{snapshots[0]:%Y%m%d%H}"
+    allocated: dict[tuple[str, str], float] = {}
+    allocated_hours: dict[tuple[str, str], pd.DatetimeIndex] = {}
     units_of: dict[tuple[str, str], list[str]] = {}
-    for cap in caps:
+    for position, cap in enumerate(caps):
         if not cap["units"]:
             continue
         start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
-        inside = (snapshots >= start) & (snapshots < end)
-        if not inside.any():
+        hours = snapshots[(snapshots >= start) & (snapshots < end)]
+        if not len(hours):
             continue
-        share = min(float(weights[inside].sum()) / float(cap["period_hours"]), 1.0)
+        share = min(float(weights.loc[hours].sum()) / float(cap["period_hours"]), 1.0)
+        limit = float(cap["cap_mwh"]) * share
         key = _group_key(cap)
-        limits[key] = limits.get(key, 0.0) + float(cap["cap_mwh"]) * share
-        units_of[key] = list(cap["units"])
-    if not limits:
-        return
-    hour_weights = xr.DataArray(weights.to_numpy(), dims="snapshot", coords={"snapshot": snapshots})
-    for position, (key, limit) in enumerate(limits.items()):
-        energy = (dispatch.sel({dimension: units_of[key], "snapshot": snapshots}) * hour_weights).sum()
-        network.model.add_constraints(
-            energy <= limit, name=f"EnergyCap-{key[0]}-{position}-{snapshots[0]:%Y%m%d%H}"
+        if cap.get("allocated"):
+            allocated[key] = allocated.get(key, 0.0) + limit
+            allocated_hours[key] = allocated_hours.get(key, pd.DatetimeIndex([])).union(hours)
+            units_of[key] = list(cap["units"])
+            continue
+        _add_cap_constraint(
+            network, dispatch, dimension, list(cap["units"]), hours, weights, limit,
+            f"EnergyCap-{cap['carrier']}-{position}-{stamp}",
         )
+    for number, (key, limit) in enumerate(allocated.items()):
+        _add_cap_constraint(
+            network, dispatch, dimension, units_of[key], allocated_hours[key], weights, limit,
+            f"EnergyCap-{key[0]}-allocated{number}-{stamp}",
+        )
+
+
+def _add_cap_constraint(
+    network: pypsa.Network,
+    dispatch,
+    dimension: str,
+    units: list[str],
+    hours: pd.DatetimeIndex,
+    weights: pd.Series,
+    limit: float,
+    name: str,
+) -> None:
+    """Energy of ``units`` over ``hours`` <= ``limit``, sparse across months."""
+    model = network.model
+    months = hours.to_period("M")
+
+    def energy(selected: pd.DatetimeIndex):
+        hour_weights = xr.DataArray(
+            weights.loc[selected].to_numpy(), dims="snapshot", coords={"snapshot": selected}
+        )
+        return (dispatch.sel({dimension: units, "snapshot": selected}) * hour_weights).sum()
+
+    unique_months = months.unique()
+    if len(unique_months) <= 1:
+        model.add_constraints(energy(hours) <= limit, name=name)
+        return
+    # Auxiliary names have no "-" so PyPSA does not try to map them to a component.
+    label = name.replace("-", "_")
+    month_index = pd.Index([str(month) for month in unique_months], name=f"{label}_month")
+    monthly = model.add_variables(lower=0.0, coords=[month_index], name=f"{label}_monthly_energy")
+    for month in unique_months:
+        model.add_constraints(
+            monthly.sel({month_index.name: str(month)}) - energy(hours[months == month]) == 0.0,
+            name=f"{name}-{month}",
+        )
+    model.add_constraints(monthly.sum() <= limit, name=name)
 
 
 def apply_energy_target_policy(
