@@ -780,7 +780,12 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   are exact in the annual mode; shorter solves (days, weeks, rolling windows)
   get the cap prorated to the share of the period's hours they cover.
   `config/runs/annual_capped_annual.yaml` and `annual_capped_monthly.yaml`
-  compare annual and monthly caps.
+  compare annual and monthly caps. The monthly-cap annual LP solved in 169
+  minutes; the annual-cap one did not finish: after about 2.3 h HiGHS stopped
+  the presolved LP short of optimality and restarted a single-core dual
+  simplex on the full LP, which was stopped after 3.8 h. Each annual cap is one
+  very dense row (bio-power: about 80 units x 8,760 hours), which is the likely
+  cause; monthly caps are recommended for the annual LP.
 
   A rolling window cannot see the rest of the year, so `cap_transfer` sets how
   a cap reaches solves shorter than its period. `prorate` (default) gives each
