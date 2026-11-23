@@ -1,0 +1,10 @@
+source,plant_name,carrier,component_regex,note
+oil-gas,Basin Bridge Gas Turbine Power Station,oil_gas,^basin_bridge_gas_turbine_power_station__,
+oil-gas,Karuppur Combined Cycle Power Plant,oil_gas,,not in the model; last generation October 2022
+oil-gas,Kovilkalappal (Thirumakotai) Gas Combined Cycle Gas Turbine Power Station,oil_gas,^kovilkalappal_thirumakotai_,
+oil-gas,Kuttalam Gas Turbine Power Station,oil_gas,^kuttalam_gas_turbine_power_station__,
+oil-gas,Pillaiperumalnallur (PPN) Power Plant Phase I,oil_gas,^pillaiperumalnallur_ppn_power_plant_phase_i__,
+oil-gas,Valantharavai Combined Cycle Gas Power Plant,oil_gas,,not in the model; no generation in the record (FY2022-23 onward)
+oil-gas,Valuthur Gas Turbine Power Station,oil_gas,^valuthur_gas_turbine_power_station__,
+nuclear,Kudankulam Atomic Power Project,nuclear,^(?:kudankulam_atomic_power_project__|rea_export_reservation__kudankulam_),includes the fixed REA export reservations
+nuclear,Madras Atomic Power Station,nuclear,^(?:madras_atomic_power_station__|rea_export_reservation__madras_atomic_),includes the fixed REA export reservation

@@ -36,6 +36,7 @@ from nuclear_energy_targets import (
     add_nuclear_targets,
     generator_dimension,
 )
+from energy_target_policy import add_energy_caps, target_enabled
 from period_energy_targets import drop_native_energy_targets
 from run_profiling import (
     format_solve_breakdown,
@@ -922,6 +923,9 @@ def _add_daily_targets(
     gas_targets: pd.Series,
 ) -> None:
     add_nuclear_targets(network, snapshots)
+    add_energy_caps(network, snapshots)
+    if not target_enabled(network, "oil_gas"):
+        return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
     dispatch = network.model["Generator-p"]
     generator_dim = generator_dimension(dispatch)
@@ -953,6 +957,8 @@ def _add_committed_biomass_target(
     double-counting that look-ahead. Month-crossing windows receive a prorated
     share from each month they cover.
     """
+    if not target_enabled(network, "bio_power"):
+        return
     biomass_units = network.generators.index[
         network.generators.carrier.eq("bio_power")
     ]
@@ -987,6 +993,8 @@ def _add_committed_small_hydro_target(
     monthly_targets_mwh: pd.Series,
 ) -> None:
     """Fix weekly small-hydro energy while leaving its hourly dispatch free."""
+    if not target_enabled(network, "small_hydro"):
+        return
     units = network.generators.index[network.generators.carrier.eq("small_hydro")]
     if not len(units):
         raise ValueError("Small-hydro target is configured but no small_hydro units exist")
@@ -1114,7 +1122,8 @@ def run_annual_no_uc(
     network = base_network.copy()
     # The source profile is a placeholder. The period-energy constraints below
     # are the operating evidence, so dispatch remains available at nameplate.
-    network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+    if target_enabled(network, "small_hydro"):
+        network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
     measured_store_targets = _measured_store_targets(
         observed_soc, hydro_parameters, network
     )
@@ -1397,7 +1406,8 @@ def run_rolling_year(
         # The inherited placeholder profile cannot supply the observed monthly
         # energy. Weekly energy equalities replace that profile as the operating
         # evidence, so availability is nameplate and timing is optimized.
-        base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+        if target_enabled(base_network, "small_hydro"):
+            base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
         observed_soc, hydro_parameters, monthly_soc, hydro_input_hash = _hydro_storage_inputs()
         measured_store_targets = _measured_store_targets(
             observed_soc, hydro_parameters, base_network

@@ -50,6 +50,14 @@ from run_9ba_rolling import (
     run_annual_no_uc,
     run_rolling_year,
 )
+from energy_target_policy import (
+    TARGET_CARRIERS,
+    add_energy_caps,
+    apply_energy_target_policy,
+    is_default,
+    policy_tag,
+    target_enabled,
+)
 from scenario_technologies import apply_technologies, network_fingerprint
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
@@ -623,12 +631,15 @@ def _solve_peak_week(
 
     def extra_functionality(active_network: pypsa.Network, active_snapshots: pd.DatetimeIndex) -> None:
         add_nuclear_targets(active_network, active_snapshots)
+        add_energy_caps(active_network, active_snapshots)
         period_targets.update(
             add_prorated_monthly_targets(active_network, active_snapshots, f"peak-{dates[0]:%Y%m%d}")
         )
         dispatch = active_network.model["Generator-p"]
         generator_dim = generator_dimension(dispatch)
         for date, target in gas_targets.items():
+            if not target_enabled(active_network, "oil_gas"):
+                break
             day_snapshots = active_snapshots[active_snapshots.normalize() == date]
             if not len(day_snapshots):
                 continue
@@ -722,7 +733,9 @@ def _solve_selected_weeks(
     ]
     if not len(small_hydro_units):
         raise ValueError("Selected-week small-hydro targets require small_hydro generators.")
-    base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
+    if target_enabled(base_network, "small_hydro"):
+        # The weekly energy equality, not the hourly profile, sets small-hydro output.
+        base_network.generators_t.p_max_pu.loc[:, small_hydro_units] = 1.0
 
     modeled_parts: list[pd.DataFrame] = []
     week_rows: list[dict[str, object]] = []
@@ -983,6 +996,7 @@ def _solve_selected_weeks(
                 active_snapshots: pd.DatetimeIndex,
             ) -> None:
                 add_nuclear_targets(active_network, active_snapshots)
+                add_energy_caps(active_network, active_snapshots)
                 terminal_snapshot = active_snapshots[
                     active_snapshots.normalize() == retained_dates[-1]
                 ][-1]
@@ -999,19 +1013,23 @@ def _solve_selected_weeks(
                 biomass_dispatch = dispatch.sel(
                     {generator_dim: biomass_units, "snapshot": retained_snapshots}
                 )
-                active_network.model.add_constraints(
-                    (biomass_dispatch * biomass_weights).sum() == biomass_target_mwh,
-                    name=f"SelectedWeekBiomassEnergyTarget-{retained_dates[0]:%Y%m%d}",
-                )
+                if target_enabled(active_network, "bio_power"):
+                    active_network.model.add_constraints(
+                        (biomass_dispatch * biomass_weights).sum() == biomass_target_mwh,
+                        name=f"SelectedWeekBiomassEnergyTarget-{retained_dates[0]:%Y%m%d}",
+                    )
                 small_hydro_dispatch = dispatch.sel(
                     {generator_dim: small_hydro_units, "snapshot": retained_snapshots}
                 )
-                active_network.model.add_constraints(
-                    (small_hydro_dispatch * biomass_weights).sum()
-                    == small_hydro_target_mwh,
-                    name=f"SelectedWeekSmallHydroEnergyTarget-{retained_dates[0]:%Y%m%d}",
-                )
+                if target_enabled(active_network, "small_hydro"):
+                    active_network.model.add_constraints(
+                        (small_hydro_dispatch * biomass_weights).sum()
+                        == small_hydro_target_mwh,
+                        name=f"SelectedWeekSmallHydroEnergyTarget-{retained_dates[0]:%Y%m%d}",
+                    )
                 for date, target in gas_targets.items():
+                    if not target_enabled(active_network, "oil_gas"):
+                        break
                     day_snapshots = active_snapshots[active_snapshots.normalize() == date]
                     expression = dispatch.sel(
                         {generator_dim: gas_units, "snapshot": day_snapshots}
@@ -1467,6 +1485,8 @@ def run_selection(
     technologies: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
+    energy_targets: Mapping[str, Any] | None = None,
+    marginal_costs: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1540,6 +1560,8 @@ def _run_selection(
     technologies: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
+    energy_targets: Mapping[str, Any] | None = None,
+    marginal_costs: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1639,10 +1661,46 @@ def _run_selection(
                 f"Optimised capacities cannot be sized in mode '{mode}', which solves "
                 "periods separately; use mode 'annual' for the capacity expansion."
             )
+    with profiler.phase("apply_energy_target_policy"):
+        (
+            energy_target_policy, cost_overrides, availability_report, cost_report,
+        ) = apply_energy_target_policy(
+            base_network,
+            # The annual LP solves whole cap periods: caps apply exactly and
+            # it is the source of any allocation, so no transfer is needed.
+            {**(energy_targets or {}), "cap_transfer": "prorate"} if mode == "annual" else energy_targets,
+            marginal_costs,
+        )
+    released = [
+        f"{carrier}: {energy_target_policy[carrier]}"
+        for carrier in TARGET_CARRIERS if energy_target_policy[carrier] != "target"
+    ]
+    if released:
+        report(
+            "Released energy targets (" + ", ".join(released) + "; availability period "
+            f"{energy_target_policy['availability_period']})."
+        )
+    if cost_overrides:
+        report(
+            "Marginal-cost overrides (INR/MWh): "
+            + ", ".join(f"{carrier} {cost:,.0f}" for carrier, cost in cost_overrides.items())
+        )
+    shortfall = availability_report.get("shortfall_mwh")
+    if shortfall is not None and float(shortfall.sum()) > 1.0:
+        report(
+            "Availability profiles cannot reach the observed energy in "
+            f"{int((shortfall > 1.0).sum())} period(s); total shortfall "
+            f"{float(shortfall.sum()) / 1_000.0:,.1f} GWh (see energy_target_availability.csv)."
+        )
     # Lets resumable modes reject checkpoints solved with a different network.
+    # The energy-target policy is not visible in the network data when targets
+    # are only released, so a non-default policy extends the fingerprint.
+    fingerprint = network_fingerprint(base_network)
+    if not is_default(energy_target_policy, cost_overrides):
+        fingerprint += "+policy-" + policy_tag(energy_target_policy, cost_overrides)
     base_network.meta = {
         **(base_network.meta or {}),
-        "input_fingerprint": network_fingerprint(base_network),
+        "input_fingerprint": fingerprint,
     }
     biomass_annual_target_mwh = float(read_bio_power_monthly_targets().sum())
     full_horizon_weight = float(base_network.snapshot_weightings.generators.sum())
@@ -1683,6 +1741,10 @@ def _run_selection(
     with profiler.phase("capacity_comparison"):
         capacity_comparison = _installed_capacity_comparison(base_network)
         capacity_comparison.to_csv(output_dir / "installed_capacity_comparison.csv")
+    if not availability_report.empty:
+        availability_report.to_csv(output_dir / "energy_target_availability.csv", index=False)
+    if not cost_report.empty:
+        cost_report.to_csv(output_dir / "marginal_cost_overrides.csv", index=False)
     if not added_technologies.empty:
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
@@ -1703,6 +1765,8 @@ def _run_selection(
         )
 
     validation["unit_commitment"] = unit_commitment
+    validation["energy_targets"] = dict(energy_target_policy)
+    validation["marginal_cost_overrides_inr_per_mwh"] = dict(cost_overrides)
     validation["run_name"] = run_name
     validation["solver_threads"] = solver_threads
     validation["simplex_strategy"] = simplex_strategy

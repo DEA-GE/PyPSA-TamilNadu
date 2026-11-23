@@ -750,6 +750,122 @@ placeholder availability profile cannot supply the observed energy, these
 solves make small hydro dispatchable between zero and nameplate; the weekly
 energy is fixed while its hourly and daily timing remains optimized.
 
+## Releasing the energy targets
+
+The equalities above are the default. The `energy_targets` section of a run
+config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
+`small_hydro`):
+
+- `target`: the observed-energy equalities described above (default).
+- `availability`: no equality. Each dispatchable unit's `p_max_pu` is scaled,
+  per `availability_period` (`monthly` or `daily`), so that the carrier's
+  available energy equals the observed energy; existing outages and
+  commissioning dates (zero availability) are kept and no unit exceeds 1.0.
+  Cost optimisation then decides how much of that energy is used, so the
+  carrier follows the observed seasonal pattern only if its marginal cost
+  places it in the merit order.
+- `must_run`: as `availability`, with minimum output equal to the scaled
+  availability, so the carrier produces exactly its available energy whatever
+  its cost (nuclear is must-run under the grid code).
+- `energy_cap` (`oil_gas` and `bio_power` only): no equality. Units get a
+  flat availability (`oil_gas_cap_availability`, default 0.9;
+  `bio_power_cap_availability`, default 0.6) and their energy over each
+  `cap_period` (`annual` FY2025-26 or `monthly`) is capped at the observed
+  energy: per ICED plant for oil/gas (plants that did not generate get a zero
+  cap), for the whole carrier for bio-power. This is how CEA's planning
+  studies treat fuel-limited gas and biomass (NEP 2022-32 §5.6.11: gas fuel
+  "limited as per the actual gas based generation during 2021-22"; Optimal
+  Generation Mix 2029-30 §7.7: biomass annual PLF of 25–30%; availability 90%
+  and 60% in the NEP and the 2026 Tamil Nadu resource-adequacy report). Caps
+  are exact in the annual mode; shorter solves (days, weeks, rolling windows)
+  get the cap prorated to the share of the period's hours they cover.
+  `config/runs/annual_capped_annual.yaml` and `annual_capped_monthly.yaml`
+  compare annual and monthly caps. The monthly-cap annual LP solved in 169
+  minutes; the annual-cap one did not finish: after about 2.3 h HiGHS stopped
+  the presolved LP short of optimality and restarted a single-core dual
+  simplex on the full LP, which was stopped after 3.8 h. Each annual cap was one
+  very dense row (bio-power: about 80 units x 8,760 hours), the likely cause.
+  Caps whose solved hours span several months are now written sparsely: one
+  auxiliary energy variable per month, defined over that month's hours, and
+  one row capping their sum (the same constraint without a row that couples
+  the whole year). The annual-cap annual LP has not been rerun with it.
+
+  A rolling window cannot see the rest of the year, so `cap_transfer` sets how
+  a cap reaches solves shorter than its period (the annual mode solves whole
+  periods and always enforces caps exactly). The default, `allocation`, is
+  two-stage: an annual LP with the same caps (`cap_source`, by default the
+  results of `config/runs/annual_capped_monthly.yaml`, which must be run
+  first) allocates the fuel over the year, and each plant's daily dispatch in
+  it becomes its cap, summed over the days a window solves. `prorate` gives each
+  solve the cap times its share of the period's hours. `shadow_price` is
+  experimental: it recovers each cap's shadow price from the annual LP (price
+  minus marginal cost in hours the plant runs part-loaded, or the midpoint of
+  the bounds from hours it is off or at full output), adds it to the plant's
+  marginal cost and drops the cap (zero caps stay).
+
+  In the relaxed rolling year (`config/runs/rolling_relaxed_cap_allocation.yaml`
+  and `rolling_relaxed_cap_shadow_price.yaml`, 63–67 min each), allocation kept
+  bio-power at 190 GWh against its 189 GWh cap and gas at 180 GWh, matching the
+  annual LP. The shadow-price transfer produced 679 GWh of bio-power: its cost
+  plus a small scarcity adder sits close to typical prices, so the different
+  prices of rolling relaxed unit commitment swing it, and a month whose cap did
+  not bind in the annual LP (January) gets no adder at all. It needs further
+  development (for example keeping a prorated cap as a backstop) before use.
+- `free`: no equality and the network's own availability.
+
+With `availability_source: plant` (the default), oil/gas and nuclear are
+scaled plant by plant. Each plant receives the carrier's observed energy in the
+period (the daily budgets above) times its share of the carrier's monthly
+generation in the NITI Dashboard (ICED) plant data
+(`data/model_inputs/niti_iced_tamil_nadu_monthly_generation.csv`, built by
+`scripts/data_preparation/prepare_niti_iced_monthly_generation.py`; plants are
+matched to model units in `data/model_inputs/niti_iced_plant_mapping.csv`).
+Plants that did not generate get no availability. In FY2025-26 only Kuttalam
+(100 MW, 20–84% of capacity by month) and Valuthur (186 MW, 24–50%) ran; Basin
+Bridge, PPN and Thirumakottai (558 MW) are unavailable. Nuclear outages fall on
+the right plant (MAPS is unavailable in September and October 2025). In
+June, July, February and March ICED reports Kudankulam above its 2,000 MW
+nameplate (by 0.8–2.4%, likely gross generation), so 144.5 GWh (1% of nuclear)
+cannot be made available. Bio-power and small hydro are observed only as state
+totals and are always scaled per carrier; `availability_source: carrier`
+scales oil/gas and nuclear the same way.
+
+Units on a fixed schedule (`p_min_pu` equal to `p_max_pu`, the REA export
+reservations: 5,491 GWh of nuclear and 5 GWh of bio-power) are never rescaled;
+their energy is subtracted from the observed total (per plant) first. Minimum outputs above
+the new availability are lowered to it.
+
+Released runs use the official station costs in
+`data/model_inputs/plant_operating_costs.csv` (see
+[docs/input-data.md](docs/input-data.md#other-marginal-costs)); they are not
+fitted to observed generation. Where a released run departs from observations,
+that is evidence for a missing constraint, assessed separately.
+`config/runs/annual_released.yaml` releases all four carriers, with nuclear
+must-run:
+
+```yaml
+energy_targets: {oil_gas: availability, nuclear: must_run,
+                 bio_power: availability, small_hydro: availability}
+```
+
+The `marginal_costs` section overrides the marginal cost of every unit of
+`oil_gas`, `diesel`, `bio_power`, `nuclear` or `small_hydro` (INR/MWh) for
+sensitivity runs.
+
+`scripts/compare_energy_target_runs.py NAME=RUN_DIR ... --output DIR` compares
+solved runs by month: energy by carrier against observed generation, oil/gas
+and nuclear energy by plant against the ICED plant data, the load-weighted
+Tamil Nadu price, and operating cost by carrier.
+
+Each run writes `energy_target_availability.csv` (observed, scheduled and
+available energy per carrier and period, and any shortfall) and
+`marginal_cost_overrides.csv`; the resolved policy is in `validation.json`.
+A non-default policy changes the checkpoint fingerprint, so rolling runs do not
+resume from checkpoints solved with other targets. With carrier-level scaling
+the monthly availability reaches the observed energy in every month for all
+four carriers; with plant-level scaling only the Kudankulam months above fall
+short.
+
 ## Reservoir hydro and seasonal inflow
 
 `data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while

@@ -1,0 +1,26 @@
+# Relaxed-UC rolling year with gas and bio-power as fuel-limited plants whose
+# monthly caps are passed to the weekly windows by cap_transfer: shadow_price, from the
+# annual LP run annual_capped_monthly (run config/runs/annual_capped_monthly.yaml
+# first). Compare rolling_relaxed_cap_allocation with
+# rolling_relaxed_cap_shadow_price.
+#   python scripts/run_model.py config/runs/rolling_relaxed_cap_shadow_price.yaml
+run:
+  name: rolling_relaxed_cap_shadow_price
+  mode: rolling
+  resume: true
+
+formulation:
+  unit_commitment: relaxed
+
+rolling:
+  time_limit: Default
+  max_time_limit_mip_gap: 0.10
+
+energy_targets:
+  oil_gas: energy_cap
+  nuclear: must_run
+  bio_power: energy_cap
+  small_hydro: availability
+  cap_period: monthly
+  cap_transfer: shadow_price
+  cap_source: results/run_results/annual_2025-04-01_2026-03-31_LP/annual_capped_monthly

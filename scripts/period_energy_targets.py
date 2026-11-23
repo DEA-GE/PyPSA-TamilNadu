@@ -10,6 +10,7 @@ import pypsa
 import xarray as xr
 
 from bio_power_targets import bio_power_energy_target_mwh
+from energy_target_policy import target_enabled
 from nuclear_energy_targets import generator_dimension
 from small_hydro_targets import small_hydro_energy_target_mwh
 
@@ -45,7 +46,11 @@ def prorated_monthly_targets_mwh(
 def add_prorated_monthly_targets(
     network: pypsa.Network, snapshots: pd.DatetimeIndex, name_suffix: str,
 ) -> dict[str, float]:
-    """Add bio-power and small-hydro energy equalities over ``snapshots``."""
+    """Add bio-power and small-hydro energy equalities over ``snapshots``.
+
+    Returns the observed targets of both carriers; a carrier whose target is
+    released by the energy-target policy is reported but not constrained.
+    """
     snapshots = pd.DatetimeIndex(snapshots)
     weights = network.snapshot_weightings.generators
     targets = prorated_monthly_targets_mwh(snapshots, weights)
@@ -55,6 +60,8 @@ def add_prorated_monthly_targets(
         weights.reindex(snapshots), dims="snapshot", coords={"snapshot": snapshots}
     )
     for carrier, target in targets.items():
+        if not target_enabled(network, carrier):
+            continue
         units = network.generators.index[network.generators.carrier.eq(carrier)]
         if not len(units):
             raise ValueError(f"A {carrier} energy target requires {carrier} generators")

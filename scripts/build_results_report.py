@@ -62,6 +62,7 @@ INLINE_TABLES = (
 )
 FIGURE_TITLES = {
     "energy_balance": "System electricity supply and demand",
+    "daily_generation_share": "Daily supply mix (%)",
     "generation_comparison": "Generation versus observed",
     "monthly_generation": "Monthly generation",
     "resource_seasonality": "Resource seasonality",
