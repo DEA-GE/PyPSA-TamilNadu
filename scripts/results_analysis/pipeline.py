@@ -37,6 +37,7 @@ from .metrics import (
 )
 from .plots import (
     cost_figure,
+    daily_generation_share_figure,
     energy_balance_figure,
     generation_comparison_figure,
     monthly_generation_figure,
@@ -114,8 +115,10 @@ def analyze_run(
         tables["seasonality_summary"] = seasonality_summary(monthly_seasonality)
         tables["seasonality_fit"] = seasonality_fit(monthly_seasonality)
 
-    figures = {
-        "energy_balance": energy_balance_figure(balance),
+    figures = {"energy_balance": energy_balance_figure(balance)}
+    if len(run.snapshots) >= 2 * 24:
+        figures["daily_generation_share"] = daily_generation_share_figure(balance)
+    figures |= {
         "generation_comparison": generation_comparison_figure(
             tables["generation_comparison"]
         ),

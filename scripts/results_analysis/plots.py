@@ -22,15 +22,37 @@ def _for_display(frame: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     return frame, "hourly"
 
 
+def order_by_variability(frame: pd.DataFrame) -> pd.DataFrame:
+    """Order columns from steadiest to most variable, for stacking bottom-up.
+
+    Variability is the standard deviation of each column as shown, so small
+    technologies and those that run flat sit at the bottom of a stack and the
+    ones that change over time sit on top, where their changes stay visible
+    instead of shifting every layer above them. Ties keep the input order.
+    """
+    spread = frame.std(ddof=0).fillna(0.0)
+    return frame[spread.sort_values(kind="stable").index]
+
+
+def _stack_legend(axis, ncol: int = 4) -> None:
+    """Legend listed top-down in the same order as the stacked layers."""
+    handles, labels = axis.get_legend_handles_labels()
+    axis.legend(
+        handles[::-1], labels[::-1], ncol=ncol, loc="upper center",
+        bbox_to_anchor=(0.5, -0.16),
+    )
+
+
 def energy_balance_figure(balance: pd.DataFrame):
     """Stack electricity supply and draw demand as a line on top.
 
     The gap between the top of the stack and the demand line is storage
-    charging, pumping and transmission losses.
+    charging, pumping and transmission losses. Layers are ordered by
+    ``order_by_variability``.
     """
     figure, axis = plt.subplots(figsize=(14, 6))
     data, resolution = _for_display(balance)
-    supply = data.loc[:, data.ge(0.0).all()]
+    supply = order_by_variability(data.loc[:, data.ge(0.0).all()])
     if not supply.empty:
         axis.stackplot(
             supply.index,
@@ -50,8 +72,50 @@ def energy_balance_figure(balance: pd.DataFrame):
     axis.set_title(f"System electricity supply and demand ({resolution})")
     axis.set_ylabel("MW")
     axis.set_xlabel("Time")
-    axis.legend(ncol=4, loc="upper center", bbox_to_anchor=(0.5, -0.16))
+    _stack_legend(axis)
     axis.grid(alpha=0.2)
+    figure.tight_layout()
+    return figure
+
+
+def daily_supply_shares(balance: pd.DataFrame) -> pd.DataFrame:
+    """Each day's supply by carrier as a percentage of that day's total supply.
+
+    Supply is every non-negative column of ``energy_balance_timeseries``:
+    generation, storage discharge, net imports and any unserved energy.
+    """
+    supply = balance.loc[:, balance.ge(0.0).all()]
+    if supply.empty:
+        return supply
+    daily = supply.resample("D").sum()
+    total = daily.sum(axis=1)
+    daily = daily.loc[total.gt(0.0)]
+    return daily.div(total[daily.index], axis=0) * 100.0
+
+
+def daily_generation_share_figure(balance: pd.DataFrame):
+    """Daily stacked bars of the supply mix, each day summing to 100 %."""
+    figure, axis = plt.subplots(figsize=(14, 6))
+    shares = order_by_variability(daily_supply_shares(balance))
+    if shares.empty:
+        axis.text(0.5, 0.5, "No supply", ha="center", va="center")
+        return figure
+    bottom = np.zeros(len(shares))
+    for column in shares:
+        values = shares[column].to_numpy()
+        axis.bar(
+            shares.index, values, width=1.0, bottom=bottom, align="edge",
+            color=CARRIER_COLORS.get(str(column), "#7F7F7F"),
+            label=CARRIER_LABELS.get(column, column), linewidth=0,
+        )
+        bottom += values
+    axis.set_xlim(shares.index[0], shares.index[-1] + pd.Timedelta(days=1))
+    axis.set_ylim(0.0, 100.0)
+    axis.set_title("Daily supply mix (share of each day's supply)")
+    axis.set_ylabel("%")
+    axis.set_xlabel("Day")
+    _stack_legend(axis)
+    axis.grid(axis="y", alpha=0.2)
     figure.tight_layout()
     return figure
 
