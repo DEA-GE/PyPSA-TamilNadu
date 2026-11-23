@@ -1,7 +1,8 @@
 """Compare solved runs that differ in their energy-target policy.
 
 Each run is a results folder written by ``scripts/run_model.py`` (it must hold
-``solved_network.nc`` and ``modeled_daily_generation.csv``). For every run the
+``solved_network.nc``, or ``stitched_network.nc`` for rolling runs, and
+``modeled_daily_generation.csv``). For every run the
 script reports, by month:
 
 - energy by carrier against observed generation (the NITI daily workbook,
@@ -45,6 +46,14 @@ def month_coverage(dates) -> pd.Series:
     months = _month(days)
     counts = pd.Series(1, index=days).groupby(months).sum()
     return counts / counts.index.days_in_month
+
+
+def solved_network_file(run_dir: Path) -> Path:
+    """The run's solved network: ``solved_network.nc`` or, for rolling runs, ``stitched_network.nc``."""
+    for name in ("solved_network.nc", "stitched_network.nc"):
+        if (run_dir / name).exists():
+            return run_dir / name
+    raise FileNotFoundError(f"No solved_network.nc or stitched_network.nc in {run_dir}")
 
 
 def observed_monthly_gwh(run_dir: Path) -> pd.DataFrame:
@@ -120,7 +129,7 @@ def compare(runs: dict[str, Path], output: Path) -> dict[str, pd.DataFrame]:
         stacked.columns = ["month", "carrier", "gwh"]
         stacked["run"] = name
         carrier_rows.append(stacked)
-        network = pypsa.Network(str(run_dir / "solved_network.nc"))
+        network = pypsa.Network(str(solved_network_file(run_dir)))
         plants = plant_monthly_gwh(network)
         plants["run"] = name
         plant_frames.append(plants)
