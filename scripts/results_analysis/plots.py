@@ -34,25 +34,49 @@ def order_by_variability(frame: pd.DataFrame) -> pd.DataFrame:
     return frame[spread.sort_values(kind="stable").index]
 
 
-def _stack_legend(axis, ncol: int = 4) -> None:
-    """Legend listed top-down in the same order as the stacked layers."""
+def _stack_legend(axis, secondary=None, ncol: int = 4) -> None:
+    """Legend listed top-down in the same order as the stacked layers.
+
+    Lines on a ``secondary`` axis are listed after the stack.
+    """
     handles, labels = axis.get_legend_handles_labels()
+    handles, labels = handles[::-1], labels[::-1]
+    if secondary is not None:
+        extra_handles, extra_labels = secondary.get_legend_handles_labels()
+        handles += extra_handles
+        labels += extra_labels
     axis.legend(
-        handles[::-1], labels[::-1], ncol=ncol, loc="upper center",
-        bbox_to_anchor=(0.5, -0.16),
+        handles, labels, ncol=ncol, loc="upper center", bbox_to_anchor=(0.5, -0.16),
     )
+
+
+def _unserved_line(axis, index, values: pd.Series | None, x_offset=pd.Timedelta(0)):
+    """Draw unserved energy as a dotted line on a secondary (right) axis, in MW."""
+    secondary = axis.twinx()
+    values = (
+        pd.Series(0.0, index=index) if values is None else values.reindex(index, fill_value=0.0)
+    )
+    secondary.plot(
+        index + x_offset, values.to_numpy(), color=CARRIER_COLORS["unserved_energy"],
+        linestyle=":", linewidth=1.6, label=f"{CARRIER_LABELS['unserved_energy']} (right axis)",
+    )
+    secondary.set_ylim(0.0, max(1.1 * float(values.max()), 1.0))
+    secondary.set_ylabel(f"{CARRIER_LABELS['unserved_energy']} (MW)")
+    return secondary
 
 
 def energy_balance_figure(balance: pd.DataFrame):
     """Stack electricity supply and draw demand as a line on top.
 
     The gap between the top of the stack and the demand line is storage
-    charging, pumping and transmission losses. Layers are ordered by
-    ``order_by_variability``.
+    charging, pumping and transmission losses, plus any unserved energy,
+    which is drawn as a dotted line on the right axis instead of stacked.
+    Layers are ordered by ``order_by_variability``.
     """
     figure, axis = plt.subplots(figsize=(14, 6))
     data, resolution = _for_display(balance)
-    supply = order_by_variability(data.loc[:, data.ge(0.0).all()])
+    supply = data.loc[:, data.ge(0.0).all()].drop(columns="unserved_energy", errors="ignore")
+    supply = order_by_variability(supply)
     if not supply.empty:
         axis.stackplot(
             supply.index,
@@ -72,19 +96,22 @@ def energy_balance_figure(balance: pd.DataFrame):
     axis.set_title(f"System electricity supply and demand ({resolution})")
     axis.set_ylabel("MW")
     axis.set_xlabel("Time")
-    _stack_legend(axis)
+    secondary = _unserved_line(axis, data.index, data.get("unserved_energy"))
+    _stack_legend(axis, secondary)
     axis.grid(alpha=0.2)
     figure.tight_layout()
     return figure
 
 
 def daily_supply_shares(balance: pd.DataFrame) -> pd.DataFrame:
-    """Each day's supply by carrier as a percentage of that day's total supply.
+    """Each day's served supply by carrier as a percentage of that day's total.
 
-    Supply is every non-negative column of ``energy_balance_timeseries``:
-    generation, storage discharge, net imports and any unserved energy.
+    Supply is every non-negative column of ``energy_balance_timeseries``
+    except unserved energy: generation, storage discharge and net imports.
     """
-    supply = balance.loc[:, balance.ge(0.0).all()]
+    supply = balance.loc[:, balance.ge(0.0).all()].drop(
+        columns="unserved_energy", errors="ignore"
+    )
     if supply.empty:
         return supply
     daily = supply.resample("D").sum()
@@ -94,7 +121,11 @@ def daily_supply_shares(balance: pd.DataFrame) -> pd.DataFrame:
 
 
 def daily_generation_share_figure(balance: pd.DataFrame):
-    """Daily stacked bars of the supply mix, each day summing to 100 %."""
+    """Daily stacked bars of the served supply mix, each day summing to 100 %.
+
+    Unserved energy is not part of the mix; its daily mean (MW) is a dotted
+    line on the right axis.
+    """
     figure, axis = plt.subplots(figsize=(14, 6))
     shares = order_by_variability(daily_supply_shares(balance))
     if shares.empty:
@@ -111,10 +142,16 @@ def daily_generation_share_figure(balance: pd.DataFrame):
         bottom += values
     axis.set_xlim(shares.index[0], shares.index[-1] + pd.Timedelta(days=1))
     axis.set_ylim(0.0, 100.0)
-    axis.set_title("Daily supply mix (share of each day's supply)")
+    axis.set_title("Daily supply mix (share of each day's served supply)")
     axis.set_ylabel("%")
     axis.set_xlabel("Day")
-    _stack_legend(axis)
+    unserved = (
+        balance["unserved_energy"].resample("D").mean()
+        if "unserved_energy" in balance else None
+    )
+    # Bars span each day from midnight; put the line's points at midday.
+    secondary = _unserved_line(axis, shares.index, unserved, pd.Timedelta(hours=12))
+    _stack_legend(axis, secondary)
     axis.grid(axis="y", alpha=0.2)
     figure.tight_layout()
     return figure

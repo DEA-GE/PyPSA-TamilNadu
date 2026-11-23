@@ -18,6 +18,7 @@ from results_analysis.config import CARRIER_LABELS  # noqa: E402
 from results_analysis.plots import (  # noqa: E402
     daily_generation_share_figure,
     daily_supply_shares,
+    energy_balance_figure,
     order_by_variability,
 )
 
@@ -73,6 +74,40 @@ def test_daily_share_figure_stacks_to_100_percent():
     # Solar's daily share is the same every day here; coal's grows, so it
     # is the top layer, and the legend lists layers top-down.
     stacked = order_by_variability(daily_supply_shares(_balance())).columns
-    assert labels == [CARRIER_LABELS[carrier] for carrier in stacked[::-1]]
+    # The last entry is the unserved-energy line on the right axis.
+    assert labels[:-1] == [CARRIER_LABELS[carrier] for carrier in stacked[::-1]]
     assert labels[0] == "Coal"
 
+
+def _with_unserved() -> pd.DataFrame:
+    balance = _balance()
+    unserved = np.zeros(len(balance))
+    unserved[30:34] = 50.0  # four hours on the second day
+    balance.insert(4, "unserved_energy", unserved)
+    balance["demand"] -= unserved
+    return balance
+
+
+def test_unserved_energy_is_left_out_of_the_daily_mix():
+    shares = daily_supply_shares(_with_unserved())
+    assert "unserved_energy" not in shares
+    np.testing.assert_allclose(shares.sum(axis=1), 100.0)
+
+
+@pytest.mark.parametrize(
+    "build, expected_peak",
+    # Runs up to a month are drawn hourly; the daily mix uses daily means.
+    [(energy_balance_figure, 50.0), (daily_generation_share_figure, 50.0 * 4 / 24)],
+)
+def test_unserved_energy_is_a_dotted_line_on_the_right_axis(build, expected_peak):
+    figure = build(_with_unserved())
+    primary, secondary = figure.axes
+    unserved_label = f"{CARRIER_LABELS['unserved_energy']} (right axis)"
+    assert CARRIER_LABELS["unserved_energy"] not in [
+        text.get_text() for text in primary.get_legend().get_texts()
+    ]
+    (line,) = secondary.get_lines()
+    assert line.get_label() == unserved_label
+    assert line.get_linestyle() == ":"
+    assert max(line.get_ydata()) == pytest.approx(expected_peak)
+    assert unserved_label in [text.get_text() for text in primary.get_legend().get_texts()]
