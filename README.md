@@ -53,6 +53,10 @@ If `python` is not on your path, use the Python executable from your environment
    python scripts/build_9ba_model.py
    ```
 
+   The interstate exchange matches Tamil Nadu's metered net import by default
+   (`--interchange transactions` uses the REA transactions only); see
+   "Metered interchange" in [docs/input-data.md](docs/input-data.md).
+
 3. For a first solve, run the one-day example config. It solves 11 July 2025
    with relaxed unit commitment on one thread and finishes in under a minute:
 

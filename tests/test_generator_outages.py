@@ -370,3 +370,33 @@ def test_maintenance_is_optimised_into_low_demand_days(tmp_path):
     again = _network(hours, demand)
     apply_outages(again, {**settings, "maintenance_schedule": str(path)})
     assert again.generators_t.p_max_pu[["coal_a", "coal_b"]].equals(p_max[["coal_a", "coal_b"]])
+
+
+def test_coal_comparisons_add_back_auxiliary_consumption(tmp_path):
+    from generator_outages import coal_auxiliary_by_generator, coal_own_use, gross_coal_for_comparison
+    from results_analysis.generation_comparison import _read_daily
+
+    network = _network()
+    network.add("Generator", "rea_export_st", bus="Erode", carrier="coal", p_nom=50.0)
+    audit = tmp_path / "audit.csv"
+    pd.DataFrame({"name": ["coal_a", "coal_b", "rea_export_st"], "station": ["S", "T", "S"]}).to_csv(audit, index=False)
+    share = coal_auxiliary_by_generator(network, pd.Series({"coal_a": 8.0, "coal_b": 6.0}), audit)
+    assert share.to_dict() == pytest.approx({"coal_a": 0.08, "coal_b": 0.06, "rea_export_st": 0.08})
+
+    apply_outages(network, _files(tmp_path, []))
+    assert network.generators.loc[["coal_a", "coal_b"], "auxiliary_consumption"].tolist() == pytest.approx([0.08, 0.06])
+    network.generators_t.p = pd.DataFrame({"coal_a": 92.0, "coal_b": 94.0, "gas": 10.0}, index=HOURS)
+    assert np.allclose(coal_own_use(network), 92.0 * 0.08 / 0.92 + 94.0 * 0.06 / 0.94)   # 8 + 6 MW
+
+    daily = pd.DataFrame({"coal": [100.0], "comparable_total": [150.0], "coal_own_use": [7.0]},
+                         index=pd.DatetimeIndex(["2025-04-01"], name="date"))
+    gross = gross_coal_for_comparison(daily)
+    assert gross.loc["2025-04-01", ["coal", "comparable_total"]].tolist() == [107.0, 157.0]
+    # The report's daily comparison reads the same column.
+    path = tmp_path / "modeled_daily_generation.csv"
+    full = pd.DataFrame({c: [1.0] for c in ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind", "bio_power", "small_hydro"]},
+                        index=pd.DatetimeIndex(["2025-04-01"], name="date")).assign(coal_own_use=0.5)
+    full.to_csv(path)
+    read = _read_daily(path, modeled=True)
+    assert read.loc["2025-04-01", "coal"] == pytest.approx(1.5)
+    assert read.loc["2025-04-01", "comparable_total"] == pytest.approx(6.5)
