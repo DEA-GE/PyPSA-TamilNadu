@@ -27,6 +27,8 @@ an explicit `snapshot` timestamp.
 | FY2025-26 REA imports and exports | `data/model_inputs/rea_interstate_hourly_flows_FY2025_26.csv`, `rea_interstate_gateway_shares_FY2025_26.csv`, `rea_interstate_source_audit_FY2025_26.csv` | `model/loads.csv`, `model/loads-p_set.csv`, `model/interstate_flow_audit.csv`, `model/interstate_flow_reconciliation.csv` |
 | Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
 | Historical four-station capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/tn_export_capacity_allocations.csv` (reference only) |
+| Coal unit outages, auxiliary consumption and capability | `data/source/NITI dashboard/unit outages Tamil Nadu`, `auxiliary consumption Tamil Nadu`; `data/model_inputs/coal_unit_outages_FY2025_26.csv`, `coal_auxiliary_consumption.csv`, `coal_unit_capability_FY2025_26.csv` | Applied at run time with `outages.enabled` (`scripts/generator_outages.py`); not in `model/` |
+| Central coal station declared capacity | `data/source/REA data/*.zip` (SRPC REA, not in Git); `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`, `central_station_units.csv` | Applied at run time with `outages.enabled` and `central_availability: declared` |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -550,6 +552,216 @@ Sources:
   https://www.cercind.gov.in/2025/orders/6-SM-2025.pdf
 - https://www.cercind.gov.in/2026/Orders/647-GT-2025.pdf,
   https://www.cercind.gov.in/2026/Orders/111-GT-2026.pdf
+
+### Coal unit availability: auxiliary consumption, maintenance and outages
+
+The `outages` section of a run config (off by default) sets the hourly
+`p_max_pu` of the 49 committable coal units to
+
+    base availability × capability × (1 − share of the hour the unit is out)
+
+or, for the seven central stations, to their declared capacity
+(`scripts/generator_outages.py`). Without it, every coal unit has a static
+`p_max_pu` of 0.85: the "85% availability" of CEA's *Report on Resource
+Adequacy Plan (Generation) for Tamil Nadu* (April 2026), which equals CERC's
+normative annual plant availability factor. That factor is defined on
+declared capacity net of auxiliary consumption and already includes planned,
+forced and partial outages (CERC Tariff Regulations 2024, Reg. 3(59)), so it
+must not be combined with explicit outages.
+
+**Base availability.** `base_availability: net_of_auxiliary` (the default)
+uses 1 − auxiliary consumption, so the model dispatches net (ex-bus) coal
+output. Tamil Nadu demand is on that basis: CEA's *Load Generation Balance
+Report 2025-26* (§4.2.4, §5.2.2) compares each state's energy requirement and
+peak demand with net availability, i.e. gross generation minus normative
+auxiliary consumption. The FY2025-26 energy balance agrees: demand (131.38 TWh)
+plus exports (23.51) minus imports (27.77) needs 127.12 TWh from in-state
+plants, 5.09 TWh less than their observed generation (132.21 TWh), about the
+auxiliary consumption of the coal and nuclear fleet. The observed generation
+is gross: CEA's daily generation report, the source of the NITI series, states
+"Actual generation is gross generation". `gross` uses 1.0 and `model` keeps
+the network's 0.85.
+
+Auxiliary consumption (% of gross generation) per unit is in
+`data/model_inputs/coal_auxiliary_consumption.csv`
+(`scripts/prepare_coal_outages.py`), capacity-weighted 7.9%:
+
+| Basis | Units | Values |
+|---|---:|---|
+| CEA actual 2017-18 (NITI export, `data/source/NITI dashboard/auxiliary consumption Tamil Nadu`) | 36 | Vallur 6.46, Mettur-II 6.79, Muthiara 7.07, ITPCL 7.51, NLC TPS-I Exp 7.70, NCTPS-I 7.97, Tuticorin TPS 8.28, NTPL 8.59, Mettur-I 8.64, NLC TPS-II 9.25, TAQA 9.78, Tuticorin (P) 12.36, NLC TPS-II Exp 12.61 |
+| TNERC approved FY2025-26 (Order 07 of 2022, Table 4-41) | 3 | NCTPS-II and III 7.00 |
+| CERC 2024 norm, Reg. 70(E) | 3 | NNTPS 6.75 (500 MW with steam-driven feed pumps 5.25 + 1.5 for lignite CFBC), SEPC 5.25 |
+| Assumption | 7 | OPG, TCP, Tulsyan 10.0 (no CERC norm below 200 MW) |
+
+The feed-pump drive of NNTPS and SEPC is assumed; with electric pumps the
+norms would be 9.5% and 8.0%. CEA's 2017-18 value for NCTPS-I (7.97%) is below
+TNERC's approved 8.5% and its 2016-21 actuals (9.05–10.40%).
+
+**Capability (partial deratings).** The outage record lists only whole units
+out; a running unit that cannot reach full load (mill problems, wet or poor
+coal, condenser vacuum, tube leaks) leaves no trace in it. With
+`partial_derating: demonstrated` (the default) each unit is capped at its best
+whole day of FY2025-26 on days without any recorded outage, as a share of its
+rating (daily gross energy from
+`data/model_inputs/niti_dashboard_tamil_nadu_generation_FY2025_26.csv` ÷
+(rating × 24 h)); `data/model_inputs/coal_unit_capability_FY2025_26.csv`
+lists it with the median and 95th-percentile day. The cap applies to 33 of
+the 49 units and removes 1,308 MW of their 15,032 MW rating. The lowest are
+Neyveli TPS-II Expansion unit 2 (0.745), North Chennai units 6 (0.754, from
+40 days after commissioning), 4 (0.760), 2 (0.810) and 5 (0.828), and Mettur
+unit 5 (0.847). Units with fewer than 20 days without outage (those out all
+year, Tulsyan) and units whose best day reaches the rating are not capped.
+Every capped unit can still run at its 55% minimum stable output. A daily
+average is a lower bound on what a unit can do in an hour, because units are
+backed down at night and in solar hours, so the cap errs on the low side and
+partly reflects dispatch rather than derating. SRPC's 15-minute declared
+capacity would separate the two for the central stations. `none` leaves units
+at their full rating.
+
+**Outage record.** `data/model_inputs/coal_unit_outages_FY2025_26.csv` holds one
+row per unit and day out in FY2025-26, with the share of the day, from the NITI
+Dashboard's unit outage exports (`data/source/NITI dashboard/unit outages Tamil
+Nadu`), which compile CEA's daily outage reports. Units are matched by plant name
+and unit number; all 47 reported coal units match a model unit with the same
+capacity (Tulsyan NEC is not reported). Kinds and FY2025-26 totals:
+
+| Kind | Reasons | Unit-days | Imposed |
+|---|---|---:|---|
+| `planned` | annual, boiler, capital and other planned maintenance | 1,244 | `planned: actual` |
+| `forced` | technical, raw water, grid, fuel shortage | 2,767 | `forced: actual` |
+| `commercial` | no fuel supply agreement, no PPA | 728 | always |
+| `commissioning` | days before the commissioning date (NCTPS-III 24 Jan 2026, Tulsyan 1 Mar 2026) | 966 | always |
+| `reserve_shutdown` | reserve shutdown, low schedule, no demand | 845 | never (unit commitment decides) |
+
+Units out on at least 99% of the days are out of service for the whole run:
+Tuticorin TPS units 1–2 (cable-gallery fire on 15 March 2025), Tuticorin (P)
+TPP units 1–2 (no fuel supply agreement since 2016) and TCP (planned
+maintenance since 2021), 783.5 MW. A day's share is placed in hours at the
+start of the day when the unit was out the day before, at the end when it is
+out the day after, otherwise in the middle. Units out in the first hour of the
+year start offline instead of being shut down in it.
+
+**Planned maintenance.** `planned: actual` replays the record.
+`planned: optimise` uses PyPSA's maintenance scheduling (generators with
+`maintainable=True`, `maintenance_duration`, `maintenance_events`): each unit
+takes its FY2025-26 maintenance duration (whole days, one event) at dates chosen
+by a MILP. A maintenance event must fit inside one optimisation horizon, so the
+schedule is solved once over the whole year at daily resolution without unit
+commitment, with the units' commissioning, commercial and out-of-service
+unavailability, and is then fixed as hourly availability in every run mode.
+Among dates of similar cost, a small cost (INR 100 per MW out per hour at the
+year's highest daily residual load, scaled by the day's residual load) prefers
+days of low demand net of wind and solar. On `model/` it schedules 891
+unit-days for 26 units in about 20 s. Average capacity on maintenance by month
+(MW, Tamil Nadu share):
+
+| Month | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | Jan | Feb | Mar |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Actual FY2025-26 | 204 | 98 | 605 | 1,210 | 1,133 | 1,043 | 823 | 679 | 1,706 | 1,141 | 131 | 64 |
+| Optimised | 0 | 191 | 363 | 0 | 0 | 0 | 0 | 492 | 1,980 | 3,248 | 1,182 | 772 |
+
+The optimiser moves maintenance to December–March, the lowest-demand months,
+whereas the utilities took most of it during the south-west monsoon (June to
+October). `scripts/schedule_maintenance.py` writes a schedule for runs to share
+(`outages.maintenance_schedule`); the Snakemake workflow does this once per
+scenario on the base network without the scenario's technologies, so scenarios
+with the same outage settings get the same dates.
+
+**Forced outages.** `forced: actual` replays the record. `forced: sampled`
+draws outages at random with a fixed `seed`: each unit alternates between
+available spells, exponentially distributed with its size class's mean time
+between outages, and outages whose durations are resampled from the class's
+observed outages. Each unit has its own random stream, so scenarios with the
+same seed get the same outages. Parameters from the FY2025-26 record (exposure
+excludes planned, commercial and pre-commissioning time; out-of-service units
+excluded):
+
+| Unit size | Units | Forced-outage rate | Outages per unit-year | Mean duration (h) | Median duration (h) |
+|---|---:|---:|---:|---:|---:|
+| below 200 MW | 8 | 3.3% | 2.9 | 101 | 47 |
+| 200–400 MW | 22 | 18.4% | 12.6 | 128 | 40 |
+| 400 MW and above | 16 | 11.7% | 10.5 | 97 | 46 |
+
+Outages per unit-year are per year of exposure. CEA's last station review
+(*Review of Performance of Thermal Power Stations 2017-18*) counted 6,026
+forced outages on 626 units, 9.6 per unit and year, including reserve
+shutdowns. NERC GADS (Generating Unit Statistical Brochure 3, 2021–2025)
+reports weighted forced-outage rates of 6.4–15.0% by size class for US coal
+units, 8.0% overall.
+
+**Central stations: declared capacity.** For the seven central coal
+stations, `central_availability: declared` (the default) uses the capacity
+they declared to the Southern Regional Load Dispatch Centre for every
+15-minute block, from the SRPC Regional Energy Accounts
+(`commercial_on_off_dc_isgs.csv` in each month's archive). Declared capacity
+is ex-bus and covers whole-unit outages, partial deratings and fuel; CERC pays
+the stations' capacity charge on it. On-bar (units running) and off-bar
+(available units shut down) declarations are added, so reserve shutdowns
+still count as available. `scripts/prepare_declared_capacity.py` reads the
+twelve archives (`data/source/REA data`, not in Git) and writes the hourly
+means to `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`
+and the station units to `central_station_units.csv`:
+
+| Station (REA code) | Units | Rating (MW) | Mean declared (MW) | Share |
+|---|---:|---:|---:|---:|
+| NTECL Vallur (`vallur`) | 3 × 500 | 1,500 | 1,250 | 0.83 |
+| NTPL Tuticorin (`ntpl`) | 2 × 500 | 1,000 | 851 | 0.85 |
+| NLC NNTPS (`nntpp`) | 2 × 500 | 1,000 | 625 | 0.63 |
+| NLC TPS-I Expansion (`nlcexp`) | 2 × 210 | 420 | 244 | 0.58 |
+| NLC TPS-II Stage I (`nlc21`) | 3 × 210 | 630 | 269 | 0.43 |
+| NLC TPS-II Stage II (`nlc22`) | 4 × 210 | 840 | 343 | 0.41 |
+| NLC TPS-II Expansion (`nlc2exp`) | 2 × 250 | 500 | 201 | 0.40 |
+
+The outage record follows declared capacity closely in time (hourly
+correlation 0.85–0.97), but the record alone overstates the NLC stations and
+NNTPS by 21–58%, while the capability cap understates Vallur and NTPL by
+9–14%.
+
+With `planned: actual` and `forced: actual` declared capacity replaces the
+record and the capability cap of these 18 units hour by hour. Each hour a
+station's capacity is spread evenly over the number of its identical units
+that gives the most usable capacity, each at or below its rating and at or
+above its minimum load, preferring fewer units (942 MW at Vallur is two units
+at 471 MW); units the record shows available are used first. This keeps 98.7%
+of the declared capacity; the rest is hours when a station declared less than
+one unit's minimum load. In the other modes each station gets one factor in
+place of the capability cap, its declared capacity over the capacity the
+record leaves available (Vallur 1.00, NTPL 1.03, NNTPS 0.83, NLC TPS-I
+Expansion 0.78, TPS-II Expansion 0.77, TPS-II Stage I 0.65, Stage II 0.63), and
+maintenance and forced outages come from those modes. `central_availability:
+record` treats the stations like the other units.
+
+**Resolution.** `resolution: hourly` (the default) keeps the hourly
+availability. `monthly` and `annual` replace each unit's availability by its
+mean over the month or the year, for a less restricted run without outage
+timing. A unit available on average a share of its best hour then acts as a
+smaller unit: its minimum load (`p_min_pu`) is scaled by the same share, so it
+can still run. Means are taken over the hours after commissioning, and the
+commissioning dates stay exact. Means are preserved, so the available energy
+is the same as hourly.
+
+Limitations:
+
+- Partial deratings are measured for the central stations (declared
+  capacity) and approximated for the other units by each unit's best day
+  without outage, constant over the year; the record itself has only
+  whole-unit outages.
+- Outages are known in advance within each solve (perfect foresight), as for
+  all other inputs.
+- Auxiliary consumption is normative or from 2017-18, and constant over the
+  year; part-load running raises it in reality.
+- The results report compares net model coal output with gross observed
+  generation; divide model coal by (1 − auxiliary consumption) for a like-for-like
+  comparison (`coal_unit_availability.csv` in the run folder lists the values).
+- The REA export reservation generators keep their observed hourly schedules.
+- Daily, monthly, peak and selected-week runs start each solve with the
+  units online, as without outages; a unit out in a solve's first hour is shut
+  down in it.
+
+Each run with outages writes `coal_unit_availability.csv` (per unit:
+availability source, auxiliary consumption, capability or station factor, base
+availability, hours out by kind, mean availability), and
+`forced_outage_parameters.csv` or `maintenance_schedule.csv` when used.
 
 ## Hydro: assets, water, and storage
 

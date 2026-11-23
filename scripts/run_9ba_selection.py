@@ -58,6 +58,7 @@ from energy_target_policy import (
     policy_tag,
     target_enabled,
 )
+from generator_outages import apply_outages, write_outputs as write_outage_outputs
 from scenario_technologies import apply_technologies, network_fingerprint
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
@@ -1487,6 +1488,7 @@ def run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1562,6 +1564,7 @@ def _run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1661,6 +1664,18 @@ def _run_selection(
                 f"Optimised capacities cannot be sized in mode '{mode}', which solves "
                 "periods separately; use mode 'annual' for the capacity expansion."
             )
+    with profiler.phase("apply_outages"):
+        outage_result = apply_outages(
+            base_network, outages, solver_name=solver_name, threads=solver_threads
+        )
+    if outage_result is not None:
+        summary = outage_result.units
+        report(
+            f"Coal unit outages ({outages['planned']} maintenance, {outages['forced']} forced "
+            f"outages, {outages['base_availability']} base): mean available "
+            f"{(summary.mean_availability * summary.p_nom_mw).sum():,.0f} of "
+            f"{summary.p_nom_mw.sum():,.0f} MW. " + " ".join(outage_result.notes)
+        )
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
@@ -1747,6 +1762,8 @@ def _run_selection(
         cost_report.to_csv(output_dir / "marginal_cost_overrides.csv", index=False)
     if not added_technologies.empty:
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
+    if outage_result is not None:
+        write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
     with solve_phase:
         modeled, validation, solved_network = _solve_mode(
