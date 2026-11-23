@@ -249,6 +249,65 @@ def test_energy_cap_binds_and_is_prorated(tmp_path, monkeypatch, hours, expected
     assert gas["base_1"].sum() == pytest.approx(1200.0 * hours / 720, rel=1e-6)
 
 
+def _capped_source(tmp_path, monkeypatch) -> tuple[pypsa.Network, Path]:
+    """Two days: backup costs 100 on day 1 and 50 on day 2; gas (cost 10) is capped at 600 MWh."""
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [300.0, 300.0]}))
+    network = _cheap_gas_network()
+    backup_cost = pd.Series([100.0] * 24 + [50.0] * 24, index=network.snapshots)
+    network.generators_t.marginal_cost["backup"] = backup_cost
+    apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly"}, {})
+    network.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
+    folder = tmp_path / "source"
+    folder.mkdir()
+    network.export_to_netcdf(folder / "solved_network.nc")
+    return network, folder
+
+
+def test_allocation_transfer_follows_the_source_dispatch(tmp_path, monkeypatch):
+    source, folder = _capped_source(tmp_path, monkeypatch)
+    daily_source = source.generators_t.p["base_1"].groupby(source.snapshots.normalize()).sum()
+    assert daily_source.iloc[0] == pytest.approx(600.0) and daily_source.iloc[1] == pytest.approx(0.0, abs=1e-6)
+    network = _cheap_gas_network()
+    _, _, report, _ = apply_energy_target_policy(
+        network,
+        {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "allocation", "cap_source": str(folder)},
+        {},
+    )
+    assert report.loc[report["plant"].eq("Base"), "allocated_mwh"].iloc[0] == pytest.approx(600.0)
+    for day in range(2):
+        window = network.copy(snapshots=network.snapshots[24 * day: 24 * (day + 1)])
+        window.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
+        assert window.generators_t.p["base_1"].sum() == pytest.approx(daily_source.iloc[day], abs=1e-4)
+
+
+def test_shadow_price_transfer_replaces_the_cap_with_a_cost_adder(tmp_path, monkeypatch):
+    _, folder = _capped_source(tmp_path, monkeypatch)
+    network = _cheap_gas_network()
+    _, _, report, _ = apply_energy_target_policy(
+        network,
+        {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "shadow_price", "cap_source": str(folder)},
+        {},
+    )
+    row = report.loc[report["plant"].eq("Base")].iloc[0]
+    assert bool(row["binding_in_source"])
+    # Using gas on day 1 saves 90 per MWh, on day 2 only 40: the cap's value lies in between.
+    assert 40.0 - 1e-6 <= row["shadow_price_inr_per_mwh"] <= 90.0 + 1e-6
+    cost = network.generators_t.marginal_cost["base_1"]
+    assert cost.unique().tolist() == pytest.approx([10.0 + row["shadow_price_inr_per_mwh"]])
+    caps = network.meta[policy_module.CAPS_KEY]
+    assert [cap["plant"] for cap in caps] == ["Idle"]  # only the zero cap stays a hard limit
+
+
+def test_cap_transfer_needs_a_source(tmp_path, monkeypatch):
+    _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
+    monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [300.0, 300.0]}))
+    with pytest.raises(ValueError, match="cap_source"):
+        apply_energy_target_policy(
+            _cheap_gas_network(), {"oil_gas": "energy_cap", "cap_transfer": "allocation"}, {}
+        )
+
+
 def test_energy_cap_validation():
     with pytest.raises(ValueError, match="must be one of"):
         normalise_policy({"nuclear": "energy_cap"})

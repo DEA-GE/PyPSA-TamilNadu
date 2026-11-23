@@ -781,6 +781,19 @@ config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
   get the cap prorated to the share of the period's hours they cover.
   `config/runs/annual_capped_annual.yaml` and `annual_capped_monthly.yaml`
   compare annual and monthly caps.
+
+  A rolling window cannot see the rest of the year, so `cap_transfer` sets how
+  a cap reaches solves shorter than its period. `prorate` (default) gives each
+  solve the cap times its share of the period's hours. The two-stage options
+  use an annual LP run with the same caps (`cap_source`, its results folder):
+  `allocation` makes each plant's daily dispatch in that run its cap, so a
+  window may use what the annual LP used on its days; `shadow_price` recovers
+  each cap's shadow price from the annual LP (price minus marginal cost in
+  hours the plant runs part-loaded, or the midpoint of the bounds from hours
+  it is off or at full output), adds it to the plant's marginal cost and drops
+  the cap (zero caps stay). `config/runs/rolling_relaxed_cap_allocation.yaml`
+  and `rolling_relaxed_cap_shadow_price.yaml` compare the two after
+  `annual_capped_annual` has run.
 - `free`: no equality and the network's own availability.
 
 With `availability_source: plant` (the default), oil/gas and nuclear are

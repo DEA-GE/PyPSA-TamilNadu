@@ -63,6 +63,7 @@ CARRIER_MODES = {
     "small_hydro": TARGET_MODES,
 }
 CAP_PERIODS = {"annual": "YS-APR", "monthly": "MS"}
+CAP_TRANSFERS = ("prorate", "allocation", "shadow_price")
 AVAILABILITY_PERIODS = {"monthly": "MS", "daily": "D"}
 AVAILABILITY_SOURCES = ("plant", "carrier")
 # Carriers with plant-level monthly observations (NITI ICED).
@@ -74,11 +75,14 @@ DEFAULT_POLICY: dict[str, Any] = {
     "cap_period": "annual",
     "oil_gas_cap_availability": 0.9,
     "bio_power_cap_availability": 0.6,
+    "cap_transfer": "prorate",
+    "cap_source": "",
 }
 _ALLOWED_VALUES = {
     "availability_period": tuple(AVAILABILITY_PERIODS),
     "availability_source": AVAILABILITY_SOURCES,
     "cap_period": tuple(CAP_PERIODS),
+    "cap_transfer": CAP_TRANSFERS,
     **CARRIER_MODES,
 }
 _FRACTION_KEYS = ("oil_gas_cap_availability", "bio_power_cap_availability")
@@ -95,6 +99,9 @@ def normalise_policy(policy: Mapping[str, Any] | None) -> dict[str, Any]:
             raise ValueError(
                 f"Unknown energy_targets key '{key}'. Known keys: {sorted(resolved)}"
             )
+        if key == "cap_source":
+            resolved[key] = "" if value is None else str(value).strip()
+            continue
         if key in _FRACTION_KEYS:
             if isinstance(value, bool):
                 raise ValueError(f"energy_targets.{key} must be a number in (0, 1]")
@@ -533,16 +540,191 @@ def apply_energy_caps(network: pypsa.Network, policy: Mapping[str, Any]) -> pd.D
                     "dispatchable_capacity_mw": capacity,
                     "cap_capacity_factor": float(cap) / max(capacity * float(weights[hours].sum()), 1e-12),
                 })
+    report = pd.DataFrame([{key: value for key, value in row.items() if key != "units"} for row in caps])
+    if caps and policy["cap_transfer"] != "prorate":
+        source = load_cap_source(policy)
+        if policy["cap_transfer"] == "allocation":
+            caps, allocation = allocate_caps_from_source(caps, source)
+            report = report.merge(
+                allocation[["carrier", "plant", "allocated_mwh", "allocated_days"]],
+                on=["carrier", "plant"], how="left",
+            )
+        else:
+            prices = cap_shadow_prices(caps, source)
+            report = report.assign(
+                used_in_source_mwh=prices["used_mwh"].to_numpy(),
+                binding_in_source=prices["binding"].to_numpy(),
+                shadow_price_inr_per_mwh=prices["shadow_price"].to_numpy(),
+                partial_hours=prices["partial_hours"].to_numpy(),
+            )
+            caps = apply_cap_shadow_prices(network, caps, prices)
     network.meta = {**(network.meta or {}), CAPS_KEY: caps}
-    return pd.DataFrame([{key: value for key, value in row.items() if key != "units"} for row in caps])
+    return report
+
+
+def load_cap_source(policy: Mapping[str, Any]) -> pypsa.Network:
+    """Solved network of the annual LP run named by ``cap_source``."""
+    source = str(policy.get("cap_source") or "").strip()
+    if not source:
+        raise ValueError(
+            f"energy_targets.cap_transfer: {policy['cap_transfer']} needs energy_targets.cap_source "
+            "(the results folder of an annual run with energy caps)"
+        )
+    path = Path(source)
+    if not path.is_absolute():
+        path = ROOT / path
+    network_file = path / "solved_network.nc" if path.is_dir() else path
+    if not network_file.exists():
+        raise ValueError(f"energy_targets.cap_source has no solved network: {network_file}")
+    return pypsa.Network(str(network_file))
+
+
+def _group_key(cap: Mapping[str, Any]) -> tuple[str, str]:
+    return str(cap["carrier"]), str(cap["plant"])
+
+
+def _source_dispatch(source: pypsa.Network, units: list[str]) -> pd.DataFrame:
+    missing = sorted(set(units) - set(source.generators.index))
+    if missing:
+        raise ValueError(f"cap_source network lacks units: {missing[:5]}")
+    return source.generators_t.p.reindex(columns=units, fill_value=0.0)
+
+
+def allocate_caps_from_source(
+    caps: list[dict[str, Any]], source: pypsa.Network,
+) -> tuple[list[dict[str, Any]], pd.DataFrame]:
+    """Replace each group's caps by its daily dispatch in the annual LP (option 2).
+
+    The annual LP sees the whole year, so its dispatch is the allocation of the
+    cap over time. Each group's cap becomes one entry per day; a solve is then
+    capped at the sum of the allocations of the days it covers.
+    """
+    weights = source.snapshot_weightings.generators
+    allocated: list[dict[str, Any]] = []
+    rows = []
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for cap in caps:
+        groups.setdefault(_group_key(cap), []).append(cap)
+    for (carrier, plant), entries in groups.items():
+        units = list(entries[0]["units"])
+        total_cap = sum(float(entry["cap_mwh"]) for entry in entries)
+        if not units:
+            allocated.extend(entries)
+            continue
+        daily = (
+            _source_dispatch(source, units).sum(axis=1).mul(weights)
+            .groupby(source.snapshots.normalize()).sum()
+        )
+        if float(daily.sum()) > total_cap * (1 + 1e-6) + 1.0:
+            raise ValueError(
+                f"cap_source dispatch of {carrier} {plant!r} ({daily.sum():,.0f} MWh) exceeds its cap "
+                f"({total_cap:,.0f} MWh): it was not solved with the same energy caps"
+            )
+        for day, energy in daily.items():
+            allocated.append({
+                **{key: value for key, value in entries[0].items()
+                   if key not in {"period_start", "period_end", "period_hours", "cap_mwh", "cap_capacity_factor"}},
+                "period_start": day.isoformat(),
+                "period_end": (day + pd.Timedelta(days=1)).isoformat(),
+                "period_hours": float(weights.loc[source.snapshots.normalize() == day].sum()),
+                "cap_mwh": max(float(energy), 0.0),
+            })
+        rows.append({"carrier": carrier, "plant": plant, "cap_mwh": total_cap,
+                     "allocated_mwh": float(daily.sum()), "allocated_days": int((daily > 1e-6).sum())})
+    return allocated, pd.DataFrame(rows)
+
+
+def cap_shadow_prices(caps: list[dict[str, Any]], source: pypsa.Network) -> pd.DataFrame:
+    """Recover each cap's shadow price (INR/MWh) from the annual LP solution.
+
+    In the LP a capped unit is dispatched when its bus price exceeds its
+    marginal cost plus the cap's shadow price. Hours in which a unit runs
+    part-loaded pin the shadow price at price minus marginal cost (their
+    median is used); otherwise it lies between the largest price-minus-cost
+    gap of hours the unit is off and the smallest gap of hours it runs at full
+    availability (the midpoint is used). A cap that is not binding has a zero
+    shadow price.
+    """
+    weights = source.snapshot_weightings.generators
+    prices = source.buses_t.marginal_price
+    rows = []
+    for position, cap in enumerate(caps):
+        units = list(cap["units"])
+        row = {"position": position, "carrier": cap["carrier"], "plant": cap["plant"],
+               "period_start": cap["period_start"], "cap_mwh": float(cap["cap_mwh"])}
+        if not units or float(cap["cap_mwh"]) <= 0.0:
+            rows.append({**row, "used_mwh": 0.0, "binding": False, "shadow_price": 0.0,
+                         "partial_hours": 0, "lower": np.nan, "upper": np.nan})
+            continue
+        start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
+        hours = source.snapshots[(source.snapshots >= start) & (source.snapshots < end)]
+        dispatch = _source_dispatch(source, units).loc[hours]
+        available = (
+            _per_unit_series(source, "p_max_pu", pd.Index(units)).loc[hours]
+            .mul(source.generators.loc[units, "p_nom"], axis=1)
+        )
+        cost = source.generators.loc[units, "marginal_cost"].astype(float)
+        if len(source.generators_t.marginal_cost.columns.intersection(units)):
+            raise ValueError("Time-varying marginal costs are not supported for capped units")
+        gap = prices.loc[hours, source.generators.loc[units, "bus"]].to_numpy() - cost.to_numpy()
+        gap = pd.DataFrame(gap, index=hours, columns=units)
+        tolerance = 1e-3
+        on = dispatch >= available - tolerance
+        off = (dispatch <= tolerance) & (available > tolerance)
+        partial = ~on & ~off & (available > tolerance)
+        used = float(dispatch.sum(axis=1).mul(weights.loc[hours]).sum())
+        binding = used >= float(cap["cap_mwh"]) - max(1.0, 1e-4 * float(cap["cap_mwh"]))
+        lower = float(gap[off].max().max()) if off.any().any() else np.nan
+        upper = float(gap[on & (available > tolerance)].min().min()) if (on & (available > tolerance)).any().any() else np.nan
+        if not binding:
+            value = 0.0
+        elif partial.any().any():
+            value = float(np.nanmedian(gap[partial].to_numpy()))
+        elif np.isfinite(lower) and np.isfinite(upper):
+            value = (lower + upper) / 2.0 if upper >= lower else upper
+        else:
+            value = upper if np.isfinite(upper) else lower
+        rows.append({**row, "used_mwh": used, "binding": bool(binding),
+                     "shadow_price": max(float(value), 0.0) if np.isfinite(value) else 0.0,
+                     "partial_hours": int(partial.to_numpy().sum()), "lower": lower, "upper": upper})
+    return pd.DataFrame(rows)
+
+
+def apply_cap_shadow_prices(
+    network: pypsa.Network, caps: list[dict[str, Any]], prices: pd.DataFrame,
+) -> list[dict[str, Any]]:
+    """Add each cap's shadow price to its units' marginal cost (option 3).
+
+    Caps with a positive energy limit are dropped; zero caps (plants without
+    fuel) stay as hard limits.
+    """
+    adders: dict[str, pd.Series] = {}
+    for cap, row in zip(caps, prices.itertuples()):
+        if not cap["units"] or float(cap["cap_mwh"]) <= 0.0 or row.shadow_price <= 0.0:
+            continue
+        start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
+        hours = (network.snapshots >= start) & (network.snapshots < end)
+        for unit in cap["units"]:
+            series = adders.setdefault(unit, pd.Series(0.0, index=network.snapshots))
+            series[hours] += row.shadow_price
+    if adders:
+        static = network.generators.loc[list(adders), "marginal_cost"].astype(float)
+        frame = pd.DataFrame(adders).add(static, axis=1)
+        dynamic = network.generators_t.marginal_cost
+        network.generators_t.marginal_cost = pd.concat(
+            [dynamic.drop(columns=dynamic.columns.intersection(frame.columns)), frame], axis=1
+        )
+    return [cap for cap in caps if cap["units"] and float(cap["cap_mwh"]) <= 0.0]
 
 
 def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None:
     """Add the stored energy caps to the model being solved over ``snapshots``.
 
-    A cap applies to the solved hours inside its period; when a solve covers
-    only part of a period (daily, weekly or rolling windows, or a monthly cap
-    in a week), the cap is prorated by the share of the period's hours solved.
+    One constraint per capped group (plant or carrier): its energy over the
+    solved hours is at most the sum, over the cap periods the solve touches,
+    of each period's cap times the share of that period's hours solved. A solve
+    covering whole periods gets their caps exactly; shorter solves (daily,
+    weekly or rolling windows) get the prorated share.
     """
     caps = (network.meta or {}).get(CAPS_KEY) or []
     if not caps:
@@ -551,19 +733,26 @@ def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None
     weights = network.snapshot_weightings.generators.reindex(snapshots).astype(float)
     dispatch = network.model["Generator-p"]
     dimension = next(dim for dim in dispatch.dims if dim != "snapshot")
-    for position, cap in enumerate(caps):
+    limits: dict[tuple[str, str], float] = {}
+    units_of: dict[tuple[str, str], list[str]] = {}
+    for cap in caps:
         if not cap["units"]:
             continue
         start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
-        hours = snapshots[(snapshots >= start) & (snapshots < end)]
-        if not len(hours):
+        inside = (snapshots >= start) & (snapshots < end)
+        if not inside.any():
             continue
-        share = float(weights.loc[hours].sum()) / float(cap["period_hours"])
-        hour_weights = xr.DataArray(weights.loc[hours].to_numpy(), dims="snapshot", coords={"snapshot": hours})
-        energy = (dispatch.sel({dimension: list(cap["units"]), "snapshot": hours}) * hour_weights).sum()
+        share = min(float(weights[inside].sum()) / float(cap["period_hours"]), 1.0)
+        key = _group_key(cap)
+        limits[key] = limits.get(key, 0.0) + float(cap["cap_mwh"]) * share
+        units_of[key] = list(cap["units"])
+    if not limits:
+        return
+    hour_weights = xr.DataArray(weights.to_numpy(), dims="snapshot", coords={"snapshot": snapshots})
+    for position, (key, limit) in enumerate(limits.items()):
+        energy = (dispatch.sel({dimension: units_of[key], "snapshot": snapshots}) * hour_weights).sum()
         network.model.add_constraints(
-            energy <= float(cap["cap_mwh"]) * min(share, 1.0),
-            name=f"EnergyCap-{cap['carrier']}-{position}-{hours[0]:%Y%m%d%H}",
+            energy <= limit, name=f"EnergyCap-{key[0]}-{position}-{snapshots[0]:%Y%m%d%H}"
         )
 
 
