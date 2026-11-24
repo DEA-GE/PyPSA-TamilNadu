@@ -47,6 +47,18 @@ def test_merge_skips_duplicates_ignores_other_files_and_lists_missing_days(tmp_p
     assert missing == [pd.Timestamp("2025-04-03")]
 
 
+def test_partial_export_and_its_full_reexport_merge(tmp_path, monkeypatch):
+    monkeypatch.setattr(area, "FY_END", pd.Timestamp("2025-04-04"))
+    write_export(tmp_path / "a_partial.csv", ["01/04/2025", "02/04/2025"])
+    write_export(tmp_path / "b_full.csv", ["01/04/2025", "02/04/2025", "03/04/2025"])
+
+    table, missing = area.merge(tmp_path)
+
+    assert len(table) == 3 * 96
+    assert not table.index.duplicated().any()
+    assert missing == []
+
+
 def test_conflicting_overlap_is_rejected(tmp_path, monkeypatch):
     monkeypatch.setattr(area, "FY_END", pd.Timestamp("2025-04-02"))
     write_export(tmp_path / "a.csv", ["01/04/2025"])

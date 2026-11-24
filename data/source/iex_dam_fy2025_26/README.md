@@ -65,13 +65,13 @@ exports do not name the bid area or market. To rebuild:
 python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder>
 ```
 
-- **Incomplete:** 352 of 365 days are present. Missing: 31 May, 31 Jul,
-  31 Aug, 31 Oct, 29–31 Dec 2025, 29–31 Jan and 29–31 Mar 2026. The source
-  exports stopped early. Add exports for these days and rerun the script;
-  `--require-complete` makes a gap an error.
+- **Complete:** all 365 days (35,040 blocks). A partial month exported again
+  in full is merged when the overlapping days agree. `--require-complete`
+  makes any missing day an error.
 - **Check (24 November 2026):** averaged to hours, the area price equals the
-  all-India MCP above to within 1 INR/MWh in 97.7% of the 8,448 overlapping
-  hours. It differs in 197 hours: 148 in July 2025, the remainder in Jun, Aug,
-  Sep 2025 and Mar 2026. These are the months CERC reports DAM congestion. In
-  those hours the Tamil Nadu price is mostly lower, by up to 6,376 INR/MWh,
-  so the southern bid area cleared below the rest of the market.
+  all-India MCP above to within 1 INR/MWh in 97.7% of the 8,760 hours. It
+  differs in 202 hours, all in months where CERC reports DAM congestion:
+  Jun 6, Jul 148, Aug 16, Sep 21, Mar 11. In 146 of those hours Tamil Nadu is
+  lower (by up to 6,376 INR/MWh), so the southern bid area cleared below the
+  rest of the market. In 56 it is higher (by up to 732). The annual hourly
+  mean is 3,848 INR/MWh vs 3,861 all-India.

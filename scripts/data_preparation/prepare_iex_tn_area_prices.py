@@ -5,8 +5,9 @@ The exports are the CSV files the IEX website saves as ``IEX Price*.csv``:
 
     "Delivery Date","Time Period","Cleared Buy (MW)","Cleared Sell (MW)","Price (Rs./MWh)"
 
-The script reads every such CSV in a folder, skips exact duplicates, refuses
-overlapping exports with different data, keeps 1 April 2025 to 31 March 2026,
+The script reads every such CSV in a folder, skips days already read from
+another export (for example a partial month re-exported in full), refuses
+overlapping exports whose data differ, keeps 1 April 2025 to 31 March 2026,
 and writes
 
     data/source/iex_dam_fy2025_26/iex_dam_tamil_nadu_15min_fy2025_26.csv
@@ -85,15 +86,18 @@ def merge(folder: Path) -> tuple[pd.DataFrame, list[pd.Timestamp]]:
         if inside.empty:
             print(f"Ignoring {path.name}: {start:%d %b %Y} to {end:%d %b %Y} is outside FY2025-26")
             continue
-        overlap = [p for p in parts if p.index.intersection(inside.index).size]
-        if overlap:
-            common = overlap[0].index.intersection(inside.index)
-            if len(common) == len(inside) and overlap[0].loc[common].equals(inside.loc[common]):
-                print(f"Skipping {path.name}: duplicate of an export already read")
-                continue
-            raise ValueError(f"{path.name}: overlaps another export with different data")
-        parts.append(inside)
-        print(f"{path.name}: {start:%d %b %Y} to {end:%d %b %Y} ({len(inside) // 96} days)")
+        new = inside
+        for part in parts:
+            common = part.index.intersection(new.index)
+            if len(common) and not part.loc[common].equals(new.loc[common]):
+                raise ValueError(f"{path.name}: overlaps another export with different data")
+            new = new.drop(common)
+        if new.empty:
+            print(f"Skipping {path.name}: all its days are already read with the same data")
+            continue
+        parts.append(new)
+        note = "" if len(new) == len(inside) else f", {len(new) // 96} new"
+        print(f"{path.name}: {start:%d %b %Y} to {end:%d %b %Y} ({len(inside) // 96} days{note})")
     if not parts:
         raise ValueError(f"No FY2025-26 area-price exports in {folder}")
     table = pd.concat(parts).sort_index()
