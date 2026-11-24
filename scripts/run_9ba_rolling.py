@@ -922,9 +922,10 @@ def _add_daily_targets(
     network: pypsa.Network,
     snapshots: pd.DatetimeIndex,
     gas_targets: pd.Series,
+    committed: pd.DatetimeIndex | None = None,
 ) -> None:
     add_nuclear_targets(network, snapshots)
-    add_energy_caps(network, snapshots)
+    add_energy_caps(network, snapshots, committed)
     if not target_enabled(network, "oil_gas"):
         return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
@@ -1547,7 +1548,7 @@ def run_rolling_year(
             original_global_constraints = network.global_constraints.index.copy()
 
             def window_constraints(n: pypsa.Network, s: pd.DatetimeIndex) -> None:
-                _timed("daily_targets", _add_daily_targets, n, s, gas_targets)
+                _timed("daily_targets", _add_daily_targets, n, s, gas_targets, committed)
                 _timed("cascade_targets", _add_weekly_cascade_targets, n, committed, cascade_targets)
                 _timed(
                     "biomass_target", _add_committed_biomass_target,

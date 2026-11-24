@@ -249,12 +249,14 @@ def test_energy_cap_binds_and_is_prorated(tmp_path, monkeypatch, hours, expected
     assert gas["base_1"].sum() == pytest.approx(1200.0 * hours / 720, rel=1e-6)
 
 
-def _capped_source(tmp_path, monkeypatch) -> tuple[pypsa.Network, Path]:
-    """Two days: backup costs 100 on day 1 and 50 on day 2; gas (cost 10) is capped at 600 MWh."""
+def _capped_source(
+    tmp_path, monkeypatch, backup_costs: tuple[float, float] = (100.0, 50.0),
+) -> tuple[pypsa.Network, Path]:
+    """Two days: backup costs 100 on day 1 and 50 on day 2 (by default); gas (cost 10) is capped at 600 MWh."""
     _plant_files(tmp_path, monkeypatch, [("Base", 3.0), ("Idle", 0.0), ("Gone", 0.0)])
     monkeypatch.setattr(policy_module, "observed_energy_mwh", _observed({"oil_gas": [300.0, 300.0]}))
     network = _cheap_gas_network()
-    backup_cost = pd.Series([100.0] * 24 + [50.0] * 24, index=network.snapshots)
+    backup_cost = pd.Series([backup_costs[0]] * 24 + [backup_costs[1]] * 24, index=network.snapshots)
     network.generators_t.marginal_cost["backup"] = backup_cost
     apply_energy_target_policy(network, {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {})
     network.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
@@ -279,6 +281,52 @@ def test_allocation_transfer_follows_the_source_dispatch(tmp_path, monkeypatch):
         window = network.copy(snapshots=network.snapshots[24 * day: 24 * (day + 1)])
         window.optimize(solver_name="highs", extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s))
         assert window.generators_t.p["base_1"].sum() == pytest.approx(daily_source.iloc[day], abs=1e-4)
+
+
+def test_committed_days_cannot_use_the_lookahead_allocation(tmp_path, monkeypatch):
+    # The source puts all 600 MWh on day 2. A window committing day 1 with day 2
+    # as look-ahead prefers gas on day 1 (backup 100 vs 50); with one summed cap
+    # it would take day 2's allocation, which the next window allocates again.
+    source, folder = _capped_source(tmp_path, monkeypatch, backup_costs=(50.0, 100.0))
+    daily_source = source.generators_t.p["base_1"].groupby(source.snapshots.normalize()).sum()
+    assert daily_source.iloc[0] == pytest.approx(0.0, abs=1e-6) and daily_source.iloc[1] == pytest.approx(600.0)
+    network = _cheap_gas_network()
+    network.generators_t.marginal_cost["backup"] = pd.Series(
+        [100.0] * 24 + [50.0] * 24, index=network.snapshots
+    )
+    apply_energy_target_policy(
+        network,
+        {"oil_gas": "energy_cap", "cap_period": "monthly", "cap_transfer": "allocation", "cap_source": str(folder)},
+        {},
+    )
+    committed = network.snapshots[:24]
+    network.optimize(
+        solver_name="highs",
+        extra_functionality=lambda n, s: policy_module.add_energy_caps(n, s, committed),
+    )
+    gas = network.generators_t.p["base_1"]
+    assert gas.iloc[:24].sum() == pytest.approx(0.0, abs=1e-4)
+    assert gas.iloc[24:].sum() == pytest.approx(600.0, abs=1e-4)
+    assert "EnergyCap-oil_gas-allocated1-2025040100-lookahead" in network.model.constraints
+
+
+def test_allocated_caps_do_not_cross_a_month_boundary(monkeypatch):
+    # 30 April allocated 300 MWh, 1 May nothing: the May day cannot use April's energy.
+    network = _two_month_bio_network(monkeypatch, 300.0, 0.0)
+    apply_energy_target_policy(network, {"bio_power": "energy_cap", "cap_period": "monthly", "cap_transfer": "prorate"}, {})
+    units = ["bio_1", "bio_2"]
+    caps = []
+    for day, energy in ((pd.Timestamp("2025-04-30"), 300.0), (pd.Timestamp("2025-05-01"), 0.0)):
+        caps.append({
+            "carrier": "bio_power", "plant": "", "units": units, "allocated": True,
+            "period_start": day.isoformat(), "period_end": (day + pd.Timedelta(days=1)).isoformat(),
+            "period_hours": 24.0, "cap_mwh": energy,
+        })
+    network.meta = {**network.meta, policy_module.CAPS_KEY: caps}
+    _solve_with_caps(network)
+    bio = network.generators_t.p[units].sum(axis=1)
+    assert bio.iloc[:24].sum() == pytest.approx(300.0)
+    assert bio.iloc[24:].sum() == pytest.approx(0.0, abs=1e-6)
 
 
 def test_shadow_price_transfer_replaces_the_cap_with_a_cost_adder(tmp_path, monkeypatch):

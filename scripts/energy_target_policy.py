@@ -724,15 +724,25 @@ def apply_cap_shadow_prices(
     return [cap for cap in caps if cap["units"] and float(cap["cap_mwh"]) <= 0.0]
 
 
-def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None:
+def add_energy_caps(
+    network: pypsa.Network,
+    snapshots: pd.DatetimeIndex,
+    committed: pd.DatetimeIndex | None = None,
+) -> None:
     """Add the stored energy caps to the model being solved over ``snapshots``.
 
     Each cap period (a month or the year) gets one constraint over the solved
     hours inside it, with the cap times the share of the period's hours solved:
     a solve covering whole periods gets their caps exactly, shorter solves
     (daily, weekly or rolling windows) the prorated share. Daily allocations
-    from ``cap_transfer: allocation`` are instead summed over the solve into
-    one constraint per group, so a window may shift energy between its days.
+    from ``cap_transfer: allocation`` are instead summed into one constraint
+    per group and calendar month, so a solve may shift energy between its days
+    within a month but not across a month boundary.
+
+    ``committed`` (rolling windows) names the hours whose results are kept.
+    The committed hours and the look-ahead hours then get separate
+    constraints, each with its own share or allocation, so the committed days
+    cannot use the look-ahead day's energy, which the next window gets again.
 
     A constraint whose hours span several months is written sparsely: one
     auxiliary energy variable per month, defined by a row over that month's
@@ -749,32 +759,39 @@ def add_energy_caps(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> None
     dispatch = network.model["Generator-p"]
     dimension = next(dim for dim in dispatch.dims if dim != "snapshot")
     stamp = f"{snapshots[0]:%Y%m%d%H}"
-    allocated: dict[tuple[str, str], float] = {}
-    allocated_hours: dict[tuple[str, str], pd.DatetimeIndex] = {}
-    units_of: dict[tuple[str, str], list[str]] = {}
+    if committed is None:
+        segments = [("", snapshots)]
+    else:
+        kept = snapshots.intersection(pd.DatetimeIndex(committed))
+        segments = [("", kept), ("-lookahead", snapshots.difference(kept))]
+    allocated: dict[tuple[str, str, str, str], float] = {}
+    allocated_hours: dict[tuple[str, str, str, str], pd.DatetimeIndex] = {}
+    units_of: dict[tuple[str, str, str, str], list[str]] = {}
     for position, cap in enumerate(caps):
         if not cap["units"]:
             continue
         start, end = pd.Timestamp(cap["period_start"]), pd.Timestamp(cap["period_end"])
-        hours = snapshots[(snapshots >= start) & (snapshots < end)]
-        if not len(hours):
-            continue
-        share = min(float(weights.loc[hours].sum()) / float(cap["period_hours"]), 1.0)
-        limit = float(cap["cap_mwh"]) * share
-        key = _group_key(cap)
-        if cap.get("allocated"):
-            allocated[key] = allocated.get(key, 0.0) + limit
-            allocated_hours[key] = allocated_hours.get(key, pd.DatetimeIndex([])).union(hours)
-            units_of[key] = list(cap["units"])
-            continue
-        _add_cap_constraint(
-            network, dispatch, dimension, list(cap["units"]), hours, weights, limit,
-            f"EnergyCap-{cap['carrier']}-{position}-{stamp}",
-        )
+        for suffix, segment in segments:
+            hours = segment[(segment >= start) & (segment < end)]
+            if not len(hours):
+                continue
+            share = min(float(weights.loc[hours].sum()) / float(cap["period_hours"]), 1.0)
+            limit = float(cap["cap_mwh"]) * share
+            if cap.get("allocated"):
+                # Daily allocations lie within one month; group them per month.
+                key = (*_group_key(cap), suffix, f"{start:%Y-%m}")
+                allocated[key] = allocated.get(key, 0.0) + limit
+                allocated_hours[key] = allocated_hours.get(key, pd.DatetimeIndex([])).union(hours)
+                units_of[key] = list(cap["units"])
+                continue
+            _add_cap_constraint(
+                network, dispatch, dimension, list(cap["units"]), hours, weights, limit,
+                f"EnergyCap-{cap['carrier']}-{position}-{stamp}{suffix}",
+            )
     for number, (key, limit) in enumerate(allocated.items()):
         _add_cap_constraint(
             network, dispatch, dimension, units_of[key], allocated_hours[key], weights, limit,
-            f"EnergyCap-{key[0]}-allocated{number}-{stamp}",
+            f"EnergyCap-{key[0]}-allocated{number}-{stamp}{key[2]}",
         )
 
 
