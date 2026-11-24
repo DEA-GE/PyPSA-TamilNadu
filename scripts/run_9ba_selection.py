@@ -1300,6 +1300,7 @@ def _solve_selected_weeks(
                 retained_dates,
                 modeled,
                 observed,
+                read_observed_annual_generation(),
                 week_validation,
                 week_dir,
                 network,
