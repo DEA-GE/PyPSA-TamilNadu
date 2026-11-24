@@ -505,6 +505,17 @@ https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2023/10
 times without a cited source; with 8 hours a unit could not stop for the
 solar trough, so the observed midday two-shifting was impossible.
 
+Sensitivity (relaxed unit commitment, `selected_weeks` mode with the weeks of
+7 Apr, 7 Jul, 13 Oct 2025 and 16 Feb 2026, outages on, November 2026):
+moving from 8 h / 8 h to 6 h / 4 h changed the mean Tamil Nadu price by at
+most 0.5% in any week (the April week was identical), weekly coal energy by
+less than 0.1%, and coal start-ups by less than 1 per week. With continuous
+(relaxed) commitment, a unit can be partly committed, which largely bypasses
+the minimum up/down constraints. The down time therefore matters mainly for
+runs with full (binary) unit commitment. It does not explain the gap
+between the model's flat midday price and the exchange price, which comes
+from the fixed interstate schedule.
+
 **Start-up and shut-down costs.** The anchor is the Central Electricity
 Authority's *Report of the Committee on Wear & Tear, O&M and Plant Lifespan
 Implications due to flexible operation* (August 2026). CEA and BHEL analysed
