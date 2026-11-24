@@ -65,9 +65,9 @@ exports do not name the bid area or market. To rebuild:
 python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder>
 ```
 
-- **Complete:** all 365 days (35,040 blocks). A partial month exported again
-  in full is merged when the overlapping days agree. `--require-complete`
-  makes any missing day an error.
+- **Complete:** all 365 days (35,040 blocks). The script combines all
+  `IEX Price*.csv` files in the folder and keeps the first copy of a
+  repeated block. It keeps FY2025–26 and lists any missing days.
 - **Check (24 November 2026):** averaged to hours, the area price equals the
   all-India MCP above to within 1 INR/MWh in 97.7% of the 8,760 hours. It
   differs in 202 hours, all in months where CERC reports DAM congestion:
