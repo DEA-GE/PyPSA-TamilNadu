@@ -74,6 +74,14 @@ COAL_CYCLE_COST_PER_MW = (
     * CEA_TUTICORIN_GENERATING_HOURS_PER_CYCLE
 )  # INR per MW of capacity per stop-start cycle (7,376)
 
+# Coal flexibility: CEA, "Indian Technology Catalogue - Generation and
+# Storage of Electricity" (Jan 2022), data sheets 01a (subcritical, 210-600 MW)
+# and 01b (supercritical, 660-800 MW), identical for both: minimum load 55%
+# (the normative central-station technical minimum of the grid code), ramp
+# 1% of full load per minute, minimum up time 6 h, minimum down time 4 h.
+# CEA's Aug 2026 wear-and-tear report (above) records Tuticorin and Mettur
+# 210 MW units stopping between 07:20 and 11:45 and restarting between 15:31
+# and 19:14, i.e. two-shifting over the solar hours.
 THERMAL_DEFAULTS = {
     "coal": {
         "p_min_pu": 0.55,
@@ -82,9 +90,9 @@ THERMAL_DEFAULTS = {
         # Split equally between start-up and shut-down: equal costs activate
         # PyPSA's tightening constraints for linearized unit commitment.
         "transition_cost_per_mw": COAL_CYCLE_COST_PER_MW / 2.0,
-        "min_up_time": 8,
-        "min_down_time": 8,
-        "ramp_limit_up": 0.6,
+        "min_up_time": 6,
+        "min_down_time": 4,
+        "ramp_limit_up": 0.6,  # 1%/min x 60 min
         "ramp_limit_down": 0.6,
         "ramp_limit_start_up": 0.55,
         "ramp_limit_shut_down": 0.55,

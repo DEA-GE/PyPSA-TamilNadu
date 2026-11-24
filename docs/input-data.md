@@ -415,8 +415,9 @@ operating and cost values are model assumptions encoded in
 `scripts/build_unit_level_model.py`, not fields measured in the capacity
 workbook. The `Source` categories map to `coal`, `oil_gas`, `nuclear`,
 `bio_power`, `hydro`, `small_hydro`, `solar`, and `wind`; pumped hydro and
-special hydro representations are handled separately. Coal costs are the
-exception and are set from documented sources (next section).
+special hydro representations are handled separately. Coal costs and coal
+flexibility are the exception and are set from documented sources (next
+sections).
 
 `data/model_inputs/additional_capacity_2026_07.csv` adds a July 2026
 capacity vintage. Each row includes `record_id`, technology/carrier, plant,
@@ -486,6 +487,24 @@ The capacity-weighted mean over committable units is about INR 4,146/MWh
   INR 0.6–1.3/kWh higher than JERC's FY2024-25 figures, probably because they
   include arrears; the model uses JERC.
 
+**Flexibility (minimum load, up/down times, ramps).** Committable coal units
+use the values of CEA's *Indian Technology Catalogue – Generation and Storage
+of Electricity* (January 2022), data sheets 01a (subcritical, 210–600 MW) and
+01b (supercritical, 660–800 MW), which give the same values for both:
+
+| Parameter | Model | Catalogue (2020) | Other evidence |
+|---|---|---|---|
+| Minimum stable load | 55% of rating | 55% (range 50–75%); the normative central-station technical minimum of the grid code | Central-sector stations back down to about 55% of declared capacity in solar hours; NTPC considers operation below 55% not feasible today (CEA wear-and-tear report, Aug 2026). CEA's Flexible Operation Regulations 2023 set a 40% target under a phasing plan |
+| Ramp up / down | 0.6 of rating per hour | 1% of full load per minute | The 2023 regulations require 3%/min at 70–100% load and 2%/min at 55–70% |
+| Minimum up time | 6 h | 6 h | — |
+| Minimum down time | 4 h | 4 h | Tuticorin 5×210 MW and Mettur 4×210 MW two-shift over the solar hours: units stop between 07:20 and 11:45 and restart between 15:31 and 19:14 (CEA, Aug 2026) |
+| Start-up ramp | 0.55 (minimum load in the first hour) | Hot / warm / cold start 2–3 / 3–5 / 5–10 h | The model reaches minimum load faster than a real start |
+
+https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2023/10/202310121323054265.pdf
+(pp. 38–41). Until November 2026 the model used 8-hour minimum up and down
+times without a cited source; with 8 hours a unit could not stop for the
+solar trough, so the observed midday two-shifting was impossible.
+
 **Start-up and shut-down costs.** The anchor is the Central Electricity
 Authority's *Report of the Committee on Wear & Tear, O&M and Plant Lifespan
 Implications due to flexible operation* (August 2026). CEA and BHEL analysed
@@ -521,11 +540,13 @@ Each committable unit's start-up cost and shut-down cost are each half of
 PyPSA's tightening constraints for linearized unit commitment. Limitations:
 
 - The anchor is one plant (old state-owned 210 MW units) in hot two-shift
-  operation (units offline roughly 4–12 hours over the solar period). The
-  model's 8-hour minimum down time prevents the shorter stops, and warm or
+  operation (units offline roughly 4–12 hours over the solar period). Warm or
   cold starts use more oil (CEA 2025: 40 and 60 kl for a 210 MW unit,
   against 20 kl hot), so restarts after long outages are likely
-  under-costed.
+  under-costed. The catalogue's start-up costs (INR 25,000 / 30,000 /
+  52,000 per MW for hot / warm / cold starts, from CEA's 2019 flexibility
+  study; labelled "cr./MW" in the sheet) are three to seven times higher than
+  this cycle cost.
 - Lignite units (about 19% of committable coal capacity) and imported-coal
   units are scaled like domestic-coal units; CEA's 2025 analysis reports
   higher oil use per start at NLC.
