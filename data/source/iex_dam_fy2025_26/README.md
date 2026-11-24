@@ -66,7 +66,8 @@ python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <fol
 
 The script combines all `IEX Price*.csv` files in the folder and averages
 each hour's blocks, so every hour has a single value. It keeps FY2025–26
-and lists any days with no data. All 365 days are present.
+and reports gaps: missing days grouped by month, and days with only some
+hours missing. All 8,760 hours are present.
 
 - **Check (24 November 2026):** the hourly area price equals the all-India
   MCP above to within 1 INR/MWh in 97.7% of the 8,760 hours. It differs in
