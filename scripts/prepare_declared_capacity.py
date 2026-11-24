@@ -13,6 +13,13 @@ located with the REA pipeline's inventory,
 ``data/model_inputs/central_station_units.csv``
     The model coal units of each station and their rating.
 
+``data/model_inputs/central_station_tn_entitlement_FY2025_26.csv``
+    Tamil Nadu's share of each station: its entitlement
+    (``commercial_ent_tamilnadu.csv``) over the station's declared capacity,
+    both summed over the year. The share follows the Ministry of Power's
+    allocation and is near constant through the year. The model build sizes
+    the station's Tamil Nadu units at this share of their rating.
+
 Declared capacity is what a central station tells the regional load dispatch
 centre it can deliver ex-bus in each block, given its units' outages, partial
 deratings and fuel; it is the basis of the station's capacity charge (CERC
@@ -37,6 +44,8 @@ SOURCE_DIR = ROOT / "data" / "source" / "REA data"
 INVENTORY = ROOT / "outputs" / "rea_fy2025_26" / "source_inventory.csv"
 DECLARED_OUTPUT = ROOT / "data" / "model_inputs" / "central_station_declared_capacity_FY2025_26.csv"
 UNITS_OUTPUT = ROOT / "data" / "model_inputs" / "central_station_units.csv"
+ENTITLEMENT_OUTPUT = ROOT / "data" / "model_inputs" / "central_station_tn_entitlement_FY2025_26.csv"
+ENTITLEMENT_FILE = "commercial_ent_tamilnadu.csv"
 MODEL_DIR = ROOT / "model"
 DC_FILE = "commercial_on_off_dc_isgs.csv"
 HOURS = pd.date_range("2025-04-01", "2026-03-31 23:00", freq="h")
@@ -105,6 +114,50 @@ def read_declared_capacity(source_dir: Path = SOURCE_DIR, inventory: Path = INVE
     return declared
 
 
+def read_tn_entitlement(source_dir: Path = SOURCE_DIR, inventory: Path = INVENTORY) -> pd.DataFrame:
+    """Hourly mean entitlement of Tamil Nadu (MW, ex-bus) per station."""
+    listing = pd.read_csv(inventory)
+    members = listing[(listing.filename == ENTITLEMENT_FILE) & ~listing.is_provisional].sort_values("date_start")
+    if len(members) != 24:
+        raise ValueError(f"Expected 24 final half-month {ENTITLEMENT_FILE} members, found {len(members)}")
+    cache: dict = {}
+    parts = []
+    for member in members.itertuples():
+        frame = pd.read_csv(io.BytesIO(read_archive_member(source_dir, member.virtual_path, cache)))
+        time = frame["time"].astype(str)
+        if time.str.contains(":").all():
+            stamp = pd.to_datetime(frame["date"]) + pd.to_timedelta(time)
+        else:
+            stamp = pd.to_datetime(frame["date"]) + pd.to_timedelta((pd.to_numeric(time) - 1) * 15, unit="min")
+        missing = [code for code in STATIONS if code not in frame]
+        if missing:
+            raise ValueError(f"{member.virtual_path}: missing {missing}")
+        values = {code: pd.to_numeric(frame[code], errors="raise").to_numpy() for code in STATIONS}
+        parts.append(pd.DataFrame(values, index=pd.DatetimeIndex(stamp)).resample("h").mean())
+    entitlement = pd.concat(parts).sort_index()
+    if entitlement.index.duplicated().any():
+        raise ValueError("Overlapping half-month files")
+    entitlement = entitlement.reindex(HOURS)
+    if entitlement.isna().any().any():
+        raise ValueError(f"Hours without entitlement: {int(entitlement.isna().any(axis=1).sum())}")
+    entitlement.index.name = "snapshot"
+    return entitlement
+
+
+def tn_entitlement_shares(entitlement: pd.DataFrame, declared: pd.DataFrame) -> pd.DataFrame:
+    """Tamil Nadu's annual share of each station's declared capacity."""
+    table = pd.DataFrame({
+        "station": list(STATIONS),
+        "station_name": [STATION_NAMES[code] for code in STATIONS],
+        "tn_entitlement_gwh": [float(entitlement[code].sum()) / 1_000.0 for code in STATIONS],
+        "declared_gwh": [float(declared[code].sum()) / 1_000.0 for code in STATIONS],
+    })
+    table["tn_share"] = table.tn_entitlement_gwh / table.declared_gwh
+    if not table.tn_share.between(0.0, 1.0).all():
+        raise ValueError(f"Tamil Nadu entitlement share outside 0..1: {table.set_index('station').tn_share.to_dict()}")
+    return table
+
+
 def station_units(model_dir: Path = MODEL_DIR) -> pd.DataFrame:
     """Model units of each station with their physical rating."""
     metadata = pd.read_csv(model_dir / "component_metadata.csv").set_index("component_id")
@@ -140,9 +193,15 @@ def main(argv: list[str] | None = None) -> None:
     DECLARED_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     declared.to_csv(DECLARED_OUTPUT, float_format="%.2f")
     units.to_csv(UNITS_OUTPUT, index=False)
+    shares = tn_entitlement_shares(read_tn_entitlement(args.source_dir), declared)
+    shares.to_csv(ENTITLEMENT_OUTPUT, index=False, float_format="%.4f")
     summary = pd.DataFrame({"rating_mw": rating, "mean_declared_mw": declared.mean().round(0)})
     summary["mean_share"] = (summary.mean_declared_mw / summary.rating_mw).round(3)
-    print(f"Wrote {DECLARED_OUTPUT.relative_to(ROOT)} ({len(declared)} hours) and {UNITS_OUTPUT.relative_to(ROOT)}")
+    summary["tn_share"] = shares.set_index("station").tn_share.round(3)
+    print(
+        f"Wrote {DECLARED_OUTPUT.relative_to(ROOT)} ({len(declared)} hours), {UNITS_OUTPUT.relative_to(ROOT)} "
+        f"and {ENTITLEMENT_OUTPUT.relative_to(ROOT)}"
+    )
     print(summary.to_string())
 
 

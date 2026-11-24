@@ -52,6 +52,10 @@ INTERCHANGE_BASIS = "metered"
 TN_METERED_INTERCHANGE_FILE = SOURCE_DIR / "tn_metered_interchange_FY2025_26.csv"
 REA_PLANT_EXPORT_HOURLY_FILE = SOURCE_DIR / "rea_plant_export_hourly_FY2025_26.csv"
 REA_PLANT_EXPORT_AUDIT_FILE = SOURCE_DIR / "rea_plant_export_mapping_audit_FY2025_26.csv"
+# Tamil Nadu's entitlement share of the central coal stations and their units,
+# from scripts/prepare_declared_capacity.py (SRPC REA).
+CENTRAL_STATION_ENTITLEMENT_FILE = SOURCE_DIR / "central_station_tn_entitlement_FY2025_26.csv"
+CENTRAL_STATION_UNITS_FILE = SOURCE_DIR / "central_station_units.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 # Station energy charges and physical unit sizes for every coal component
 # (sources in docs/input-data.md).
@@ -696,9 +700,16 @@ def build_rea_plant_export_reservations(
 
     Each matched REA plant receives one non-committable fixed-dispatch export
     generator at its physical bus. Its nameplate is the plant's peak concurrent
-    export schedule. The same capacity is removed proportionally from the
-    plant's ordinary units, so total physical nameplate is conserved and the
-    reserved block cannot serve Tamil Nadu when it is not scheduled.
+    export schedule. The plant's ordinary units, which serve Tamil Nadu, keep:
+
+    - at the central coal stations, Tamil Nadu's entitlement share of their
+      rating (``CENTRAL_STATION_ENTITLEMENT_FILE``): the share of the
+      station's declared capacity allocated to Tamil Nadu. Other states also
+      take Tamil Nadu's undrawn share (unrequisitioned surplus), so the export
+      peak plus Tamil Nadu's share can exceed the rating; the export schedule
+      is the actual one, and Tamil Nadu then is not drawing its share;
+    - elsewhere, the rating less the export peak, so total nameplate is
+      conserved and the reserved block cannot serve Tamil Nadu.
     """
     hourly = pd.read_csv(REA_PLANT_EXPORT_HOURLY_FILE, parse_dates=["snapshot"])
     source_audit = pd.read_csv(REA_PLANT_EXPORT_AUDIT_FILE)
@@ -712,6 +723,11 @@ def build_rea_plant_export_reservations(
         raise ValueError("REA plant-export schedules contain snapshots outside the model year")
     if hourly["flow_MW"].isna().any() or hourly["flow_MW"].lt(0).any():
         raise ValueError("REA plant-export schedules must be finite and non-negative")
+
+    entitlement = pd.read_csv(CENTRAL_STATION_ENTITLEMENT_FILE).set_index("station")["tn_share"]
+    station_of = pd.read_csv(CENTRAL_STATION_UNITS_FILE).set_index("component")["station"]
+    if not entitlement.between(0.0, 1.0).all():
+        raise ValueError("Tamil Nadu entitlement shares must lie between 0 and 1")
 
     adjusted = generators.copy()
     expanded_metadata = metadata.copy()
@@ -745,7 +761,17 @@ def build_rea_plant_export_reservations(
                 f"REA export peak for {plant_name!r} is {peak_mw} MW against "
                 f"{plant_capacity_mw} MW modeled capacity"
             )
-        retained_share = (plant_capacity_mw - peak_mw) / plant_capacity_mw
+        stations = station_of.reindex(component_ids)
+        if stations.notna().any():
+            if stations.isna().any() or stations.nunique() != 1 or stations.iloc[0] not in entitlement.index:
+                raise ValueError(f"REA plant {plant_name!r} does not map to one central station with a share")
+            station = str(stations.iloc[0])
+            retained_share = float(entitlement[station])
+            sizing = f"Tamil Nadu entitlement share of {station}"
+        else:
+            station = ""
+            retained_share = (plant_capacity_mw - peak_mw) / plant_capacity_mw
+            sizing = "rating less export peak"
         adjusted.loc[mask] = pd.DataFrame(
             [scale_component(row, retained_share) for _, row in matched.iterrows()],
             index=matched.index,
@@ -799,7 +825,12 @@ def build_rea_plant_export_reservations(
             "carrier": str(matched["carrier"].iloc[0]),
             "physical_capacity_mw": plant_capacity_mw,
             "reserved_capacity_mw": peak_mw,
-            "remaining_tn_dispatchable_capacity_mw": plant_capacity_mw - peak_mw,
+            "remaining_tn_dispatchable_capacity_mw": plant_capacity_mw * retained_share,
+            "central_station": station,
+            "tn_capacity_sizing": sizing,
+            # Modeled minus physical nameplate: positive where the export peak
+            # and Tamil Nadu's share together exceed the rating.
+            "capacity_overlap_mw": plant_capacity_mw * retained_share + peak_mw - plant_capacity_mw,
             "scheduled_export_GWh": float(profile.sum() / 1_000.0),
             "beneficiary_energy_GWh": ";".join(
                 f"{state}:{value:.6f}" for state, value in beneficiary_gwh.items()
@@ -2750,7 +2781,14 @@ def validate_capacity_conservation(
     original_storage: pd.DataFrame,
     generators: pd.DataFrame,
     storage: pd.DataFrame,
+    capacity_overlap: pd.Series | None = None,
 ) -> None:
+    """Modeled capacity per carrier equals the source fleet.
+
+    ``capacity_overlap`` (MW per carrier) is the intended difference at the
+    central stations, where Tamil Nadu's units and the export reservation
+    together are sized above or below the rating.
+    """
     original = original_generators.loc[
         ~original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].groupby("carrier")["p_nom"].sum()
@@ -2763,6 +2801,8 @@ def validate_capacity_conservation(
     if "hydro_run_of_river" in allocated.index:
         allocated.loc["hydro"] = allocated.get("hydro", 0.0) + allocated.pop("hydro_run_of_river")
     allocated = allocated.add(storage.groupby("carrier")["p_nom"].sum(), fill_value=0.0)
+    if capacity_overlap is not None:
+        allocated = allocated.sub(capacity_overlap, fill_value=0.0)
     pd.testing.assert_series_equal(
         original.sort_index(), allocated.sort_index(), check_names=False, rtol=1e-10, atol=1e-7
     )
@@ -2977,7 +3017,8 @@ def main() -> None:
         )
     )
     validate_capacity_conservation(
-        source_generators, original_storage, generators, storage
+        source_generators, original_storage, generators, storage,
+        rea_export_reservation_audit.groupby("carrier")["capacity_overlap_mw"].sum(),
     )
     # The pre-cascade check above still sees the official Servalar source
     # Generator. Remove it only after that check; build_hydraulic_cascades
@@ -3361,6 +3402,9 @@ def main() -> None:
             storage[["bus", "carrier", "p_nom"]],
             hydraulic_links.loc[hydraulic_links["carrier"].eq("hydro_turbine"), ["bus1", "carrier", "p_nom", "efficiency"]]
             .rename(columns={"bus1": "bus"}).assign(carrier="hydro", p_nom=lambda f: f["p_nom"] * f["efficiency"])[["bus", "carrier", "p_nom"]],
+            # Physical nameplate: remove the central stations' intended
+            # overlap of Tamil Nadu units and export reservations.
+            rea_export_reservation_audit.assign(p_nom=lambda f: -f["capacity_overlap_mw"])[["bus", "carrier", "p_nom"]],
         ],
         ignore_index=True,
     )

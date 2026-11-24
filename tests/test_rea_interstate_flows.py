@@ -138,6 +138,38 @@ def test_verified_rea_plant_exports_are_reserved_without_changing_flow_totals() 
     }
 
 
+def test_central_station_tn_units_get_their_entitlement_share() -> None:
+    audit = pd.read_csv(MODEL / "rea_plant_export_reservation_audit.csv")
+    shares = pd.read_csv(INPUT / "central_station_tn_entitlement_FY2025_26.csv").set_index("station")["tn_share"]
+    units = pd.read_csv(INPUT / "central_station_units.csv")
+    generators = pd.read_csv(MODEL / "generators.csv").set_index("name")
+
+    central = audit[audit["central_station"].notna()].set_index("central_station")
+    assert set(central.index) == set(shares.index)
+    for station, members in units.groupby("station"):
+        tn_mw = generators.loc[members["component"], "p_nom"].sum()
+        assert np.isclose(tn_mw, shares[station] * members["unit_rating_mw"].sum())
+        row = central.loc[station]
+        assert np.isclose(
+            row["capacity_overlap_mw"],
+            tn_mw + row["reserved_capacity_mw"] - row["physical_capacity_mw"],
+        )
+    # Other plants keep the rating less the export peak (no overlap).
+    others = audit[audit["central_station"].isna()]
+    assert np.allclose(others["capacity_overlap_mw"], 0.0)
+    assert np.allclose(
+        others["remaining_tn_dispatchable_capacity_mw"],
+        others["physical_capacity_mw"] - others["reserved_capacity_mw"],
+    )
+    # Reported installed capacity stays physical.
+    by_area = pd.read_csv(MODEL / "capacity_by_balancing_area.csv")
+    coal_p_nom = generators.loc[generators["carrier"].eq("coal"), "p_nom"].sum()
+    assert np.isclose(
+        by_area.loc[by_area["carrier"].eq("coal"), "capacity_mw"].sum(),
+        coal_p_nom - audit.loc[audit["carrier"].eq("coal"), "capacity_overlap_mw"].sum(),
+    )
+
+
 def test_metered_correction_delivers_the_metered_net_import() -> None:
     metered = pd.read_csv(INPUT / "tn_metered_interchange_FY2025_26.csv", index_col=0, parse_dates=True)
     parts = metered.actual_drawal_mw - metered.central_stations_mw - metered.tn_ipps_mw - metered.interstate_re_mw

@@ -28,7 +28,7 @@ an explicit `snapshot` timestamp.
 | Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
 | Historical four-station capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/tn_export_capacity_allocations.csv` (reference only) |
 | Coal unit outages, auxiliary consumption and capability | `data/source/NITI dashboard/unit outages Tamil Nadu`, `auxiliary consumption Tamil Nadu`; `data/model_inputs/coal_unit_outages_FY2025_26.csv`, `coal_auxiliary_consumption.csv`, `coal_unit_capability_FY2025_26.csv` | Applied at run time with `outages.enabled` (`scripts/generator_outages.py`); not in `model/` |
-| Central coal station declared capacity | `data/source/REA data/*.zip` (SRPC REA, not in Git); `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`, `central_station_units.csv` | Applied at run time with `outages.enabled` and `central_availability: declared` |
+| Central coal station declared capacity | `data/source/REA data/*.zip` (SRPC REA, not in Git); `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`, `central_station_units.csv`, `central_station_tn_entitlement_FY2025_26.csv` | Declared capacity applied at run time with `outages.enabled` and `central_availability: declared`; the entitlement shares size the Tamil Nadu units in the build |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -52,11 +52,36 @@ of the 15,504.698 GWh resolved export total. The remaining 7.785 GWh from
 Kamachi Steels and ARKAY Energy stays explicitly unmatched because those plants
 are absent from the model inventory. For every matched plant, the builder
 reserves capacity equal to its peak concurrent REA export schedule and creates
-a fixed-dispatch generator at the plant's physical balancing-area bus. The same
-nameplate is removed from the ordinary plant units, conserving physical
-capacity while preventing unused reserved capacity from serving Tamil Nadu.
-The existing gateway export loads are unchanged, so the reservation does not
-double count interstate energy.
+a fixed-dispatch generator at the plant's physical balancing-area bus. The
+existing gateway export loads are unchanged, so the reservation does not
+double count interstate energy. The plant's ordinary units, which serve Tamil
+Nadu, keep:
+
+- at the seven central coal stations (Vallur, NTPL, NNTPS, NLC TPS-II Stage I
+  and II, TPS-I and TPS-II Expansion), Tamil Nadu's **entitlement share** of
+  their rating: its entitlement in the SRPC accounts
+  (`commercial_ent_tamilnadu.csv`) over the station's declared capacity, for
+  the year (`data/model_inputs/central_station_tn_entitlement_FY2025_26.csv`,
+  from `scripts/prepare_declared_capacity.py`). The shares follow the Ministry
+  of Power's allocation and hardly change through the year: Vallur 69%, NTPL
+  41%, NNTPS 70%, NLC TPS-II Stage I 39% and Stage II 45%, TPS-I and TPS-II
+  Expansion 49%. With `outages.central_availability: declared`, the Tamil Nadu
+  units are then available at the share times the station's declared capacity,
+  hour by hour, which is Tamil Nadu's entitlement. Tamil Nadu's peak hourly
+  withdrawal from each station is close to the share times the rating
+  (Vallur 1,036 MW drawn against 1,040 MW). Other states also take Tamil
+  Nadu's undrawn share (unrequisitioned surplus), so at Vallur, NTPL, NNTPS
+  and TPS-I Expansion the export peak plus Tamil Nadu's share exceeds the
+  rating (by 707 MW in total). At the NLC TPS-II stations it falls short (by 249
+  MW). `capacity_overlap_mw` in `model/rea_plant_export_reservation_audit.csv`
+  records the difference, and the reported installed capacity
+  (`model/capacity_by_balancing_area.csv`) removes it. Sizing the Tamil Nadu
+  units at the rating less the export peak, as before, left them 25% short of
+  Tamil Nadu's actual share of these stations (NTPL: 188 MW against an average
+  withdrawal of 242 MW);
+- elsewhere (Kudankulam, MAPS, OPG, Tulsyan NEC, EID Parry), the rating less
+  the export peak, which conserves the physical nameplate and keeps unused
+  reserved capacity from serving Tamil Nadu.
 
 Included measures are fixed loads at the external buses: confirmed imports have
 negative `p_set` and exports positive `p_set`. Existing directional grid links
