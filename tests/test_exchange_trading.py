@@ -37,9 +37,12 @@ def write_inputs(tmp_path: Path, price: list[float], imports: list[float], expor
     trades = pd.DataFrame({"snapshot": SNAPSHOTS, "exchange_import_mw": imports, "exchange_export_mw": exports})
     trades["exchange_net_import_mw"] = trades.exchange_import_mw - trades.exchange_export_mw
     trades.to_csv(tmp_path / "trades.csv", index=False)
+    pd.DataFrame({"direction": ["import", "export"], "gateway": ["Kerala", "Kerala"],
+                  "allocation_share": [1.0, 1.0]}).to_csv(tmp_path / "shares.csv", index=False)
     return et.validate_section({
         "enabled": True, "limit": "headroom",
         "price": str(tmp_path / "price.csv"), "trades": str(tmp_path / "trades.csv"),
+        "gateway_shares": str(tmp_path / "shares.csv"), "access_charge_inr_per_mwh": 241.81,
         "import_steps": [[500, 0], [1000, 500]], "export_steps": [[500, 0], [1000, 500]],
     })
 
@@ -51,10 +54,14 @@ def test_apply_adds_market_bus_steps_and_observed_trade_reversal(tmp_path):
     result = et.apply_exchange_trading(n, settings)
 
     assert "IEX" in n.buses.index
-    assert n.links.at["IEX - Kerala", "p_nom"] == 1000.0
-    assert n.links.at["IEX - Kerala", "p_min_pu"] == -1.0
-    assert n.links.at["IEX - Kerala", "marginal_cost"] == 0.0
-    assert n.loads_t.p_set[et.REVERSAL_LOAD].tolist() == [200.0, -150.0, 0.0]
+    # One-way market links carry the short-term charge, sized to both link directions.
+    assert n.links.at["IEX buy via Kerala", "marginal_cost"] == 241.81
+    assert n.links.at["IEX sell via Kerala", "bus0"] == "Kerala"
+    assert n.links.at["IEX sell via Kerala", "p_nom"] == 2000.0
+    # Contracted flows lose their per-MWh charge.
+    assert n.links.loc[["Kerala-TN", "TN-Kerala"], "marginal_cost"].tolist() == [0.0, 0.0]
+    # Observed trades come out of the fixed schedule at the gateway.
+    assert n.loads_t.p_set[et.REVERSAL_PREFIX + "kerala"].tolist() == [200.0, -150.0, 0.0]
     cost = n.generators_t.marginal_cost
     assert cost["exchange_import_2"].tolist() == [3500.0] * 3
     assert cost["exchange_export_2"].tolist() == [2500.0] * 3
@@ -87,11 +94,11 @@ def test_model_buys_when_exchange_is_cheap_and_sells_when_dear(tmp_path):
     assert imports.iloc[0] == pytest.approx(700.0)
     # Hour 2: exchange at 9000 is dearer than coal -> sell over the TN-Kerala link.
     assert exports.iloc[1] < -900.0
-    # Hour 3: at 4000 (coal's cost) Tamil Nadu sells only the 300 MW fixed import
-    # at the gateway: drawing less saves the link charge and loss, which coal at
-    # 4000 more than covers. Selling more would need a paid export over TN-Kerala.
+    # Hour 3: at 4000 (coal's cost) there is no trade: a purchase costs
+    # (4000 + 241.81) / 0.97 delivered, and reselling the fixed import earns
+    # 4000 - 241.81 for 0.97 MWh of coal at 4000 that would replace it.
     assert imports.iloc[2] == pytest.approx(0.0, abs=1e-6)
-    assert exports.iloc[2] == pytest.approx(-300.0)
+    assert exports.iloc[2] == pytest.approx(0.0, abs=1e-6)
 
 
 def test_observed_limit_caps_trades_at_observed_volumes(tmp_path):
@@ -129,5 +136,6 @@ def test_decreasing_adders_are_rejected():
     with pytest.raises(et.ExchangeTradingError, match="must not decrease"):
         et.validate_section({
             "enabled": True, "limit": "headroom", "price": "p.csv", "trades": "t.csv",
+            "gateway_shares": "s.csv", "access_charge_inr_per_mwh": 0.0,
             "import_steps": [[500, 1000], [500, 0]], "export_steps": [[500, 0]],
         })
