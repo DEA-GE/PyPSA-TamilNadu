@@ -21,15 +21,16 @@ def write_export(path: Path, days: list[str]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def test_merge_drops_repeated_blocks_and_reports_missing_days(tmp_path, monkeypatch):
+def test_merge_gives_one_value_per_hour_and_reports_missing_days(tmp_path, monkeypatch):
     monkeypatch.setattr(area, "FY_END", pd.Timestamp("2025-04-05"))
     write_export(tmp_path / "IEX Price.csv", ["31/03/2025", "01/04/2025", "02/04/2025"])
     write_export(tmp_path / "IEX Price (1).csv", ["01/04/2025", "02/04/2025", "03/04/2025"])
 
     table, missing = area.merge(tmp_path)
 
-    assert len(table) == 3 * 96
+    assert len(table) == 3 * 24
+    assert table.index.is_unique
     assert table.index[0] == pd.Timestamp("2025-04-01 00:00")
-    assert table.index[-1] == pd.Timestamp("2025-04-03 23:45")
-    assert table["block"].iloc[-1] == 96
+    assert table.index[-1] == pd.Timestamp("2025-04-03 23:00")
+    assert table["price_inr_per_mwh"].iloc[0] == 1001.5  # mean of blocks 1000..1003
     assert list(missing) == [pd.Timestamp("2025-04-04")]

@@ -45,33 +45,33 @@ export's own daily "Avg" row.
   INR/MWh for the year), because traded volume is largest in the cheap
   solar hours.
 
-## Tamil Nadu area price (15-minute)
+## Tamil Nadu area price (hourly)
 
-`iex_dam_tamil_nadu_15min_fy2025_26.csv` holds IEX's Day-Ahead Market
-clearing price for Tamil Nadu's bid area in 15-minute blocks.
+`iex_dam_tamil_nadu_hourly_fy2025_26.csv` holds IEX's Day-Ahead Market
+clearing price for Tamil Nadu's bid area, one row per hour (8,760 rows).
 
 | Column | Meaning |
 |---|---|
-| `block_start` | Start of the 15-minute block, IST |
-| `date`, `block` | Delivery date and block number (1 = 00:00–00:15) |
-| `cleared_buy_mw`, `cleared_sell_mw` | Cleared buy and sell, as given in the export |
-| `price_inr_per_mwh` | Area clearing price (INR/MWh) |
+| `timestamp` | Start of the hour, IST (matches the model snapshots) |
+| `cleared_buy_mw`, `cleared_sell_mw` | Cleared buy and sell, as given in the export, averaged over the hour |
+| `price_inr_per_mwh` | Area clearing price (INR/MWh), mean of the hour's four 15-minute blocks |
 
 The source is the IEX website's area-price export for Tamil Nadu: CSV files
-named `IEX Price*.csv`, one per month, downloaded 24 November 2026. The
-exports do not name the bid area or market. To rebuild:
+named `IEX Price*.csv` in 15-minute blocks, one per month, downloaded 24
+November 2026. The exports do not name the bid area or market. To rebuild:
 
 ```text
 python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder>
 ```
 
-- **Complete:** all 365 days (35,040 blocks). The script combines all
-  `IEX Price*.csv` files in the folder and keeps the first copy of a
-  repeated block. It keeps FY2025–26 and lists any missing days.
-- **Check (24 November 2026):** averaged to hours, the area price equals the
-  all-India MCP above to within 1 INR/MWh in 97.7% of the 8,760 hours. It
-  differs in 202 hours, all in months where CERC reports DAM congestion:
-  Jun 6, Jul 148, Aug 16, Sep 21, Mar 11. In 146 of those hours Tamil Nadu is
-  lower (by up to 6,376 INR/MWh), so the southern bid area cleared below the
-  rest of the market. In 56 it is higher (by up to 732). The annual hourly
-  mean is 3,848 INR/MWh vs 3,861 all-India.
+The script combines all `IEX Price*.csv` files in the folder and averages
+each hour's blocks, so every hour has a single value. It keeps FY2025–26
+and lists any days with no data. All 365 days are present.
+
+- **Check (24 November 2026):** the hourly area price equals the all-India
+  MCP above to within 1 INR/MWh in 97.7% of the 8,760 hours. It differs in
+  202 hours, all in months where CERC reports DAM congestion: Jun 6, Jul 148,
+  Aug 16, Sep 21, Mar 11. In 146 of those hours Tamil Nadu is lower (by up to
+  6,376 INR/MWh), so the southern bid area cleared below the rest of the
+  market. In 56 it is higher (by up to 732). The annual mean is 3,848 INR/MWh
+  vs 3,861 all-India.
