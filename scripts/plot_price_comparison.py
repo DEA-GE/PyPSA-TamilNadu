@@ -3,7 +3,8 @@
 The model price is the load-weighted mean marginal price over the nine Tamil
 Nadu areas, capped at the exchange ceiling (10,000 INR/MWh) so that
 unserved-energy hours compare with IEX's capped clearing price. The IEX series
-is the all-India MCP from ``data/source/iex_dam_fy2025_26``.
+is the IEX day-ahead price of Tamil Nadu's bid area, with Tamil Nadu's cleared
+purchases and sales, from ``data/source/iex_dam_fy2025_26``.
 
     python scripts/plot_price_comparison.py --network <stitched_network.nc> [--output <png>]
 
@@ -32,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from compare_energy_target_runs import AREAS  # noqa: E402
 
-IEX_FILE = ROOT / "data" / "source" / "iex_dam_fy2025_26" / "iex_dam_hourly_fy2025_26.csv"
+IEX_FILE = ROOT / "data" / "source" / "iex_dam_fy2025_26" / "iex_dam_tamil_nadu_hourly_fy2025_26.csv"
 CAP = 10_000.0
 WEEKS = (("2025-08-11", "Monsoon week, 11–17 Aug 2025"), ("2026-02-09", "Winter week, 9–15 Feb 2026"))
 QUARTERS = {"Apr–Jun": (4, 5, 6), "Jul–Sep": (7, 8, 9), "Oct–Dec": (10, 11, 12), "Jan–Mar": (1, 2, 3)}
@@ -51,8 +52,9 @@ def model_price(network_path: Path) -> pd.DataFrame:
 
 
 def aligned(network_path: Path) -> pd.DataFrame:
-    iex = pd.read_csv(IEX_FILE, parse_dates=["timestamp"], index_col="timestamp")["mcp_inr_per_mwh"]
-    frame = model_price(network_path).join(iex.rename("iex"), how="inner")
+    iex = pd.read_csv(IEX_FILE, parse_dates=["timestamp"], index_col="timestamp").rename(
+        columns={"price_inr_per_mwh": "iex", "cleared_buy_mw": "tn_buy_mw", "cleared_sell_mw": "tn_sell_mw"})
+    frame = model_price(network_path).join(iex, how="inner")
     frame["model_capped"] = frame["model"].clip(upper=CAP)
     return frame
 
@@ -76,7 +78,7 @@ def title(ax, text: str) -> None:
 
 
 def plot(frame: pd.DataFrame, output: Path, subtitle: str) -> None:
-    series = (("iex", "IEX DAM (all-India MCP)", IEX_COLOR), ("model_capped", "Model, Tamil Nadu", MODEL_COLOR))
+    series = (("iex", "IEX DAM, Tamil Nadu area price", IEX_COLOR), ("model_capped", "Model, Tamil Nadu", MODEL_COLOR))
     fig = plt.figure(figsize=(13, 15), facecolor=SURFACE)
     grid = fig.add_gridspec(4, 4, height_ratios=[1.1, 1, 0.9, 1], hspace=0.45, wspace=0.12)
 
@@ -139,22 +141,25 @@ def plot(frame: pd.DataFrame, output: Path, subtitle: str) -> None:
     ax = fig.add_subplot(grid[3, 3])
     ax.axis("off")
     w = frame["load"]
+    wavg = lambda x, wt: f"{(x * wt).sum() / wt.sum():,.0f}"
     rows = [
         ("", "IEX", "Model"),
         ("Load-weighted mean",f"{(frame.iex * w).sum() / w.sum():,.0f}", f"{(frame.model_capped * w).sum() / w.sum():,.0f}"),
         ("Median", f"{frame.iex.median():,.0f}", f"{frame.model_capped.median():,.0f}"),
         ("Hours at 10,000 cap", f"{(frame.iex >= CAP - 1).sum():,}", f"{(frame.model_capped >= CAP - 1).sum():,}"),
         ("Hours below 2,500", f"{(frame.iex < 2500).sum():,}", f"{(frame.model_capped < 2500).sum():,}"),
+        ("TN purchase hours", wavg(frame.iex, frame.tn_buy_mw), wavg(frame.model_capped, frame.tn_buy_mw)),
+        ("TN sale hours", wavg(frame.iex, frame.tn_sell_mw), wavg(frame.model_capped, frame.tn_sell_mw)),
         ("Hourly correlation", "", f"{frame.iex.corr(frame.model_capped):.2f}"),
     ]
     for r, (label, a, b) in enumerate(rows):
-        y = 0.9 - r * 0.13
+        y = 0.95 - r * 0.105
         weight = "semibold" if r == 0 else "normal"
         ax.text(0.0, y, label, color=INK_2, fontsize=8.5, fontweight=weight, transform=ax.transAxes)
         ax.text(0.72, y, a, color=INK, fontsize=8.5, fontweight=weight, ha="right", transform=ax.transAxes)
         ax.text(0.98, y, b, color=INK, fontsize=8.5, fontweight=weight, ha="right", transform=ax.transAxes)
-    ax.text(0.0, 0.9 - len(rows) * 0.13, "INR/MWh, weighted by TN load;\nmodel capped at the exchange ceiling",
-            color=MUTED, fontsize=7.5, transform=ax.transAxes)
+    ax.text(0.0, 0.98 - len(rows) * 0.105, "INR/MWh. Means weighted by TN load or by\nTN's IEX day-ahead purchases / sales;\nmodel capped at the exchange ceiling",
+            color=MUTED, fontsize=7.5, va="top", transform=ax.transAxes)
 
     fig.suptitle("Hourly electricity price: model vs IEX Day-Ahead Market, FY2025-26",
                  x=0.125, ha="left", y=0.935, color=INK, fontsize=14, fontweight="semibold")
@@ -176,7 +181,7 @@ def main() -> None:
         print(f"Warning: {len(frame)} overlapping hours (expected 8,760)")
     run = args.network.parent.relative_to(ROOT) if args.network.parent.is_relative_to(ROOT) else args.network.parent
     plot(frame, output, f"Model run: {run.as_posix()}")
-    frame[["iex", "model", "model_capped", "load"]].to_csv(output.with_suffix(".csv"), float_format="%.2f")
+    frame[["iex", "model", "model_capped", "load", "tn_buy_mw", "tn_sell_mw"]].to_csv(output.with_suffix(".csv"), float_format="%.2f")
     print(f"Wrote {output} and {output.with_suffix('.csv').name}")
 
 
