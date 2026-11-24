@@ -502,8 +502,9 @@ of Electricity* (January 2022), data sheets 01a (subcritical, 210–600 MW) and
 
 https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2023/10/202310121323054265.pdf
 (pp. 38–41). Until November 2026 the model used 8-hour minimum up and down
-times without a cited source; with 8 hours a unit could not stop for the
-solar trough, so the observed midday two-shifting was impossible.
+times without a cited source. An 8-hour stop (for example 10:00–18:00) still
+covers the solar trough, but it ruled out the shorter stops seen at
+Tuticorin and Mettur, which last from about 4 to 12 hours.
 
 Sensitivity (relaxed unit commitment, `selected_weeks` mode with the weeks of
 7 Apr, 7 Jul, 13 Oct 2025 and 16 Feb 2026, outages on, November 2026):
@@ -511,10 +512,15 @@ moving from 8 h / 8 h to 6 h / 4 h changed the mean Tamil Nadu price by at
 most 0.5% in any week (the April week was identical), weekly coal energy by
 less than 0.1%, and coal start-ups by less than 1 per week. With continuous
 (relaxed) commitment, a unit can be partly committed, which largely bypasses
-the minimum up/down constraints. The down time therefore matters mainly for
-runs with full (binary) unit commitment. It does not explain the gap
-between the model's flat midday price and the exchange price, which comes
-from the fixed interstate schedule.
+the minimum up/down constraints. The same weeks with full (binary) unit
+commitment (each week solved at the root node within the 1% gap, about
+1 minute per week) changed weekly coal energy by at most 0.2% and variable
+cost by at most 0.3%. Start-ups changed by −5 to +4 per week and midday
+coal output by −2% to +1%, with no consistent direction. Both settings
+already let units stop over the midday trough (24 unit-days in the February
+week with 8 h, 21 with 4 h). The minimum up/down times therefore do not
+explain the gap between the model's flat midday price and the exchange
+price, which comes from the fixed interstate schedule.
 
 **Start-up and shut-down costs.** The anchor is the Central Electricity
 Authority's *Report of the Committee on Wear & Tear, O&M and Plant Lifespan

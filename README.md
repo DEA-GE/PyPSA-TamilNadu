@@ -596,7 +596,7 @@ commitment or storage analysis.
 - Only coal units are committable. Their flexibility follows CEA's Indian
   Technology Catalogue (2022): 55% minimum stable output, 6 h minimum up and
   4 h minimum down time, and ramps of 1% of rating per minute; the 4 h down
-  time allows the midday two-shifting CEA reports at Tuticorin and Mettur
+  time allows the shorter midday stops CEA reports at Tuticorin and Mettur
   (see "Flexibility" in `docs/input-data.md`). Coal marginal
   costs are station energy charges from 2024+ regulatory orders (TNERC
   FY2023-24 true-up and the JERC Puducherry FY2025-26 tariff order), set per
