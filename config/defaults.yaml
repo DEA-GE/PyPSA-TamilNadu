@@ -203,3 +203,29 @@ outages:
   # run (maintenance_schedule.csv in its folder), used instead of scheduling
   # again. The Snakemake workflow schedules once and shares it.
   maintenance_schedule: null
+
+exchange_trading:
+  # Price-responsive power-exchange trading (scripts/exchange_trading.py). Off
+  # by default, so a run without this section keeps the fixed interstate
+  # schedule. When on, Tamil Nadu's observed exchange trades (DAM, green DAM,
+  # high-price DAM, RTM) are taken out of the fixed schedule and the model buys
+  # and sells on an IEX market bus at the hourly exchange price; contracted
+  # flows (long-term, GNA, T-GNA, REMC) stay fixed. Needs the metered
+  # interchange basis (the default build).
+  enabled: false
+  # headroom: volume limited by the merit-order steps and by the interstate
+  # link capacity left by the fixed flows; observed: each hour's imports and
+  # exports capped at the observed exchange imports and exports.
+  limit: headroom
+  # Hourly exchange price (timestamp, price_inr_per_mwh): IEX day-ahead price
+  # of Tamil Nadu's bid area.
+  price: data/source/iex_dam_fy2025_26/iex_dam_tamil_nadu_hourly_fy2025_26.csv
+  # Observed hourly exchange trades from the SRPC REA
+  # (scripts/prepare_exchange_trades.py).
+  trades: data/model_inputs/tn_exchange_trades_FY2025_26.csv
+  # Merit-order steps as [MW, INR/MWh adder], adders not decreasing: imports
+  # cost price + adder, exports earn price - adder. The adders stand for the
+  # price impact of Tamil Nadu's own trades and for trading costs. With the
+  # headroom limit the step sizes add up to the most Tamil Nadu can trade.
+  import_steps: [[500, 0], [1000, 500], [1500, 1500], [20000, 4000]]
+  export_steps: [[500, 0], [1000, 500], [1500, 1500], [20000, 4000]]

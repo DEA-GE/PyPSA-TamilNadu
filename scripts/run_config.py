@@ -17,6 +17,7 @@ import yaml
 
 from energy_target_policy import normalise_cost_overrides, normalise_policy
 from generator_outages import OutageError, validate_section as validate_outages
+from exchange_trading import ExchangeTradingError, validate_section as validate_exchange_trading
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -252,6 +253,10 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
         config["outages"] = validate_outages(config["outages"])
     except OutageError as error:
         raise ConfigError(str(error)) from error
+    try:
+        config["exchange_trading"] = validate_exchange_trading(config["exchange_trading"])
+    except ExchangeTradingError as error:
+        raise ConfigError(str(error)) from error
     return config
 
 
@@ -323,6 +328,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "energy_targets": dict(config["energy_targets"]),
         "marginal_costs": dict(config["marginal_costs"]),
         "outages": config["outages"],
+        "exchange_trading": config["exchange_trading"],
     }
 
 
