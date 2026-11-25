@@ -716,3 +716,71 @@ the FY2025-26 TNERC short-term transmission charge of Rs 241.81/MWh. Internal
 line flow has a separate Rs 1/MWh numerical routing tie-breaker; it is not a
 regulated tariff. Ratings and provenance are recorded in
 `model/transmission_capacity_metadata.csv`. Reactive power is not modeled.
+
+### Two voltage levels per balancing area (optional)
+
+With one bus per area, power arriving on a 400 kV line reaches the area's load
+without passing a transformer. Each corridor's rating is also the sum of all
+its circuits, as if flow split in proportion to rating. In reality the
+400/230 kV inter-connecting transformers (ICTs) limit Tamil Nadu's grid:
+Grid-India names N-1 of the ICTs at Salem, Kalivandapattu, NLC TS-II/NNTPS and
+Pugalur as the limit of Tamil Nadu's import capability
+(`data/source/grid_india_ttc_fy2025_26`).
+
+`grid.two_level: true` (`scripts/two_level_grid.py`) rebuilds the Tamil Nadu
+grid at run time; `model/` is unchanged.
+
+- **Buses:** each area keeps its bus for 230 kV and below, and gets a
+  `<area> 400kV` bus.
+- **Lines and ties:** corridors and interstate ties are split by circuit
+  voltage, using the circuits in the grid workbook. The ratings and the
+  parallel reactance are preserved.
+- **Transformers:** one branch per area joins the two buses. Its capacity is
+  the area's 400/230 and 400/110 kV ICTs on 31 March 2026
+  (`data/source/srldc_transmission_elements`). It is rated at power factor
+  0.95, N-1 without the area's largest unit, with 12.5% reactance on the
+  unit rating. An area with a single unit would get no N-1 capacity; all nine
+  areas have several.
+- **Plants:** units connected at 400/765 kV (12.8 GW,
+  `tn_plant_connection_levels.csv`) move to the upper bus.
+
+**Import capability** (`scripts/grid_import_capability.py`, at Tamil Nadu's
+demand peak; unlimited sources at the neighbours; Tamil Nadu plants
+expensive):
+
+| Import | Single level | Two levels | Grid-India FY2025-26 |
+|---|---|---|---|
+| Drawal, all neighbours | about 54 GW (tie ratings) | 21.6 GW | TTC 14.6 GW |
+| Border import from S1 (Andhra Pradesh, Karnataka) | at least 16 GW (up to 31 GW) | 13.6 GW | S1→(S2&S3) TTC 11.3 GW |
+
+Drawal is the border import plus Tamil Nadu's share of the interstate-grid
+stations inside the state, which is what Grid-India's TTC covers. The two-level
+grid binds first at area transformers and 230 kV corridors. It stays above
+Grid-India because it pools each area's transformers and applies N-1 per area,
+not per substation. Kalivandapattu, for example, is 1.1 of Chennai South's
+4.6 GVA.
+
+**Dispatch test (25 November 2026).** Four selected weeks, relaxed unit
+commitment, fixed interstate schedule (`grid_single_level_weeks` vs
+`grid_two_level_weeks`):
+- **Cost:** +1.1%.
+- **Coal:** +0.5%, moving from the Tuticorin plants (−127 GWh) to North
+  Chennai, ST-CMS, ITPCL, Vallur and Mettur.
+- **Curtailment:** 2.3 → 12.2 GWh, mostly in the July wind week.
+- **Price spreads:** hours with an area price spread above 500 INR/MWh went
+  from 75 to 266.
+- **Binding branches:** Madurai–Trichy 230 kV (236 h), the Villupuram
+  transformers (123 h) and Coimbatore–Erode 230 kV (27 h). In the single-level
+  grid no line reaches its limit.
+- **Drawal:** the peak is 6.3 GW against an ATC of 14.2 GW, so an import limit
+  at Grid-India's value cannot bind while the interstate schedule is fixed.
+
+**Rating check** against the CEA Manual on Transmission Planning Criteria
+(2023; planning default 45 °C ambient, 75 °C conductor, 10% margin):
+- the workbook's circuit ratings correspond to 45 °C / 85 °C (twin Moose
+  1,068 MW against 808 MW at 45/75);
+- after `s_max_pu = 0.7` they are within ±3% of the CEA 45/75 rating less the
+  10% margin;
+- the 120 GW sum of corridor ratings is therefore consistent circuit by
+  circuit. No transfer capability between zones inside Tamil Nadu is
+  published.
