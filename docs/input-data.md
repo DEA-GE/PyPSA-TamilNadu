@@ -445,21 +445,31 @@ Only sources dated 2024 or later are used.
 
 | Station | INR/MWh | Basis | Source |
 |---|---:|---|---|
-| NLC New Neyveli TPS (NNTPS) | 2,720 | FY2025-26 approved | JERC |
-| NLC TPS-I Expansion | 2,920 | FY2025-26 approved | JERC |
-| NLC TPS-II Expansion | 3,240 | FY2025-26 approved | JERC |
-| NLC TPS-II Stage II / Stage I | 3,300 / 3,320 | FY2025-26 approved | JERC |
+| NLC New Neyveli TPS (NNTPS) | 2,753–3,154 (mean 2,921) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-I Expansion | 2,905–3,344 (mean 3,067) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-II Expansion | 3,142–3,579 (mean 3,301) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-II Stage I / Stage II | 3,220–3,534 (mean 3,309) | FY2025-26 actual, monthly | APSPDCL |
+| NTECL Vallur | 4,079 (Apr) to 2,873 (Mar), mean 3,496 | FY2025-26 actual, monthly | APSPDCL |
 | North Chennai TPS-I | 3,590 | FY2023-24 actual | TNERC |
 | Tuticorin TPS | 3,800 | FY2023-24 actual | TNERC |
-| NTECL Vallur | 4,090 | FY2025-26 approved | JERC |
+| NTPL Tuticorin | 3,718–4,630 (mean 4,096) | FY2025-26 actual, monthly | APSPDCL |
 | North Chennai TPS-II | 4,110 | FY2023-24 actual | TNERC |
 | North Chennai TPS-III | 4,110 | proxy: Stage II | TNERC |
 | SEPC Tuticorin | 4,280 | FY2023-24 actual | TNERC |
 | ITPCL, Coastal Energen, Tuticorin private TPP, OPG, TCP, Tulsyan | 4,280 | proxy: SEPC | TNERC |
-| NTPL Tuticorin | 4,340 | FY2025-26 approved | JERC |
 | TAQA Neyveli (ST-CMS) | 4,590 | FY2023-24 actual | TNERC |
 | Mettur TPS-I | 5,400 | FY2023-24 actual | TNERC |
 | Mettur TPS-II | 6,190 | FY2023-24 actual | TNERC |
+
+The central stations (NLC, NTPL, Vallur) have one charge per month. The
+build writes them to `model/generators-marginal_cost.csv` for those units, and
+their static `marginal_cost` in `coal_operating_costs.csv` is the annual
+mean. The monthly charges come from
+`data/model_inputs/central_coal_energy_charges_FY2025_26.csv`, made by
+`scripts/data_preparation/prepare_central_coal_energy_charges.py` (see
+`data/source/apspdcl_fppca_fy2025_26/README.md`). The NLC stations' charges
+step up by about INR 300/MWh from January 2026, and Vallur's fall steadily
+through the year.
 
 - TNERC: *Approval of True Up of TNPDCL (formerly TANGEDCO) for FY 2023-24*,
   order of 30 April 2025 (M.P. No. 18 of 2025). State stations from Table
@@ -468,24 +478,35 @@ Only sources dated 2024 or later are used.
   https://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf
   (archived copy:
   http://web.archive.org/web/20250505210653/http://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf)
+- APSPDCL: *FPPCA application for FY 2025-26* (true-up of fuel and power
+  purchase cost adjustment), Annexure-1, monthly actual energy and variable
+  cost per station. Andhra Pradesh buys from the same central stations as
+  Tamil Nadu, and a station's energy charge rate is the same for every
+  beneficiary.
+  https://apspdcl.in/files/regulatory/True-up%20of%20FPPCA%20application%20for%20FY%202025-26.rar
 - JERC (Goa and UTs): Electricity Department of Puducherry tariff order of
   24 September 2025 (Petition 139/2025), Table 5-14, "Variable rate
-  (FY 2025-26)". Puducherry buys from the same central stations as Tamil
-  Nadu. https://electricity.py.gov.in/sites/default/files/Tariff%20Order%202025-25-to-FY-2029-30.pdf
+  (FY 2025-26)". These approved rates were used for the central stations
+  before the FY2025-26 actuals were added; they were about 600 and
+  250 INR/MWh above the actual annual means for Vallur and NTPL.
+  https://electricity.py.gov.in/sites/default/files/Tariff%20Order%202025-25-to-FY-2029-30.pdf
 
-The capacity-weighted mean over committable units is about INR 4,146/MWh
-(the previous placeholder was a flat INR 3,087.5/MWh). Limitations:
+Limitations:
 
 - State and private stations use FY2023-24 actuals; the only FY2025-26
   projection for them is TNERC's 2022 tariff order, which is older than the
-  2024 cut-off.
+  2024 cut-off. These values are probably too high for FY2025-26: imported
+  coal prices fell about 23% from FY2023-24 to FY2025-26 (World Bank
+  commodity prices), and Vallur's actual charge fell from 4,079 to
+  2,873 INR/MWh within FY2025-26.
 - No 2024+ energy charge was found for North Chennai TPS-III, ITPCL,
   Coastal Energen, OPG, TCP, Tulsyan or the Tuticorin private TPP. These use
   the proxies in the table (25% of committable coal capacity is on the SEPC
   proxy, 7% on the Stage II proxy).
 - TNERC's FY2023-24 power-purchase costs for the NLC lignite stations are
   INR 0.6–1.3/kWh higher than JERC's FY2024-25 figures, probably because they
-  include arrears; the model uses JERC.
+  include arrears. The APSPDCL monthly bills show the same effect: months
+  with arrears or credits are replaced by the next month's charge.
 
 **Flexibility (minimum load, up/down times, ramps).** Committable coal units
 use the values of CEA's *Indian Technology Catalogue – Generation and Storage

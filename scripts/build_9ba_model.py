@@ -61,6 +61,7 @@ TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 # (sources in docs/input-data.md).
 COAL_OPERATING_COST_FILE = SOURCE_DIR / "coal_operating_costs.csv"
 PLANT_OPERATING_COST_FILE = SOURCE_DIR / "plant_operating_costs.csv"
+CENTRAL_COAL_MONTHLY_CHARGE_FILE = SOURCE_DIR / "central_coal_energy_charges_FY2025_26.csv"
 # CEA, "Recommendations on Operational norms of secondary fuel oil
 # consumption" to CERC (13 Jan 2025): oil per hot start-up (kl) by unit
 # series. Used only to scale the Tuticorin (210 MW) cycling cost per MW to
@@ -2024,6 +2025,32 @@ def apply_coal_operating_costs(
     return generators, pd.DataFrame(audit_rows)
 
 
+def coal_monthly_marginal_costs(
+    audit: pd.DataFrame, snapshots: pd.Series, path: Path = CENTRAL_COAL_MONTHLY_CHARGE_FILE,
+) -> pd.DataFrame:
+    """Hourly marginal cost of the coal units whose station has monthly energy charges.
+
+    ``audit`` is the coal operating-cost audit (unit ``name`` and ``station``).
+    Every snapshot month must have a charge for each such station.
+    """
+    charges = pd.read_csv(path)
+    charges["month"] = pd.PeriodIndex(charges["month"], freq="M")
+    table = charges.pivot(index="month", columns="station", values="energy_charge_inr_per_mwh")
+    index = pd.DatetimeIndex(pd.to_datetime(snapshots, errors="raise"))
+    hourly = table.reindex(index.to_period("M"))
+    hourly.index = index
+    units = audit.loc[audit["station"].isin(table.columns), ["name", "station"]]
+    unused = set(table.columns) - set(audit["station"])
+    if unused:
+        raise ValueError(f"Monthly coal charges for stations without coal units: {sorted(unused)}")
+    if hourly[units["station"].unique()].isna().any().any():
+        raise ValueError("Monthly coal charges do not cover every snapshot month")
+    frame = pd.DataFrame({name: hourly[station].to_numpy() for name, station in units.itertuples(index=False)},
+                         index=index)
+    frame.index.name = "snapshot"
+    return frame
+
+
 def apply_plant_operating_costs(
     generators: pd.DataFrame, path: Path = PLANT_OPERATING_COST_FILE,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -3237,6 +3264,10 @@ def main() -> None:
         generators["carrier"].eq("solar"), "marginal_cost"
     ] = SOLAR_CURTAILMENT_PREFERENCE_COST
     generators, coal_operating_cost_audit = apply_coal_operating_costs(generators)
+    # Central stations: monthly FY2025-26 charges; the static value in
+    # coal_operating_costs.csv is their annual mean.
+    coal_marginal_cost = coal_monthly_marginal_costs(coal_operating_cost_audit, snapshots)
+    coal_operating_cost_audit["monthly_charges"] = coal_operating_cost_audit["name"].isin(coal_marginal_cost.columns)
     generators, plant_operating_cost_audit = apply_plant_operating_costs(generators)
     generators = set_coal_initially_online(generators)
 
@@ -3322,6 +3353,7 @@ def main() -> None:
     load_time_series.to_csv(OUTPUT_DIR / "loads-p_set.csv")
     generators.to_csv(OUTPUT_DIR / "generators.csv", index=False)
     generator_profiles.to_csv(OUTPUT_DIR / "generators-p_max_pu.csv")
+    coal_marginal_cost.to_csv(OUTPUT_DIR / "generators-marginal_cost.csv")
     solar_capacity_trajectory.to_csv(
         OUTPUT_DIR / "solar_capacity_trajectory.csv", index=False, date_format="%Y-%m-%d"
     )
