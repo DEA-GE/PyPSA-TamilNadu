@@ -40,7 +40,7 @@ python scripts/data_preparation/prepare_tn_ict_inventory.py
 - **Assumed ratings:** the 2024-25 table gives no MVA. New units are set to
   the size of the other Tamil Nadu units added in 2023-26: 400/230 kV 500 MVA,
   400/110 kV 200 MVA, 765/400 kV 1,500 MVA. Replacements keep the previous
-  rating. These units are marked in `mva_basis`. They total 2,000 MVA at
+  rating. These units are marked in `mva_basis`. They total 1,500 MVA at
   400/230 kV, 600 MVA at 400/110 kV and 4,500 MVA at 765/400 kV.
 - **Areas** (see `SUBSTATION_AREAS` in the script):
   - `corridors`: where the grid workbook's circuits reach the substation, its
