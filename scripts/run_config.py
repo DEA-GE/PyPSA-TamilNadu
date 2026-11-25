@@ -16,6 +16,7 @@ from typing import Any, Iterable, Mapping
 import yaml
 
 from energy_target_policy import normalise_cost_overrides, normalise_policy
+from two_level_grid import TwoLevelGridError, validate_section as validate_grid_section
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -233,6 +234,11 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     except ValueError as error:
         raise ConfigError(str(error)) from error
 
+    try:
+        validate_grid_section(config["grid"])
+    except TwoLevelGridError as error:
+        raise ConfigError(str(error)) from error
+
     technologies = config["technologies"]
     try:
         validate_section(technologies)
@@ -305,6 +311,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "profile_log_level": config["logging"]["level"],
         "profile_sample_interval": config["logging"]["sample_interval"],
         "technologies": config["technologies"],
+        "grid": dict(config["grid"]),
         "lp_method": config["solver"]["lp_method"],
         "crossover": config["solver"]["crossover"],
         "energy_targets": dict(config["energy_targets"]),

@@ -59,6 +59,7 @@ from energy_target_policy import (
     target_enabled,
 )
 from scenario_technologies import apply_technologies, network_fingerprint
+from two_level_grid import apply_two_level_grid
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
 from run_profiling import (
@@ -1483,6 +1484,7 @@ def run_selection(
     profile_log_level: str = "INFO",
     profile_sample_interval: float = 1.0,
     technologies: Mapping[str, Any] | None = None,
+    grid: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1558,6 +1560,7 @@ def _run_selection(
     resume: bool = True,
     max_windows: int | None = None,
     technologies: Mapping[str, Any] | None = None,
+    grid: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1661,6 +1664,14 @@ def _run_selection(
                 f"Optimised capacities cannot be sized in mode '{mode}', which solves "
                 "periods separately; use mode 'annual' for the capacity expansion."
             )
+    with profiler.phase("apply_two_level_grid"):
+        grid_report = apply_two_level_grid(base_network, grid)
+    if not grid_report.empty:
+        counts = grid_report.groupby(["component", "level"]).size()
+        report(
+            "Two-level grid: "
+            + ", ".join(f"{count} {component} ({level})" for (component, level), count in counts.items())
+        )
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
@@ -1747,6 +1758,8 @@ def _run_selection(
         cost_report.to_csv(output_dir / "marginal_cost_overrides.csv", index=False)
     if not added_technologies.empty:
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
+    if not grid_report.empty:
+        grid_report.to_csv(output_dir / "two_level_grid.csv", index=False)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
     with solve_phase:
         modeled, validation, solved_network = _solve_mode(

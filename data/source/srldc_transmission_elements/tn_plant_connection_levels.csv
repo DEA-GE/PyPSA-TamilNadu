@@ -1,0 +1,14 @@
+pattern,level,plant,basis
+^north_chennai_tps__unit_0[45]$,400,North Chennai TPS stage II (2x600 MW),"Compendium 2023 lines: NCTPS STG2 400 kV to Alamathi, Manali, S V Chathram, Vallur"
+^north_chennai_tps__unit_06$,400,North Chennai TPS stage III (800 MW),Annual Compendium 2023-24 Table 32: NCTPS STG3 generator transformer 765/27 kV (765 kV North Chennai pooling station)
+vallur,400,Vallur TPS (NTECL; 3x500 MW),Compendium 2023 lines: VALLUR 400 kV to NCTPS STG2
+^mettur_tps__unit_05$,400,Mettur TPS stage III (600 MW),"Compendium 2023 lines: MTPS-3 400 kV to Karamadai, Palavadi"
+kudankulam,400,Kudankulam NPP (2x1000 MW),"Compendium 2023 lines: KKNPP 400 kV to Tirunelveli-PG, Tuticorin-PS"
+nlc_tamil_nadu_power|tuticorin_joint_venture,400,NTPL Tuticorin (2x500 MW),Compendium 2023 lines: NTPL 400 kV to Tuticorin-PS
+muthiara,400,Coastal Energen Muthiara (2x600 MW),Compendium 2023 lines: COASTAL 400 kV to Tuticorin-PS
+itpcl,400,IL&FS Cuddalore (ITPCL; 2x600 MW),Compendium 2023 lines: ILFS 400 kV to Nagapattinam-PS
+neyveli_new_tpp|neyveli_new_thermal,400,New Neyveli TPS (NNTPS; 2x500 MW),"Compendium 2023 lines: NNTPP 400 kV to Ariyalur, Pugalur-PG, Pondy, Salem-PG"
+neyveli_ext_tps_i_|neyveli_tps_i_expansion,400,NLC TPS-I expansion (2x210 MW),"Compendium 2023 lines: NLC STG1 EXP 400 kV to Nagapattinam-PS, NLC STG2"
+neyveli_ext_tps_ii|neyveli_tps_ii_expansion,400,NLC TPS-II expansion (2x250 MW),Compendium 2023 lines: NLC STG2 EXP 400 kV to NLC STG2 and Pugalur-PG
+^neyveli_tps_ii__unit_0[4-7]$|neyveli_tps_ii_stage_ii$,400,NLC TPS-II stage II (4x210 MW),"Assumed: NLC STG2 has 400 and 230 kV switchyards coupled by 2x250 MVA ICTs; stage II units taken at 400 kV, stage I at 230 kV"
+tuticorin_thermal_power_plant,400,SEPC Tuticorin (525 MW),Compendium 2023 lines: SEPC 400 kV to Thenampatty
