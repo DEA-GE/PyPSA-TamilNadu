@@ -114,7 +114,8 @@ def monthly_prices(network: pypsa.Network) -> pd.Series:
 def operating_cost_by_carrier(network: pypsa.Network) -> pd.Series:
     """Dispatch times marginal cost, by generator carrier (INR crore)."""
     weights = network.snapshot_weightings.generators
-    cost = network.generators_t.p.mul(weights, axis=0).sum() * network.generators.marginal_cost
+    marginal_cost = network.get_switchable_as_dense("Generator", "marginal_cost")
+    cost = network.generators_t.p.mul(marginal_cost).mul(weights, axis=0).sum()
     return cost.groupby(network.generators.carrier).sum() / 1e7
 
 
