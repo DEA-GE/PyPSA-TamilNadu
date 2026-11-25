@@ -77,32 +77,49 @@ hours missing. All 8,760 hours are present.
   market. In 56 it is higher (by up to 732). The annual mean is 3,848 INR/MWh
   vs 3,861 all-India.
 
-## Tamil Nadu green DAM price (hourly)
+## Tamil Nadu green DAM and real-time market prices (hourly)
 
-`iex_gdam_tamil_nadu_hourly_fy2025_26.csv` holds IEX's Green Day-Ahead
-Market (G-DAM) result for Tamil Nadu's bid area, in the same columns as the
-DAM area price above. The source is the same area-price export (`IEX
-Price*.csv`, 15-minute blocks, one file per month) with the Green DAM
-selected, downloaded 25 November 2026. The exports do not name the market,
-so the DAM and green DAM exports must be merged from separate folders. The
-script stops if two exports in the folder disagree on any block.
+`iex_gdam_tamil_nadu_hourly_fy2025_26.csv` (Green Day-Ahead Market, G-DAM)
+and `iex_rtm_tamil_nadu_hourly_fy2025_26.csv` (Real-Time Market) hold IEX's
+results for Tamil Nadu's bid area, in the same columns as the DAM area price
+above. The source is the same area-price export (`IEX Price*.csv`, 15-minute
+blocks, one file per month) with the market selected, downloaded 25 November
+2026. The exports do not name the market, so each market is merged from its
+own folder. The script stops if two exports in a folder disagree on any block.
 
 ```text
 python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --market gdam
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --market rtm
 ```
 
-- **Gaps:** 7,992 of 8,760 hours. 31 October 2025 and all of March 2026 are
-  missing, because the downloads stop at 30 October and at February 2026.
-- **Market identity (25 November 2026):** the hourly cleared buy matches
-  Tamil Nadu's green DAM imports in the SRPC REA
-  (`data/model_inputs/tn_exchange_trades_FY2025_26.csv`, `gdam_import_mw`)
-  with r = 0.99. Monthly volumes are 1–6% above the REA's, except July
-  (+24%). Tamil Nadu only buys in the green DAM (0.85 TWh in FY2025-26 per
-  the REA); cleared sell is non-zero in only 105 hours.
-- **Price (April 2025–February 2026):** the mean is 4,337 INR/MWh against
-  3,820 for the DAM area price, so the green premium averages 517 INR/MWh.
-  It is largest at night (600–930) and smallest at midday (about 200–250).
-  Weighted by Tamil Nadu's purchases, which peak at 06–14h, the green DAM
-  price is 3,267 against 2,831 DAM in the same hours (+436). The green DAM
-  clears below the DAM in 18% of hours. It reaches the 10,000 INR/MWh
-  ceiling in 757 hours.
+The market of each export was identified from its cleared volumes. Hourly
+cleared buy and sell are compared with Tamil Nadu's trades per market in the
+SRPC REA (`data/model_inputs/tn_exchange_trades_FY2025_26.csv`); the REA is
+measured at the regional periphery, so IEX volumes run somewhat higher.
+
+**Gaps.** Green DAM: 8,736 of 8,760 hours, with 31 October 2025 missing. RTM:
+8,016 of 8,760 hours, with 31 May 2025 and 1–30 December 2025 missing.
+
+**Green DAM checks (25 November 2026).**
+- Cleared buy vs REA `gdam_import_mw`: r = 0.99. IEX is 4–10% above the REA
+  in each month, except July at 24%.
+- Tamil Nadu only buys in the green DAM: 0.85 TWh in FY2025-26 per the REA.
+- The green DAM price averages 4,363 INR/MWh against 3,852 for the DAM in
+  the same hours, a green premium of 510. The premium is largest at night
+  (600–880) and smallest at midday (210–260).
+- Weighted by Tamil Nadu's purchases, which peak at 06–14h, it is 3,212
+  against 2,765 DAM (+447).
+- It clears below the DAM in 18% of hours and reaches the 10,000 ceiling in
+  812 hours.
+
+**RTM checks (25 November 2026).**
+- Cleared buy vs REA `rtm_import_mw`: r = 0.99, with IEX 4–15% above the REA
+  in each month.
+- Cleared sell vs REA `rtm_export_mw`: r = 0.99, with IEX 11–25% above.
+- The RTM price averages 3,537 INR/MWh against 3,848 for the DAM (−311);
+  the hourly correlation is r = 0.81.
+- The RTM is above the DAM at midday (+90 to +400 at 09–16h) and well
+  below it in the evening and at night (−980 to −1,290 at 18–23h).
+- Weighted by Tamil Nadu's trades, its RTM sales (4.10 TWh) fetched 2,596
+  against 2,870 DAM in the same hours, and its RTM purchases (1.63 TWh) cost
+  4,013 against 4,477.

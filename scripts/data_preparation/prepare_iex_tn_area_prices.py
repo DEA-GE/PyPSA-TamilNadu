@@ -1,6 +1,6 @@
 """Merge the IEX Tamil Nadu area-price exports (``IEX Price*.csv``) into one hourly FY2025-26 file.
 
-    python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> [--market gdam]
+    python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> [--market gdam|rtm]
 
 Each hour is the mean of its four 15-minute blocks. Writes
 data/source/iex_dam_fy2025_26/iex_<market>_tamil_nadu_hourly_fy2025_26.csv
@@ -21,7 +21,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUTS = {market: ROOT / "data" / "source" / "iex_dam_fy2025_26" / f"iex_{market}_tamil_nadu_hourly_fy2025_26.csv"
-           for market in ("dam", "gdam")}
+           for market in ("dam", "gdam", "rtm")}
 FY_START, FY_END = pd.Timestamp("2025-04-01"), pd.Timestamp("2026-04-01")
 COLUMNS = {"Cleared Buy (MW)": "cleared_buy_mw", "Cleared Sell (MW)": "cleared_sell_mw",
            "Price (Rs./MWh)": "price_inr_per_mwh"}
@@ -57,7 +57,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--import-from", type=Path, required=True, help="folder with the IEX Price CSV exports")
     parser.add_argument("--market", choices=sorted(OUTPUTS), default="dam",
-                        help="dam: day-ahead market; gdam: green day-ahead market (sets the default output)")
+                        help="dam: day-ahead, gdam: green day-ahead, rtm: real-time market (sets the default output)")
     parser.add_argument("--output", type=Path, help="overrides the market's default output file")
     args = parser.parse_args()
     output = args.output or OUTPUTS[args.market]
