@@ -1,0 +1,139 @@
+owner,kv,bus,ict_id,mva,commissioned,mva_basis,area,area_basis
+TANTRANSCO,400/110,ALAMATHI,1,200.0,before 2023-06,compendium 2023,Chennai North,corridors
+TANTRANSCO,400/110,ALAMATHI,2,200.0,before 2023-06,compendium 2023,Chennai North,corridors
+TANTRANSCO,400/230,ALAMATHI,3,315.0,before 2023-06,compendium 2023,Chennai North,corridors
+TANTRANSCO,400/230,ALAMATHI,4,315.0,before 2023-06,compendium 2023,Chennai North,corridors
+TANTRANSCO,400/230,ALAMATHI,5,315.0,before 2023-06,compendium 2023,Chennai North,corridors
+TANTRANSCO,400/110,ALAMATHI,6,200.0,2024-06-28,assumed (200 MVA new 400/110 kV unit),Chennai North,corridors
+TANTRANSCO,400/110,ANAIKADAVU,1,200.0,before 2023-06,compendium 2023,Coimbatore,OSM way/417399737
+TANTRANSCO,400/110,ANAIKADAVU,2,200.0,before 2023-06,compendium 2023,Coimbatore,OSM way/417399737
+TANTRANSCO,400/230,ANAIKADAVU,3,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/417399737
+TANTRANSCO,400/230,ANAIKADAVU,4,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/417399737
+TANTRANSCO,400/230,ANAIKADAVU,5,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/417399737
+PGCIL,400/230,ARASUR-PG,1,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/336535480
+PGCIL,400/230,ARASUR-PG,2,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/336535480
+PGCIL,400/230,ARASUR-PG,3,500.0,before 2023-06,compendium 2023,Coimbatore,OSM way/336535480
+PGCIL,400/230,ARASUR-PG,4,500.0,2024-06-26,assumed (500 MVA new 400/230 kV unit),Coimbatore,OSM way/336535480
+TANTRANSCO,765/400,ARIYALUR,1,1500.0,2024-10-30,assumed (1500 MVA new 765/400 kV unit),Villupuram,corridors
+TANTRANSCO,765/400,ARIYALUR,2,1500.0,2023-12-27,stated,Villupuram,corridors
+PGCIL,400/230,HOSUR-PG,1,315.0,before 2023-06,compendium 2023,Vellore,corridors
+PGCIL,400/230,HOSUR-PG,2,315.0,before 2023-06,compendium 2023,Vellore,corridors
+PGCIL,400/230,HOSUR-PG,3,315.0,before 2023-06,compendium 2023,Vellore,corridors
+PGCIL,400/230,KALIVANTHAPATU,1,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+PGCIL,400/230,KALIVANTHAPATU,2,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+PGCIL,400/230,KALIVANTHAPATU,3,500.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/230,KAMUTHI,1,315.0,before 2023-06,compendium 2023,Madurai,district (Ramanathapuram)
+TANTRANSCO,400/110,KAMUTHI,1,200.0,before 2023-06,compendium 2023,Madurai,district (Ramanathapuram)
+TANTRANSCO,400/230,KAMUTHI,2,315.0,before 2023-06,compendium 2023,Madurai,district (Ramanathapuram)
+TANTRANSCO,400/110,KAMUTHI,2,200.0,before 2023-06,compendium 2023,Madurai,district (Ramanathapuram)
+TANTRANSCO,400/110,KAMUTHI,3,200.0,before 2023-06,compendium 2023,Madurai,district (Ramanathapuram)
+TANTRANSCO,400/230,KANARPATTI,1,500.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/421884729
+TANTRANSCO,400/110,KANARPATTI,1,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/421884729
+TANTRANSCO,400/230,KANARPATTI,2,500.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/421884729
+TANTRANSCO,400/110,KANARPATTI,2,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/421884729
+TANTRANSCO,400/110,KANARPATTI,3,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/421884729
+PGCIL,400/230,KARAIKUDI-PG,1,315.0,before 2023-06,compendium 2023,Madurai,corridors
+PGCIL,400/230,KARAIKUDI-PG,2,315.0,before 2023-06,compendium 2023,Madurai,corridors
+PGCIL,400/230,KARAIKUDI-PG,3,500.0,before 2023-06,compendium 2023,Madurai,corridors
+TANTRANSCO,400/230,KARAMADAI,1,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/337239209
+TANTRANSCO,400/230,KARAMADAI,2,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/337239209
+TANTRANSCO,400/230,KARAMADAI,3,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/337239209
+KARUR_TL,400/230,KARUR PS,1,500.0,2023-11-29,stated,Coimbatore,OSM way/1222160794
+KARUR_TL,400/230,KARUR PS,2,500.0,2023-11-29,stated,Coimbatore,OSM way/1222160794
+TANTRANSCO,400/110,KAYATHAR 400/230/110,1,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/618762309
+TANTRANSCO,400/230,KAYATHAR 400/230/110,2,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/618762309
+TANTRANSCO,400/230,KAYATHAR 400/230/110,3,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/618762309
+TANTRANSCO,400/110,KAYATHAR 400/230/110,4,200.0,2024-07-05,assumed (200 MVA new 400/110 kV unit),Tirunelveli,OSM way/618762309
+NPCIL,400/230,KKNPP,1,315.0,before 2023-06,compendium 2023,Tirunelveli,district (Tirunelveli)
+NPCIL,400/230,KKNPP,2,315.0,before 2023-06,compendium 2023,Tirunelveli,district (Tirunelveli)
+TANTRANSCO,400/110,KORATTUR,1,200.0,2025-06-03,stated,Chennai North,district (Chennai)
+TANTRANSCO,400/230,KORATTUR,2,500.0,2025-04-23,stated,Chennai North,district (Chennai)
+TANTRANSCO,400/230,KORATTUR,3,500.0,2025-06-04,stated,Chennai North,district (Chennai)
+TANTRANSCO,400/110,KORATTUR,4,200.0,2025-04-23,stated,Chennai North,district (Chennai)
+PGCIL,400/230,MADURAI-PG,1,315.0,before 2023-06,compendium 2023,Madurai,corridors
+PGCIL,400/230,MADURAI-PG,2,315.0,before 2023-06,compendium 2023,Madurai,corridors
+PGCIL,400/230,MADURAI-PG,3,500.0,before 2023-06,compendium 2023,Madurai,corridors
+TANTRANSCO,400/110,MANALI,1,200.0,before 2023-06,compendium 2023,Chennai North,OSM way/102565511
+TANTRANSCO,400/230,MANALI,2,315.0,before 2023-06,compendium 2023,Chennai North,OSM way/102565511
+TANTRANSCO,400/110,MANALI,3,200.0,before 2023-06,compendium 2023,Chennai North,OSM way/102565511
+TANTRANSCO,400/230,MANALI,4,315.0,before 2023-06,compendium 2023,Chennai North,OSM way/102565511
+TANTRANSCO,400/230,MTPS-3,1,315.0,before 2023-06,compendium 2023,Erode,corridors
+TANTRANSCO,400/230,MTPS-3,2,315.0,before 2023-06,compendium 2023,Erode,corridors
+PGCIL,400/230,MYWADI,1,315.0,before 2023-06,compendium 2023,Coimbatore,corridors
+PGCIL,400/230,MYWADI,2,315.0,before 2023-06,compendium 2023,Coimbatore,corridors
+PGCIL,400/230,MYWADI,3,315.0,before 2023-06,compendium 2023,Coimbatore,corridors
+NLC,400/230,NLC STG2,1,250.0,before 2023-06,compendium 2023,Villupuram,corridors
+NLC,400/230,NLC STG2,2,250.0,before 2023-06,compendium 2023,Villupuram,corridors
+NLC,400/230,NNTPP,1,500.0,before 2023-06,compendium 2023,Villupuram,corridors
+NLC,400/230,NNTPP,2,500.0,before 2023-06,compendium 2023,Villupuram,corridors
+TANTRANSCO,765/400,NORTH CHENNAI PS,2,1500.0,2024-02-02,stated,Chennai North,OSM way/1074489047
+TANTRANSCO,765/400,NORTH CHENNAI PS,3,1500.0,2024-02-02,stated,Chennai North,OSM way/1074489047
+NTPL,400/230,NTPL,1,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/323661901
+NTPL,400/230,NTPL,2,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/323661901
+TANTRANSCO,400/230,PALAVADI,1,315.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/230,PALAVADI,2,315.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/110,PALAVADI,3,200.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/110,PALAVADI,4,200.0,before 2023-06,compendium 2023,Vellore,corridors
+PGCIL,400/230,PONDY,1,315.0,before 2023-06,compendium 2023,Puducherry,corridors
+PGCIL,400/230,PONDY,2,315.0,before 2023-06,compendium 2023,Puducherry,corridors
+PGCIL,400/230,PONDY,3,500.0,before 2023-06,compendium 2023,Puducherry,corridors
+PGCIL,400/230,PUGALUR-PG,1,315.0,before 2023-06,compendium 2023,Trichy,corridors
+PGCIL,400/230,PUGALUR-PG,2,315.0,before 2023-06,compendium 2023,Trichy,corridors
+PGCIL,400/230,PUGALUR-PG,3,500.0,before 2023-06,compendium 2023,Trichy,corridors
+TANTRANSCO,400/230,PULIYANTHOP,1,315.0,before 2023-06,compendium 2023,Chennai North,OSM (Pulianthope Substation)
+TANTRANSCO,400/230,PULIYANTHOP,2,315.0,before 2023-06,compendium 2023,Chennai North,OSM (Pulianthope Substation)
+TANTRANSCO,400/230,PULIYANTHOP,3,315.0,before 2023-06,compendium 2023,Chennai North,OSM (Pulianthope Substation)
+TANTRANSCO,400/110,RASIPALAYAM,1,200.0,before 2023-06,compendium 2023,Coimbatore,OSM way/508747385
+TANTRANSCO,400/110,RASIPALAYAM,2,200.0,before 2023-06,compendium 2023,Coimbatore,OSM way/508747385
+TANTRANSCO,400/110,RASIPALAYAM,3,200.0,before 2023-06,compendium 2023,Coimbatore,OSM way/508747385
+TANTRANSCO,400/230,RASIPALAYAM,4,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/508747385
+TANTRANSCO,400/230,RASIPALAYAM,5,315.0,before 2023-06,compendium 2023,Coimbatore,OSM way/508747385
+TANTRANSCO,400/230,S V CHATHRAM,1,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/230,S V CHATHRAM,2,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/110,S V CHATHRAM,3,200.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/110,S V CHATHRAM,4,200.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/230,SALEM-TN,1,315.0,before 2023-06,compendium 2023,Erode,district (Salem)
+TANTRANSCO,400/230,SALEM-TN,2,315.0,before 2023-06,compendium 2023,Erode,district (Salem)
+TANTRANSCO,400/110,SALEM-TN,3,200.0,before 2023-06,compendium 2023,Erode,district (Salem)
+TANTRANSCO,400/110,SALEM-TN,4,200.0,2024-05-20,previous rating kept,Erode,district (Salem)
+TANTRANSCO,400/110,SALEM-TN,5,200.0,before 2023-06,compendium 2023,Erode,district (Salem)
+TANTRANSCO,400/230,SALEM-TN,6,500.0,2025-04-05,stated,Erode,district (Salem)
+TANTRANSCO,400/110,SHOLINGANALLUR,1,200.0,before 2023-06,compendium 2023,Chennai South,workbook (KITZ Sholinganallur)
+TANTRANSCO,400/230,SHOLINGANALLUR,2,315.0,before 2023-06,compendium 2023,Chennai South,workbook (KITZ Sholinganallur)
+TANTRANSCO,400/230,SHOLINGANALLUR,3,315.0,before 2023-06,compendium 2023,Chennai South,workbook (KITZ Sholinganallur)
+TANTRANSCO,400/230,SRIPERUMBUDUR,1,315.0,2024-11-27,previous rating kept,Chennai South,corridors
+TANTRANSCO,400/230,SRIPERUMBUDUR,2,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/230,SRIPERUMBUDUR,3,315.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/110,SRIPERUMBUDUR,4,200.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/110,SRIPERUMBUDUR,5,200.0,before 2023-06,compendium 2023,Chennai South,corridors
+TANTRANSCO,400/230,SRIPERUMBUDUR,6,500.0,2024-05-14,assumed (500 MVA new 400/230 kV unit),Chennai South,corridors
+TANTRANSCO,400/110,THAPAKUNDU,1,200.0,before 2023-06,compendium 2023,Madurai,OSM way/508747392
+TANTRANSCO,400/110,THAPAKUNDU,2,200.0,before 2023-06,compendium 2023,Madurai,OSM way/508747392
+TANTRANSCO,400/110,THAPAKUNDU,3,200.0,before 2023-06,compendium 2023,Madurai,OSM way/508747392
+TANTRANSCO,400/230,THENAMPATTY,1,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM (Thennampatti)
+TANTRANSCO,400/230,THENAMPATTY,2,315.0,before 2023-06,compendium 2023,Tirunelveli,OSM (Thennampatti)
+TANTRANSCO,400/110,THENAMPATTY,3,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM (Thennampatti)
+TANTRANSCO,400/110,THENAMPATTY,4,200.0,before 2023-06,compendium 2023,Tirunelveli,OSM (Thennampatti)
+TANTRANSCO,400/230,THERVOI KANDIGAI,1,315.0,before 2023-06,compendium 2023,Chennai North,OSM way/1355309900
+TANTRANSCO,400/110,THERVOI KANDIGAI,3,200.0,before 2023-06,compendium 2023,Chennai North,OSM way/1355309900
+PGCIL,765/400,THIRUVALAM-PG,1,1500.0,before 2023-06,compendium 2023,Vellore,corridors
+PGCIL,765/400,THIRUVALAM-PG,2,1500.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/230,THIRUVALAM-TN 400/230,1,315.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/230,THIRUVALAM-TN 400/230,2,315.0,before 2023-06,compendium 2023,Vellore,corridors
+TANTRANSCO,400/230,THIRUVALAM-TN 400/230,3,500.0,2024-05-21,assumed (500 MVA new 400/230 kV unit),Vellore,corridors
+PGCIL,400/230,TIRUNELVELI-PG,1,315.0,before 2023-06,compendium 2023,Tirunelveli,corridors
+PGCIL,400/230,TIRUNELVELI-PG,2,315.0,before 2023-06,compendium 2023,Tirunelveli,corridors
+PGCIL,400/230,TIRUNELVELI-PG,3,500.0,before 2023-06,compendium 2023,Tirunelveli,corridors
+PGCIL,400/230,TRICHY-PG,1,315.0,before 2023-06,compendium 2023,Trichy,corridors
+PGCIL,400/230,TRICHY-PG,2,500.0,2024-01-31,stated,Trichy,corridors
+PGCIL,400/230,TRICHY-PG,3,500.0,before 2023-06,compendium 2023,Trichy,corridors
+PGCIL,400/230,TTGS,1,500.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/510513135 (Tuticorin GIS)
+PGCIL,400/230,TTGS,2,500.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/510513135 (Tuticorin GIS)
+PGCIL,400/230,TTGS,3,500.0,before 2023-06,compendium 2023,Tirunelveli,OSM way/510513135 (Tuticorin GIS)
+PGCIL,400/230,TTGS,4,500.0,2023-12-22,stated,Tirunelveli,OSM way/510513135 (Tuticorin GIS)
+PGCIL,400/230,TTGS,5,500.0,2023-08-30,stated,Tirunelveli,OSM way/510513135 (Tuticorin GIS)
+TANTRANSCO,400/110,VELLALAVIDUTHI,2,200.0,2024-11-21,assumed (200 MVA new 400/110 kV unit),Trichy,OSM way/1198555727
+TANTRANSCO,400/230,VELLALAVIDUTHI,3,315.0,2023-12-15,stated,Trichy,OSM way/1198555727
+TANTRANSCO,400/230,VELLALAVIDUTHI,4,315.0,2023-10-07,stated,Trichy,OSM way/1198555727
+TANTRANSCO,765/400,VIRUDHUNAGAR,1,1500.0,2024-12-17,assumed (1500 MVA new 765/400 kV unit),Tirunelveli,OSM way/1206014676
+TANTRANSCO,765/400,VIRUDHUNAGAR,2,1500.0,2024-12-17,assumed (1500 MVA new 765/400 kV unit),Tirunelveli,OSM way/1206014676
