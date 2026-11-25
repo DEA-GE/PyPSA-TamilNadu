@@ -498,7 +498,19 @@ Limitations:
   2024 cut-off. These values are probably too high for FY2025-26: imported
   coal prices fell about 23% from FY2023-24 to FY2025-26 (World Bank
   commodity prices), and Vallur's actual charge fell from 4,079 to
-  2,873 INR/MWh within FY2025-26.
+  2,873 INR/MWh within FY2025-26. A search in November 2026 found no
+  station-wise FY2024-25 or FY2025-26 charges (no TNERC true-up for those
+  years, and the SLDC merit-order lists were not reachable).
+- Mettur is dispatched on cost and runs far less than observed. CEA's
+  generation reports give a FY2025-26 PLF of 65.5% for Mettur-I and 52.2%
+  for Mettur-II (51–68% in FY2024-25), about 85% of the units' modelled
+  availability, although their charges (5,400 and 6,190 INR/MWh) exceed the
+  IEX Tamil Nadu area price in 83% and 85% of FY2025-26 hours. No must-run
+  or grid-support order was found. Over four test weeks with fixed
+  interstate flows, Mettur is 96% below its observed generation and accounts
+  for about 90% of the model's coal shortfall.
+  (CEA monthly generation report, March 2026, sub-report 16:
+  https://npp.gov.in/public-reports/cea/monthly/generation/18_col_act/2026/MAR/18_col_act-16_2026-MAR.pdf)
 - No 2024+ energy charge was found for North Chennai TPS-III, ITPCL,
   Coastal Energen, OPG, TCP, Tulsyan or the Tuticorin private TPP. These use
   the proxies in the table (25% of committable coal capacity is on the SEPC
