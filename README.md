@@ -164,6 +164,7 @@ the run's `profile/highs/` folder instead.
 | `logging.sample_interval` | Seconds between resource samples in `profile/resources.csv`; default `1.0`. |
 | `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
 | `technologies.*` | Batteries and offshore wind added for a scenario; empty by default, so runs use the model as it is. See [Scenarios](#scenarios-batteries-and-offshore-wind). |
+| `rooftop_solar.include` | `true` (the default) keeps grid-connected rooftop solar as supply, as built. `false` removes its nine area generators before the solve, because the demand series is already net of rooftop output. See [Renewable profiles](#renewable-profiles). |
 
 ### Run logging and profiling
 
@@ -968,6 +969,18 @@ potential equal to the observed 19,690.99 GWh. See the [Solar availability metho
 for the method, validation and limitations, and the
 [Input data guide](docs/input-data.md#solar-capacity-through-the-year) for the
 files.
+
+Grid-connected rooftop solar is one generator per area, from the inventory
+record "Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8". It follows the same
+profiles and scaling as the rest of the fleet, so it supplies 2,265 GWh of the
+19,691 GWh solar potential (11.5%). The demand series ("Demand Met") counts
+only generation the state load despatch centre sees, and rooftop systems
+report to no one in real time. Whether self-consumed or exported to the
+distribution network, rooftop output reaches the centre only as lower load, so
+the demand is already net of it. `rooftop_solar.include: false` removes the
+rooftop generators before the solve, so that energy is not counted twice. The
+default keeps them, as built. The evidence and what remains open are in the
+[Solar availability methodology](docs/solar-availability-methodology.md#6-limitations-and-open-questions).
 
 ## Generated files and Git
 

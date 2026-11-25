@@ -291,10 +291,45 @@ issue.
   this is not confirmed. The calibration and seasonal factors follow the
   monthly series.
 - **Rooftop and demand.** The fleet includes 1,635.8 MW of grid-connected
-  rooftop modeled as supply. If the demand series ("Demand Met") is net of
-  behind-the-meter rooftop output, that energy is counted twice. Rooftop also
-  grew faster than ground-mounted solar (about 53% against 30% in FY2025-26),
-  which uniform scaling ignores.
+  rooftop modeled as supply, about 1,170–1,570 MW through FY2025-26 after the
+  capacity scaling. It has the fleet's per-MW output, so it supplies 2,265 GWh
+  of potential, a capacity factor of about 20%. CEA uses 14.5% for distributed
+  solar in its Tamil Nadu adequacy study, which would give about 1.65 TWh.
+  Rooftop also grew faster than ground-mounted solar (about 53% against 30% in
+  FY2025-26), which uniform scaling ignores. The demand series ("Demand Met")
+  is very likely net of rooftop output, so modelling it as supply counts it
+  twice. `rooftop_solar.include: false` in a run config removes it. The
+  default keeps it. The evidence:
+  - *Energy balance.* Over FY2025-26, demand (131.38 TWh) equals the metered
+    net import (13.73 TWh) plus the NITI daily generation series net of coal
+    auxiliary consumption (117.85 TWh), to within 0.14%.
+    - The daily series has 15,264 GWh of solar; the monthly series used for
+      calibration has 19,691 GWh. So about 4.4 TWh of solar is outside the
+      demand series.
+    - Within each month, the daily residual does not move with solar output:
+      −0.11 ± 0.15 MWh per MWh of daily solar, against +0.29 if demand
+      included that solar.
+    - The monthly residuals locate two known data faults: the daily series'
+      low nuclear output in May–June, and March demand copied from January.
+  - *Metering.* TNERC's draft Grid Interactive Solar PV Regulations (2024)
+    connect every rooftop system below 1 MW to the distribution network,
+    under net metering, net feed-in or gross metering. The distribution
+    licensee reads generation monthly, from the inverter up to 10 kW and from
+    a generation meter above that. Nothing reaches the load despatch centre
+    in real time.
+  - *CEA practice differs between studies.*
+    - The Long-Term National Resource Adequacy Plan (March 2026) leaves
+      rooftop out of the solar additions. It says rooftop reshapes the
+      "electricity demand incident on the grid".
+    - The Tamil Nadu adequacy report (April 2026) counts rooftop (1,003 MW
+      in March 2025) as contracted supply against the measured 2024-25
+      demand profile. It does not say whether that demand is grossed up.
+
+  Open: rooftop explains only about half of the 4.4 TWh. The rest is probably
+  ground-mounted plants without real-time telemetry: in November 2026 the
+  state energy minister said fewer than 10% of Tamil Nadu's 12,000+ wind and
+  solar generators send real-time data to the despatch centre. Whether the
+  NITI monthly series itself includes rooftop generation is not known.
 - **Capacity reporting dates.** Monthly capacity records when capacity was
   reported, which can lag commissioning. The lag was clear enough in 2019 to
   exclude FY2019-20 from the fit. The FY2025-26 series matches MNRE's

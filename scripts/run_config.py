@@ -16,6 +16,7 @@ from typing import Any, Iterable, Mapping
 import yaml
 
 from energy_target_policy import normalise_cost_overrides, normalise_policy
+from rooftop_solar import validate_section as validate_rooftop_solar
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -230,6 +231,7 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     try:
         config["energy_targets"] = normalise_policy(config["energy_targets"])
         normalise_cost_overrides(config["marginal_costs"])
+        config["rooftop_solar"] = validate_rooftop_solar(config["rooftop_solar"])
     except ValueError as error:
         raise ConfigError(str(error)) from error
 
@@ -309,6 +311,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "crossover": config["solver"]["crossover"],
         "energy_targets": dict(config["energy_targets"]),
         "marginal_costs": dict(config["marginal_costs"]),
+        "rooftop_solar": dict(config["rooftop_solar"]),
     }
 
 
