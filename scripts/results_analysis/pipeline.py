@@ -7,6 +7,16 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from .coal import (
+    coal_fleet,
+    coal_monthly,
+    coal_plant_operation,
+    dispatch_heatmap_figure,
+    fleet_figure,
+    loading_and_ramps_figure,
+    plant_use_figure,
+)
+from .grid import corridor_loading, utilisation_histogram_figure
 from .loaders import AnalysisRun
 from .metrics import (
     average_price,
@@ -22,16 +32,11 @@ from .metrics import (
     installed_capacity_comparison,
     market_values,
     monthly_generation_comparison,
-    monthly_resource_seasonality,
     operating_costs,
     peak_hour_by_area,
     price_metrics,
     ramp_timeseries,
     renewable_generation_by_area,
-    seasonality_fit,
-    seasonality_summary,
-    storage_metrics,
-    store_metrics,
     system_metrics,
     system_price_timeseries,
 )
@@ -39,16 +44,17 @@ from .plots import (
     cost_figure,
     daily_generation_share_figure,
     energy_balance_figure,
-    generation_comparison_figure,
     monthly_generation_figure,
     price_figure,
-    ramp_figure,
-    seasonality_figure,
-    storage_figure,
-    transmission_figure,
 )
 from .statistics import price_timeseries
+from .storage import storage_annual, storage_monthly
+from .stress import stress_analysis
 from .validation import boundary_handoff_metrics, chronology_validation, topology_validation
+
+# Runs at least this long get monthly tables, the coal heatmap and the
+# daily supply mix.
+MONTHLY_MINIMUM_HOURS = 28 * 24
 
 
 @dataclass
@@ -66,16 +72,17 @@ def analyze_run(
 ) -> AnalysisBundle:
     """Calculate the common schema plus applicable horizon-specific outputs."""
     balance = energy_balance_timeseries(run)
-    storage_dispatch = run.frame("storage_units", "p")
-    storage_soc = run.frame("storage_units", "state_of_charge")
-    store_energy = run.frame("stores", "e")
     flows = corridor_flows(run)
-    ramps = ramp_timeseries(run)
+    loading = corridor_loading(run, flows)
     corridors = corridor_metrics(run, flows)
+    ramps = ramp_timeseries(run)
     unit_commitment = commitment_metrics(run)
     prices = price_timeseries(run)
+    system_price = system_price_timeseries(run, prices)
     costs = operating_costs(run)
     market = market_values(run)
+    fleet = coal_fleet(run)
+    long_run = len(run.snapshots) >= MONTHLY_MINIMUM_HOURS
 
     tables = {
         "chronology_validation": chronology_validation(run),
@@ -85,11 +92,11 @@ def analyze_run(
         "generation_comparison": generation_comparison(
             run, observed_daily, observed_annual
         ),
-        "storage_metrics": storage_metrics(run),
-        "store_metrics": store_metrics(run),
+        "storage_annual": storage_annual(run),
         "commitment_by_unit": unit_commitment,
         "commitment_by_carrier": commitment_by_carrier(unit_commitment),
         "balancing_area_metrics": balancing_area_metrics(run),
+        "peak_hour_by_area": peak_hour_by_area(run),
         "installed_capacity_by_area": installed_capacity_by_area(run),
         "installed_capacity_comparison": installed_capacity_comparison(
             run, observed_capacity
@@ -101,38 +108,45 @@ def analyze_run(
         "price_metrics": price_metrics(run),
         "market_values": market,
     }
-
-    if run.run_type in {"peak", "peak_week", "selected_week", "single_network"}:
-        tables["peak_hour_by_area"] = peak_hour_by_area(run)
     if len(run.windows) > 1:
         tables["boundary_handoffs"] = boundary_handoff_metrics(run)
-    if len(run.snapshots) >= 28 * 24:
+    if long_run:
         tables["monthly_generation"] = monthly_generation_comparison(
             run, observed_daily, observed_monthly
         )
-        monthly_seasonality = monthly_resource_seasonality(run, observed_daily)
-        tables["monthly_resource_seasonality"] = monthly_seasonality
-        tables["seasonality_summary"] = seasonality_summary(monthly_seasonality)
-        tables["seasonality_fit"] = seasonality_fit(monthly_seasonality)
+        tables["storage_monthly"], tables["storage_monthly_by_class"] = storage_monthly(run)
+    if fleet is not None:
+        tables["coal_plant_operation"] = coal_plant_operation(fleet, run)
+        if long_run:
+            tables["coal_monthly"] = coal_monthly(fleet)
 
     figures = {"energy_balance": energy_balance_figure(balance)}
     if len(run.snapshots) >= 2 * 24:
         figures["daily_generation_share"] = daily_generation_share_figure(balance)
-    figures |= {
-        "generation_comparison": generation_comparison_figure(
-            tables["generation_comparison"]
-        ),
-        "storage": storage_figure(
-            storage_dispatch, storage_soc, store_energy, run.base.stores.e_nom
-        ),
-        "transmission": transmission_figure(flows, corridors),
-        "ramps": ramp_figure(ramps),
-        "prices": price_figure(prices, system_price_timeseries(run, prices)),
-        "costs": cost_figure(costs, market, average_price(run, prices)),
-    }
     if "monthly_generation" in tables:
         figures["monthly_generation"] = monthly_generation_figure(tables["monthly_generation"])
-        figures["resource_seasonality"] = seasonality_figure(
-            tables["monthly_resource_seasonality"]
+    if fleet is not None:
+        figures["coal_fleet"] = fleet_figure(fleet)
+        if long_run:
+            figures["coal_dispatch_heatmap"] = dispatch_heatmap_figure(fleet)
+        figures["coal_plant_use"] = plant_use_figure(tables["coal_plant_operation"])
+        figures["coal_loading_and_ramps"] = loading_and_ramps_figure(
+            fleet, ramps.net_load_ramp_mw_per_h
         )
+    for component, name, title in (
+        ("Line", "grid_utilisation_lines", "Loading of the AC lines between balancing areas"),
+        ("Link", "grid_utilisation_interconnectors", "Loading of the interconnectors (AC ties and HVDC)"),
+    ):
+        selected = corridors.loc[corridors.component.eq(component)] if not corridors.empty else corridors
+        if not selected.empty:
+            figures[name] = utilisation_histogram_figure(
+                flows, loading, selected, run.weights, title
+            )
+    stress_tables, stress_figures = stress_analysis(run, balance, ramps, system_price, fleet)
+    tables |= stress_tables
+    figures |= stress_figures
+    figures |= {
+        "prices": price_figure(prices, system_price),
+        "costs": cost_figure(costs, market, average_price(run, prices)),
+    }
     return AnalysisBundle(tables=tables, figures=figures)

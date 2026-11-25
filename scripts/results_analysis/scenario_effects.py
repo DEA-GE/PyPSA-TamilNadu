@@ -52,6 +52,7 @@ import pandas as pd
 import yaml
 
 from .config import CARRIER_COLORS, CARRIER_LABELS, CARRIER_ORDER, CURRENCY
+from .grid import corridor_loading
 from .loaders import AnalysisRun
 from .metrics import (
     _area_timeseries,
@@ -638,15 +639,11 @@ def monthly_figure(
 
 def corridor_figure(baseline: AnalysisRun, scenario: AnalysisRun, corridors: pd.DataFrame):
     figure, axis = plt.subplots(figsize=(10, 5))
-    flows = {}
-    for label, run in (("baseline", baseline), ("scenario", scenario)):
-        frame = statistic_timeseries(run, "transmission", groupby="name")
-        frame.columns = frame.columns.get_level_values("name")
-        flows[label] = frame
-    for number, (name, row) in enumerate(corridors.iterrows()):
+    loadings = {"baseline": corridor_loading(baseline), "scenario": corridor_loading(scenario)}
+    for number, name in enumerate(corridors.index):
         color = plt.get_cmap("tab10")(number % 10)
         for label, style in (("baseline", "--"), ("scenario", "-")):
-            loading = (flows[label][name].abs() / row.limit_mw * 100.0).sort_values(ascending=False).to_numpy()
+            loading = loadings[label][name].sort_values(ascending=False).to_numpy()
             share = (np.arange(len(loading)) + 0.5) / len(loading) * 100.0
             axis.plot(share, loading, style, color=color, linewidth=1.1, label=f"{name} ({label})")
     axis.axhline(100.0, color="black", linewidth=0.8)
