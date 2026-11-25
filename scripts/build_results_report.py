@@ -94,16 +94,24 @@ REPORT_SECTIONS = (
         ),
     ),
     ReportSection(
+        "Wind and solar",
+        figures=(("vre_curtailment", "Wind and solar curtailment by month and hour of day"),),
+        tables=(("vre_curtailment", "Wind and solar curtailment by month"),),
+    ),
+    ReportSection(
         "Grid",
         figures=(
+            ("grid_map", "Corridor map: mean loading and limits"),
             ("grid_utilisation_lines", "Loading of the AC lines between balancing areas"),
             ("grid_utilisation_interconnectors", "Loading of the interconnectors"),
         ),
         tables=(("corridor_metrics", "Corridors"),),
     ),
     ReportSection(
-        "Peak and stress weeks",
+        "Peak, stress and adequacy",
+        figures=(("adequacy", "Net-load duration against firm available capacity"),),
         tables=(
+            ("net_load_duration", "Net-load duration and margin, 1% groups of hours"),
             ("stress_weeks", "Stress weeks"),
             ("stress_events", "Stress criteria and the hour each picks"),
             ("stress_hours", "Supply and system state in each stress hour (MW)"),
@@ -123,13 +131,21 @@ REPORT_SECTIONS = (
         "Prices and costs",
         figures=(
             ("prices", "Marginal prices"),
+            ("price_setting", "Which technology sets the price"),
             ("costs", "Operating costs and market values"),
         ),
         tables=(
             ("operating_costs", "Operating costs"),
             ("price_metrics", "Marginal prices"),
+            ("price_setting_overall", "Price setters over the run (% of Tamil Nadu demand-hours)"),
+            ("price_setting_monthly", "Price setters by month (%)"),
             ("market_values", "Market values"),
         ),
+    ),
+    ReportSection(
+        "Emissions",
+        figures=(("co2", "CO2 by month"),),
+        tables=(("co2_monthly", "CO2 by month and source (kt)"),),
     ),
     ReportSection(
         "Checks",

@@ -183,6 +183,64 @@ def corridor_metrics(
     return result.sort_values("mean_loading_pct", ascending=False)
 
 
+def corridor_map_figure(run: AnalysisRun, metrics: pd.DataFrame):
+    """Map of the corridors coloured by mean loading, drawn with PyPSA's ``n.plot.map``.
+
+    Widths scale with the corridor's larger directional limit. The map is
+    drawn on a copy holding only the electricity buses and one branch per
+    corridor, so a pair of one-way links shows as one connection.
+    """
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import Normalize
+
+    base = run.base
+    buses = base.buses.loc[base.buses.carrier.astype(str).eq("AC"), ["x", "y"]]
+    slim = pypsa.Network()
+    slim.add("Bus", buses.index, x=buses.x, y=buses.y, carrier="AC")
+    lines = metrics.loc[metrics.component.eq("Line")]
+    links = metrics.loc[metrics.component.eq("Link")]
+    if len(lines):
+        slim.add("Line", lines.index, bus0=lines.bus0, bus1=lines.bus1, s_nom=lines.capacity_mw, x=0.1)
+    if len(links):
+        slim.add("Link", links.index, bus0=links.bus0, bus1=links.bus1, p_nom=links.capacity_mw)
+    limit = metrics[["limit_mw", "reverse_limit_mw"]].max(axis=1)
+    # Widths in points: 1 to 10 by limit.
+    widths = 1.0 + 9.0 * limit / max(float(limit.max()), 1.0)
+    norm = Normalize(0.0, 100.0)
+    cmap = "plasma_r"
+    figure, axis = plt.subplots(figsize=(10, 11))
+    slim.plot.map(
+        ax=axis, geomap=False, bus_size=0.002, bus_color="#4D4D4D",
+        line_color=lines.mean_loading_pct, line_cmap=cmap, line_cmap_norm=norm,
+        line_width=widths[lines.index],
+        link_color=links.mean_loading_pct, link_cmap=cmap, link_cmap_norm=norm,
+        link_width=widths[links.index],
+        auto_scale_branches=True,
+    )
+    for bus, row in buses.iterrows():
+        axis.annotate(bus, (row.x, row.y), xytext=(5, 4), textcoords="offset points", fontsize=8.5)
+    # Hours at the limit, one label per bus pair (parallel corridors share it).
+    binding = metrics.loc[metrics.hours_at_or_above_99pct.ge(1.0)]
+    pairs = binding[["bus0", "bus1"]].apply(lambda row: tuple(sorted(row)), axis=1)
+    for (bus0, bus1), group in binding.groupby(pairs, sort=False):
+        x = (buses.at[bus0, "x"] + buses.at[bus1, "x"]) / 2.0
+        y = (buses.at[bus0, "y"] + buses.at[bus1, "y"]) / 2.0
+        text = "\n".join(
+            f"{name}: {row.hours_at_or_above_99pct:,.0f} h at limit" if len(group) > 1
+            else f"{row.hours_at_or_above_99pct:,.0f} h at limit"
+            for name, row in group.iterrows()
+        )
+        axis.annotate(text, (x, y), fontsize=7.5, color="#B30000", ha="center", va="bottom")
+    colorbar = figure.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=axis, shrink=0.6, pad=0.08)
+    colorbar.set_label("Mean loading of the operating limit (%)")
+    axis.set_title("Corridors: mean loading (colour) and limit (width)\nlines inside Tamil Nadu, interconnectors to the neighbours")
+    axis.set_xlabel("Longitude")
+    axis.set_ylabel("Latitude")
+    axis.set_aspect("equal")
+    figure.tight_layout()
+    return figure
+
+
 def utilisation_histogram_figure(
     flows: pd.DataFrame,
     loading: pd.DataFrame,

@@ -254,11 +254,13 @@ def test_analysis_bundle_has_every_section(rolling_run):
     for table in (
         "storage_annual", "coal_plant_operation", "corridor_metrics",
         "stress_events", "stress_hours", "peak_hour_by_area",
+        "vre_curtailment", "co2_monthly", "net_load_duration",
     ):
         assert table in bundle.tables, table
     for figure in (
         "energy_balance", "coal_fleet", "coal_plant_use", "coal_loading_and_ramps",
         "grid_utilisation_lines", "grid_utilisation_interconnectors", "prices", "costs",
+        "vre_curtailment", "adequacy", "co2",
     ):
         assert figure in bundle.figures, figure
     # Four hours are too short for stress weeks or monthly tables.

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from .adequacy import adequacy_figure, net_load_duration
 from .coal import (
     coal_fleet,
     coal_monthly,
@@ -16,7 +17,8 @@ from .coal import (
     loading_and_ramps_figure,
     plant_use_figure,
 )
-from .grid import corridor_loading, utilisation_histogram_figure
+from .emissions import co2_figure, co2_monthly
+from .grid import corridor_loading, corridor_map_figure, utilisation_histogram_figure
 from .loaders import AnalysisRun
 from .metrics import (
     average_price,
@@ -47,6 +49,8 @@ from .plots import (
     monthly_generation_figure,
     price_figure,
 )
+from .price_setting import price_setters, price_setting_figure, price_setting_shares
+from .renewables import curtailment_figure, curtailment_monthly
 from .statistics import price_timeseries
 from .storage import storage_annual, storage_monthly
 from .stress import stress_analysis
@@ -55,6 +59,13 @@ from .validation import boundary_handoff_metrics, chronology_validation, topolog
 # Runs at least this long get monthly tables, the coal heatmap and the
 # daily supply mix.
 MONTHLY_MINIMUM_HOURS = 28 * 24
+
+
+def _has_coordinates(run: AnalysisRun) -> bool:
+    """Whether the electricity buses have distinct map coordinates."""
+    buses = run.base.buses
+    places = buses.loc[buses.carrier.astype(str).eq("AC"), ["x", "y"]].dropna()
+    return len(places) > 1 and len(places.drop_duplicates()) == len(places)
 
 
 @dataclass
@@ -107,6 +118,9 @@ def analyze_run(
         "operating_costs": costs,
         "price_metrics": price_metrics(run),
         "market_values": market,
+        "vre_curtailment": curtailment_monthly(run),
+        "co2_monthly": co2_monthly(run),
+        "net_load_duration": net_load_duration(run, balance, ramps.net_load_mw),
     }
     if len(run.windows) > 1:
         tables["boundary_handoffs"] = boundary_handoff_metrics(run)
@@ -133,6 +147,10 @@ def analyze_run(
         figures["coal_loading_and_ramps"] = loading_and_ramps_figure(
             fleet, ramps.net_load_ramp_mw_per_h
         )
+    if not tables["vre_curtailment"].empty:
+        figures["vre_curtailment"] = curtailment_figure(run, tables["vre_curtailment"])
+    if not corridors.empty and _has_coordinates(run):
+        figures["grid_map"] = corridor_map_figure(run, corridors)
     for component, name, title in (
         ("Line", "grid_utilisation_lines", "Loading of the AC lines between balancing areas"),
         ("Link", "grid_utilisation_interconnectors", "Loading of the interconnectors (AC ties and HVDC)"),
@@ -144,9 +162,15 @@ def analyze_run(
             )
     stress_tables, stress_figures = stress_analysis(run, balance, ramps, system_price, fleet)
     tables |= stress_tables
+    figures["adequacy"] = adequacy_figure(run, balance, ramps.net_load_mw)
     figures |= stress_figures
     figures |= {
         "prices": price_figure(prices, system_price),
         "costs": cost_figure(costs, market, average_price(run, prices)),
     }
+    setters, exact = price_setters(run)
+    if not setters.empty:
+        tables |= price_setting_shares(run, setters, exact)
+        figures["price_setting"] = price_setting_figure(tables)
+    figures["co2"] = co2_figure(tables["co2_monthly"])
     return AnalysisBundle(tables=tables, figures=figures)
