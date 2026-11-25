@@ -123,3 +123,28 @@ measured at the regional periphery, so IEX volumes run somewhat higher.
 - Weighted by Tamil Nadu's trades, its RTM sales (4.10 TWh) fetched 2,596
   against 2,870 DAM in the same hours, and its RTM purchases (1.63 TWh) cost
   4,013 against 4,477.
+
+## Karnataka DAM area price (hourly)
+
+`iex_dam_karnataka_hourly_fy2025_26.csv` holds the DAM area-price export for
+Karnataka in the same columns, downloaded 25 November 2026. It is kept as a
+check on where the interstate congestion sits. 31 May 2025 is missing.
+
+```text
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --output data/source/iex_dam_fy2025_26/iex_dam_karnataka_hourly_fy2025_26.csv
+```
+
+**Check (25 November 2026):**
+- **Prices:** Karnataka's price equals Tamil Nadu's in every one of the
+  34,944 common 15-minute blocks of FY2025-26.
+- **Volumes:** the two states' cleared volumes are unrelated (buy r = 0.05;
+  mean buy 1,780 against 311 MW), so these are different states' exports.
+- **Split hours:** in the 202 hours where Tamil Nadu differs from the
+  all-India MCP (see above), Karnataka moves with it. The south was 1–6,376
+  INR/MWh below the rest of India in 146 hours (112 of them in July 2025).
+  It was 1–732 above in 56.
+- **Reading:** the DAM congestion in FY2025-26 separated the south (at least
+  Tamil Nadu and Karnataka together) from the rest of India. The market never
+  priced a limit between Tamil Nadu and Karnataka. These prices cannot show
+  whether that is because the two states share a bid area or because the
+  corridor between them never congested.
