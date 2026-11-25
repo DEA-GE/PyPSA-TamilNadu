@@ -76,3 +76,33 @@ hours missing. All 8,760 hours are present.
   6,376 INR/MWh), so the southern bid area cleared below the rest of the
   market. In 56 it is higher (by up to 732). The annual mean is 3,848 INR/MWh
   vs 3,861 all-India.
+
+## Tamil Nadu green DAM price (hourly)
+
+`iex_gdam_tamil_nadu_hourly_fy2025_26.csv` holds IEX's Green Day-Ahead
+Market (G-DAM) result for Tamil Nadu's bid area, in the same columns as the
+DAM area price above. The source is the same area-price export (`IEX
+Price*.csv`, 15-minute blocks, one file per month) with the Green DAM
+selected, downloaded 25 November 2026. The exports do not name the market,
+so the DAM and green DAM exports must be merged from separate folders. The
+script stops if two exports in the folder disagree on any block.
+
+```text
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --market gdam
+```
+
+- **Gaps:** 7,992 of 8,760 hours. 31 October 2025 and all of March 2026 are
+  missing, because the downloads stop at 30 October and at February 2026.
+- **Market identity (25 November 2026):** the hourly cleared buy matches
+  Tamil Nadu's green DAM imports in the SRPC REA
+  (`data/model_inputs/tn_exchange_trades_FY2025_26.csv`, `gdam_import_mw`)
+  with r = 0.99. Monthly volumes are 1–6% above the REA's, except July
+  (+24%). Tamil Nadu only buys in the green DAM (0.85 TWh in FY2025-26 per
+  the REA); cleared sell is non-zero in only 105 hours.
+- **Price (April 2025–February 2026):** the mean is 4,337 INR/MWh against
+  3,820 for the DAM area price, so the green premium averages 517 INR/MWh.
+  It is largest at night (600–930) and smallest at midday (about 200–250).
+  Weighted by Tamil Nadu's purchases, which peak at 06–14h, the green DAM
+  price is 3,267 against 2,831 DAM in the same hours (+436). The green DAM
+  clears below the DAM in 18% of hours. It reaches the 10,000 INR/MWh
+  ceiling in 757 hours.
