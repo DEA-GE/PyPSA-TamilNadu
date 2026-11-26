@@ -1125,6 +1125,57 @@ its 400 kV bus in the July week. Binding in 83% of hours is more than the
 declarations suggest, so the area's 230 kV supply (demand share, plants at
 230 kV) should be checked before using Villupuram prices.
 
+SRLDC confirms the direction. In CTUIL's 41st Southern Region planning
+meeting (27 November 2025) it reported that the 400/230 kV transformers and
+the 230 kV network at the Neyveli complex are "heavily overloaded" with the
+existing system. NLC is adding a third 315 MVA transformer at TPS-II.
+Substation-wise demand, which would settle the area's share, is not published.
+
+**With coal maintenance and outages on** (`outages.enabled: true`, same five
+weeks, runs `metered_outages_*`). Shares of coal generation are compared
+with NITI monthly plant generation prorated to the weeks (gross):
+
+| Share of coal generation | Single level | Two levels, substation N-1 | Observed |
+|---|---|---|---|
+| North (North Chennai, Vallur, OPG) | 35.8% | 35.9% | 27.9% |
+| Neyveli and ITPCL | 38.6% | 36.5% | 35.6% |
+| South (Tuticorin plants) | 24.8% | 26.2% | 25.0% |
+| Mettur | 0.8% | 1.4% | 11.5% |
+
+- **Outages, not the grid, drive the regional pattern.** Without them, North
+  Chennai runs at about twice its observed output (1,387 against 770 GWh) and
+  the north takes 46% of coal generation.
+- **With outages on, the two-level grid moves coal south, not north:**
+  Coastal Energen +67 GWh and the NLC unit on the 230 kV bus +102 GWh, both
+  towards observed. ITPCL −196 GWh moves away from observed, because it sits
+  behind the Villupuram transformers.
+- **Cost:** +1.8%. Villupuram transformers at their limit 693 h,
+  Madurai–Trichy 230 kV 231 h, Coimbatore–Erode 230 kV 42 h (of 840 h).
+- **Drawal:** with a single level, the drawal reaches the April TTC of
+  14,050 MW in 2 hours of the 28 April week, so the limit binds.
+- **Mettur** stays far below observed (38–69 against 721 GWh), which is a
+  cost-order issue unrelated to the grid.
+
+**Line loadings against reported values.** Each model flow is the corridor's
+flow times the circuit's share of the corridor's parallel admittance, the
+maximum over the five weeks. Reported values come from CTUIL documents. The
+500–600 MW is read as the double-circuit total, since after the planned
+rearrangement the minutes give 250–300 and about 210 MW for the two circuits.
+
+| Circuit | Reported | Single level (outages off / on) | Two levels, substation N-1 (off / on) |
+|---|---|---|---|
+| Tirunelveli–Madurai 400 kV D/c | max 500–600 MW | 528 / 587 | 368 / 438 |
+| Udumalpet–Madurai 400 kV S/c | near SIL (about 515 MW) | 401 / 416 | 226 / 231 |
+| Udumalpet–Tirunelveli 400 kV D/c | heavy | 718 / 763 | 440 / 465 |
+| Pugalur–Madurai 400 kV D/c | heavy | 861 / 905 | 477 / 525 |
+| Karur PS–Pugalur 400 kV D/c (quad) | high under N-1 | 1,417 / 1,412 | 1,221 / 1,252 |
+
+The two-level grid carries 30–50% less south-to-north power on 400 kV than
+reported. This is consistent with the model generating less in the south:
+coal before outages are switched on, and wind throughout. The Tirunelveli
+wind profile is about a third below the Tuticorin plants' output in the
+monsoon (see "Validation against metered plant output").
+
 **Rating check** against the CEA Manual on Transmission Planning Criteria
 (2023; planning default 45 °C ambient, 75 °C conductor, 10% margin):
 - the workbook's circuit ratings correspond to 45 °C / 85 °C (twin Moose
