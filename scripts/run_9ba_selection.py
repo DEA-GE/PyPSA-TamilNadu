@@ -60,6 +60,7 @@ from energy_target_policy import (
     target_enabled,
 )
 from rooftop_solar import apply_rooftop_solar
+from exchange_trading import apply_exchange_trading
 from generator_outages import (
     apply_outages,
     coal_own_use,
@@ -1528,6 +1529,7 @@ def run_selection(
     marginal_costs: Mapping[str, Any] | None = None,
     rooftop_solar: Mapping[str, Any] | None = None,
     outages: Mapping[str, Any] | None = None,
+    exchange_trading: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1608,6 +1610,7 @@ def _run_selection(
     marginal_costs: Mapping[str, Any] | None = None,
     rooftop_solar: Mapping[str, Any] | None = None,
     outages: Mapping[str, Any] | None = None,
+    exchange_trading: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1749,6 +1752,17 @@ def _run_selection(
             f"outages, {outages['base_availability']} base): mean available "
             f"{(summary.mean_availability * summary.p_nom_mw).sum():,.0f} of "
             f"{summary.p_nom_mw.sum():,.0f} MW. " + " ".join(outage_result.notes)
+        )
+    with profiler.phase("apply_exchange_trading"):
+        trading_result = apply_exchange_trading(base_network, exchange_trading)
+    if trading_result is not None:
+        steps = trading_result.steps
+        report(
+            "Exchange trading on an IEX market bus via "
+            + ", ".join(trading_result.gateways.bus)
+            + f": {int((steps.direction == 'import').sum())} import and "
+            f"{int((steps.direction == 'export').sum())} export steps, "
+            + " ".join(trading_result.notes)
         )
     with profiler.phase("apply_energy_target_policy"):
         (

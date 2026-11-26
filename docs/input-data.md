@@ -592,8 +592,9 @@ operating and cost values are model assumptions encoded in
 `scripts/build_unit_level_model.py`, not fields measured in the capacity
 workbook. The `Source` categories map to `coal`, `oil_gas`, `nuclear`,
 `bio_power`, `hydro`, `small_hydro`, `solar`, and `wind`; pumped hydro and
-special hydro representations are handled separately. Coal costs are the
-exception and are set from documented sources (next section).
+special hydro representations are handled separately. Coal costs and coal
+flexibility are the exception and are set from documented sources (next
+sections).
 
 `data/model_inputs/additional_capacity_2026_07.csv` adds a July 2026
 capacity vintage. Each row includes `record_id`, technology/carrier, plant,
@@ -621,21 +622,31 @@ Only sources dated 2024 or later are used.
 
 | Station | INR/MWh | Basis | Source |
 |---|---:|---|---|
-| NLC New Neyveli TPS (NNTPS) | 2,720 | FY2025-26 approved | JERC |
-| NLC TPS-I Expansion | 2,920 | FY2025-26 approved | JERC |
-| NLC TPS-II Expansion | 3,240 | FY2025-26 approved | JERC |
-| NLC TPS-II Stage II / Stage I | 3,300 / 3,320 | FY2025-26 approved | JERC |
+| NLC New Neyveli TPS (NNTPS) | 2,753–3,154 (mean 2,921) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-I Expansion | 2,905–3,344 (mean 3,067) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-II Expansion | 3,142–3,579 (mean 3,301) | FY2025-26 actual, monthly | APSPDCL |
+| NLC TPS-II Stage I / Stage II | 3,220–3,534 (mean 3,309) | FY2025-26 actual, monthly | APSPDCL |
+| NTECL Vallur | 4,079 (Apr) to 2,873 (Mar), mean 3,496 | FY2025-26 actual, monthly | APSPDCL |
 | North Chennai TPS-I | 3,590 | FY2023-24 actual | TNERC |
 | Tuticorin TPS | 3,800 | FY2023-24 actual | TNERC |
-| NTECL Vallur | 4,090 | FY2025-26 approved | JERC |
+| NTPL Tuticorin | 3,718–4,630 (mean 4,096) | FY2025-26 actual, monthly | APSPDCL |
 | North Chennai TPS-II | 4,110 | FY2023-24 actual | TNERC |
 | North Chennai TPS-III | 4,110 | proxy: Stage II | TNERC |
 | SEPC Tuticorin | 4,280 | FY2023-24 actual | TNERC |
 | ITPCL, Coastal Energen, Tuticorin private TPP, OPG, TCP, Tulsyan | 4,280 | proxy: SEPC | TNERC |
-| NTPL Tuticorin | 4,340 | FY2025-26 approved | JERC |
 | TAQA Neyveli (ST-CMS) | 4,590 | FY2023-24 actual | TNERC |
 | Mettur TPS-I | 5,400 | FY2023-24 actual | TNERC |
 | Mettur TPS-II | 6,190 | FY2023-24 actual | TNERC |
+
+The central stations (NLC, NTPL, Vallur) have one charge per month. The
+build writes them to `model/generators-marginal_cost.csv` for those units, and
+their static `marginal_cost` in `coal_operating_costs.csv` is the annual
+mean. The monthly charges come from
+`data/model_inputs/central_coal_energy_charges_FY2025_26.csv`, made by
+`scripts/data_preparation/prepare_central_coal_energy_charges.py` (see
+`data/source/apspdcl_fppca_fy2025_26/README.md`). The NLC stations' charges
+step up by about INR 300/MWh from January 2026, and Vallur's fall steadily
+through the year.
 
 - TNERC: *Approval of True Up of TNPDCL (formerly TANGEDCO) for FY 2023-24*,
   order of 30 April 2025 (M.P. No. 18 of 2025). State stations from Table
@@ -644,24 +655,82 @@ Only sources dated 2024 or later are used.
   https://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf
   (archived copy:
   http://web.archive.org/web/20250505210653/http://www.tnerc.tn.gov.in/Orders/files/TO-MP%20No%201300420251931.pdf)
+- APSPDCL: *FPPCA application for FY 2025-26* (true-up of fuel and power
+  purchase cost adjustment), Annexure-1, monthly actual energy and variable
+  cost per station. Andhra Pradesh buys from the same central stations as
+  Tamil Nadu, and a station's energy charge rate is the same for every
+  beneficiary.
+  https://apspdcl.in/files/regulatory/True-up%20of%20FPPCA%20application%20for%20FY%202025-26.rar
 - JERC (Goa and UTs): Electricity Department of Puducherry tariff order of
   24 September 2025 (Petition 139/2025), Table 5-14, "Variable rate
-  (FY 2025-26)". Puducherry buys from the same central stations as Tamil
-  Nadu. https://electricity.py.gov.in/sites/default/files/Tariff%20Order%202025-25-to-FY-2029-30.pdf
+  (FY 2025-26)". These approved rates were used for the central stations
+  before the FY2025-26 actuals were added; they were about 600 and
+  250 INR/MWh above the actual annual means for Vallur and NTPL.
+  https://electricity.py.gov.in/sites/default/files/Tariff%20Order%202025-25-to-FY-2029-30.pdf
 
-The capacity-weighted mean over committable units is about INR 4,146/MWh
-(the previous placeholder was a flat INR 3,087.5/MWh). Limitations:
+Limitations:
 
 - State and private stations use FY2023-24 actuals; the only FY2025-26
   projection for them is TNERC's 2022 tariff order, which is older than the
-  2024 cut-off.
+  2024 cut-off. These values are probably too high for FY2025-26: imported
+  coal prices fell about 23% from FY2023-24 to FY2025-26 (World Bank
+  commodity prices), and Vallur's actual charge fell from 4,079 to
+  2,873 INR/MWh within FY2025-26. A search in November 2026 found no
+  station-wise FY2024-25 or FY2025-26 charges (no TNERC true-up for those
+  years, and the SLDC merit-order lists were not reachable).
+- Mettur is dispatched on cost and runs far less than observed. CEA's
+  generation reports give a FY2025-26 PLF of 65.5% for Mettur-I and 52.2%
+  for Mettur-II (51–68% in FY2024-25), about 85% of the units' modelled
+  availability, although their charges (5,400 and 6,190 INR/MWh) exceed the
+  IEX Tamil Nadu area price in 83% and 85% of FY2025-26 hours. No must-run
+  or grid-support order was found. Over four test weeks with fixed
+  interstate flows, Mettur is 96% below its observed generation and accounts
+  for about 90% of the model's coal shortfall.
+  (CEA monthly generation report, March 2026, sub-report 16:
+  https://npp.gov.in/public-reports/cea/monthly/generation/18_col_act/2026/MAR/18_col_act-16_2026-MAR.pdf)
 - No 2024+ energy charge was found for North Chennai TPS-III, ITPCL,
   Coastal Energen, OPG, TCP, Tulsyan or the Tuticorin private TPP. These use
   the proxies in the table (25% of committable coal capacity is on the SEPC
   proxy, 7% on the Stage II proxy).
 - TNERC's FY2023-24 power-purchase costs for the NLC lignite stations are
   INR 0.6–1.3/kWh higher than JERC's FY2024-25 figures, probably because they
-  include arrears; the model uses JERC.
+  include arrears. The APSPDCL monthly bills show the same effect: months
+  with arrears or credits are replaced by the next month's charge.
+
+**Flexibility (minimum load, up/down times, ramps).** Committable coal units
+use the values of CEA's *Indian Technology Catalogue – Generation and Storage
+of Electricity* (January 2022), data sheets 01a (subcritical, 210–600 MW) and
+01b (supercritical, 660–800 MW), which give the same values for both:
+
+| Parameter | Model | Catalogue (2020) | Other evidence |
+|---|---|---|---|
+| Minimum stable load | 55% of rating | 55% (range 50–75%); the normative central-station technical minimum of the grid code | Central-sector stations back down to about 55% of declared capacity in solar hours; NTPC considers operation below 55% not feasible today (CEA wear-and-tear report, Aug 2026). CEA's Flexible Operation Regulations 2023 set a 40% target under a phasing plan |
+| Ramp up / down | 0.6 of rating per hour | 1% of full load per minute | The 2023 regulations require 3%/min at 70–100% load and 2%/min at 55–70% |
+| Minimum up time | 6 h | 6 h | — |
+| Minimum down time | 4 h | 4 h | Tuticorin 5×210 MW and Mettur 4×210 MW two-shift over the solar hours: units stop between 07:20 and 11:45 and restart between 15:31 and 19:14 (CEA, Aug 2026) |
+| Start-up ramp | 0.55 (minimum load in the first hour) | Hot / warm / cold start 2–3 / 3–5 / 5–10 h | The model reaches minimum load faster than a real start |
+
+https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2023/10/202310121323054265.pdf
+(pp. 38–41). Until November 2026 the model used 8-hour minimum up and down
+times without a cited source. An 8-hour stop (for example 10:00–18:00) still
+covers the solar trough, but it ruled out the shorter stops seen at
+Tuticorin and Mettur, which last from about 4 to 12 hours.
+
+Sensitivity (relaxed unit commitment, `selected_weeks` mode with the weeks of
+7 Apr, 7 Jul, 13 Oct 2025 and 16 Feb 2026, outages on, November 2026):
+moving from 8 h / 8 h to 6 h / 4 h changed the mean Tamil Nadu price by at
+most 0.5% in any week (the April week was identical), weekly coal energy by
+less than 0.1%, and coal start-ups by less than 1 per week. With continuous
+(relaxed) commitment, a unit can be partly committed, which largely bypasses
+the minimum up/down constraints. The same weeks with full (binary) unit
+commitment (each week solved at the root node within the 1% gap, about
+1 minute per week) changed weekly coal energy by at most 0.2% and variable
+cost by at most 0.3%. Start-ups changed by −5 to +4 per week and midday
+coal output by −2% to +1%, with no consistent direction. Both settings
+already let units stop over the midday trough (24 unit-days in the February
+week with 8 h, 21 with 4 h). The minimum up/down times therefore do not
+explain the gap between the model's flat midday price and the exchange
+price, which comes from the fixed interstate schedule.
 
 **Start-up and shut-down costs.** The anchor is the Central Electricity
 Authority's *Report of the Committee on Wear & Tear, O&M and Plant Lifespan
@@ -698,11 +767,13 @@ Each committable unit's start-up cost and shut-down cost are each half of
 PyPSA's tightening constraints for linearized unit commitment. Limitations:
 
 - The anchor is one plant (old state-owned 210 MW units) in hot two-shift
-  operation (units offline roughly 4–12 hours over the solar period). The
-  model's 8-hour minimum down time prevents the shorter stops, and warm or
+  operation (units offline roughly 4–12 hours over the solar period). Warm or
   cold starts use more oil (CEA 2025: 40 and 60 kl for a 210 MW unit,
   against 20 kl hot), so restarts after long outages are likely
-  under-costed.
+  under-costed. The catalogue's start-up costs (INR 25,000 / 30,000 /
+  52,000 per MW for hot / warm / cold starts, from CEA's 2019 flexibility
+  study; labelled "cr./MW" in the sheet) are three to seven times higher than
+  this cycle cost.
 - Lignite units (about 19% of committable coal capacity) and imported-coal
   units are scaled like domestic-coal units; CEA's 2025 analysis reports
   higher oil use per start at NLC.

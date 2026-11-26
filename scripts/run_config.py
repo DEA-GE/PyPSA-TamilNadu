@@ -21,6 +21,7 @@ from two_level_grid import TwoLevelGridError, validate_section as validate_grid_
 from interstate_drawal_limit import DrawalLimitError, validate_section as validate_interstate
 from ists_re_plants import IstsRePlantError, validate_section as validate_ists_re_plants
 from generator_outages import OutageError, validate_section as validate_outages
+from exchange_trading import ExchangeTradingError, validate_section as validate_exchange_trading
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -270,6 +271,10 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
         config["outages"] = validate_outages(config["outages"])
     except OutageError as error:
         raise ConfigError(str(error)) from error
+    try:
+        config["exchange_trading"] = validate_exchange_trading(config["exchange_trading"])
+    except ExchangeTradingError as error:
+        raise ConfigError(str(error)) from error
     return config
 
 
@@ -345,6 +350,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "marginal_costs": dict(config["marginal_costs"]),
         "rooftop_solar": dict(config["rooftop_solar"]),
         "outages": config["outages"],
+        "exchange_trading": config["exchange_trading"],
     }
 
 

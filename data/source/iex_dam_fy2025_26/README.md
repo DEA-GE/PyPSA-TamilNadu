@@ -76,3 +76,75 @@ hours missing. All 8,760 hours are present.
   6,376 INR/MWh), so the southern bid area cleared below the rest of the
   market. In 56 it is higher (by up to 732). The annual mean is 3,848 INR/MWh
   vs 3,861 all-India.
+
+## Tamil Nadu green DAM and real-time market prices (hourly)
+
+`iex_gdam_tamil_nadu_hourly_fy2025_26.csv` (Green Day-Ahead Market, G-DAM)
+and `iex_rtm_tamil_nadu_hourly_fy2025_26.csv` (Real-Time Market) hold IEX's
+results for Tamil Nadu's bid area, in the same columns as the DAM area price
+above. The source is the same area-price export (`IEX Price*.csv`, 15-minute
+blocks, one file per month) with the market selected, downloaded 25 November
+2026. The exports do not name the market, so each market is merged from its
+own folder. The script stops if two exports in a folder disagree on any block.
+
+```text
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --market gdam
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --market rtm
+```
+
+The market of each export was identified from its cleared volumes. Hourly
+cleared buy and sell are compared with Tamil Nadu's trades per market in the
+SRPC REA (`data/model_inputs/tn_exchange_trades_FY2025_26.csv`); the REA is
+measured at the regional periphery, so IEX volumes run somewhat higher.
+
+**Gaps.** Green DAM: 8,736 of 8,760 hours, with 31 October 2025 missing. RTM:
+8,016 of 8,760 hours, with 31 May 2025 and 1–30 December 2025 missing.
+
+**Green DAM checks (25 November 2026).**
+- Cleared buy vs REA `gdam_import_mw`: r = 0.99. IEX is 4–10% above the REA
+  in each month, except July at 24%.
+- Tamil Nadu only buys in the green DAM: 0.85 TWh in FY2025-26 per the REA.
+- The green DAM price averages 4,363 INR/MWh against 3,852 for the DAM in
+  the same hours, a green premium of 510. The premium is largest at night
+  (600–880) and smallest at midday (210–260).
+- Weighted by Tamil Nadu's purchases, which peak at 06–14h, it is 3,212
+  against 2,765 DAM (+447).
+- It clears below the DAM in 18% of hours and reaches the 10,000 ceiling in
+  812 hours.
+
+**RTM checks (25 November 2026).**
+- Cleared buy vs REA `rtm_import_mw`: r = 0.99, with IEX 4–15% above the REA
+  in each month.
+- Cleared sell vs REA `rtm_export_mw`: r = 0.99, with IEX 11–25% above.
+- The RTM price averages 3,537 INR/MWh against 3,848 for the DAM (−311);
+  the hourly correlation is r = 0.81.
+- The RTM is above the DAM at midday (+90 to +400 at 09–16h) and well
+  below it in the evening and at night (−980 to −1,290 at 18–23h).
+- Weighted by Tamil Nadu's trades, its RTM sales (4.10 TWh) fetched 2,596
+  against 2,870 DAM in the same hours, and its RTM purchases (1.63 TWh) cost
+  4,013 against 4,477.
+
+## Karnataka DAM area price (hourly)
+
+`iex_dam_karnataka_hourly_fy2025_26.csv` holds the DAM area-price export for
+Karnataka in the same columns, downloaded 25 November 2026. It is kept as a
+check on where the interstate congestion sits. 31 May 2025 is missing.
+
+```text
+python scripts/data_preparation/prepare_iex_tn_area_prices.py --import-from <folder> --output data/source/iex_dam_fy2025_26/iex_dam_karnataka_hourly_fy2025_26.csv
+```
+
+**Check (25 November 2026):**
+- **Prices:** Karnataka's price equals Tamil Nadu's in every one of the
+  34,944 common 15-minute blocks of FY2025-26.
+- **Volumes:** the two states' cleared volumes are unrelated (buy r = 0.05;
+  mean buy 1,780 against 311 MW), so these are different states' exports.
+- **Split hours:** in the 202 hours where Tamil Nadu differs from the
+  all-India MCP (see above), Karnataka moves with it. The south was 1–6,376
+  INR/MWh below the rest of India in 146 hours (112 of them in July 2025).
+  It was 1–732 above in 56.
+- **Reading:** the DAM congestion in FY2025-26 separated the south (at least
+  Tamil Nadu and Karnataka together) from the rest of India. The market never
+  priced a limit between Tamil Nadu and Karnataka. These prices cannot show
+  whether that is because the two states share a bid area or because the
+  corridor between them never congested.

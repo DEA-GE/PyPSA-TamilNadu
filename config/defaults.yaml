@@ -271,3 +271,37 @@ outages:
   # run (maintenance_schedule.csv in its folder), used instead of scheduling
   # again. The Snakemake workflow schedules once and shares it.
   maintenance_schedule: null
+
+exchange_trading:
+  # Price-responsive power-exchange trading (scripts/exchange_trading.py). Off
+  # by default, so a run without this section keeps the fixed interstate
+  # schedule. When on, Tamil Nadu's observed exchange trades (DAM, green DAM,
+  # high-price DAM, RTM) are taken out of the fixed schedule and the model buys
+  # and sells on an IEX market bus at the hourly exchange price; contracted
+  # flows (long-term, GNA, T-GNA, REMC) stay fixed. Needs the metered
+  # interchange basis (the default build).
+  enabled: false
+  # headroom: volume limited by the merit-order steps and by the interstate
+  # link capacity left by the fixed flows; observed: each hour's imports and
+  # exports capped at the observed exchange imports and exports.
+  limit: headroom
+  # Hourly exchange price (timestamp, price_inr_per_mwh): IEX day-ahead price
+  # of Tamil Nadu's bid area.
+  price: data/source/iex_dam_fy2025_26/iex_dam_tamil_nadu_hourly_fy2025_26.csv
+  # Observed hourly exchange trades from the SRPC REA
+  # (scripts/prepare_exchange_trades.py).
+  trades: data/model_inputs/tn_exchange_trades_FY2025_26.csv
+  # Gateway shares that split the observed trades out of the fixed loads
+  # (the build's metered-correction shares).
+  gateway_shares: data/model_inputs/rea_interstate_gateway_shares_FY2025_26.csv
+  # Per-MWh transmission charge on exchange purchases and sales: TNERC's
+  # FY2025-26 short-term open-access charge (Rs 241.81/MW/hour). Contracted
+  # flows pay capacity charges, so the interstate links carry no per-MWh
+  # charge while trading is on.
+  access_charge_inr_per_mwh: 241.81
+  # Merit-order steps as [MW, INR/MWh adder], adders not decreasing: imports
+  # cost price + adder, exports earn price - adder. Default: one step without
+  # adder, i.e. Tamil Nadu trades as a price taker; the size is large enough
+  # that, with the headroom limit, the interstate links bind first.
+  import_steps: [[30000, 0]]
+  export_steps: [[30000, 0]]
