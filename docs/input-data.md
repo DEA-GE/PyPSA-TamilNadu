@@ -1184,7 +1184,7 @@ same constraint limits the trades.
 
 In the five-week test above, the limit never binds. The model's drawal peaks
 at 13.8 GW in the 28 April week, against 14.24 GW metered and a TTC of 14.05 GW.
-The weekly peaks are within 0.6 GW of the metered drawal (12.5 vs 12.5 GW,
+The weekly peaks are within 0.7 GW of the metered drawal (12.5 vs 12.5 GW,
 11.5 vs 11.4, 11.4 vs 12.0, 11.5 vs 12.2), which confirms that the
 constrained quantity is Grid-India's drawal.
 
