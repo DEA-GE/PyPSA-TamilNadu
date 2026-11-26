@@ -1,81 +1,63 @@
 # Model CSV folder
 
 `model/` is the supported, ready-to-load nine-balancing-area PyPSA network for
-8,760 hourly snapshots from 1 April 2025 through 31 March 2026. Rebuild it
-from the repository root with:
+8,760 hourly snapshots from 1 April 2025 through 31 March 2026. Load it with
+`pypsa.Network("model")`. Rebuild it from the repository root with:
 
 ```powershell
 python scripts/build_9ba_model.py
 ```
 
-Load the network with `pypsa.Network("model")`. The build reads prepared files
-under `data/build_template/`, `data/model_inputs/`, and `data/reservoirs/`, plus
-the plant inventory and observed-generation workbooks in `data/source/`.
-Changes to those inputs require a rebuild; changes to generated files in
-`model/` will be overwritten.
+The build reads prepared files under `data/build_template/`, `data/model_inputs/`
+and `data/reservoirs/`, plus the plant inventory and observed-generation
+workbooks in `data/source/`. Changes to those inputs require a rebuild; changes
+to generated files in `model/` will be overwritten. To replace only the
+transmission network from the grid workbook, run
+`python scripts/import_grid_from_excel.py`.
 
-To replace only the transmission network from the active Excel input, run
-`python scripts/import_grid_from_excel.py` from the repository root.
+The [model description](../docs/model-description.md) explains what the
+network represents and why, the [input data guide](../docs/input-data.md) where
+each input comes from, and the [README](../README.md) how to run it.
 
 ## What is in this folder
 
 | Files | Meaning |
 | --- | --- |
-| `buses.csv`, `lines.csv`, `links.csv`, `generators.csv`, `loads.csv`, `storage_units.csv`, `stores.csv` | Network components and their capacities and operating assumptions |
-| `snapshots.csv`, `loads-p_set.csv`, `generators-p_max_pu.csv`, `storage_units-inflow.csv` | Hourly snapshots, demand including external-bus exchange, generator availability, and simple-reservoir inflow |
-| `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv`, `*_energy_*_summary.csv` | Observed daily energy targets and annual target summaries (applied by the run scripts, not as PyPSA GlobalConstraints) |
-| `component_metadata.csv`, `district_capacity_allocation.csv`, `demand_allocation.csv`, `capacity_by_balancing_area.csv` | Component provenance and spatial allocation audits |
-| `solar_capacity_trajectory.csv`, `solar_availability_calibration.csv`, `solar_seasonal_correction.csv` | Month-end government solar capacity applied to solar availability, the annual-energy calibration of that availability, and the applied monthly soiling/wind-cooling/seasonal correction |
-| `hydro_*.csv`, `transmission_capacity_metadata.csv`, `capacity_reconciliation_2026_07.csv`, `interstate_flow_audit.csv`, `interstate_flow_reconciliation.csv` | Hydro assumptions and validation, corridor ratings, capacity reconciliation, and hourly/annual REA flow audits |
+| `network.csv`, `crs.json`, `carriers.csv`, `snapshots.csv` | Network name, coordinate system (longitude/latitude), carriers and the 8,760 hourly snapshots |
+| `buses.csv` | The nine Tamil Nadu balancing areas, five neighbouring states and regions, and 25 water buses of the hydro model |
+| `lines.csv`, `links.csv` | The 18 corridors between areas (AC lines), the 24 one-way interstate links, and the hydro turbines, pump, water transfers and spill |
+| `loads.csv`, `loads-p_set.csv` | The nine area demands and the fixed interstate exchange at the neighbour buses (imports negative, exports positive) |
+| `generators.csv`, `generators-p_max_pu.csv`, `generators-p_min_pu.csv`, `generators-marginal_cost.csv` | Generators with their hourly availability, the fixed schedules of the export reservations, and the monthly energy charges of the central coal units |
+| `storage_units.csv`, `storage_units-inflow.csv`, `stores.csv` | The Suruliyar reservoir and its inflow; the reservoirs, pondages and downstream sinks of the hydro model |
+| `component_metadata.csv`, `district_capacity_allocation.csv`, `capacity_by_balancing_area.csv`, `additional_capacity_2026_07.csv`, `capacity_reconciliation_2026_07.csv` | Component provenance, spatial allocation, installed capacity by area and the July 2026 capacity reconciliation |
+| `demand_allocation.csv` | Area shares, energy, peak and the affine coefficients of the synthetic area demand |
+| `coal_operating_cost_audit.csv`, `plant_operating_cost_audit.csv` | Applied energy charges, unit ratings and start-up costs |
+| `oil_gas_daily_energy_budget.csv`, `nuclear_daily_energy_budget.csv`, `oil_gas_energy_budget_summary.csv`, `biomass_energy_target_summary.csv`, `small_hydro_energy_target_summary.csv` | Observed energy targets and their annual summaries, applied by the run scripts |
+| `solar_capacity_trajectory.csv`, `solar_availability_calibration.csv`, `solar_seasonal_correction.csv` | Month-end solar capacity applied to solar availability, the annual-energy calibration, and the applied soiling, wind-cooling and seasonal correction |
+| `hydro_*.csv`, `upper_kodayar_inflow_estimate.csv` | Hydro assumptions, parameters, observed storage, inflows, calibration targets and capacity validation |
+| `transmission_capacity_metadata.csv` | Corridor and tie ratings, circuits and provenance |
+| `interstate_flow_audit.csv`, `interstate_flow_reconciliation.csv` | Hourly and annual audit of the interstate exchange by measure and gateway |
+| `rea_plant_export_reservation_audit.csv`, `tn_export_capacity_allocations.csv` | The plant-level export reservations; the superseded four-station capacity shares (reference only) |
 
-FY2025-26 SRPC REA imports and exports are represented at four external buses.
-Only confirmed, resolved imports are fixed loads, using negative `p_set`.
-Unresolved imports remain in `interstate_flow_audit.csv` but have zero modeled
-flow and are labeled `unresolved_distributed_excluded_from_model`. Resolved
-exports and proportionally allocated unresolved exports use positive `p_set`;
-the latter remain labeled `unresolved_distributed_not_verified`. Export
-allocation uses annual resolved-flow gateway shares. A capacity-aware
-redistribution step moves provisional export flow when its initial gateway lacks
-headroom and fails the build if the total cannot be placed. The existing grid
-links carry
-these boundary injections or withdrawals, but their hourly minimum and maximum
-flows are not fixed, allowing parallel paths to be selected by the network.
-The former dispatchable import-entitlement generators remain removed to avoid
-double counting.
+## Notes
 
-The four listed in-state thermal stations with allocations to other states are
-derated to their Tamil Nadu shares before spatial allocation. Their out-of-state
-and unlisted/unallocated capacity is not represented as a TN-serving generator
-or as an explicit export flow. Nuclear retains its full nameplate capacity and
-uses observed FY2025-26 daily generation equality targets.
-
-The network files carry no energy targets (no `global_constraints.csv`), so any
-subset of snapshots can be optimized directly, but without calibration to
-observed generation. The runners described in the
-[repository README](../README.md#how-to-run) apply the observed targets over the
-exact period solved (`scripts/period_energy_targets.py`): oil-and-gas and
-nuclear per day; bio-power and small hydro as month-prorated equalities.
-
-The bio-power targets total 194,010 MWh from the twelve Tamil Nadu Outlook
-FY2025-26 monthly values. Each monthly total is spread uniformly over the
-month's hours; each solved period receives its share as one equality, leaving
-the daily and hourly generation pattern free for the optimizer.
-
-Explicitly off-grid capacity is excluded from the supported model. In
-particular, the 75.91 MW off-grid solar category and the 27.57 MW off-grid
-waste-to-energy (bio-power) category are omitted from `generators.csv`, their
-availability columns, component metadata, and district-allocation audit. They
-must not be added back when rebuilding the model unless the study scope is
-changed deliberately.
-
-Small hydro is treated identically using a 307,560 MWh annual total from the
-twelve Tamil Nadu Outlook monthly values. Its previous placeholder availability
-profile is relaxed to nameplate because that profile cannot supply the observed
-monthly energy; the month-prorated period equalities determine energy while
-the model optimizes its daily and hourly timing.
-
-The [input data guide](../docs/input-data.md) maps each source and prepared
-input to its model output and explains units, timestamp alignment, provenance,
-and limitations. The [repository README](../README.md) documents run modes,
-result locations, model assumptions, and study limitations. Generated results
-are described in [results/README.md](../results/README.md).
+- **No energy targets in the network.** The folder has no
+  `global_constraints.csv`, so any subset of snapshots can be optimised
+  directly, but without calibration to observed generation. The runners
+  described in the [README](../README.md#how-to-run) apply the observed targets
+  over the exact period solved (`scripts/period_energy_targets.py`):
+  oil-and-gas and nuclear per day; bio-power and small hydro as
+  month-prorated equalities.
+- **Interstate exchange.** The neighbour loads fix the exchange at each
+  neighbour bus every hour: the verified SRPC REA transactions plus a
+  correction that matches Tamil Nadu's metered net import (the default
+  build). The links' hourly flows are not fixed, so the grid chooses the
+  routes. See [Imports and exports](../docs/model-description.md#interstate-exchange-a-fixed-schedule).
+- **Off-grid capacity is excluded**: the 75.91 MW off-grid solar and the
+  27.57 MW off-grid waste-to-energy categories are not in `generators.csv`,
+  the availability columns, the component metadata or the district audit.
+  They must not be added back unless the study scope is changed deliberately.
+- **Run-time options.** Coal outages, the two-level grid, the import limit,
+  exchange trading, the interstate plant series, rooftop removal and the
+  scenario technologies are applied by `scripts/run_model.py` to a copy of
+  this network; the files here are unchanged.

@@ -1,4 +1,4 @@
-# First run: one relaxed day on a single thread (a few minutes).
+# First run: one relaxed day on a single thread (under a minute).
 #   python scripts/run_model.py config/runs/daily_demo.yaml
 run:
   name: daily_demo

@@ -58,7 +58,7 @@ CENTRAL_STATION_ENTITLEMENT_FILE = SOURCE_DIR / "central_station_tn_entitlement_
 CENTRAL_STATION_UNITS_FILE = SOURCE_DIR / "central_station_units.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 # Station energy charges and physical unit sizes for every coal component
-# (sources in docs/input-data.md).
+# (sources in docs/model-description.md).
 COAL_OPERATING_COST_FILE = SOURCE_DIR / "coal_operating_costs.csv"
 PLANT_OPERATING_COST_FILE = SOURCE_DIR / "plant_operating_costs.csv"
 CENTRAL_COAL_MONTHLY_CHARGE_FILE = SOURCE_DIR / "central_coal_energy_charges_FY2025_26.csv"
