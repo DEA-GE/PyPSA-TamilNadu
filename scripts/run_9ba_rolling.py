@@ -30,6 +30,7 @@ from highs_solver_options import (
     solve_attempts,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from generator_outages import coal_own_use
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
 
 from nuclear_energy_targets import (
@@ -921,9 +922,10 @@ def _add_daily_targets(
     network: pypsa.Network,
     snapshots: pd.DatetimeIndex,
     gas_targets: pd.Series,
+    committed: pd.DatetimeIndex | None = None,
 ) -> None:
     add_nuclear_targets(network, snapshots)
-    add_energy_caps(network, snapshots)
+    add_energy_caps(network, snapshots, committed)
     if not target_enabled(network, "oil_gas"):
         return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
@@ -1055,6 +1057,12 @@ def _window_metrics(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> dict
     output["comparable_total"] = output[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum(axis=1)
+    # Auxiliary consumption of net (ex-bus) coal dispatch, added back when
+    # comparing with observed gross generation.
+    own_use = coal_own_use(network).reindex(snapshots).mul(weights, axis=0)
+    output["coal_own_use"] = (
+        own_use.groupby(own_use.index.normalize()).sum().div(1000.0).reindex(output.index).fillna(0.0)
+    )
     output.index.name = "date"
     return output
 
@@ -1540,7 +1548,7 @@ def run_rolling_year(
             original_global_constraints = network.global_constraints.index.copy()
 
             def window_constraints(n: pypsa.Network, s: pd.DatetimeIndex) -> None:
-                _timed("daily_targets", _add_daily_targets, n, s, gas_targets)
+                _timed("daily_targets", _add_daily_targets, n, s, gas_targets, committed)
                 _timed("cascade_targets", _add_weekly_cascade_targets, n, committed, cascade_targets)
                 _timed(
                     "biomass_target", _add_committed_biomass_target,

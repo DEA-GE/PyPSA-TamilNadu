@@ -16,6 +16,7 @@ import pandas as pd
 import pypsa
 
 from transmission_assumptions import (
+    INTERCONNECTOR_EFFICIENCY,
     INTERSTATE_FLOW_COST_PER_MWH,
     interconnector_efficiency,
 )
@@ -43,8 +44,18 @@ OBSERVED_ANNUAL_GENERATION_FILE = SOURCE_DIR / "niti_dashboard_annual_generation
 ADDITIONAL_CAPACITY_FILE = SOURCE_DIR / "additional_capacity_2026_07.csv"
 REA_INTERSTATE_HOURLY_FLOW_FILE = SOURCE_DIR / "rea_interstate_hourly_flows_FY2025_26.csv"
 REA_INTERSTATE_GATEWAY_SHARE_FILE = SOURCE_DIR / "rea_interstate_gateway_shares_FY2025_26.csv"
+# Interstate exchange basis: "transactions" uses the audited REA transactions
+# only; "metered" adds a correction so that the net import delivered into
+# Tamil Nadu matches the metered net import of the Tamil Nadu area
+# (scripts/prepare_metered_interchange.py). Set with --interchange.
+INTERCHANGE_BASIS = "metered"
+TN_METERED_INTERCHANGE_FILE = SOURCE_DIR / "tn_metered_interchange_FY2025_26.csv"
 REA_PLANT_EXPORT_HOURLY_FILE = SOURCE_DIR / "rea_plant_export_hourly_FY2025_26.csv"
 REA_PLANT_EXPORT_AUDIT_FILE = SOURCE_DIR / "rea_plant_export_mapping_audit_FY2025_26.csv"
+# Tamil Nadu's entitlement share of the central coal stations and their units,
+# from scripts/prepare_declared_capacity.py (SRPC REA).
+CENTRAL_STATION_ENTITLEMENT_FILE = SOURCE_DIR / "central_station_tn_entitlement_FY2025_26.csv"
+CENTRAL_STATION_UNITS_FILE = SOURCE_DIR / "central_station_units.csv"
 TN_EXPORT_CAPACITY_FILE = SOURCE_DIR / "tn_export_capacity_allocations.csv"
 # Station energy charges and physical unit sizes for every coal component
 # (sources in docs/input-data.md).
@@ -689,9 +700,16 @@ def build_rea_plant_export_reservations(
 
     Each matched REA plant receives one non-committable fixed-dispatch export
     generator at its physical bus. Its nameplate is the plant's peak concurrent
-    export schedule. The same capacity is removed proportionally from the
-    plant's ordinary units, so total physical nameplate is conserved and the
-    reserved block cannot serve Tamil Nadu when it is not scheduled.
+    export schedule. The plant's ordinary units, which serve Tamil Nadu, keep:
+
+    - at the central coal stations, Tamil Nadu's entitlement share of their
+      rating (``CENTRAL_STATION_ENTITLEMENT_FILE``): the share of the
+      station's declared capacity allocated to Tamil Nadu. Other states also
+      take Tamil Nadu's undrawn share (unrequisitioned surplus), so the export
+      peak plus Tamil Nadu's share can exceed the rating; the export schedule
+      is the actual one, and Tamil Nadu then is not drawing its share;
+    - elsewhere, the rating less the export peak, so total nameplate is
+      conserved and the reserved block cannot serve Tamil Nadu.
     """
     hourly = pd.read_csv(REA_PLANT_EXPORT_HOURLY_FILE, parse_dates=["snapshot"])
     source_audit = pd.read_csv(REA_PLANT_EXPORT_AUDIT_FILE)
@@ -705,6 +723,11 @@ def build_rea_plant_export_reservations(
         raise ValueError("REA plant-export schedules contain snapshots outside the model year")
     if hourly["flow_MW"].isna().any() or hourly["flow_MW"].lt(0).any():
         raise ValueError("REA plant-export schedules must be finite and non-negative")
+
+    entitlement = pd.read_csv(CENTRAL_STATION_ENTITLEMENT_FILE).set_index("station")["tn_share"]
+    station_of = pd.read_csv(CENTRAL_STATION_UNITS_FILE).set_index("component")["station"]
+    if not entitlement.between(0.0, 1.0).all():
+        raise ValueError("Tamil Nadu entitlement shares must lie between 0 and 1")
 
     adjusted = generators.copy()
     expanded_metadata = metadata.copy()
@@ -738,7 +761,17 @@ def build_rea_plant_export_reservations(
                 f"REA export peak for {plant_name!r} is {peak_mw} MW against "
                 f"{plant_capacity_mw} MW modeled capacity"
             )
-        retained_share = (plant_capacity_mw - peak_mw) / plant_capacity_mw
+        stations = station_of.reindex(component_ids)
+        if stations.notna().any():
+            if stations.isna().any() or stations.nunique() != 1 or stations.iloc[0] not in entitlement.index:
+                raise ValueError(f"REA plant {plant_name!r} does not map to one central station with a share")
+            station = str(stations.iloc[0])
+            retained_share = float(entitlement[station])
+            sizing = f"Tamil Nadu entitlement share of {station}"
+        else:
+            station = ""
+            retained_share = (plant_capacity_mw - peak_mw) / plant_capacity_mw
+            sizing = "rating less export peak"
         adjusted.loc[mask] = pd.DataFrame(
             [scale_component(row, retained_share) for _, row in matched.iterrows()],
             index=matched.index,
@@ -792,7 +825,12 @@ def build_rea_plant_export_reservations(
             "carrier": str(matched["carrier"].iloc[0]),
             "physical_capacity_mw": plant_capacity_mw,
             "reserved_capacity_mw": peak_mw,
-            "remaining_tn_dispatchable_capacity_mw": plant_capacity_mw - peak_mw,
+            "remaining_tn_dispatchable_capacity_mw": plant_capacity_mw * retained_share,
+            "central_station": station,
+            "tn_capacity_sizing": sizing,
+            # Modeled minus physical nameplate: positive where the export peak
+            # and Tamil Nadu's share together exceed the rating.
+            "capacity_overlap_mw": plant_capacity_mw * retained_share + peak_mw - plant_capacity_mw,
             "scheduled_export_GWh": float(profile.sum() / 1_000.0),
             "beneficiary_energy_GWh": ";".join(
                 f"{state}:{value:.6f}" for state, value in beneficiary_gwh.items()
@@ -2287,6 +2325,21 @@ def build_loads(demand: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Da
     return pd.DataFrame(loads), time_series, allocation
 
 
+def _place_by_share(totals: np.ndarray, shares: np.ndarray, room: np.ndarray) -> np.ndarray:
+    """Split hourly totals over gateways by share, refilling where capacity runs out."""
+    result = np.zeros((len(totals), len(shares)))
+    for hour, total in enumerate(totals):
+        remaining = float(total)
+        active = (shares > 0.0) & (room[hour] > 1e-9)
+        while remaining > 1e-7 and active.any():
+            weights = shares * active
+            addition = np.maximum(np.minimum(remaining * weights / weights.sum(), room[hour] - result[hour]), 0.0)
+            result[hour] += addition
+            remaining -= float(addition.sum())
+            active = (shares > 0.0) & (room[hour] - result[hour] > 1e-9)
+    return result
+
+
 def build_interstate_flow_loads(
     buses: pd.DataFrame, grid_links: pd.DataFrame, snapshots: pd.Series
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -2297,6 +2350,13 @@ def build_interstate_flow_loads(
     capacity-aware water-filling pass for amounts that do not fit at a gateway.
     Unresolved imports are retained in the audit but excluded from the model so
     that only confirmed imports affect dispatch.
+
+    With ``INTERCHANGE_BASIS = "metered"`` a correction load is added each hour
+    (an import when the transactions deliver too little, an export when too
+    much), split over the gateways by the same shares, so that the net import
+    delivered into Tamil Nadu after interconnector losses equals the metered
+    net import of the Tamil Nadu area (actual drawal minus the output of the
+    interstate-grid plants inside Tamil Nadu).
     """
     gateway_order = ("Andhra Pradesh", "Karnataka", "Kerala", "Western Region")
     directions = ("import", "export")
@@ -2474,6 +2534,60 @@ def build_interstate_flow_loads(
                             else "unresolved_distributed_excluded_from_model"
                         )
                     ),
+                }))
+
+    if INTERCHANGE_BASIS == "metered":
+        # Net import delivered into Tamil Nadu by the loads so far: imports
+        # arrive after the interconnector loss, exports leave before it.
+        efficiency = INTERCONNECTOR_EFFICIENCY
+        flows_so_far = {}
+        for direction in directions:
+            for gateway in gateway_order:
+                flow = resolved.get((direction, gateway), pd.Series(0.0, index=model_snapshots)).to_numpy()
+                if direction == "export":  # unresolved imports stay out of the model
+                    flow = flow + allocated[(direction, gateway)]
+                flows_so_far[(direction, gateway)] = flow
+        delivered = sum(
+            efficiency * flows_so_far[("import", g)] - flows_so_far[("export", g)] / efficiency
+            for g in gateway_order
+        )
+        metered = pd.read_csv(TN_METERED_INTERCHANGE_FILE, parse_dates=["snapshot"]).set_index("snapshot")
+        if set(metered.index) != set(model_snapshots):
+            raise ValueError("Metered interchange snapshots do not match the model snapshots")
+        target = metered["net_import_mw"].reindex(model_snapshots).to_numpy()
+        gap = target - delivered
+        corrections = {
+            "import": np.maximum(gap, 0.0) / efficiency,
+            "export": np.maximum(-gap, 0.0) * efficiency,
+        }
+        for direction in directions:
+            sign = -1.0 if direction == "import" else 1.0
+            direction_shares = np.array([float(share_lookup.loc[(direction, g)]) for g in gateway_order])
+            room = np.column_stack([
+                np.maximum(capacities[(direction, g)] - flows_so_far[(direction, g)], 0.0)
+                for g in gateway_order
+            ])
+            placed = _place_by_share(corrections[direction], direction_shares, room)
+            if not np.allclose(placed.sum(axis=1), corrections[direction], atol=1e-5):
+                raise ValueError(f"Cannot place the metered {direction} correction within gateway capacity")
+            for column, gateway in enumerate(gateway_order):
+                values = placed[:, column]
+                load_name = f"interstate_metered_correction_{direction}_{slugify(gateway)}"
+                load_rows.append({"name": load_name, "bus": gateway, "carrier": "electricity"})
+                profile_data[load_name] = sign * values
+                zeros = np.zeros(len(model_snapshots))
+                audit_rows.append(pd.DataFrame({
+                    "snapshot": model_snapshots, "direction": direction,
+                    "measure": "metered_correction", "gateway": gateway,
+                    "load_name": load_name, "flow_MW": values, "modeled_flow_MW": values,
+                    "external_load_p_set_MW": sign * values, "included_in_model": True,
+                    "allocation_share": float(share_lookup.loc[(direction, gateway)]),
+                    "gateway_capacity_MW": capacities[(direction, gateway)],
+                    "resolved_flow_MW": zeros, "unresolved_total_MW": zeros,
+                    "pre_capacity_allocation_MW": corrections[direction] * direction_shares[column],
+                    "capacity_redistribution_MW": values - corrections[direction] * direction_shares[column],
+                    "capacity_limited": ~np.isclose(values, corrections[direction] * direction_shares[column], atol=1e-7),
+                    "status": "metered_correction",
                 }))
 
     loads = pd.DataFrame(load_rows)
@@ -2667,7 +2781,14 @@ def validate_capacity_conservation(
     original_storage: pd.DataFrame,
     generators: pd.DataFrame,
     storage: pd.DataFrame,
+    capacity_overlap: pd.Series | None = None,
 ) -> None:
+    """Modeled capacity per carrier equals the source fleet.
+
+    ``capacity_overlap`` (MW per carrier) is the intended difference at the
+    central stations, where Tamil Nadu's units and the export reservation
+    together are sized above or below the rating.
+    """
     original = original_generators.loc[
         ~original_generators["carrier"].isin(MECHANISM_CARRIERS)
     ].groupby("carrier")["p_nom"].sum()
@@ -2680,6 +2801,8 @@ def validate_capacity_conservation(
     if "hydro_run_of_river" in allocated.index:
         allocated.loc["hydro"] = allocated.get("hydro", 0.0) + allocated.pop("hydro_run_of_river")
     allocated = allocated.add(storage.groupby("carrier")["p_nom"].sum(), fill_value=0.0)
+    if capacity_overlap is not None:
+        allocated = allocated.sub(capacity_overlap, fill_value=0.0)
     pd.testing.assert_series_equal(
         original.sort_index(), allocated.sort_index(), check_names=False, rtol=1e-10, atol=1e-7
     )
@@ -2894,7 +3017,8 @@ def main() -> None:
         )
     )
     validate_capacity_conservation(
-        source_generators, original_storage, generators, storage
+        source_generators, original_storage, generators, storage,
+        rea_export_reservation_audit.groupby("carrier")["capacity_overlap_mw"].sum(),
     )
     # The pre-cascade check above still sees the official Servalar source
     # Generator. Remove it only after that check; build_hydraulic_cascades
@@ -3278,6 +3402,9 @@ def main() -> None:
             storage[["bus", "carrier", "p_nom"]],
             hydraulic_links.loc[hydraulic_links["carrier"].eq("hydro_turbine"), ["bus1", "carrier", "p_nom", "efficiency"]]
             .rename(columns={"bus1": "bus"}).assign(carrier="hydro", p_nom=lambda f: f["p_nom"] * f["efficiency"])[["bus", "carrier", "p_nom"]],
+            # Physical nameplate: remove the central stations' intended
+            # overlap of Tamil Nadu units and export reservations.
+            rea_export_reservation_audit.assign(p_nom=lambda f: -f["capacity_overlap_mw"])[["bus", "carrier", "p_nom"]],
         ],
         ignore_index=True,
     )
@@ -3423,4 +3550,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    _parser = argparse.ArgumentParser(description="Build the nine-balancing-area model in model/.")
+    _parser.add_argument(
+        "--interchange", choices=("metered", "transactions"), default=INTERCHANGE_BASIS,
+        help="Interstate exchange basis (default %(default)s)",
+    )
+    INTERCHANGE_BASIS = _parser.parse_args().interchange
     main()

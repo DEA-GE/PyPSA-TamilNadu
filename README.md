@@ -53,6 +53,10 @@ If `python` is not on your path, use the Python executable from your environment
    python scripts/build_9ba_model.py
    ```
 
+   The interstate exchange matches Tamil Nadu's metered net import by default
+   (`--interchange transactions` uses the REA transactions only); see
+   "Metered interchange" in [docs/input-data.md](docs/input-data.md).
+
 3. For a first solve, run the one-day example config. It solves 11 July 2025
    with relaxed unit commitment on one thread and finishes in under a minute:
 
@@ -164,6 +168,7 @@ the run's `profile/highs/` folder instead.
 | `logging.sample_interval` | Seconds between resource samples in `profile/resources.csv`; default `1.0`. |
 | `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
 | `technologies.*` | Batteries and offshore wind added for a scenario; empty by default, so runs use the model as it is. See [Scenarios](#scenarios-batteries-and-offshore-wind). |
+| `outages.*` | Coal unit availability; off by default (`outages.enabled: false`, static coal `p_max_pu` 0.85). When on, the hourly `p_max_pu` of the 49 committable coal units is base availability × capability × (1 − share of the hour out). `base_availability`: `net_of_auxiliary` (1 − auxiliary consumption, the default), `gross` (1.0) or `model` (0.85). `partial_derating`: `demonstrated` (each unit capped at its best FY2025-26 day without outage, the default) or `none`. `central_availability`: `declared` (the seven central stations use their SRPC declared capacity, hour by hour in the backcast, the default) or `record`. `resolution`: `hourly` (the default), `monthly` or `annual` (availability averaged per month or year, minimum load scaled likewise, for a less restricted run). `planned`: `actual` (FY2025-26 maintenance record), `optimise` (PyPSA's maintenance scheduling chooses the dates) or `none`. `forced`: `actual` (FY2025-26 record), `sampled` (random with `seed`, from the record's rates and durations) or `none`. Commissioning dates, commercial unavailability and units out all year always apply; reserve shutdowns never do. See [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages). |
 
 ### Run logging and profiling
 
@@ -290,8 +295,9 @@ one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
 date or period and ends with the unit-commitment category: `_UC` for `full`,
 `_relaxed` for `relaxed`, and `_LP` for `none`.
-`run_model.py` prints the exact path after each run. No mode introduces equipment
-faults or outages.
+`run_model.py` prints the exact path after each run. Coal unit outages
+(planned maintenance and forced outages) apply only with `outages.enabled:
+true`; no mode introduces other equipment faults.
 
 For rolling runs, `window_log.partial.csv` is updated after each completed
 window and `window_log.csv` is written at the end. Each row includes wall time
@@ -392,6 +398,11 @@ snakemake --cores 8 --config 'overrides=["rolling.max_windows=2"]'   # quick tes
 
 For each scenario the workflow:
 
+0. **Maintenance schedule** (only with `outages.planned: optimise`): PyPSA
+   chooses the coal units' maintenance dates once, on the base network without
+   the scenario's technologies, and saves them to
+   `results/scenarios/<scenario>/maintenance_schedule.csv`; both runs below use
+   it, so scenarios with the same outage settings share the same dates.
 1. **Capacity expansion** (only if a site is `optimise`): solves the full year
    as one LP without unit commitment (`run.mode: annual`), with the optimised
    capacities as decision variables, and saves the chosen capacities to
@@ -430,7 +441,8 @@ For each scenario the workflow:
 Each run records where it wrote its results in
 `results/scenarios/<scenario>/<capacity_expansion|operation>.yaml`. Snakemake
 reruns a scenario when its config, `config/defaults.yaml`,
-`config/technologies.yaml`, the profile file or the `model/` network changes.
+`config/technologies.yaml`, the profile file, the outage inputs (when
+`outages.enabled`) or the `model/` network changes.
 Workflow settings, including extra run settings for every scenario, are in
 `config/workflow.yaml`.
 
@@ -633,8 +645,10 @@ commitment or storage analysis.
   32 MW Papanasam powerhouse then discharges to the downstream-river sink, not
   to Servalar. Lower pondage is weekly water-neutral and has no seasonal SOC
   target.
-- No fault, contingency, forced-outage, or short-circuit representation is
-  included.
+- Coal unit planned maintenance and forced outages are optional run settings
+  (`outages`, off by default); see
+  [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages).
+  No fault, contingency, or short-circuit representation is included.
 
 ## Capacity allocation
 

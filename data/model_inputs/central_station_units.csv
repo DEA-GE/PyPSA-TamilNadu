@@ -1,0 +1,19 @@
+station,station_name,component,unit_rating_mw
+vallur,NTECL Vallur,vallur_tpp__unit_01,500.0
+vallur,NTECL Vallur,vallur_tpp__unit_02,500.0
+vallur,NTECL Vallur,vallur_tpp__unit_03,500.0
+ntpl,NTPL Tuticorin,tuticorin_joint_venture__unit_01,500.0
+ntpl,NTPL Tuticorin,tuticorin_joint_venture__unit_02,500.0
+nntpp,NLC New Neyveli TPS (NNTPS),neyveli_new_tpp_neyveli_extension__unit_01,500.0
+nntpp,NLC New Neyveli TPS (NNTPS),neyveli_new_tpp_neyveli_extension__unit_02,500.0
+nlc21,NLC TPS-II Stage I,neyveli_tps_ii__unit_01,210.0
+nlc21,NLC TPS-II Stage I,neyveli_tps_ii__unit_02,210.0
+nlc21,NLC TPS-II Stage I,neyveli_tps_ii__unit_03,210.0
+nlc22,NLC TPS-II Stage II,neyveli_tps_ii__unit_04,210.0
+nlc22,NLC TPS-II Stage II,neyveli_tps_ii__unit_05,210.0
+nlc22,NLC TPS-II Stage II,neyveli_tps_ii__unit_06,210.0
+nlc22,NLC TPS-II Stage II,neyveli_tps_ii__unit_07,210.0
+nlcexp,NLC TPS-I Expansion,neyveli_ext_tps_i__unit_01,210.0
+nlcexp,NLC TPS-I Expansion,neyveli_ext_tps_i__unit_02,210.0
+nlc2exp,NLC TPS-II Expansion,neyveli_ext_tps_ii__unit_01,250.0
+nlc2exp,NLC TPS-II Expansion,neyveli_ext_tps_ii__unit_02,250.0

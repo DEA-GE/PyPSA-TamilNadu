@@ -8,6 +8,10 @@ Every config in config/scenarios/ is a scenario (see config/workflow.yaml):
 
 For each scenario:
 
+0. maintenance_schedule (only with outages.planned: optimise): PyPSA chooses
+   the coal units' maintenance dates once, on the base network without the
+   scenario's technologies, and saves them to
+   <results_dir>/<scenario>/maintenance_schedule.csv; both runs below use it;
 1. capacity_expansion (only if a site has capacity_mw: optimise): one annual
    LP without unit commitment chooses those capacities, which are saved to
    <results_dir>/<scenario>/optimised_capacities.csv;
@@ -79,6 +83,31 @@ def optimises(name):
     return has_optimised_sites(_technologies(name))
 
 
+def _outages(name):
+    """The scenario's outages section on top of the defaults."""
+    raw = yaml.safe_load(_scenario_file(name).read_text(encoding="utf-8")) or {}
+    defaults = yaml.safe_load((ROOT / "config" / "defaults.yaml").read_text(encoding="utf-8"))
+    return {**defaults["outages"], **(raw.get("outages") or {})}
+
+
+def schedules_maintenance(name):
+    """Whether the scenario's maintenance dates come from a shared PyPSA schedule."""
+    outages = _outages(name)
+    return bool(outages["enabled"]) and outages["planned"] == "optimise" and not outages.get("maintenance_schedule")
+
+
+def _schedule(name):
+    return RESULTS / name / "maintenance_schedule.csv"
+
+
+def _schedule_input(wildcards):
+    return [_schedule(wildcards.scenario)] if schedules_maintenance(wildcards.scenario) else []
+
+
+def _schedule_override(name):
+    return [f"outages.maintenance_schedule={_schedule(name).as_posix()}"] if schedules_maintenance(name) else []
+
+
 def scenario_inputs(wildcards):
     """Files a scenario's runs depend on, so edits trigger a rerun."""
     technologies = _technologies(wildcards.scenario)
@@ -88,6 +117,11 @@ def scenario_inputs(wildcards):
     profiles = (load_parameters(technologies).get("offshore_wind") or {}).get("profiles")
     if profiles and Path(profiles).exists():
         files.append(profiles)
+    outages = _outages(wildcards.scenario)
+    if outages["enabled"]:
+        files += [outages["record"], outages["auxiliary"], outages["capability"]]
+        if outages["central_availability"] == "declared":
+            files += [outages["declared_capacity"], outages["declared_units"]]
     files += sorted(str(path) for path in Path("model").glob("*.csv"))
     return files
 
@@ -106,9 +140,26 @@ rule all:
         expand(str(RESULTS / "effects" / "{scenario}" / "effects_report.html"), scenario=EFFECT_SCENARIOS),
 
 
-rule capacity_expansion:
+rule maintenance_schedule:
     input:
         scenario_inputs,
+    output:
+        RESULTS / "{scenario}" / "maintenance_schedule.csv",
+    threads: THREADS
+    run:
+        subprocess.run(
+            [
+                sys.executable, "scripts/schedule_maintenance.py",
+                str(_scenario_file(wildcards.scenario)), str(output[0]), "--threads", str(threads),
+            ],
+            check=True,
+        )
+
+
+rule capacity_expansion:
+    input:
+        files=scenario_inputs,
+        schedule=_schedule_input,
     output:
         summary=RESULTS / "{scenario}" / "capacity_expansion.yaml",
         capacities=RESULTS / "{scenario}" / "optimised_capacities.csv",
@@ -119,6 +170,7 @@ rule capacity_expansion:
             "formulation.unit_commitment=none",
             f"paths.results_root={(RESULTS / wildcards.scenario).as_posix()}",
             f"analysis.enabled={'true' if EXPANSION.get('analysis') else 'false'}",
+            *_schedule_override(wildcards.scenario),
             *(EXPANSION.get("overrides") or []),
         ],
     threads: THREADS
@@ -138,12 +190,14 @@ rule operation:
             if optimises(wildcards.scenario)
             else []
         ),
+        schedule=_schedule_input,
     output:
         summary=RESULTS / "{scenario}" / "operation.yaml",
     params:
         overrides=lambda wildcards: [
             "run.name=operation",
             f"paths.results_root={(RESULTS / wildcards.scenario).as_posix()}",
+            *_schedule_override(wildcards.scenario),
             *OVERRIDES,
         ],
     threads: THREADS

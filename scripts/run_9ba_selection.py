@@ -58,6 +58,12 @@ from energy_target_policy import (
     policy_tag,
     target_enabled,
 )
+from generator_outages import (
+    apply_outages,
+    coal_own_use,
+    gross_coal_for_comparison,
+    write_outputs as write_outage_outputs,
+)
 from scenario_technologies import apply_technologies, network_fingerprint
 from two_level_grid import apply_two_level_grid
 from results_analysis.loaders import load_observed_capacity
@@ -511,6 +517,12 @@ def _carrier_energy_by_day(network: pypsa.Network) -> pd.DataFrame:
     output["comparable_total"] = output[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum(axis=1)
+    # Auxiliary consumption of net (ex-bus) coal dispatch, added back when
+    # comparing with observed gross generation.
+    own_use = coal_own_use(network).mul(weights, axis=0)
+    output["coal_own_use"] = (
+        own_use.groupby(own_use.index.normalize()).sum().div(1000.0).reindex(output.index).fillna(0.0)
+    )
     output.index.name = "date"
     return output
 
@@ -1329,6 +1341,9 @@ def _write_outputs(
         observed_period.index.name = "date"
         modeled_period.to_csv(output_dir / "modeled_daily_generation.csv")
         observed_period.to_csv(output_dir / "observed_daily_generation.csv")
+        # Observed generation is gross: compare coal including the auxiliary
+        # consumption of net coal dispatch (zero without the outage module).
+        modeled_period = gross_coal_for_comparison(modeled_period)
 
         annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
         annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
@@ -1490,6 +1505,7 @@ def run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1566,6 +1582,7 @@ def _run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1673,6 +1690,18 @@ def _run_selection(
             "Two-level grid: "
             + ", ".join(f"{count} {component} ({level})" for (component, level), count in counts.items())
         )
+    with profiler.phase("apply_outages"):
+        outage_result = apply_outages(
+            base_network, outages, solver_name=solver_name, threads=solver_threads
+        )
+    if outage_result is not None:
+        summary = outage_result.units
+        report(
+            f"Coal unit outages ({outages['planned']} maintenance, {outages['forced']} forced "
+            f"outages, {outages['base_availability']} base): mean available "
+            f"{(summary.mean_availability * summary.p_nom_mw).sum():,.0f} of "
+            f"{summary.p_nom_mw.sum():,.0f} MW. " + " ".join(outage_result.notes)
+        )
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
@@ -1761,6 +1790,8 @@ def _run_selection(
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
     if not grid_report.empty:
         grid_report.to_csv(output_dir / "two_level_grid.csv", index=False)
+    if outage_result is not None:
+        write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
     with solve_phase:
         modeled, validation, solved_network = _solve_mode(

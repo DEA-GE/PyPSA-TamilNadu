@@ -51,7 +51,8 @@ def test_model_uses_only_confirmed_imports() -> None:
 
     loads = pd.read_csv(MODEL / "loads.csv")
     interstate = loads.loc[loads["name"].str.startswith("interstate_")]
-    assert len(interstate) == 12
+    # 12 transaction loads plus an import and an export metered correction per gateway.
+    assert len(interstate) == 20
     assert not interstate["name"].str.startswith(
         "interstate_unresolved_distributed_import_"
     ).any()
@@ -135,3 +136,55 @@ def test_verified_rea_plant_exports_are_reserved_without_changing_flow_totals() 
     assert set(legacy["application_status"]) == {
         "reference_only_superseded_by_verified_rea_plant_schedules"
     }
+
+
+def test_central_station_tn_units_get_their_entitlement_share() -> None:
+    audit = pd.read_csv(MODEL / "rea_plant_export_reservation_audit.csv")
+    shares = pd.read_csv(INPUT / "central_station_tn_entitlement_FY2025_26.csv").set_index("station")["tn_share"]
+    units = pd.read_csv(INPUT / "central_station_units.csv")
+    generators = pd.read_csv(MODEL / "generators.csv").set_index("name")
+
+    central = audit[audit["central_station"].notna()].set_index("central_station")
+    assert set(central.index) == set(shares.index)
+    for station, members in units.groupby("station"):
+        tn_mw = generators.loc[members["component"], "p_nom"].sum()
+        assert np.isclose(tn_mw, shares[station] * members["unit_rating_mw"].sum())
+        row = central.loc[station]
+        assert np.isclose(
+            row["capacity_overlap_mw"],
+            tn_mw + row["reserved_capacity_mw"] - row["physical_capacity_mw"],
+        )
+    # Other plants keep the rating less the export peak (no overlap).
+    others = audit[audit["central_station"].isna()]
+    assert np.allclose(others["capacity_overlap_mw"], 0.0)
+    assert np.allclose(
+        others["remaining_tn_dispatchable_capacity_mw"],
+        others["physical_capacity_mw"] - others["reserved_capacity_mw"],
+    )
+    # Reported installed capacity stays physical.
+    by_area = pd.read_csv(MODEL / "capacity_by_balancing_area.csv")
+    coal_p_nom = generators.loc[generators["carrier"].eq("coal"), "p_nom"].sum()
+    assert np.isclose(
+        by_area.loc[by_area["carrier"].eq("coal"), "capacity_mw"].sum(),
+        coal_p_nom - audit.loc[audit["carrier"].eq("coal"), "capacity_overlap_mw"].sum(),
+    )
+
+
+def test_metered_correction_delivers_the_metered_net_import() -> None:
+    metered = pd.read_csv(INPUT / "tn_metered_interchange_FY2025_26.csv", index_col=0, parse_dates=True)
+    parts = metered.actual_drawal_mw - metered.central_stations_mw - metered.tn_ipps_mw - metered.interstate_re_mw
+    assert np.allclose(metered.net_import_mw, parts, atol=0.01)
+    # FY2025-26: 67.8 TWh metered drawal, 13.7 TWh net import of the Tamil Nadu area.
+    assert np.isclose(metered.actual_drawal_mw.sum() / 1e6, 67.85, atol=0.01)
+    assert np.isclose(metered.net_import_mw.sum() / 1e6, 13.72, atol=0.01)
+
+    profiles = pd.read_csv(MODEL / "loads-p_set.csv", index_col=0)
+    imports = -profiles[[c for c in profiles if "_import_" in c]].sum(axis=1)
+    exports = profiles[[c for c in profiles if "_export_" in c]].sum(axis=1)
+    delivered = 0.97 * imports - exports / 0.97
+    assert np.allclose(delivered.to_numpy(), metered.net_import_mw.to_numpy(), atol=1e-3)
+
+    audit = pd.read_csv(MODEL / "interstate_flow_audit.csv")
+    correction = audit.loc[audit["measure"].eq("metered_correction")]
+    assert correction["included_in_model"].all()
+    assert set(correction["status"]) == {"metered_correction"}
