@@ -310,11 +310,6 @@ off by default; works with or without `enabled`).
     November–January and 1.4–2.0 in August–October; Coimbatore 0.54–0.69 in
     November–January.
 
-Against the NITI monthly wind (shape check only, not a target), model ÷
-observed moves from 0.77–0.93 to 0.93–1.07 in June–October and from
-1.47–1.76 to 1.29–1.37 in November–February. It gets worse in March
-(1.47 → 1.64) and April (1.09 → 1.26).
-
 Five-week test (`metered_outages_two_level_sub_plants_seasonal`), wind in
 GWh per week:
 
@@ -334,6 +329,54 @@ GWh per week:
   metered output. With the correction it is 0.74.
 - **Grid and coal barely change:** Tirunelveli–Madurai peaks at 429 against
   438 MW, and the south's coal share is 24.4% against 26.2% (observed 25.0%).
+
+**Full-year test** with the corrected schedules: relaxed rolling runs with the
+two-level grid (N-1 per substation), the Grid-India import limit and coal
+maintenance on. The baseline (`year_two_level_sub_outages`) keeps the area
+profiles. The test run (`year_two_level_sub_outages_plants_seasonal`) adds the
+plants on their metered output and the seasonal factors. Wind in GWh per month,
+with the observed figures as the sum of the NITI daily totals:
+
+| Month | Observed | Area profiles | Plants + seasonal |
+|---|---|---|---|
+| Apr 2025 | 555 | 684 (1.23) | 497 (0.90) |
+| May | 2,170 | 2,696 (1.24) | 2,459 (1.13) |
+| Jun | 3,685 | 3,668 (1.00) | 4,219 (1.14) |
+| Jul | 4,323 | 4,244 (0.98) | 4,705 (1.09) |
+| Aug | 3,572 | 2,986 (0.84) | 3,438 (0.96) |
+| Sep | 3,359 | 2,648 (0.79) | 3,305 (0.98) |
+| Oct | 1,242 | 971 (0.78) | 1,216 (0.98) |
+| Nov | 781 | 1,074 (1.37) | 843 (1.08) |
+| Dec | 946 | 1,545 (1.63) | 1,230 (1.30) |
+| Jan 2026 | 1,070 | 1,972 (1.84) | 1,426 (1.33) |
+| Feb | 877 | 1,475 (1.68) | 1,239 (1.41) |
+| Mar | 506 | 734 (1.45) | 814 (1.61) |
+
+- **The wind error falls by 40%:** root mean square 128 → 76 GWh per week
+  and 491 → 285 GWh per month. August–November are now within 10%.
+- **What remains:** December–March is still 30–60% high, and June–July
+  9–14% high. March gets worse because the plants' March is windier than the
+  area profile's.
+- **Annual wind rises** from 24.7 to 25.4 TWh (NITI annual 24.2 TWh). The
+  plants' metered output is higher than the area profile gives for their
+  capacity. Solar rises by 0.25 TWh for the same reason; its monthly shape does
+  not change.
+- **Coal falls by about 1 TWh,** to 50.5 TWh (observed 65.3 TWh gross). The
+  south goes from 12.9 to 11.9 TWh and Mettur from 1.3 to 0.7 TWh; observed
+  figures are 17.0 and 7.6 TWh.
+- **Grid:** circuit flows change by less than 5%. Tirunelveli–Madurai peaks at
+  454 MW (reported 500–600). The Villupuram transformers are at their limit
+  6,132 hours a year instead of 5,976.
+- **Unserved energy:** 6 GWh at Villupuram, in 51 hours on 22–28 April and
+  13–16 May (baseline none). Lower April–May wind, coal maintenance and the
+  Villupuram transformer limit coincide.
+- **Prices against the IEX day-ahead price for Tamil Nadu** (load-weighted
+  model price, capped at 10,000 INR/MWh):
+  - The mean is 4,737 against 4,792 INR/MWh (IEX 3,848).
+  - The correlation of daily means rises from 0.27 to 0.40.
+  - The monthly shape moves towards IEX: higher in April–May and lower in
+    June–September.
+  - The average day still spans about 1,000 INR/MWh, against 5,600 at IEX.
 
 ### Solar capacity through the year
 
