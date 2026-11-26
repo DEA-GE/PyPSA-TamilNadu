@@ -234,7 +234,7 @@ def price_figure(prices: pd.DataFrame, system_price: pd.Series):
     figure, axes = plt.subplots(2, 1, figsize=(14, 9))
     if prices.empty:
         axes[0].text(
-            0.5, 0.5, "No marginal prices: binary unit-commitment solves have no duals",
+            0.5, 0.5, "No marginal prices in these solves",
             ha="center", va="center",
         )
         axes[1].axis("off")
@@ -299,7 +299,7 @@ def cost_figure(costs: pd.DataFrame, market: pd.DataFrame, average_price: float)
     axes[0].set_title(title)
     if market.empty:
         axes[1].text(
-            0.5, 0.5, "No marginal prices: binary unit-commitment solves have no duals",
+            0.5, 0.5, "No marginal prices in these solves",
             ha="center", va="center", wrap=True,
         )
         axes[1].axis("off")

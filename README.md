@@ -261,11 +261,30 @@ only), which PyPSA's plots need.
 | Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
 | System supply and demand (figure) | `energy_balance` summed over buses: supply stacked by carrier, with demand as a line; the gap between them is storage charging, pumping and transmission losses. Daily means for periods over a month |
 
-Marginal prices come from the solver's duals. Binary unit-commitment (`full`)
-solves have none, so for those runs the price table, market values and price
-figure are empty, and the system metrics mark the average price as not
-available. Relaxed and LP runs have prices; with relaxed commitment they
-reflect the continuous on/off approximation.
+Marginal prices come from the solver's duals. Relaxed and LP runs have them
+directly; with relaxed commitment they reflect the continuous on/off
+approximation.
+
+Binary unit commitment (`full`) is a MIP, which has no duals. After each
+accepted MIP solve, the runners (rolling windows, selected weeks, the peak week
+and single days) solve the dispatch again as an LP, with every on/off,
+start-up and shut-down decision fixed at its MIP value
+(`scripts/commitment_prices.py`). The prices are that LP's duals, and its
+dispatch replaces the MIP's: same commitment, at most the same cost.
+
+- Each hour's price is the cost of one more MWh from the units that are online
+  and not at a limit.
+- Start-up costs are already fixed, so they never set the price.
+- A unit held at minimum stable output does not set it either. When the online
+  units sit at their minimum, the price falls to whatever is still flexible
+  (curtailment, storage, the transmission flow cost), and can be negative.
+
+A rolling window whose fixed-commitment LP fails (dual simplex, then interior
+point) keeps the MIP dispatch, has no prices and is logged with a warning. Full
+unit-commitment checkpoints without prices (made before this) are solved again
+on resume. Full unit-commitment runs made before prices were added have empty
+price tables, market values and price figures, and the system metrics mark the
+average price as not available.
 
 Monthly runs keep no solved networks, so their report covers the runner's own
 outputs only. To rebuild a report for any existing run folder, for example

@@ -659,7 +659,8 @@ def average_price(run: AnalysisRun, prices: pd.DataFrame | None = None) -> float
 def price_metrics(run: AnalysisRun) -> pd.DataFrame:
     """Summarize marginal prices (currency/MWh) at each electricity bus.
 
-    Empty when the solves carry no prices (binary unit commitment). Hours at
+    Empty when the solves carry no prices (binary unit-commitment runs made
+    before the fixed-commitment price solve). Hours at
     the unserved-energy price are hours in which load shedding set the price.
     """
     prices = price_timeseries(run)

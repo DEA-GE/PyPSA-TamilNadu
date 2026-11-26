@@ -24,12 +24,14 @@ import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import (
+    DEFAULT_ROLLING_TIME_LIMIT_SECONDS,
     NON_RETRYABLE_CONDITIONS,
     highs_solver_options,
     reset_highs_global_scheduler,
     solve_attempts,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from commitment_prices import price_fixed_commitment
 from generator_outages import coal_own_use
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
 
@@ -1478,6 +1480,8 @@ def run_rolling_year(
                         and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
                         and checkpoint_meta.get("input_fingerprint") == input_fingerprint
                         and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
+                        # Full unit commitment: only checkpoints with prices.
+                        and (unit_commitment != "full" or checkpoint_meta.get("commitment_prices") is True)
                         and np.isclose(
                             checkpoint_meta.get("bio_power_target_mwh", np.nan),
                             expected_bio_power_target_mwh,
@@ -1639,8 +1643,36 @@ def run_rolling_year(
                     f"MIP gap {mip_gap:.2%} (limit {max_time_limit_mip_gap:.2%})."
                 )
 
+            # A MIP has no duals: prices come from the dispatch LP with the
+            # commitment fixed, whose solution also replaces the MIP dispatch.
+            price_summary: dict[str, object] = {}
+            if unit_commitment == "full":
+                with profiler.phase("commitment_prices"):
+                    price_summary = price_fixed_commitment(
+                        network,
+                        solver_name=solver_name,
+                        threads=solver_threads,
+                        time_limit=(
+                            DEFAULT_ROLLING_TIME_LIMIT_SECONDS["relaxed"]
+                            if time_limit is not None else None
+                        ),
+                        assign_all_duals=True,
+                    )
+                report(
+                    f"Window {number}/{len(starts)}: prices with the commitment fixed "
+                    f"({price_summary['price_lp_attempts']})."
+                )
+                if not price_summary["commitment_prices"]:
+                    report(
+                        f"Window {number}/{len(starts)}: WARNING the fixed-commitment LP "
+                        "did not solve; this window keeps the MIP dispatch and has no prices."
+                    )
             with profiler.phase("write_shadow_prices"):
-                shadow_price_constraints = _write_shadow_prices(network, dual_file)
+                if price_summary.get("commitment_prices", True):
+                    shadow_price_constraints = _write_shadow_prices(network, dual_file)
+                else:
+                    xr.Dataset().to_netcdf(dual_file)
+                    shadow_price_constraints = 0
             with profiler.phase("hydro_slacks"):
                 hydro_slacks = _hydro_terminal_slacks(network)
                 hydro_slacks.to_csv(slack_file, index=False)
@@ -1711,8 +1743,9 @@ def run_rolling_year(
                 "solver_status": str(status),
                 "termination_condition": str(condition),
                 "accepted_solution": accepted_solution,
-                "shadow_prices_recorded": True,
+                "shadow_prices_recorded": bool(price_summary.get("commitment_prices", True)),
                 "shadow_price_constraints": shadow_price_constraints,
+                **price_summary,
                 "shadow_price_file": dual_file.name,
                 "hydro_terminal_slack_file": slack_file.name,
                 "mip_gap": mip_gap,

@@ -23,6 +23,7 @@ from highs_solver_options import (
     reset_highs_global_scheduler,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from commitment_prices import price_fixed_commitment
 from small_hydro_targets import small_hydro_energy_target_mwh
 
 from nuclear_energy_targets import (
@@ -681,11 +682,15 @@ def _solve_peak_week(
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
     )
-    runtime = time.perf_counter() - started
     if status != "ok":
         raise RuntimeError(f"Peak-week solve failed: status={status}, condition={condition}")
     if profiler.last_solve:
         report(f"Peak week: {format_solve_breakdown(profiler.last_solve)}")
+    if unit_commitment == "full":
+        with profiler.phase("commitment_prices"):
+            price_summary = price_fixed_commitment(network, solver_name=solver_name, threads=solver_threads)
+        report(f"Peak week: prices with the commitment fixed ({price_summary['price_lp_attempts']}).")
+    runtime = time.perf_counter() - started
 
     modeled = _carrier_energy_by_day(network)
     gas_deviation = modeled["oil_gas"].reindex(dates).mul(1000.0).sub(gas_targets)
@@ -1161,7 +1166,6 @@ def _solve_selected_weeks(
                 include_objective_constant=False,
                 linearized_unit_commitment=unit_commitment == "relaxed",
             )
-            runtime = time.perf_counter() - started
             if status != "ok" or condition != "optimal":
                 raise RuntimeError(
                     f"Selected week {start.date()} failed: status={status}, "
@@ -1170,6 +1174,16 @@ def _solve_selected_weeks(
             solve_profile = profiler.last_solve or {}
             if solve_profile:
                 report(f"Selected week {start.date()}: {format_solve_breakdown(solve_profile)}")
+            if unit_commitment == "full":
+                with profiler.phase("commitment_prices"):
+                    price_summary = price_fixed_commitment(
+                        network, solver_name=solver_name, threads=solver_threads
+                    )
+                report(
+                    f"Selected week {start.date()}: prices with the commitment fixed "
+                    f"({price_summary['price_lp_attempts']})."
+                )
+            runtime = time.perf_counter() - started
 
             modeled = _carrier_energy_by_day(network).reindex(retained_dates)
             modeled_parts.append(modeled)
