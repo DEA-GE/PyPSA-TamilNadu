@@ -170,6 +170,20 @@ interstate:
   # Hourly output of interstate-connected RE inside Tamil Nadu (interstate_re_mw).
   metered_interchange: data/model_inputs/tn_metered_interchange_FY2025_26.csv
 
+ists_re_plants:
+  # The interstate-connected wind and solar plants at Tuticorin, Karur and
+  # Pugalur (13 plants, about 2.6 GW wind and 0.4 GW solar) on their real
+  # hourly output from the Regional Energy Accounts
+  # (scripts/ists_re_plants.py). Off by default: they stay inside the area
+  # fleets and follow the area profiles. When on, each plant is a generator
+  # with its own availability and the area fleet shrinks by its capacity.
+  enabled: false
+  # metered: metered output where the plant's (or its QCA's) account reports,
+  # REMC schedule otherwise; scheduled: REMC schedule only.
+  basis: metered
+  series: data/model_inputs/tn_ists_re_plant_series_FY2025_26.csv
+  plants: data/model_inputs/tn_ists_re_plants_FY2025_26.csv
+
 technologies:
   # Technologies added to the base network for scenario studies; see
   # config/scenarios/ and the scenario section of README.md. The defaults add

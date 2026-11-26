@@ -66,6 +66,7 @@ from generator_outages import (
 )
 from scenario_technologies import apply_technologies, network_fingerprint
 from two_level_grid import apply_two_level_grid
+from ists_re_plants import apply_ists_re_plants
 from interstate_drawal_limit import add_drawal_limit, apply_drawal_limit, tag as drawal_limit_tag
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
@@ -1505,6 +1506,7 @@ def run_selection(
     technologies: Mapping[str, Any] | None = None,
     grid: Mapping[str, Any] | None = None,
     interstate: Mapping[str, Any] | None = None,
+    ists_re_plants: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1583,6 +1585,7 @@ def _run_selection(
     technologies: Mapping[str, Any] | None = None,
     grid: Mapping[str, Any] | None = None,
     interstate: Mapping[str, Any] | None = None,
+    ists_re_plants: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1694,6 +1697,15 @@ def _run_selection(
         report(
             "Two-level grid: "
             + ", ".join(f"{count} {component} ({level})" for (component, level), count in counts.items())
+        )
+    with profiler.phase("apply_ists_re_plants"):
+        plant_report = apply_ists_re_plants(base_network, ists_re_plants)
+    if not plant_report.empty:
+        report(
+            f"Interstate wind and solar plants on their real output: {len(plant_report)} plants, "
+            + ", ".join(f"{technology} {mw:,.0f} MW" for technology, mw
+                        in plant_report.groupby("technology").capacity_mw.sum().items())
+            + " taken out of the area fleets"
         )
     with profiler.phase("apply_outages"):
         outage_result = apply_outages(
@@ -1808,6 +1820,8 @@ def _run_selection(
         grid_report.to_csv(output_dir / "two_level_grid.csv", index=False)
     if not drawal_report.empty:
         drawal_report.to_csv(output_dir / "drawal_limit.csv", index_label="snapshot")
+    if not plant_report.empty:
+        plant_report.to_csv(output_dir / "ists_re_plants.csv", index=False)
     if outage_result is not None:
         write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
