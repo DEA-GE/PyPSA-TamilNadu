@@ -201,6 +201,46 @@ model input is archived at
 comparison; `scripts/prepare_renewable_profiles.py` checks or regenerates the
 archived baseline, leaving the active input unchanged.
 
+### Validation against metered plant output
+
+The wind and solar plants on the interstate pooling stations at Tuticorin,
+Karur and Pugalur are metered by SRPC, which keeps a deviation account per
+plant. Each account gives, per 15-minute block, the declared available
+capacity, the schedule and the metered injection.
+`scripts/prepare_ists_re_plant_output.py` reads them from the REA archives
+(final and provisional, since some accounts are weekly) into
+`data/model_inputs/tn_ists_re_plant_output_FY2025_26.csv`.
+`scripts/validate_re_profiles.py` compares them with the model's availability
+of the area the plants are in (`results/re_profile_validation/`). The
+observed capacity factor is the metered output divided by the plant's highest
+available capacity.
+
+| Group (FY2025-26) | Hours | CF observed / model | Hourly corr. | Best lag |
+|---|---|---|---|---|
+| Tuticorin wind, 4 plants, 0.92 GW → Thoothukudi profile | 8,760 | 0.305 / 0.239 | 0.80 | 0–1 h |
+| Tuticorin wind, QCA aggregate, 1.7 GW (from 14 July) | 6,264 | 0.282 / 0.223 | 0.78 | 0 h |
+| Pugalur wind, Sprng 300 MW → Karur profile (Trichy area) | 8,760 | 0.262 / 0.204 | 0.56 | 0 h |
+| Tuticorin solar, NTPC Ettayapuram + GRT, 380 MW | 3,768 | 0.236 / 0.203 | 0.95 | 0 h |
+
+- **Timing** is right for both technologies: the best lag is zero, and the
+  solar diurnal centroid is within 0.15 h.
+- **Level:** the plants are recent (tall turbines, high DC/AC solar), so
+  their capacity factors are above the fleet's. This is not a profile error.
+- **Wind seasonality is too flat in the model.** Relative to each series' own
+  mean, the Thoothukudi profile is 11–25% too low in June–October and 24–69%
+  too high in December–April (4 plants; the QCA aggregate: −3 to −28% and +5 to
+  +38%). This is the same pattern as the comparison with NITI monthly wind.
+- **Pugalur:** the Karur profile misses the winter lull. In November–January
+  the plant runs at a 5–7% capacity factor and the model at 22–25%. The plant
+  correlates far better with the Coimbatore profile (0.88) than with the Trichy
+  or Karur profile (0.56). The Tuticorin plants also correlate slightly better
+  with Coimbatore (0.85) than with their own area (0.80).
+- **Solar seasonality** is within about ±10% after normalising: the model is
+  relatively low in May–July and high in October.
+
+The declared availability of these plants is 0.9–1.0 in all months, so the
+low winter output is weather, not outages.
+
 ### Solar capacity through the year
 
 The [Solar availability methodology](solar-availability-methodology.md)
@@ -1014,9 +1054,12 @@ grid at run time; `model/` is unchanged.
 - **Transformers:** one branch per area joins the two buses. Its capacity is
   the area's 400/230 and 400/110 kV ICTs on 31 March 2026
   (`data/source/srldc_transmission_elements`). It is rated at power factor
-  0.95, N-1 without the area's largest unit, with 12.5% reactance on the
-  unit rating. An area with a single unit would get no N-1 capacity; all nine
-  areas have several.
+  0.95, with 12.5% reactance on the unit rating, and usable up to its N-1
+  secure part. `grid.transformer_n_minus_1: substation` (the default) drops
+  the largest unit of every substation, because each substation must survive
+  the loss of its own largest transformer. That gives 26.3 GVA for Tamil Nadu
+  instead of 35.7 GVA with `area` (only the area's largest unit dropped).
+  Every one of the 37 substations has at least two units.
 - **Plants:** units connected at 400/765 kV (12.8 GW,
   `tn_plant_connection_levels.csv`) move to the upper bus.
 
@@ -1024,17 +1067,22 @@ grid at run time; `model/` is unchanged.
 demand peak; unlimited sources at the neighbours; Tamil Nadu plants
 expensive):
 
-| Import | Single level | Two levels | Grid-India FY2025-26 |
-|---|---|---|---|
-| Drawal, all neighbours | about 54 GW (tie ratings) | 21.6 GW | TTC 14.6 GW |
-| Border import from S1 (Andhra Pradesh, Karnataka) | at least 16 GW (up to 31 GW) | 13.6 GW | S1→(S2&S3) TTC 11.3 GW |
+| Import | Single level | Two levels, area N-1 | Two levels, substation N-1 | Grid-India FY2025-26 |
+|---|---|---|---|---|
+| Drawal, all neighbours | about 54 GW (tie ratings) | 21.6 GW | 20.7 GW | TTC 14.6 GW |
+| Border import from S1 (Andhra Pradesh, Karnataka) | at least 16 GW (up to 31 GW) | 13.6 GW | 11.3 GW | S1→(S2&S3) TTC 11.3 GW |
 
 Drawal is the border import plus Tamil Nadu's share of the interstate-grid
-stations inside the state, which is what Grid-India's TTC covers. The two-level
-grid binds first at area transformers and 230 kV corridors. It stays above
-Grid-India because it pools each area's transformers and applies N-1 per area,
-not per substation. Kalivandapattu, for example, is 1.1 of Chennai South's
-4.6 GVA.
+stations inside the state, which is what Grid-India's TTC covers. The
+capability is read at the highest load scale with no unserved energy. Beyond
+it, the optimiser cuts imports to reduce unserved energy, so the test's import
+falls. The two-level grid binds first at area transformers, 230 kV corridors
+and 230 kV ties. With N-1 per substation, the S1 import matches Grid-India's
+corridor TTC. The total stays above the TTC because the ties to Kerala and the
+230 kV ties bind before the transformers, and because each area's 230 kV
+network is still one bus. For example, the load behind Kalivandapattu can use
+any of Chennai South's four substations. `interstate.drawal_limit` imposes the
+declared total.
 
 **Dispatch test (25 November 2026).** Four selected weeks, relaxed unit
 commitment, fixed interstate schedule (`grid_single_level_weeks` vs
@@ -1051,6 +1099,32 @@ commitment, fixed interstate schedule (`grid_single_level_weeks` vs
 - **Drawal:** the peak is 6.3 GW against an ATC of 14.2 GW, so an import limit
   at Grid-India's value cannot bind while the interstate schedule is fixed.
 
+**Test with the metered interchange (26 November 2026).** Five selected
+weeks, including the week of the 28 April drawal peak. Relaxed unit commitment,
+coal outages off, runs `metered_*` in `results/run_results/selected_weeks_relaxed/`.
+Costs include the warm-up and look-ahead days.
+
+| | Single level | Two levels, area N-1 | Two levels, substation N-1 |
+|---|---|---|---|
+| Cost (bn INR) | 34.79 | 35.12 (+0.9%) | 35.29 (+1.4%) |
+| Coal (GWh) | 5,021 | 5,050 | 5,056 |
+| Curtailment (GWh) | 0.6 | 2.7 | 2.8 |
+| Hours with an area price spread above 500 INR/MWh (of 840) | 54 | 240 | 706 |
+| Villupuram transformers at their limit (h) | – | 186 | 701 |
+| Madurai–Trichy 230 kV at its limit (h) | 0 | 166 | 162 |
+| Coimbatore–Erode 230 kV at its limit (h) | 0 | 9 | 7 |
+
+With N-1 per substation, coal moves from Tuticorin TPS (−119 GWh) and ITPCL
+(−51 GWh) to the NLC units on the 230 kV bus (+114 GWh) and North Chennai
+(+65 GWh). The Villupuram transformers are the NNTPS (2×500 MVA) and NLC TS-II
+(2×250 MVA) groups, which Grid-India lists among Tamil Nadu's import
+constraints. With N-1 per substation they carry 712 MW, about 0.7 GW short of
+the area's 230 kV load, the rest of which comes over 230 kV lines from Trichy
+and Chennai South. The Villupuram 230 kV price is then about 800 INR/MWh above
+its 400 kV bus in the July week. Binding in 83% of hours is more than the
+declarations suggest, so the area's 230 kV supply (demand share, plants at
+230 kV) should be checked before using Villupuram prices.
+
 **Rating check** against the CEA Manual on Transmission Planning Criteria
 (2023; planning default 45 °C ambient, 75 °C conductor, 10% margin):
 - the workbook's circuit ratings correspond to 45 °C / 85 °C (twin Moose
@@ -1060,3 +1134,61 @@ commitment, fixed interstate schedule (`grid_single_level_weeks` vs
 - the 120 GW sum of corridor ratings is therefore consistent circuit by
   circuit. No transfer capability between zones inside Tamil Nadu is
   published.
+
+### Tamil Nadu import limit (Grid-India)
+
+Grid-India declares one simultaneous limit on Tamil Nadu's drawal from the
+interstate grid each month: the total transfer capability (TTC), and the TTC
+less a reliability margin as the available transfer capability (ATC) for
+schedules. The value is the same in all 96 blocks of a month: 14,050 MW (ATC
+13,700) in April–June, October and February, which are held as early
+revisions only, and 14,600 MW (ATC 14,180) in the other months. May, which was
+not downloaded, takes April's value
+(`data/source/grid_india_ttc_fy2025_26`).
+
+The interstate ties are rated per circuit and add up to about 51.5 GW into
+Tamil Nadu, so on their own they never limit the import.
+`interstate.drawal_limit` (`scripts/interstate_drawal_limit.py`) adds, in every
+solve and hour:
+
+```text
+net import delivered over the interstate ties
++ output of the interstate-connected stations inside Tamil Nadu
+<= declared limit - metered output of the interstate-connected wind and solar
+```
+
+The left side plus the wind and solar is Grid-India's drawal, the flow from
+the interstate grid into the state grid. It is the same decomposition that
+reproduces the metered drawal in "Metered interchange" above.
+- **Stations:** the central stations with the other states' export
+  reservations (Vallur, NTPL, NNTPS, NLC TS-II and the NLC expansions,
+  Kudankulam, MAPS) and the two IPPs on interstate pooling stations (Coastal
+  Energen, IL&FS).
+- **Wind and solar:** the interstate-connected wind and solar at Tuticorin,
+  Karur and Pugalur is not separate in the network, so its metered output
+  (`interstate_re_mw`) is taken as given.
+
+`ttc` (the default) limits the actual flow, which in real time may use the
+reliability margin: the metered drawal of FY2025-26 peaks at 14,240 MW (28
+April 2025, 18:00), above the ATC in 10 hours and above the TTC in 2. `atc`
+limits the flow to the schedulable value; `none` switches the limit off.
+
+The run writes `drawal_limit.csv`: the hourly limit, the interstate wind and
+solar, the drawal fixed by the inputs (the neighbours' fixed exchange and the
+pinned export reservations) and the headroom left for the stations. It stops
+if the fixed part alone exceeds the limit. With the metered interchange, at
+least 3.8 GW is always left. While the interstate schedule is fixed, the limit
+can only reduce the stations' output: with all of them at full output, the
+drawal would exceed the TTC in about 400 hours. Once imports are traded, the
+same constraint limits the trades.
+
+In the five-week test above, the limit never binds. The model's drawal peaks
+at 13.8 GW in the 28 April week, against 14.24 GW metered and a TTC of 14.05 GW.
+The weekly peaks are within 0.6 GW of the metered drawal (12.5 vs 12.5 GW,
+11.5 vs 11.4, 11.4 vs 12.0, 11.5 vs 12.2), which confirms that the
+constrained quantity is Grid-India's drawal.
+
+Grid-India's other corridor declarations are not imposed. S1→(S2&S3)
+(11,300 MW in December 2025) and Kerala's import (4,575 MW) would act on the
+model's per-neighbour exchange. That exchange is fixed by the REA routing, and
+its S1 share peaks at 3.1 GW.
