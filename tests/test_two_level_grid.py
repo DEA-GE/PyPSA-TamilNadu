@@ -75,6 +75,22 @@ def test_transformer_branch_rating_and_reactance():
     assert branches.loc["B", "s_max_pu"] == 0  # a single unit gives no N-1 capacity
 
 
+def test_n_minus_1_per_substation_drops_each_substations_largest_unit():
+    units = pd.DataFrame({
+        "area": ["A"] * 5, "bus": ["S1", "S1", "S1", "S2", "S2"], "kv": ["400/230"] * 3 + ["400/110"] * 2,
+        "mva": [500.0, 315.0, 315.0, 200.0, 200.0],
+    })
+
+    by_area = grid.transformer_branches(units, ["A"], 0.125, 0.95, "area").loc["A"]
+    by_substation = grid.transformer_branches(units, ["A"], 0.125, 0.95, "substation").loc["A"]
+    unlimited = grid.transformer_branches(units, ["A"], 0.125, 0.95, "none").loc["A"]
+
+    assert by_area.s_max_pu == pytest.approx(1030 / 1530)
+    assert by_substation.s_max_pu == pytest.approx((630 + 200) / 1530)
+    assert unlimited.s_max_pu == 1.0
+    assert by_substation.s_nom == by_area.s_nom == pytest.approx(1530 * 0.95)
+
+
 def test_every_area_needs_transformers():
     with pytest.raises(grid.TwoLevelGridError, match="No 400/230"):
         grid.transformer_branches(UNITS, ["A", "B", "C"], 0.125, 0.95, True)
@@ -93,3 +109,6 @@ def test_settings_are_validated():
         grid.validate_section({"two_levels": True})
     with pytest.raises(grid.TwoLevelGridError, match="power_factor"):
         grid.validate_section({"transformer_power_factor": 1.5})
+    with pytest.raises(grid.TwoLevelGridError, match="transformer_n_minus_1"):
+        grid.validate_section({"transformer_n_minus_1": "feeder"})
+    grid.validate_section({"transformer_n_minus_1": True})  # earlier configs: true meant per area

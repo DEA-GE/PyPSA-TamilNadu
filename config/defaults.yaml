@@ -150,9 +150,11 @@ grid:
   transformer_reactance_pu: 0.125
   # MW per MVA of transformer rating.
   transformer_power_factor: 0.95
-  # Rate each area's transformers without its largest unit (N-1), the
-  # criterion Grid-India uses for Tamil Nadu's import capability.
-  transformer_n_minus_1: true
+  # N-1 of the transformers, the criterion behind Grid-India's import limits:
+  # substation drops the largest unit of every substation (each must survive
+  # the loss of its own largest transformer); area drops only the area's
+  # largest unit; none uses all units.
+  transformer_n_minus_1: substation
 
 
 interstate:

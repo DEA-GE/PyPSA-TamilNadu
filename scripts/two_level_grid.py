@@ -24,10 +24,12 @@ time (model/ stays unchanged):
 - each area's upper and lower buses are joined by one transformer branch with
   the area's 400/230 and 400/110 kV ICT capacity on 31 March 2026
   (data/source/srldc_transmission_elements/tn_icts_2026-03.csv). Its rating
-  is the MVA total times the power factor and, with ``transformer_n_minus_1``,
-  without the area's largest unit (the N-1 criterion Grid-India applies). Its
-  reactance is ``transformer_reactance_pu`` on each unit's own rating, in
-  parallel;
+  is the MVA total times the power factor, usable up to the N-1 secure part
+  (``transformer_n_minus_1``): ``substation`` (the default) drops the largest
+  unit of every substation, as each substation must survive the loss of its own
+  largest transformer (the criterion behind Grid-India's limits); ``area``
+  drops only the area's largest unit; ``none`` uses all units. Its reactance is
+  ``transformer_reactance_pu`` on each unit's own rating, in parallel;
 - plants that connect at 400 or 765 kV (data/source/srldc_transmission_elements/
   tn_plant_connection_levels.csv) move to the upper bus.
 
@@ -63,8 +65,9 @@ DEFAULTS = {
     "plant_levels": "data/source/srldc_transmission_elements/tn_plant_connection_levels.csv",
     "transformer_reactance_pu": 0.125,
     "transformer_power_factor": 0.95,
-    "transformer_n_minus_1": True,
+    "transformer_n_minus_1": "substation",
 }
+N_MINUS_1 = ("substation", "area", "none")
 
 
 class TwoLevelGridError(ValueError):
@@ -82,12 +85,20 @@ def validate_section(section: Mapping[str, Any]) -> None:
         raise TwoLevelGridError(f"Unknown grid keys {sorted(unknown)}; known: {sorted(SECTION_KEYS)}")
     if not isinstance(section.get("two_level", False), bool):
         raise TwoLevelGridError("grid.two_level must be true or false")
-    if not isinstance(section.get("transformer_n_minus_1", True), bool):
-        raise TwoLevelGridError("grid.transformer_n_minus_1 must be true or false")
+    _n_minus_1_mode(section.get("transformer_n_minus_1", DEFAULTS["transformer_n_minus_1"]))
     for key in ("transformer_reactance_pu", "transformer_power_factor"):
         value = section.get(key, DEFAULTS[key])
         if not isinstance(value, (int, float)) or not 0 < value <= 1:
             raise TwoLevelGridError(f"grid.{key} must be a number in (0, 1]")
+
+
+def _n_minus_1_mode(value: Any) -> str:
+    """``substation``, ``area`` or ``none``; true/false (earlier configs) mean area/none."""
+    if isinstance(value, bool):
+        return "area" if value else "none"
+    if value not in N_MINUS_1:
+        raise TwoLevelGridError(f"grid.transformer_n_minus_1 must be one of {list(N_MINUS_1)}")
+    return value
 
 
 def read_circuits(path: str | Path) -> pd.DataFrame:
@@ -166,19 +177,27 @@ def split_ties(network: pypsa.Network, circuits: pd.DataFrame, upper: Mapping[st
 
 
 def transformer_branches(units: pd.DataFrame, areas: list[str], reactance_pu: float, power_factor: float,
-                         n_minus_1: bool) -> pd.DataFrame:
+                         n_minus_1: str | bool) -> pd.DataFrame:
     """One transformer branch per area: rating, N-1 share and reactance (ohm on 400 kV)."""
+    mode = _n_minus_1_mode(n_minus_1)
     units = units[units.kv.isin(ICT_RATIOS) & units.area.isin(areas)]
     missing = sorted(set(areas) - set(units.area))
     if missing:
         raise TwoLevelGridError(f"No 400/230 or 400/110 kV transformers listed for {missing}")
     grouped = units.groupby("area").mva
     total, largest = grouped.sum(), grouped.max()
+    if mode == "substation":
+        by_substation = units.groupby(["area", "bus"]).mva
+        secure = (by_substation.sum() - by_substation.max()).groupby(level="area").sum()
+    elif mode == "area":
+        secure = total - largest
+    else:
+        secure = total
     x = (reactance_pu * BASE_KV**2 / units.mva).groupby(units.area).apply(_parallel)
     return pd.DataFrame({
-        "mva": total, "units": grouped.count(), "largest_mva": largest,
+        "mva": total, "units": grouped.count(), "largest_mva": largest, "secure_mva": secure,
         "s_nom": total * power_factor,
-        "s_max_pu": (total - largest) / total if n_minus_1 else 1.0,
+        "s_max_pu": secure / total,
         "x": x, "r": x / 40.0,  # X/R of about 40 for large power transformers
     }).reindex(areas)
 

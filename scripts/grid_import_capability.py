@@ -1,6 +1,7 @@
 """How much import the model's grid can take into Tamil Nadu, compared with Grid-India's TTC.
 
-    python scripts/grid_import_capability.py [--two-level] [--sources all|S1] [--output <csv>]
+    python scripts/grid_import_capability.py [--two-level [--n-minus-1 substation|area|none]]
+        [--sources all|S1] [--output <csv>]
 
 For one hour (Tamil Nadu's annual demand peak by default) the network is
 reduced to a transfer test:
@@ -52,11 +53,12 @@ TTC_MW = 14600.0  # Grid-India Tamil Nadu import TTC, Rev 1 declarations from Ju
 S1_TTC_MW = 11300.0  # S1-(S2&S3) TTC, December 2025
 
 
-def transfer_network(two_level: bool, sources: list[str], snapshot: pd.Timestamp | None) -> tuple[pypsa.Network, list[str]]:
+def transfer_network(two_level: bool, sources: list[str], snapshot: pd.Timestamp | None,
+                     n_minus_1: str = "substation") -> tuple[pypsa.Network, list[str]]:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         n = pypsa.Network(ROOT / "model")
-    apply_two_level_grid(n, {"two_level": two_level})
+    apply_two_level_grid(n, {"two_level": two_level, "transformer_n_minus_1": n_minus_1})
     tn = n.buses.index[n.buses.kind.isin([TN_KIND, UPPER_KIND])].tolist()
     tn_loads = n.loads.index[n.loads.bus.isin(tn)]
     if snapshot is None:
@@ -95,8 +97,8 @@ def transfer_network(two_level: bool, sources: list[str], snapshot: pd.Timestamp
     return n, tn
 
 
-def solve_case(two_level: bool, sources: list[str], scale: float, snapshot) -> dict:
-    n, tn = transfer_network(two_level, sources, snapshot)
+def solve_case(two_level: bool, sources: list[str], scale: float, snapshot, n_minus_1: str = "substation") -> dict:
+    n, tn = transfer_network(two_level, sources, snapshot, n_minus_1)
     tn_loads = n.loads.index[n.loads.bus.isin(tn)]
     n.loads_t.p_set[tn_loads] = n.loads_t.p_set[tn_loads] * scale
     status, condition = n.optimize(solver_name="highs", solver_options={"output_flag": False})
@@ -116,7 +118,7 @@ def solve_case(two_level: bool, sources: list[str], scale: float, snapshot) -> d
     link_loading = n.links_t.p0.loc[t] / (links.p_nom * links.p_max_pu)
     binding = list(loading.index[loading > 0.999]) + list(link_loading.index[link_loading > 0.999])
     return {
-        "grid": "two-level" if two_level else "single-level", "sources": "+".join(sources), "snapshot": t,
+        "grid": f"two-level ({n_minus_1} N-1)" if two_level else "single-level", "sources": "+".join(sources), "snapshot": t,
         "scale": scale, "tn_load_mw": float(n.loads_t.p_set.loc[t, n.loads.index[n.loads.bus.isin(tn)]].sum()),
         "border_import_mw": border, "ists_in_tn_mw": float(gen[ists].sum()), "drawal_mw": border + float(gen[ists].sum()),
         "tn_other_generation_mw": float(gen[tn_gen].sum()),
@@ -128,6 +130,8 @@ def solve_case(two_level: bool, sources: list[str], scale: float, snapshot) -> d
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--two-level", action="store_true")
+    parser.add_argument("--n-minus-1", choices=["substation", "area", "none"], default="substation",
+                        help="transformer N-1 of the two-level grid")
     parser.add_argument("--sources", choices=["all", "S1"], default="all")
     parser.add_argument("--snapshot", type=pd.Timestamp, default=None, help="hour to test; default: TN demand peak")
     parser.add_argument("--scales", type=float, nargs="+", default=[1.0, 1.5, 2.0, 3.0, 4.0])
@@ -136,11 +140,12 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
 
     sources = NEIGHBOURS if args.sources == "all" else S1
-    rows = [solve_case(args.two_level, sources, scale, args.snapshot) for scale in args.scales]
+    rows = [solve_case(args.two_level, sources, scale, args.snapshot, args.n_minus_1) for scale in args.scales]
     table = pd.DataFrame(rows)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        table.to_csv(args.output, index=False, float_format="%.0f")
+        megawatts = [c for c in table.columns if c.endswith("_mw")]
+        table.round({c: 0 for c in megawatts}).to_csv(args.output, index=False)
     columns = ["scale", "tn_load_mw", "border_import_mw", "drawal_mw", "tn_other_generation_mw", "unserved_mw"]
     print(table[columns].round({c: 0 for c in columns[1:]}).to_string(index=False))
     print(f"Grid-India reference: TN import TTC {TTC_MW:,.0f} MW (drawal); S1-(S2&S3) TTC {S1_TTC_MW:,.0f} MW")
