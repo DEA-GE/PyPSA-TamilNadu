@@ -241,6 +241,48 @@ available capacity.
 The declared availability of these plants is 0.9–1.0 in all months, so the
 low winter output is weather, not outages.
 
+### Interstate wind and solar plants on their real output (optional)
+
+`ists_re_plants.enabled: true` (`scripts/ists_re_plants.py`, off by default)
+runs 13 interstate-connected plants on their FY2025-26 output instead of the
+area profiles: 2,638 MW of wind and 398 MW of solar.
+
+- **The series** (`data/model_inputs/tn_ists_re_plant_series_FY2025_26.csv`,
+  from `scripts/prepare_ists_re_plant_output.py`) takes, per plant and hour,
+  the first available of:
+  - the metered output from the plant's own deviation account;
+  - its part of a QCA account: the QCA's metered output less its members' own
+    metered output, split by schedule. QCA membership comes from matching
+    schedules, R² ≥ 0.975;
+  - the plant's REMC schedule.
+
+  73% of the 7.18 TWh is metered (the REMC schedules total 7.48 TWh).
+- **In the network:** each plant is a generator on its pooling station's area
+  bus: Tuticorin → Tirunelveli, Pugalur → Trichy, and Karur → Coimbatore as in
+  the transformer inventory. It has `p_max_pu` = output / capacity and can be
+  curtailed. The area's wind or solar fleet, rooftop excluded, shrinks by the
+  same capacity, pro rata. `basis: scheduled` uses the REMC schedules only.
+  The run writes `ists_re_plants.csv`.
+
+**Test (26 November 2026).** Same five weeks, two levels with substation N-1,
+TTC limit, outages on (`metered_outages_two_level_sub_plants` against
+`metered_outages_two_level_sub`):
+
+| GWh over five weeks | Observed (NITI daily) | Area profiles | Plants on their output |
+|---|---|---|---|
+| Wind | 1,616 | 1,849 | 1,889 |
+| Solar | 1,321 | 1,825 | 1,853 |
+| Coal | 6,398 | 5,060 | 4,988 |
+
+- **Effect:** Tirunelveli wind rises by 44 GWh (+4%), most of it in the July
+  week. Line flows and binding hours barely change: Tirunelveli–Madurai
+  400 kV peaks at 434 against 438 MW.
+- **The statewide seasonal error remains.** The plants are a fifth of the
+  wind fleet, and the other 9.7 GW keep the too-flat profiles. Against the
+  observed daily wind (which still includes out-of-state interstate wind),
+  the model is +56% and +29% in the April weeks and +66% in February, and
+  −1% in July.
+
 ### Solar capacity through the year
 
 The [Solar availability methodology](solar-availability-methodology.md)
