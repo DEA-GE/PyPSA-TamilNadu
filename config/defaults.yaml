@@ -142,6 +142,44 @@ analysis:
   # Compare against observed generation and capacity where available.
   compare_observed: true
 
+grid:
+  # Two voltage levels per Tamil Nadu balancing area (scripts/two_level_grid.py).
+  # Off by default: the built network has one bus per area and corridors whose
+  # rating sums all their circuits. When on, every area gets a 400 kV bus next
+  # to its existing (230 kV and below) bus; corridors and interstate ties are
+  # split by circuit voltage; the two buses are joined by the area's 400/230
+  # and 400/110 kV transformers; plants connected at 400/765 kV move up.
+  two_level: false
+  # Grid workbook with the circuits of every corridor and tie.
+  circuits: data/model_inputs/TN_9BA_with_interconnectors_pypsa_FY2025-26.xlsx
+  # Transformer units with balancing area (prepare_tn_ict_inventory.py).
+  transformers: data/source/srldc_transmission_elements/tn_icts_2026-03.csv
+  # Generator-name patterns of plants connected at 400/765 kV.
+  plant_levels: data/source/srldc_transmission_elements/tn_plant_connection_levels.csv
+  # Transformer reactance on each unit's own rating (typical 400/230 kV ICT).
+  transformer_reactance_pu: 0.125
+  # MW per MVA of transformer rating.
+  transformer_power_factor: 0.95
+  # N-1 of the transformers, the criterion behind Grid-India's import limits:
+  # substation drops the largest unit of every substation (each must survive
+  # the loss of its own largest transformer); area drops only the area's
+  # largest unit; none uses all units.
+  transformer_n_minus_1: substation
+
+
+interstate:
+  # Tamil Nadu's import limit as declared by Grid-India (scripts/interstate_drawal_limit.py):
+  # in every hour, net import over the interstate ties + output of the
+  # interstate-connected stations inside Tamil Nadu + interstate-connected RE
+  # <= the month's declared value. ttc limits the actual flow (the default; the
+  # metered drawal uses the reliability margin in real time), atc the
+  # schedulable value, none switches the limit off (ties limited per circuit only).
+  drawal_limit: ttc
+  # Grid-India declarations per month (prepare_grid_india_ttc.py).
+  transfer_capability: data/source/grid_india_ttc_fy2025_26/transfer_capability_fy2025_26.csv
+  # Hourly output of interstate-connected RE inside Tamil Nadu (interstate_re_mw).
+  metered_interchange: data/model_inputs/tn_metered_interchange_FY2025_26.csv
+
 technologies:
   # Technologies added to the base network for scenario studies; see
   # config/scenarios/ and the scenario section of README.md. The defaults add
@@ -164,3 +202,52 @@ technologies:
   # CSV of capacities chosen by a capacity-expansion run (written by the
   # Snakemake workflow); they replace "optimise" for an operational run.
   fixed_capacities: null
+
+outages:
+  # Coal unit availability (scripts/generator_outages.py): auxiliary
+  # consumption, planned maintenance and forced outages of the committable coal
+  # units. Off by default, so a run without this section solves the model as
+  # it is (static coal p_max_pu 0.85). When on, days before commissioning,
+  # commercial unavailability (no fuel supply agreement, no PPA) and units out
+  # of service all year are always imposed; reserve shutdowns never are.
+  enabled: false
+  # Static availability under the outages: net_of_auxiliary (1 - auxiliary
+  # consumption; Tamil Nadu demand is ex-bus), gross (1.0) or model (keep the
+  # network's p_max_pu).
+  base_availability: net_of_auxiliary
+  # Partial deratings of running units: demonstrated caps each unit at its
+  # best whole day of FY2025-26 without outage, as a share of its rating; none
+  # leaves units at their full rating.
+  partial_derating: demonstrated
+  # Central coal stations (Vallur, NTPL, NNTPS, four NLC stations): declared
+  # uses their declared capacity from the SRPC Regional Energy Accounts, hour
+  # by hour with planned and forced outages both actual, otherwise as one
+  # factor per station; record treats them like the other units.
+  central_availability: declared
+  # hourly, or monthly / annual: availability averaged per month or year for a
+  # less restricted run (a partly available unit acts as a smaller unit, its
+  # minimum load scaled likewise).
+  resolution: hourly
+  # Planned maintenance: actual (FY2025-26 record), optimise (PyPSA's
+  # maintenance scheduling chooses the dates for each unit's FY2025-26
+  # maintenance duration, in one annual MILP at daily resolution) or none.
+  planned: actual
+  # Forced outages: actual (FY2025-26 record), sampled (random, from the
+  # record's outage rates and durations per unit size class) or none.
+  forced: actual
+  # Random seed of the sampled forced outages; each unit has its own stream,
+  # so every scenario with the same seed gets the same outages.
+  seed: 1
+  # Outage record, auxiliary consumption and demonstrated capability, from
+  # scripts/prepare_coal_outages.py.
+  record: data/model_inputs/coal_unit_outages_FY2025_26.csv
+  auxiliary: data/model_inputs/coal_auxiliary_consumption.csv
+  capability: data/model_inputs/coal_unit_capability_FY2025_26.csv
+  # Declared capacity of the central stations and their units, from
+  # scripts/prepare_declared_capacity.py.
+  declared_capacity: data/model_inputs/central_station_declared_capacity_FY2025_26.csv
+  declared_units: data/model_inputs/central_station_units.csv
+  # planned: optimise only: CSV of a maintenance schedule written by an earlier
+  # run (maintenance_schedule.csv in its folder), used instead of scheduling
+  # again. The Snakemake workflow schedules once and shares it.
+  maintenance_schedule: null

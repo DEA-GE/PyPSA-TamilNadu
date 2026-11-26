@@ -1,0 +1,27 @@
+date,owner,bus,ict_id,kv,mva,mva_basis,source
+2023-08-30,PGCIL,TTGS,5,400/230,500,stated,Annual Compendium 2023-24 Table 32 row 7
+2023-10-07,TANTRANSCO,VELLALAVIDUTHI,4,400/230,315,stated,Annual Compendium 2023-24 Table 32 row 14
+2023-11-29,KARUR_TL,KARUR PS,1,400/230,500,stated,Annual Compendium 2023-24 Table 32 row 16
+2023-11-29,KARUR_TL,KARUR PS,2,400/230,500,stated,Annual Compendium 2023-24 Table 32 row 15
+2023-12-15,TANTRANSCO,VELLALAVIDUTHI,3,400/230,315,stated,Annual Compendium 2023-24 Table 32 row 25
+2023-12-22,PGCIL,TTGS,4,400/230,500,stated,Annual Compendium 2023-24 Table 32 row 22
+2023-12-27,TANTRANSCO,ARIYALUR,2,765/400,1500,stated,Annual Compendium 2023-24 Table 32 rows 26/28/35 (same unit listed three times)
+2024-01-31,PGCIL,TRICHY-PG,2,400/230,500,stated,Annual Compendium 2023-24 Table 32 row 27 (replaces the 315 MVA ICT-2)
+2024-02-02,TANTRANSCO,NORTH CHENNAI PS,2,765/400,1500,stated,Annual Compendium 2023-24 Table 32 row 39
+2024-02-02,TANTRANSCO,NORTH CHENNAI PS,3,765/400,1500,stated,Annual Compendium 2023-24 Table 32 row 40
+2024-05-14,TANTRANSCO,SRIPERUMBUDUR,6,400/230,500,assumed (500 MVA new 400/230 kV unit),Annual Compendium 2024-25 Table 63 row 4 (listed as 400/220/33)
+2024-05-20,TANTRANSCO,SALEM-TN,4,400/110,200,previous rating kept,Annual Compendium 2024-25 Table 63 row 5 (replaces ICT-4)
+2024-05-21,TANTRANSCO,THIRUVALAM-TN 400/230,3,400/230,500,assumed (500 MVA new 400/230 kV unit),Annual Compendium 2024-25 Table 63 row 6
+2024-06-26,PGCIL,ARASUR-PG,4,400/230,500,assumed (500 MVA new 400/230 kV unit),Annual Compendium 2024-25 Table 63 row 9 (listed as 400/220/33)
+2024-06-28,TANTRANSCO,ALAMATHI,6,400/110,200,assumed (200 MVA new 400/110 kV unit),Annual Compendium 2024-25 Table 63 row 10
+2024-07-05,TANTRANSCO,KAYATHAR 400/230/110,4,400/110,200,assumed (200 MVA new 400/110 kV unit),Annual Compendium 2024-25 Table 63 row 12
+2024-10-30,TANTRANSCO,ARIYALUR,1,765/400,1500,assumed (1500 MVA new 765/400 kV unit),Annual Compendium 2024-25 Table 63 row 29
+2024-11-21,TANTRANSCO,VELLALAVIDUTHI,2,400/110,200,assumed (200 MVA new 400/110 kV unit),Annual Compendium 2024-25 Table 63 row 36
+2024-11-27,TANTRANSCO,SRIPERUMBUDUR,1,400/230,315,previous rating kept,Annual Compendium 2024-25 Table 63 row 37 (replaces ICT-1)
+2024-12-17,TANTRANSCO,VIRUDHUNAGAR,1,765/400,1500,assumed (1500 MVA new 765/400 kV unit),Annual Compendium 2024-25 Table 63 row 39
+2024-12-17,TANTRANSCO,VIRUDHUNAGAR,2,765/400,1500,assumed (1500 MVA new 765/400 kV unit),Annual Compendium 2024-25 Table 63 row 40
+2025-04-05,TANTRANSCO,SALEM-TN,6,400/230,500,stated,Annual Compendium 2025-26 Table 56 row 1
+2025-04-23,TANTRANSCO,KORATTUR,2,400/230,500,stated,Annual Compendium 2025-26 Table 56 row 2
+2025-04-23,TANTRANSCO,KORATTUR,4,400/110,200,stated,Annual Compendium 2025-26 Table 56 row 3
+2025-06-03,TANTRANSCO,KORATTUR,1,400/110,200,stated,Annual Compendium 2025-26 Table 56 row 17
+2025-06-04,TANTRANSCO,KORATTUR,3,400/230,500,stated,Annual Compendium 2025-26 Table 56 row 18

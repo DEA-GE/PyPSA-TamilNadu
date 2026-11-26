@@ -23,6 +23,7 @@ from highs_solver_options import (
     reset_highs_global_scheduler,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from commitment_prices import price_fixed_commitment
 from small_hydro_targets import small_hydro_energy_target_mwh
 
 from nuclear_energy_targets import (
@@ -59,7 +60,15 @@ from energy_target_policy import (
     target_enabled,
 )
 from rooftop_solar import apply_rooftop_solar
+from generator_outages import (
+    apply_outages,
+    coal_own_use,
+    gross_coal_for_comparison,
+    write_outputs as write_outage_outputs,
+)
 from scenario_technologies import apply_technologies, network_fingerprint
+from two_level_grid import apply_two_level_grid
+from interstate_drawal_limit import add_drawal_limit, apply_drawal_limit, tag as drawal_limit_tag
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
 from run_profiling import (
@@ -511,6 +520,12 @@ def _carrier_energy_by_day(network: pypsa.Network) -> pd.DataFrame:
     output["comparable_total"] = output[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum(axis=1)
+    # Auxiliary consumption of net (ex-bus) coal dispatch, added back when
+    # comparing with observed gross generation.
+    own_use = coal_own_use(network).mul(weights, axis=0)
+    output["coal_own_use"] = (
+        own_use.groupby(own_use.index.normalize()).sum().div(1000.0).reindex(output.index).fillna(0.0)
+    )
     output.index.name = "date"
     return output
 
@@ -651,6 +666,7 @@ def _solve_peak_week(
                 name=f"daily_oil_gas_energy_{date:%Y_%m_%d}",
             )
         add_transmission_flow_cost(active_network, active_snapshots)
+        add_drawal_limit(active_network, active_snapshots)
 
     report(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...")
     started = time.perf_counter()
@@ -667,11 +683,15 @@ def _solve_peak_week(
         include_objective_constant=False,
         linearized_unit_commitment=unit_commitment == "relaxed",
     )
-    runtime = time.perf_counter() - started
     if status != "ok":
         raise RuntimeError(f"Peak-week solve failed: status={status}, condition={condition}")
     if profiler.last_solve:
         report(f"Peak week: {format_solve_breakdown(profiler.last_solve)}")
+    if unit_commitment == "full":
+        with profiler.phase("commitment_prices"):
+            price_summary = price_fixed_commitment(network, solver_name=solver_name, threads=solver_threads)
+        report(f"Peak week: prices with the commitment fixed ({price_summary['price_lp_attempts']}).")
+    runtime = time.perf_counter() - started
 
     modeled = _carrier_energy_by_day(network)
     gas_deviation = modeled["oil_gas"].reindex(dates).mul(1000.0).sub(gas_targets)
@@ -1126,6 +1146,7 @@ def _solve_selected_weeks(
                         active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
                         active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
                 add_transmission_flow_cost(active_network, active_snapshots)
+                add_drawal_limit(active_network, active_snapshots)
 
             report(
                 f"Solving selected week {position}/{len(starts)}: {start.date()} to "
@@ -1146,7 +1167,6 @@ def _solve_selected_weeks(
                 include_objective_constant=False,
                 linearized_unit_commitment=unit_commitment == "relaxed",
             )
-            runtime = time.perf_counter() - started
             if status != "ok" or condition != "optimal":
                 raise RuntimeError(
                     f"Selected week {start.date()} failed: status={status}, "
@@ -1155,6 +1175,16 @@ def _solve_selected_weeks(
             solve_profile = profiler.last_solve or {}
             if solve_profile:
                 report(f"Selected week {start.date()}: {format_solve_breakdown(solve_profile)}")
+            if unit_commitment == "full":
+                with profiler.phase("commitment_prices"):
+                    price_summary = price_fixed_commitment(
+                        network, solver_name=solver_name, threads=solver_threads
+                    )
+                report(
+                    f"Selected week {start.date()}: prices with the commitment fixed "
+                    f"({price_summary['price_lp_attempts']})."
+                )
+            runtime = time.perf_counter() - started
 
             modeled = _carrier_energy_by_day(network).reindex(retained_dates)
             modeled_parts.append(modeled)
@@ -1289,6 +1319,7 @@ def _solve_selected_weeks(
                 retained_dates,
                 modeled,
                 observed,
+                read_observed_annual_generation(),
                 week_validation,
                 week_dir,
                 network,
@@ -1328,6 +1359,9 @@ def _write_outputs(
         observed_period.index.name = "date"
         modeled_period.to_csv(output_dir / "modeled_daily_generation.csv")
         observed_period.to_csv(output_dir / "observed_daily_generation.csv")
+        # Observed generation is gross: compare coal including the auxiliary
+        # consumption of net coal dispatch (zero without the outage module).
+        modeled_period = gross_coal_for_comparison(modeled_period)
 
         annual_start = pd.Timestamp(observed_annual["period_start"].iloc[0]).normalize()
         annual_end = pd.Timestamp(observed_annual["period_end"].iloc[0]).normalize()
@@ -1484,11 +1518,14 @@ def run_selection(
     profile_log_level: str = "INFO",
     profile_sample_interval: float = 1.0,
     technologies: Mapping[str, Any] | None = None,
+    grid: Mapping[str, Any] | None = None,
+    interstate: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
     rooftop_solar: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1560,11 +1597,14 @@ def _run_selection(
     resume: bool = True,
     max_windows: int | None = None,
     technologies: Mapping[str, Any] | None = None,
+    grid: Mapping[str, Any] | None = None,
+    interstate: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
     rooftop_solar: Mapping[str, Any] | None = None,
+    outages: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1671,6 +1711,26 @@ def _run_selection(
             f"Rooftop solar left out: removed {len(removed_rooftop)} generators "
             f"({removed_rooftop.sum():,.1f} MW rated); the demand is net of rooftop output."
         )
+    with profiler.phase("apply_two_level_grid"):
+        grid_report = apply_two_level_grid(base_network, grid)
+    if not grid_report.empty:
+        counts = grid_report.groupby(["component", "level"]).size()
+        report(
+            "Two-level grid: "
+            + ", ".join(f"{count} {component} ({level})" for (component, level), count in counts.items())
+        )
+    with profiler.phase("apply_outages"):
+        outage_result = apply_outages(
+            base_network, outages, solver_name=solver_name, threads=solver_threads
+        )
+    if outage_result is not None:
+        summary = outage_result.units
+        report(
+            f"Coal unit outages ({outages['planned']} maintenance, {outages['forced']} forced "
+            f"outages, {outages['base_availability']} base): mean available "
+            f"{(summary.mean_availability * summary.p_nom_mw).sum():,.0f} of "
+            f"{summary.p_nom_mw.sum():,.0f} MW. " + " ".join(outage_result.notes)
+        )
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
@@ -1702,12 +1762,23 @@ def _run_selection(
             f"{int((shortfall > 1.0).sum())} period(s); total shortfall "
             f"{float(shortfall.sum()) / 1_000.0:,.1f} GWh (see energy_target_availability.csv)."
         )
+    with profiler.phase("apply_drawal_limit"):
+        drawal_report = apply_drawal_limit(base_network, interstate)
+    if not drawal_report.empty:
+        report(
+            f"Tamil Nadu drawal limit ({drawal_limit_tag(base_network)}): "
+            f"{drawal_report.limit_mw.min():,.0f}-{drawal_report.limit_mw.max():,.0f} MW; "
+            f"fixed interstate schedule leaves at least {drawal_report.headroom_mw.min():,.0f} MW "
+            "for the interstate-connected stations"
+        )
     # Lets resumable modes reject checkpoints solved with a different network.
     # The energy-target policy is not visible in the network data when targets
     # are only released, so a non-default policy extends the fingerprint.
     fingerprint = network_fingerprint(base_network)
     if not is_default(energy_target_policy, cost_overrides):
         fingerprint += "+policy-" + policy_tag(energy_target_policy, cost_overrides)
+    if drawal_limit_tag(base_network):
+        fingerprint += "+" + drawal_limit_tag(base_network)
     base_network.meta = {
         **(base_network.meta or {}),
         "input_fingerprint": fingerprint,
@@ -1757,6 +1828,12 @@ def _run_selection(
         cost_report.to_csv(output_dir / "marginal_cost_overrides.csv", index=False)
     if not added_technologies.empty:
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
+    if not grid_report.empty:
+        grid_report.to_csv(output_dir / "two_level_grid.csv", index=False)
+    if not drawal_report.empty:
+        drawal_report.to_csv(output_dir / "drawal_limit.csv", index_label="snapshot")
+    if outage_result is not None:
+        write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)
     with solve_phase:
         modeled, validation, solved_network = _solve_mode(

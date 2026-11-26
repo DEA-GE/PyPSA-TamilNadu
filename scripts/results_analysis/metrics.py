@@ -80,15 +80,44 @@ def generation_by_carrier(run: AnalysisRun) -> pd.DataFrame:
     return result
 
 
+def coal_own_use_timeseries(run: AnalysisRun) -> pd.Series:
+    """Hourly auxiliary consumption (MW) of net coal dispatch.
+
+    With the outage module's base availability net of auxiliary consumption,
+    coal generators carry an ``auxiliary_consumption`` share and dispatch net
+    (ex-bus) output; observed generation is gross, so comparisons add this back.
+    Zero when the attribute is absent.
+    """
+    generators = run.base.generators
+    if "auxiliary_consumption" not in generators:
+        return pd.Series(0.0, index=run.snapshots)
+    share = generators["auxiliary_consumption"].fillna(0.0)
+    share = share[share > 0]
+    dispatch = run.frame("generators", "p")
+    units = share.index.intersection(dispatch.columns)
+    if units.empty:
+        return pd.Series(0.0, index=run.snapshots)
+    return dispatch[units].mul(share[units] / (1.0 - share[units]), axis=1).sum(axis=1)
+
+
 def generation_comparison(
     run: AnalysisRun,
     observed_daily: pd.DataFrame | None,
     observed_annual: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    """Compare modeled and observed generation over the analyzed period."""
+    """Compare modeled and observed generation over the analyzed period.
+
+    Observed generation is gross, so modeled coal includes the auxiliary
+    consumption of net coal dispatch (``own_use_gwh``).
+    """
     result = generation_by_carrier(run).rename(
         columns={"generation_gwh": "modeled_generation_gwh"}
     )
+    own_use = float(coal_own_use_timeseries(run).mul(run.weights, fill_value=0.0).sum()) / 1_000.0
+    result["own_use_gwh"] = 0.0
+    if own_use > 0 and "coal" in result.index:
+        result.loc["coal", "own_use_gwh"] = own_use
+        result.loc["coal", "modeled_generation_gwh"] += own_use
     # Keep the comparison taxonomy aligned with the annual NITI Dashboard input.
     # Model dispatch is stored in MWh and generation_by_carrier converts it to
     # GWh (1 MU = 1 GWh) before these aggregates are formed.
@@ -630,7 +659,8 @@ def average_price(run: AnalysisRun, prices: pd.DataFrame | None = None) -> float
 def price_metrics(run: AnalysisRun) -> pd.DataFrame:
     """Summarize marginal prices (currency/MWh) at each electricity bus.
 
-    Empty when the solves carry no prices (binary unit commitment). Hours at
+    Empty when the solves carry no prices (binary unit-commitment runs made
+    before the fixed-commitment price solve). Hours at
     the unserved-energy price are hours in which load shedding set the price.
     """
     prices = price_timeseries(run)
@@ -745,7 +775,11 @@ def monthly_generation_comparison(
     observed_daily: pd.DataFrame | None,
     observed_monthly: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    modeled = generation_by_carrier_timeseries(run).resample("MS").sum() / 1_000.0
+    hourly = generation_by_carrier_timeseries(run)
+    if "coal" in hourly:
+        # Gross basis of observed generation (see generation_comparison).
+        hourly = hourly.assign(coal=hourly["coal"] + coal_own_use_timeseries(run).reindex(hourly.index).fillna(0.0))
+    modeled = hourly.resample("MS").sum() / 1_000.0
     modeled.index.name = "month"
     modeled_long = modeled.rename_axis(columns="carrier").stack().rename("modeled_gwh").to_frame()
     if observed_monthly is not None:

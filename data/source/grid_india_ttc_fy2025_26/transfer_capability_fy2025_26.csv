@@ -1,0 +1,107 @@
+area,month,revision,latest,issue_date,period,blocks,ttc_mw,rm_mw,atc_mw,net_gna_mw,tgna_margin_mw,change,remark,source_file,original_file
+Andhra Pradesh,2025-04,1,True,2025-03-28,00-06,1-24,8597,268,8329,4516,3813.0,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Andhra Pradesh,2025-04,1,True,2025-03-28,06-12,25-48,4548,268,4280,4516,,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Andhra Pradesh,2025-04,1,True,2025-03-28,12-18,49-72,4368,268,4100,4516,,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Andhra Pradesh,2025-04,1,True,2025-03-28,18-24,73-96,8015,268,7747,4516,,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Andhra Pradesh,2025-06,0,True,2025-03-28,00-06,1-24,9173,268,8905,4516,4389.0,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Andhra Pradesh,2025-06,0,True,2025-03-28,06-12,25-48,8812,268,8544,4516,4028.0,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Andhra Pradesh,2025-06,0,True,2025-03-28,12-18,49-72,5272,268,5004,4516,,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Andhra Pradesh,2025-06,0,True,2025-03-28,18-24,73-96,8949,268,8681,4516,4165.0,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Andhra Pradesh,2025-07,1,True,2025-06-30,00-06,1-24,8442,268,8174,4516,3658.0,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Andhra Pradesh,2025-07,1,True,2025-06-30,06-12,25-48,9239,268,8971,4516,4455.0,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Andhra Pradesh,2025-07,1,True,2025-06-30,12-18,49-72,8912,268,8644,4516,4128.0,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Andhra Pradesh,2025-07,1,True,2025-06-30,18-24,73-96,9147,268,8879,4516,4363.0,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Andhra Pradesh,2025-08,0,False,2024-08-30,00-06,1-24,5960,268,5692,4516,1176.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Andhra Pradesh,2025-08,0,False,2024-08-30,06-12,25-48,9035,268,8767,4516,4251.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Andhra Pradesh,2025-08,0,False,2024-08-30,12-18,49-72,7214,268,6946,4516,2430.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Andhra Pradesh,2025-08,0,False,2024-08-30,18-24,73-96,5392,268,5124,4516,608.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Andhra Pradesh,2025-08,1,True,2025-07-31,00-06,1-24,5960,268,5692,4516,1176.0,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Andhra Pradesh,2025-08,1,True,2025-07-31,06-12,25-48,9035,268,8767,4516,4251.0,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Andhra Pradesh,2025-08,1,True,2025-07-31,12-18,49-72,7214,268,6946,4516,2430.0,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Andhra Pradesh,2025-08,1,True,2025-07-31,18-24,73-96,5392,268,5124,4516,608.0,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Andhra Pradesh,2025-09,1,True,2025-08-28,00-06,1-24,9132,268,8864,4516,4348.0,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Andhra Pradesh,2025-09,1,True,2025-08-28,06-12,25-48,7476,268,7208,4516,2692.0,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Andhra Pradesh,2025-09,1,True,2025-08-28,12-18,49-72,5229,268,4961,4516,445.0,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Andhra Pradesh,2025-09,1,True,2025-08-28,18-24,73-96,9128,268,8860,4516,4344.0,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Andhra Pradesh,2025-10,0,True,2024-10-30,00-06,1-24,5251,268,4983,4516,467.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Andhra Pradesh,2025-10,0,True,2024-10-30,06-12,25-48,7549,268,7281,4516,2765.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Andhra Pradesh,2025-10,0,True,2024-10-30,12-18,49-72,5082,268,4814,4516,298.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Andhra Pradesh,2025-10,0,True,2024-10-30,18-24,73-96,5129,268,4861,4516,345.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Andhra Pradesh,2025-11,1,True,2025-10-31,00-06,1-24,9685,268,9417,4516,4901.0,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Andhra Pradesh,2025-11,1,True,2025-10-31,06-12,25-48,10491,268,10223,4516,5707.0,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Andhra Pradesh,2025-11,1,True,2025-10-31,12-18,49-72,8161,268,7893,4516,3377.0,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Andhra Pradesh,2025-11,1,True,2025-10-31,18-24,73-96,10179,268,9911,4516,5395.0,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Andhra Pradesh,2025-12,1,True,2025-11-28,00-06,1-24,9024,268,8756,4516,4240.0,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Andhra Pradesh,2025-12,1,True,2025-11-28,06-12,25-48,5315,268,5047,4516,531.0,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Andhra Pradesh,2025-12,1,True,2025-11-28,12-18,49-72,4786,268,4518,4516,2.0,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Andhra Pradesh,2025-12,1,True,2025-11-28,18-24,73-96,8793,268,8525,4516,4009.0,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Andhra Pradesh,2026-01,1,True,2025-12-28,00-06,1-24,6696,268,6428,4516,1912.0,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Andhra Pradesh,2026-01,1,True,2025-12-28,06-12,25-48,5905,268,5637,4516,1121.0,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Andhra Pradesh,2026-01,1,True,2025-12-28,12-18,49-72,5189,268,4921,4516,405.0,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Andhra Pradesh,2026-01,1,True,2025-12-28,18-24,73-96,6722,268,6454,4516,1938.0,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Andhra Pradesh,2026-02,0,True,2025-02-28,00-06,1-24,5915,268,5647,4516,1131.0,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Andhra Pradesh,2026-02,0,True,2025-02-28,06-12,25-48,4006,268,3738,4516,,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Andhra Pradesh,2026-02,0,True,2025-02-28,12-18,49-72,4067,268,3799,4516,,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Andhra Pradesh,2026-02,0,True,2025-02-28,18-24,73-96,4613,268,4345,4516,,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Andhra Pradesh,2026-03,0,False,2025-03-28,00-06,1-24,9173,268,8905,4516,4389.0,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Andhra Pradesh,2026-03,0,False,2025-03-28,06-12,25-48,8812,268,8544,4516,4028.0,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Andhra Pradesh,2026-03,0,False,2025-03-28,12-18,49-72,5272,268,5004,4516,,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Andhra Pradesh,2026-03,0,False,2025-03-28,18-24,73-96,8949,268,8681,4516,4165.0,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Andhra Pradesh,2026-03,1,True,2026-01-27,00-06,1-24,8453,268,8185,4516,3669.0,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Andhra Pradesh,2026-03,1,True,2026-01-27,06-12,25-48,5294,268,5026,4516,510.0,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Andhra Pradesh,2026-03,1,True,2026-01-27,12-18,49-72,5029,268,4761,4516,245.0,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Andhra Pradesh,2026-03,1,True,2026-01-27,18-24,73-96,8200,268,7932,4516,3416.0,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Karnataka,2025-04,1,True,2025-03-28,00-24,1-96,3440,340,3100,5376,,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Karnataka,2025-06,0,True,2025-03-28,00-24,1-96,3050,340,2710,5376,,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Karnataka,2025-07,1,True,2025-06-30,00-24,1-96,3600,340,3260,5376,,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Karnataka,2025-08,0,False,2024-08-30,00-24,1-96,3679,340,3339,5376,,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Karnataka,2025-08,1,True,2025-07-31,00-24,1-96,2450,340,2110,5376,,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Karnataka,2025-09,1,True,2025-08-28,00-24,1-96,5580,340,5240,5376,,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Karnataka,2025-10,0,True,2024-10-30,00-24,1-96,3918,340,3578,5376,,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Karnataka,2025-11,1,True,2025-10-31,00-24,1-96,4896,340,4556,5376,,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Karnataka,2025-12,1,True,2025-11-28,00-24,1-96,3750,340,3410,5376,,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Karnataka,2026-01,1,True,2025-12-28,00-24,1-96,3750,340,3410,5376,,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Karnataka,2026-02,0,True,2025-02-28,00-24,1-96,3682,340,3342,5376,,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Karnataka,2026-03,0,False,2025-03-28,00-24,1-96,3050,340,2710,5376,,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Karnataka,2026-03,1,True,2026-01-27,00-24,1-96,4030,340,3690,5376,,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Puducherry,2025-04,1,True,2025-03-28,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Puducherry,2025-06,0,True,2025-03-28,00-24,1-96,550,10,540,540,,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Puducherry,2025-07,1,True,2025-06-30,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Puducherry,2025-08,0,False,2024-08-30,00-24,1-96,550,10,540,540,,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Puducherry,2025-08,1,True,2025-07-31,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Puducherry,2025-09,1,True,2025-08-28,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Puducherry,2025-10,0,True,2024-10-30,00-24,1-96,550,10,540,540,,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Puducherry,2025-11,1,True,2025-10-31,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Puducherry,2025-12,1,True,2025-11-28,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Puducherry,2026-01,1,True,2025-12-28,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Puducherry,2026-02,0,True,2025-02-28,00-24,1-96,550,10,540,540,,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Puducherry,2026-03,0,False,2025-03-28,00-24,1-96,550,10,540,540,,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Puducherry,2026-03,1,True,2026-01-27,00-24,1-96,550,10,540,540,,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+S1-(S2&S3),2025-12,1,True,2025-11-21,00-24,1-96,11300,450,10850,5574,5276.0,+400,R1,s1_s2s3_corridor_2025-12_rev1.pdf,S1-(S2&S3) TTC ATC Dec 25 Rev 1_103.pdf
+S3,2025-12,1,True,2025-11-21,00-24,1-96,4575,120,4455,2679,1776.0,225,R1,s1_s2s3_corridor_2025-12_rev1.pdf,S1-(S2&S3) TTC ATC Dec 25 Rev 1_103.pdf
+Tamil Nadu,2025-04,1,True,2025-03-28,00-24,1-96,14050,350,13700,9177,4523.0,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Tamil Nadu,2025-06,0,True,2025-03-28,00-24,1-96,14050,350,13700,9177,4523.0,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Tamil Nadu,2025-07,1,True,2025-06-30,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Tamil Nadu,2025-08,0,False,2024-08-30,00-24,1-96,14050,350,13700,9177,4523.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Tamil Nadu,2025-08,1,True,2025-07-31,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Tamil Nadu,2025-09,1,True,2025-08-28,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Tamil Nadu,2025-10,0,True,2024-10-30,00-24,1-96,14050,350,13700,9177,4523.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Tamil Nadu,2025-11,1,True,2025-10-31,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Tamil Nadu,2025-12,1,True,2025-11-28,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Tamil Nadu,2026-01,1,True,2025-12-28,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Tamil Nadu,2026-02,0,True,2025-02-28,00-24,1-96,14050,350,13700,9177,4523.0,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Tamil Nadu,2026-03,0,False,2025-03-28,00-24,1-96,14050,350,13700,9177,4523.0,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Tamil Nadu,2026-03,1,True,2026-01-27,00-24,1-96,14600,420,14180,9177,5003.0,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf
+Telangana,2025-04,1,True,2025-03-28,00-24,1-96,10175,280,9895,7420,2475.0,-,R1,sr_state_import_2025-04_rev1.pdf,SR_TTC_Apr'25_Rev1_215.pdf
+Telangana,2025-06,0,True,2025-03-28,00-24,1-96,10115,330,9785,7420,2365.0,-,R0,sr_state_import_2025-06_rev0.pdf,SR_State_TTC_June'25_Rev0_644.pdf
+Telangana,2025-07,1,True,2025-06-30,00-24,1-96,8559,280,8279,7420,,-,R1,sr_state_import_2025-07_rev1.pdf,SR state TTC Jul 25 Rev1_928.pdf
+Telangana,2025-08,0,False,2024-08-30,00-24,1-96,7940,272,7668,7420,248.0,-,R0,sr_state_import_2025-08_rev0.pdf,SR_TTC_Aug'25_Rev0 (1).pdf
+Telangana,2025-08,1,True,2025-07-31,00-24,1-96,7850,280,7570,7420,,-,R1,sr_state_import_2025-08_rev1.pdf,SR TTC Aug 25 Rev1_467.pdf
+Telangana,2025-09,1,True,2025-08-28,00-24,1-96,6946,302,6644,7420,,-,R1,sr_state_import_2025-09_rev1.pdf,SR State TTC Sep 25 Rev1_542 (1).pdf
+Telangana,2025-10,0,True,2024-10-30,00-24,1-96,7940,272,7668,7420,248.0,-,R0,sr_state_import_2025-10_rev0.pdf,State_TTC_Oct'25_Rev0.pdf
+Telangana,2025-11,1,True,2025-10-31,00-24,1-96,6390,222,6168,7420,,-,R1,sr_state_import_2025-11_rev1.pdf,SR State TTC Nov 25 Rev 1_771 (1).pdf
+Telangana,2025-12,1,True,2025-11-28,00-24,1-96,8108,283,7825,7420,,-,R1,sr_state_import_2025-12_rev1.pdf,SR State TTC Dec 25 Rev1_601.pdf
+Telangana,2026-01,1,True,2025-12-28,00-24,1-96,5924,283,5641,7420,,-,R1,sr_state_import_2026-01_rev1.pdf,SR States ATC 2026 January R1_400 (1).pdf
+Telangana,2026-02,0,True,2025-02-28,00-24,1-96,9983,330,9653,7420,2233.0,-,-,sr_state_import_2026-02_rev0.pdf,SR_State_TTC_Feb'26_Rev0.pdf
+Telangana,2026-03,0,False,2025-03-28,00-24,1-96,10115,330,9785,7420,2365.0,-,R0,sr_state_import_2026-03_rev0.pdf,SR_TTC_Mar'26_Rev0_702 (1).pdf
+Telangana,2026-03,1,True,2026-01-27,00-24,1-96,7949,283,7666,7420,,-,R1,sr_state_import_2026-03_rev1.pdf,SR State TTC Mar 26 Rev1_868.pdf

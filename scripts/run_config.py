@@ -17,6 +17,9 @@ import yaml
 
 from energy_target_policy import normalise_cost_overrides, normalise_policy
 from rooftop_solar import validate_section as validate_rooftop_solar
+from two_level_grid import TwoLevelGridError, validate_section as validate_grid_section
+from interstate_drawal_limit import DrawalLimitError, validate_section as validate_interstate
+from generator_outages import OutageError, validate_section as validate_outages
 from scenario_technologies import (
     TechnologyError,
     needs_capacity_expansion,
@@ -235,6 +238,15 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
     except ValueError as error:
         raise ConfigError(str(error)) from error
 
+    try:
+        validate_grid_section(config["grid"])
+    except TwoLevelGridError as error:
+        raise ConfigError(str(error)) from error
+    try:
+        config["interstate"] = validate_interstate(config["interstate"])
+    except DrawalLimitError as error:
+        raise ConfigError(str(error)) from error
+
     technologies = config["technologies"]
     try:
         validate_section(technologies)
@@ -249,6 +261,10 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
             "technologies.fixed_capacities, or use the Snakemake workflow, which "
             "does both."
         )
+    try:
+        config["outages"] = validate_outages(config["outages"])
+    except OutageError as error:
+        raise ConfigError(str(error)) from error
     return config
 
 
@@ -256,15 +272,23 @@ def load_run_config(
     path: str | Path | None,
     overrides: Iterable[str] = (),
     defaults_path: str | Path = DEFAULTS_PATH,
+    ignore_sections: Iterable[str] = (),
 ) -> dict[str, Any]:
-    """Return the validated, fully merged configuration as a nested dict."""
+    """Return the validated, fully merged configuration as a nested dict.
+
+    Sections named in ``ignore_sections`` are taken from the defaults, not
+    from the config file (e.g. a scenario's technologies).
+    """
     defaults = _read_yaml(Path(defaults_path))
     config = copy.deepcopy(defaults)
     if path is not None:
         config_path = Path(path)
         if not config_path.exists():
             raise ConfigError(f"Config file does not exist: {config_path}")
-        config = _merge(config, _read_yaml(config_path), str(config_path))
+        data = _read_yaml(config_path)
+        for section in ignore_sections:
+            data.pop(section, None)
+        config = _merge(config, data, str(config_path))
     for text in overrides:
         config = _merge(config, parse_override(text), f"--set {text}")
     return _validate(config)
@@ -307,11 +331,14 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "profile_log_level": config["logging"]["level"],
         "profile_sample_interval": config["logging"]["sample_interval"],
         "technologies": config["technologies"],
+        "grid": dict(config["grid"]),
+        "interstate": dict(config["interstate"]),
         "lp_method": config["solver"]["lp_method"],
         "crossover": config["solver"]["crossover"],
         "energy_targets": dict(config["energy_targets"]),
         "marginal_costs": dict(config["marginal_costs"]),
         "rooftop_solar": dict(config["rooftop_solar"]),
+        "outages": config["outages"],
     }
 
 

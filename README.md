@@ -53,6 +53,10 @@ If `python` is not on your path, use the Python executable from your environment
    python scripts/build_9ba_model.py
    ```
 
+   The interstate exchange matches Tamil Nadu's metered net import by default
+   (`--interchange transactions` uses the REA transactions only); see
+   "Metered interchange" in [docs/input-data.md](docs/input-data.md).
+
 3. For a first solve, run the one-day example config. It solves 11 July 2025
    with relaxed unit commitment on one thread and finishes in under a minute:
 
@@ -165,6 +169,9 @@ the run's `profile/highs/` folder instead.
 | `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
 | `technologies.*` | Batteries and offshore wind added for a scenario; empty by default, so runs use the model as it is. See [Scenarios](#scenarios-batteries-and-offshore-wind). |
 | `rooftop_solar.include` | `true` (the default) keeps grid-connected rooftop solar as supply, as built. `false` removes its nine area generators before the solve, because the demand series is already net of rooftop output. See [Renewable profiles](#renewable-profiles). |
+| `outages.*` | Coal unit availability; off by default (`outages.enabled: false`, static coal `p_max_pu` 0.85). When on, the hourly `p_max_pu` of the 49 committable coal units is base availability × capability × (1 − share of the hour out). `base_availability`: `net_of_auxiliary` (1 − auxiliary consumption, the default), `gross` (1.0) or `model` (0.85). `partial_derating`: `demonstrated` (each unit capped at its best FY2025-26 day without outage, the default) or `none`. `central_availability`: `declared` (the seven central stations use their SRPC declared capacity, hour by hour in the backcast, the default) or `record`. `resolution`: `hourly` (the default), `monthly` or `annual` (availability averaged per month or year, minimum load scaled likewise, for a less restricted run). `planned`: `actual` (FY2025-26 maintenance record), `optimise` (PyPSA's maintenance scheduling chooses the dates) or `none`. `forced`: `actual` (FY2025-26 record), `sampled` (random with `seed`, from the record's rates and durations) or `none`. Commissioning dates, commercial unavailability and units out all year always apply; reserve shutdowns never do. See [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages). |
+| `grid.*` | `grid.two_level: true` gives every Tamil Nadu area a 400 kV bus joined to its existing bus by the area's 400/230 and 400/110 kV transformers (N-1), splits corridors and ties by circuit voltage and moves 400/765 kV plants up; off by default. See [Two voltage levels](docs/input-data.md#two-voltage-levels-per-balancing-area-optional). |
+| `interstate.*` | `interstate.drawal_limit`: `ttc` (the default) limits Tamil Nadu's drawal from the interstate grid in every hour to Grid-India's declared total transfer capability of the month, `atc` to the available transfer capability, `none` leaves only the per-circuit tie ratings. See [Tamil Nadu import limit](docs/input-data.md#tamil-nadu-import-limit-grid-india). |
 
 ### Run logging and profiling
 
@@ -255,11 +262,30 @@ only), which PyPSA's plots need.
 | Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
 | System supply and demand (figure) | `energy_balance` summed over buses: supply stacked by carrier, with demand as a line; the gap between them is storage charging, pumping and transmission losses. Daily means for periods over a month |
 
-Marginal prices come from the solver's duals. Binary unit-commitment (`full`)
-solves have none, so for those runs the price table, market values and price
-figure are empty, and the system metrics mark the average price as not
-available. Relaxed and LP runs have prices; with relaxed commitment they
-reflect the continuous on/off approximation.
+Marginal prices come from the solver's duals. Relaxed and LP runs have them
+directly; with relaxed commitment they reflect the continuous on/off
+approximation.
+
+Binary unit commitment (`full`) is a MIP, which has no duals. After each
+accepted MIP solve, the runners (rolling windows, selected weeks, the peak week
+and single days) solve the dispatch again as an LP, with every on/off,
+start-up and shut-down decision fixed at its MIP value
+(`scripts/commitment_prices.py`). The prices are that LP's duals, and its
+dispatch replaces the MIP's: same commitment, at most the same cost.
+
+- Each hour's price is the cost of one more MWh from the units that are online
+  and not at a limit.
+- Start-up costs are already fixed, so they never set the price.
+- A unit held at minimum stable output does not set it either. When the online
+  units sit at their minimum, the price falls to whatever is still flexible
+  (curtailment, storage, the transmission flow cost), and can be negative.
+
+A rolling window whose fixed-commitment LP fails (dual simplex, then interior
+point) keeps the MIP dispatch, has no prices and is logged with a warning. Full
+unit-commitment checkpoints without prices (made before this) are solved again
+on resume. Full unit-commitment runs made before prices were added have empty
+price tables, market values and price figures, and the system metrics mark the
+average price as not available.
 
 Monthly runs keep no solved networks, so their report covers the runner's own
 outputs only. To rebuild a report for any existing run folder, for example
@@ -291,8 +317,9 @@ one solved network. Output goes under
 `results/run_results/<mode_label>/<run_name>/`. The mode label may include a
 date or period and ends with the unit-commitment category: `_UC` for `full`,
 `_relaxed` for `relaxed`, and `_LP` for `none`.
-`run_model.py` prints the exact path after each run. No mode introduces equipment
-faults or outages.
+`run_model.py` prints the exact path after each run. Coal unit outages
+(planned maintenance and forced outages) apply only with `outages.enabled:
+true`; no mode introduces other equipment faults.
 
 For rolling runs, `window_log.partial.csv` is updated after each completed
 window and `window_log.csv` is written at the end. Each row includes wall time
@@ -393,6 +420,11 @@ snakemake --cores 8 --config 'overrides=["rolling.max_windows=2"]'   # quick tes
 
 For each scenario the workflow:
 
+0. **Maintenance schedule** (only with `outages.planned: optimise`): PyPSA
+   chooses the coal units' maintenance dates once, on the base network without
+   the scenario's technologies, and saves them to
+   `results/scenarios/<scenario>/maintenance_schedule.csv`; both runs below use
+   it, so scenarios with the same outage settings share the same dates.
 1. **Capacity expansion** (only if a site is `optimise`): solves the full year
    as one LP without unit commitment (`run.mode: annual`), with the optimised
    capacities as decision variables, and saves the chosen capacities to
@@ -431,7 +463,8 @@ For each scenario the workflow:
 Each run records where it wrote its results in
 `results/scenarios/<scenario>/<capacity_expansion|operation>.yaml`. Snakemake
 reruns a scenario when its config, `config/defaults.yaml`,
-`config/technologies.yaml`, the profile file or the `model/` network changes.
+`config/technologies.yaml`, the profile file, the outage inputs (when
+`outages.enabled`) or the `model/` network changes.
 Workflow settings, including extra run settings for every scenario, are in
 `config/workflow.yaml`.
 
@@ -634,8 +667,10 @@ commitment or storage analysis.
   32 MW Papanasam powerhouse then discharges to the downstream-river sink, not
   to Servalar. Lower pondage is weekly water-neutral and has no seasonal SOC
   target.
-- No fault, contingency, forced-outage, or short-circuit representation is
-  included.
+- Coal unit planned maintenance and forced outages are optional run settings
+  (`outages`, off by default); see
+  [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages).
+  No fault, contingency, or short-circuit representation is included.
 
 ## Capacity allocation
 

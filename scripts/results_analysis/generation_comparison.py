@@ -64,6 +64,14 @@ def _read_daily(path: Path, *, modeled: bool) -> pd.DataFrame:
     if not frame.index.is_monotonic_increasing:
         raise ValueError(f"{path.name} dates must be chronological")
     frame = frame.apply(pd.to_numeric, errors="coerce")
+    if modeled and "coal_own_use" in frame:
+        # Observed generation is gross; net coal dispatch (outage module with
+        # base availability net of auxiliary consumption) gets its auxiliary
+        # consumption added back.
+        own_use = frame["coal_own_use"].fillna(0.0)
+        frame["coal"] = frame["coal"] + own_use
+        if "comparable_total" in frame:
+            frame["comparable_total"] = frame["comparable_total"] + own_use
 
     if "other_res" not in frame and {"bio_power", "small_hydro"}.issubset(frame):
         frame["other_res"] = frame["bio_power"] + frame["small_hydro"]

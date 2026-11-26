@@ -24,12 +24,15 @@ import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
 from highs_solver_options import (
+    DEFAULT_ROLLING_TIME_LIMIT_SECONDS,
     NON_RETRYABLE_CONDITIONS,
     highs_solver_options,
     reset_highs_global_scheduler,
     solve_attempts,
 )
 from bio_power_targets import bio_power_energy_target_mwh, read_bio_power_monthly_targets
+from commitment_prices import price_fixed_commitment
+from generator_outages import coal_own_use
 from small_hydro_targets import small_hydro_energy_target_mwh, read_small_hydro_monthly_targets
 
 from nuclear_energy_targets import (
@@ -45,6 +48,7 @@ from run_profiling import (
     report,
 )
 from run_9ba_weekly_days_2025_26 import MODEL_DIR
+from interstate_drawal_limit import add_drawal_limit
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -921,9 +925,10 @@ def _add_daily_targets(
     network: pypsa.Network,
     snapshots: pd.DatetimeIndex,
     gas_targets: pd.Series,
+    committed: pd.DatetimeIndex | None = None,
 ) -> None:
     add_nuclear_targets(network, snapshots)
-    add_energy_caps(network, snapshots)
+    add_energy_caps(network, snapshots, committed)
     if not target_enabled(network, "oil_gas"):
         return
     gas_units = network.generators.index[network.generators.carrier == "oil_gas"]
@@ -1055,6 +1060,12 @@ def _window_metrics(network: pypsa.Network, snapshots: pd.DatetimeIndex) -> dict
     output["comparable_total"] = output[
         ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind"]
     ].sum(axis=1)
+    # Auxiliary consumption of net (ex-bus) coal dispatch, added back when
+    # comparing with observed gross generation.
+    own_use = coal_own_use(network).reindex(snapshots).mul(weights, axis=0)
+    output["coal_own_use"] = (
+        own_use.groupby(own_use.index.normalize()).sum().div(1000.0).reindex(output.index).fillna(0.0)
+    )
     output.index.name = "date"
     return output
 
@@ -1182,6 +1193,7 @@ def run_annual_no_uc(
                     name_suffix=f"-{terminal:%Y%m%d}",
                 )
         _timed("transmission_flow_cost", add_transmission_flow_cost, active_network, active_snapshots)
+        _timed("drawal_limit", add_drawal_limit, active_network, active_snapshots)
 
     report(
         f"Solving annual no-UC LP: {snapshots[0].date()} to {snapshots[-1].date()} "
@@ -1468,6 +1480,8 @@ def run_rolling_year(
                         and checkpoint_meta.get("hydro_input_hash") == hydro_input_hash
                         and checkpoint_meta.get("input_fingerprint") == input_fingerprint
                         and checkpoint_meta.get("unit_commitment", "full") == unit_commitment
+                        # Full unit commitment: only checkpoints with prices.
+                        and (unit_commitment != "full" or checkpoint_meta.get("commitment_prices") is True)
                         and np.isclose(
                             checkpoint_meta.get("bio_power_target_mwh", np.nan),
                             expected_bio_power_target_mwh,
@@ -1540,7 +1554,7 @@ def run_rolling_year(
             original_global_constraints = network.global_constraints.index.copy()
 
             def window_constraints(n: pypsa.Network, s: pd.DatetimeIndex) -> None:
-                _timed("daily_targets", _add_daily_targets, n, s, gas_targets)
+                _timed("daily_targets", _add_daily_targets, n, s, gas_targets, committed)
                 _timed("cascade_targets", _add_weekly_cascade_targets, n, committed, cascade_targets)
                 _timed(
                     "biomass_target", _add_committed_biomass_target,
@@ -1552,6 +1566,7 @@ def run_rolling_year(
                 )
                 _timed("hydro_terminal_targets", _add_hydro_terminal_targets, n, committed, terminal_targets)
                 _timed("transmission_flow_cost", add_transmission_flow_cost, n, s)
+                _timed("drawal_limit", add_drawal_limit, n, s)
                 _timed("measured_storage", _add_exact_measured_storage, n, s, measured_store_targets)
                 if unit_commitment == "relaxed":
                     _timed("relaxed_boundary", _add_relaxed_boundary_constraints, n, previous)
@@ -1628,8 +1643,36 @@ def run_rolling_year(
                     f"MIP gap {mip_gap:.2%} (limit {max_time_limit_mip_gap:.2%})."
                 )
 
+            # A MIP has no duals: prices come from the dispatch LP with the
+            # commitment fixed, whose solution also replaces the MIP dispatch.
+            price_summary: dict[str, object] = {}
+            if unit_commitment == "full":
+                with profiler.phase("commitment_prices"):
+                    price_summary = price_fixed_commitment(
+                        network,
+                        solver_name=solver_name,
+                        threads=solver_threads,
+                        time_limit=(
+                            DEFAULT_ROLLING_TIME_LIMIT_SECONDS["relaxed"]
+                            if time_limit is not None else None
+                        ),
+                        assign_all_duals=True,
+                    )
+                report(
+                    f"Window {number}/{len(starts)}: prices with the commitment fixed "
+                    f"({price_summary['price_lp_attempts']})."
+                )
+                if not price_summary["commitment_prices"]:
+                    report(
+                        f"Window {number}/{len(starts)}: WARNING the fixed-commitment LP "
+                        "did not solve; this window keeps the MIP dispatch and has no prices."
+                    )
             with profiler.phase("write_shadow_prices"):
-                shadow_price_constraints = _write_shadow_prices(network, dual_file)
+                if price_summary.get("commitment_prices", True):
+                    shadow_price_constraints = _write_shadow_prices(network, dual_file)
+                else:
+                    xr.Dataset().to_netcdf(dual_file)
+                    shadow_price_constraints = 0
             with profiler.phase("hydro_slacks"):
                 hydro_slacks = _hydro_terminal_slacks(network)
                 hydro_slacks.to_csv(slack_file, index=False)
@@ -1700,8 +1743,9 @@ def run_rolling_year(
                 "solver_status": str(status),
                 "termination_condition": str(condition),
                 "accepted_solution": accepted_solution,
-                "shadow_prices_recorded": True,
+                "shadow_prices_recorded": bool(price_summary.get("commitment_prices", True)),
                 "shadow_price_constraints": shadow_price_constraints,
+                **price_summary,
                 "shadow_price_file": dual_file.name,
                 "hydro_terminal_slack_file": slack_file.name,
                 "mip_gap": mip_gap,

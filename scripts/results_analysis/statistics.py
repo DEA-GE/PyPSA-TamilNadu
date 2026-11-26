@@ -78,7 +78,8 @@ def statistic_sum(run: AnalysisRun, name: str, **kwargs) -> pd.Series:
 def price_timeseries(run: AnalysisRun) -> pd.DataFrame:
     """Return hourly marginal prices (currency/MWh) at the electricity buses.
 
-    Empty when the solves carry no prices, as with binary unit commitment.
+    Empty when the solves carry no prices, as with binary unit-commitment runs
+    made before the fixed-commitment price solve was added.
     """
     if run.network.buses_t.marginal_price.empty:
         return pd.DataFrame(index=run.snapshots)

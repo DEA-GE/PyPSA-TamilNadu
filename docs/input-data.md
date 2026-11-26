@@ -27,6 +27,8 @@ an explicit `snapshot` timestamp.
 | FY2025-26 REA imports and exports | `data/model_inputs/rea_interstate_hourly_flows_FY2025_26.csv`, `rea_interstate_gateway_shares_FY2025_26.csv`, `rea_interstate_source_audit_FY2025_26.csv` | `model/loads.csv`, `model/loads-p_set.csv`, `model/interstate_flow_audit.csv`, `model/interstate_flow_reconciliation.csv` |
 | Plant-specific REA export reservations | `data/model_inputs/rea_plant_export_mapping.csv`, `rea_plant_export_hourly_FY2025_26.csv`, `rea_plant_export_mapping_audit_FY2025_26.csv` | `model/generators.csv`, `model/generators-p_min_pu.csv`, `model/rea_plant_export_reservation_audit.csv` |
 | Historical four-station capacity shares | `data/model_inputs/tn_export_capacity_allocations.csv` | `model/tn_export_capacity_allocations.csv` (reference only) |
+| Coal unit outages, auxiliary consumption and capability | `data/source/NITI dashboard/unit outages Tamil Nadu`, `auxiliary consumption Tamil Nadu`; `data/model_inputs/coal_unit_outages_FY2025_26.csv`, `coal_auxiliary_consumption.csv`, `coal_unit_capability_FY2025_26.csv` | Applied at run time with `outages.enabled` (`scripts/generator_outages.py`); not in `model/` |
+| Central coal station declared capacity | `data/source/REA data/*.zip` (SRPC REA, not in Git); `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`, `central_station_units.csv`, `central_station_tn_entitlement_FY2025_26.csv` | Declared capacity applied at run time with `outages.enabled` and `central_availability: declared`; the entitlement shares size the Tamil Nadu units in the build |
 
 The `model/` CSVs are generated products. To change inputs, edit the relevant
 file under `data/` and rebuild. `data/build_template/` is an intermediate,
@@ -50,11 +52,36 @@ of the 15,504.698 GWh resolved export total. The remaining 7.785 GWh from
 Kamachi Steels and ARKAY Energy stays explicitly unmatched because those plants
 are absent from the model inventory. For every matched plant, the builder
 reserves capacity equal to its peak concurrent REA export schedule and creates
-a fixed-dispatch generator at the plant's physical balancing-area bus. The same
-nameplate is removed from the ordinary plant units, conserving physical
-capacity while preventing unused reserved capacity from serving Tamil Nadu.
-The existing gateway export loads are unchanged, so the reservation does not
-double count interstate energy.
+a fixed-dispatch generator at the plant's physical balancing-area bus. The
+existing gateway export loads are unchanged, so the reservation does not
+double count interstate energy. The plant's ordinary units, which serve Tamil
+Nadu, keep:
+
+- at the seven central coal stations (Vallur, NTPL, NNTPS, NLC TPS-II Stage I
+  and II, TPS-I and TPS-II Expansion), Tamil Nadu's **entitlement share** of
+  their rating: its entitlement in the SRPC accounts
+  (`commercial_ent_tamilnadu.csv`) over the station's declared capacity, for
+  the year (`data/model_inputs/central_station_tn_entitlement_FY2025_26.csv`,
+  from `scripts/prepare_declared_capacity.py`). The shares follow the Ministry
+  of Power's allocation and hardly change through the year: Vallur 69%, NTPL
+  41%, NNTPS 70%, NLC TPS-II Stage I 39% and Stage II 45%, TPS-I and TPS-II
+  Expansion 49%. With `outages.central_availability: declared`, the Tamil Nadu
+  units are then available at the share times the station's declared capacity,
+  hour by hour, which is Tamil Nadu's entitlement. Tamil Nadu's peak hourly
+  withdrawal from each station is close to the share times the rating
+  (Vallur 1,036 MW drawn against 1,040 MW). Other states also take Tamil
+  Nadu's undrawn share (unrequisitioned surplus), so at Vallur, NTPL, NNTPS
+  and TPS-I Expansion the export peak plus Tamil Nadu's share exceeds the
+  rating (by 707 MW in total). At the NLC TPS-II stations it falls short (by 249
+  MW). `capacity_overlap_mw` in `model/rea_plant_export_reservation_audit.csv`
+  records the difference, and the reported installed capacity
+  (`model/capacity_by_balancing_area.csv`) removes it. Sizing the Tamil Nadu
+  units at the rating less the export peak, as before, left them 25% short of
+  Tamil Nadu's actual share of these stations (NTPL: 188 MW against an average
+  withdrawal of 242 MW);
+- elsewhere (Kudankulam, MAPS, OPG, Tulsyan NEC, EID Parry), the rating less
+  the export peak, which conserves the physical nameplate and keeps unused
+  reserved capacity from serving Tamil Nadu.
 
 Included measures are fixed loads at the external buses: confirmed imports have
 negative `p_set` and exports positive `p_set`. Existing directional grid links
@@ -64,6 +91,40 @@ gateway capacity and carry the exchange, but no `links-p_min_pu.csv` or
 parallel link used within a gateway. The audit output records every hourly
 gateway value, the original share, available capacity, any capacity-driven
 redistribution, and explicit included/excluded status for distributed flows.
+
+**Metered interchange.** Summing REA transactions leaves Tamil Nadu short of
+supply in April–May and in surplus in the wind season: 20.8 TWh of imports
+cannot be attributed to a plant (all from sellers outside Tamil Nadu, but
+partly trading and duplication), and 7.5 TWh of interstate-grid wind and
+solar inside Tamil Nadu is sold to other states without passing through Tamil
+Nadu's account. The build therefore matches the measured total instead
+(`INTERCHANGE_BASIS = "metered"`, the default; `python
+scripts/build_9ba_model.py --interchange transactions` restores the
+transaction-only exchange). `scripts/prepare_metered_interchange.py` reads
+from the twelve SRPC REA archives (`data/source/REA data`, not in Git):
+
+- the actual metered net drawal of Tamil Nadu's control area from the
+  interstate grid (`commercial_dev2022_tamilnadu.csv`, `act_total`): 67.85
+  TWh, 1.1% below schedule;
+- the output of the interstate-grid plants inside Tamil Nadu, which reaches
+  the state as drawal: central stations including Kudankulam and MAPS
+  (station-wide schedules, 39.66 TWh), Coastal Energen and ITPCL (schedules to
+  Tamil Nadu, 6.98 TWh) and the wind and solar at Tuticorin, Karur and
+  Pugalur (7.48 TWh).
+
+Their difference, 13.72 TWh, is the physical net import of the Tamil Nadu
+area (`data/model_inputs/tn_metered_interchange_FY2025_26.csv`, hourly). The
+transaction loads deliver 4.3 TWh, so each hour a correction load
+(`interstate_metered_correction_import_*` or `_export_*`, measure
+`metered_correction` in the audit) is added at the gateways, split by the
+same shares and within gateway capacity, so that the net import delivered
+into Tamil Nadu after the 3% interconnector loss equals the metered value. The
+correction adds 13.35 TWh of imports and 1.87 TWh of exports at the gateways:
+2.4 TWh in April, 1.6 TWh in May, near zero in June–September. Limitations:
+Coastal Energen and ITPCL sales to other states are not subtracted; the
+interstate-grid wind and solar inside Tamil Nadu follow the model's wind and
+solar profiles, not their scheduled output; the transaction loads keep their
+gateway routing, so the correction changes totals, not routes.
 
 The grid is imported with PyPSA's `Network.import_from_excel()` API. To replace
 only the grid in an already-built model (without rebuilding generation, demand,
@@ -139,6 +200,46 @@ model input is archived at
 `data/source/wind_solar_profiles_TN-9BAs-2025-26-1h.xlsx` is retained for
 comparison; `scripts/prepare_renewable_profiles.py` checks or regenerates the
 archived baseline, leaving the active input unchanged.
+
+### Validation against metered plant output
+
+The wind and solar plants on the interstate pooling stations at Tuticorin,
+Karur and Pugalur are metered by SRPC, which keeps a deviation account per
+plant. Each account gives, per 15-minute block, the declared available
+capacity, the schedule and the metered injection.
+`scripts/prepare_ists_re_plant_output.py` reads them from the REA archives
+(final and provisional, since some accounts are weekly) into
+`data/model_inputs/tn_ists_re_plant_output_FY2025_26.csv`.
+`scripts/validate_re_profiles.py` compares them with the model's availability
+of the area the plants are in (`results/re_profile_validation/`). The
+observed capacity factor is the metered output divided by the plant's highest
+available capacity.
+
+| Group (FY2025-26) | Hours | CF observed / model | Hourly corr. | Best lag |
+|---|---|---|---|---|
+| Tuticorin wind, 4 plants, 0.92 GW → Thoothukudi profile | 8,760 | 0.305 / 0.239 | 0.80 | 0–1 h |
+| Tuticorin wind, QCA aggregate, 1.7 GW (from 14 July) | 6,264 | 0.282 / 0.223 | 0.78 | 0 h |
+| Pugalur wind, Sprng 300 MW → Karur profile (Trichy area) | 8,760 | 0.262 / 0.204 | 0.56 | 0 h |
+| Tuticorin solar, NTPC Ettayapuram + GRT, 380 MW | 3,768 | 0.236 / 0.203 | 0.95 | 0 h |
+
+- **Timing** is right for both technologies: the best lag is zero, and the
+  solar diurnal centroid is within 0.15 h.
+- **Level:** the plants are recent (tall turbines, high DC/AC solar), so
+  their capacity factors are above the fleet's. This is not a profile error.
+- **Wind seasonality is too flat in the model.** Relative to each series' own
+  mean, the Thoothukudi profile is 11–25% too low in June–October and 24–69%
+  too high in December–April (4 plants; the QCA aggregate: −3 to −28% and +5 to
+  +38%). This is the same pattern as the comparison with NITI monthly wind.
+- **Pugalur:** the Karur profile misses the winter lull. In November–January
+  the plant runs at a 5–7% capacity factor and the model at 22–25%. The plant
+  correlates far better with the Coimbatore profile (0.88) than with the Trichy
+  or Karur profile (0.56). The Tuticorin plants also correlate slightly better
+  with Coimbatore (0.85) than with their own area (0.80).
+- **Solar seasonality** is within about ±10% after normalising: the model is
+  relatively low in May–July and high in October.
+
+The declared availability of these plants is 0.9–1.0 in all months, so the
+low winter output is weather, not outages.
 
 ### Solar capacity through the year
 
@@ -551,6 +652,221 @@ Sources:
 - https://www.cercind.gov.in/2026/Orders/647-GT-2025.pdf,
   https://www.cercind.gov.in/2026/Orders/111-GT-2026.pdf
 
+### Coal unit availability: auxiliary consumption, maintenance and outages
+
+The `outages` section of a run config (off by default) sets the hourly
+`p_max_pu` of the 49 committable coal units to
+
+    base availability × capability × (1 − share of the hour the unit is out)
+
+or, for the seven central stations, to their declared capacity
+(`scripts/generator_outages.py`). Without it, every coal unit has a static
+`p_max_pu` of 0.85: the "85% availability" of CEA's *Report on Resource
+Adequacy Plan (Generation) for Tamil Nadu* (April 2026), which equals CERC's
+normative annual plant availability factor. That factor is defined on
+declared capacity net of auxiliary consumption and already includes planned,
+forced and partial outages (CERC Tariff Regulations 2024, Reg. 3(59)), so it
+must not be combined with explicit outages.
+
+**Base availability.** `base_availability: net_of_auxiliary` (the default)
+uses 1 − auxiliary consumption, so the model dispatches net (ex-bus) coal
+output. Tamil Nadu demand is on that basis: CEA's *Load Generation Balance
+Report 2025-26* (§4.2.4, §5.2.2) compares each state's energy requirement and
+peak demand with net availability, i.e. gross generation minus normative
+auxiliary consumption. The FY2025-26 energy balance agrees: demand (131.38 TWh)
+plus exports (23.51) minus imports (27.77) needs 127.12 TWh from in-state
+plants, 5.09 TWh less than their observed generation (132.21 TWh), about the
+auxiliary consumption of the coal and nuclear fleet. The observed generation
+is gross: CEA's daily generation report, the source of the NITI series, states
+"Actual generation is gross generation". `gross` uses 1.0 and `model` keeps
+the network's 0.85.
+
+Auxiliary consumption (% of gross generation) per unit is in
+`data/model_inputs/coal_auxiliary_consumption.csv`
+(`scripts/prepare_coal_outages.py`), capacity-weighted 7.9%:
+
+| Basis | Units | Values |
+|---|---:|---|
+| CEA actual 2017-18 (NITI export, `data/source/NITI dashboard/auxiliary consumption Tamil Nadu`) | 36 | Vallur 6.46, Mettur-II 6.79, Muthiara 7.07, ITPCL 7.51, NLC TPS-I Exp 7.70, NCTPS-I 7.97, Tuticorin TPS 8.28, NTPL 8.59, Mettur-I 8.64, NLC TPS-II 9.25, TAQA 9.78, Tuticorin (P) 12.36, NLC TPS-II Exp 12.61 |
+| TNERC approved FY2025-26 (Order 07 of 2022, Table 4-41) | 3 | NCTPS-II and III 7.00 |
+| CERC 2024 norm, Reg. 70(E) | 3 | NNTPS 6.75 (500 MW with steam-driven feed pumps 5.25 + 1.5 for lignite CFBC), SEPC 5.25 |
+| Assumption | 7 | OPG, TCP, Tulsyan 10.0 (no CERC norm below 200 MW) |
+
+The feed-pump drive of NNTPS and SEPC is assumed; with electric pumps the
+norms would be 9.5% and 8.0%. CEA's 2017-18 value for NCTPS-I (7.97%) is below
+TNERC's approved 8.5% and its 2016-21 actuals (9.05–10.40%).
+
+**Capability (partial deratings).** The outage record lists only whole units
+out; a running unit that cannot reach full load (mill problems, wet or poor
+coal, condenser vacuum, tube leaks) leaves no trace in it. With
+`partial_derating: demonstrated` (the default) each unit is capped at its best
+whole day of FY2025-26 on days without any recorded outage, as a share of its
+rating (daily gross energy from
+`data/model_inputs/niti_dashboard_tamil_nadu_generation_FY2025_26.csv` ÷
+(rating × 24 h)); `data/model_inputs/coal_unit_capability_FY2025_26.csv`
+lists it with the median and 95th-percentile day. The cap applies to 33 of
+the 49 units and removes 1,308 MW of their 15,032 MW rating. The lowest are
+Neyveli TPS-II Expansion unit 2 (0.745), North Chennai units 6 (0.754, from
+40 days after commissioning), 4 (0.760), 2 (0.810) and 5 (0.828), and Mettur
+unit 5 (0.847). Units with fewer than 20 days without outage (those out all
+year, Tulsyan) and units whose best day reaches the rating are not capped.
+Every capped unit can still run at its 55% minimum stable output. A daily
+average is a lower bound on what a unit can do in an hour, because units are
+backed down at night and in solar hours, so the cap errs on the low side and
+partly reflects dispatch rather than derating. SRPC's 15-minute declared
+capacity would separate the two for the central stations. `none` leaves units
+at their full rating.
+
+**Outage record.** `data/model_inputs/coal_unit_outages_FY2025_26.csv` holds one
+row per unit and day out in FY2025-26, with the share of the day, from the NITI
+Dashboard's unit outage exports (`data/source/NITI dashboard/unit outages Tamil
+Nadu`), which compile CEA's daily outage reports. Units are matched by plant name
+and unit number; all 47 reported coal units match a model unit with the same
+capacity (Tulsyan NEC is not reported). Kinds and FY2025-26 totals:
+
+| Kind | Reasons | Unit-days | Imposed |
+|---|---|---:|---|
+| `planned` | annual, boiler, capital and other planned maintenance | 1,244 | `planned: actual` |
+| `forced` | technical, raw water, grid, fuel shortage | 2,767 | `forced: actual` |
+| `commercial` | no fuel supply agreement, no PPA | 728 | always |
+| `commissioning` | days before the commissioning date (NCTPS-III 24 Jan 2026, Tulsyan 1 Mar 2026) | 966 | always |
+| `reserve_shutdown` | reserve shutdown, low schedule, no demand | 845 | never (unit commitment decides) |
+
+Units out on at least 99% of the days are out of service for the whole run:
+Tuticorin TPS units 1–2 (cable-gallery fire on 15 March 2025), Tuticorin (P)
+TPP units 1–2 (no fuel supply agreement since 2016) and TCP (planned
+maintenance since 2021), 783.5 MW. A day's share is placed in hours at the
+start of the day when the unit was out the day before, at the end when it is
+out the day after, otherwise in the middle. Units out in the first hour of the
+year start offline instead of being shut down in it.
+
+**Planned maintenance.** `planned: actual` replays the record.
+`planned: optimise` uses PyPSA's maintenance scheduling (generators with
+`maintainable=True`, `maintenance_duration`, `maintenance_events`): each unit
+takes its FY2025-26 maintenance duration (whole days, one event) at dates chosen
+by a MILP. A maintenance event must fit inside one optimisation horizon, so the
+schedule is solved once over the whole year at daily resolution without unit
+commitment, with the units' commissioning, commercial and out-of-service
+unavailability, and is then fixed as hourly availability in every run mode.
+Among dates of similar cost, a small cost (INR 100 per MW out per hour at the
+year's highest daily residual load, scaled by the day's residual load) prefers
+days of low demand net of wind and solar. On `model/` it schedules 891
+unit-days for 26 units in about 20 s. Average capacity on maintenance by month
+(MW, Tamil Nadu share):
+
+| Month | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | Jan | Feb | Mar |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Actual FY2025-26 | 204 | 98 | 605 | 1,210 | 1,133 | 1,043 | 823 | 679 | 1,706 | 1,141 | 131 | 64 |
+| Optimised | 0 | 191 | 363 | 0 | 0 | 0 | 0 | 492 | 1,980 | 3,248 | 1,182 | 772 |
+
+The optimiser moves maintenance to December–March, the lowest-demand months,
+whereas the utilities took most of it during the south-west monsoon (June to
+October). `scripts/schedule_maintenance.py` writes a schedule for runs to share
+(`outages.maintenance_schedule`); the Snakemake workflow does this once per
+scenario on the base network without the scenario's technologies, so scenarios
+with the same outage settings get the same dates.
+
+**Forced outages.** `forced: actual` replays the record. `forced: sampled`
+draws outages at random with a fixed `seed`: each unit alternates between
+available spells, exponentially distributed with its size class's mean time
+between outages, and outages whose durations are resampled from the class's
+observed outages. Each unit has its own random stream, so scenarios with the
+same seed get the same outages. Parameters from the FY2025-26 record (exposure
+excludes planned, commercial and pre-commissioning time; out-of-service units
+excluded):
+
+| Unit size | Units | Forced-outage rate | Outages per unit-year | Mean duration (h) | Median duration (h) |
+|---|---:|---:|---:|---:|---:|
+| below 200 MW | 8 | 3.3% | 2.9 | 101 | 47 |
+| 200–400 MW | 22 | 18.4% | 12.6 | 128 | 40 |
+| 400 MW and above | 16 | 11.7% | 10.5 | 97 | 46 |
+
+Outages per unit-year are per year of exposure. CEA's last station review
+(*Review of Performance of Thermal Power Stations 2017-18*) counted 6,026
+forced outages on 626 units, 9.6 per unit and year, including reserve
+shutdowns. NERC GADS (Generating Unit Statistical Brochure 3, 2021–2025)
+reports weighted forced-outage rates of 6.4–15.0% by size class for US coal
+units, 8.0% overall.
+
+**Central stations: declared capacity.** For the seven central coal
+stations, `central_availability: declared` (the default) uses the capacity
+they declared to the Southern Regional Load Dispatch Centre for every
+15-minute block, from the SRPC Regional Energy Accounts
+(`commercial_on_off_dc_isgs.csv` in each month's archive). Declared capacity
+is ex-bus and covers whole-unit outages, partial deratings and fuel; CERC pays
+the stations' capacity charge on it. On-bar (units running) and off-bar
+(available units shut down) declarations are added, so reserve shutdowns
+still count as available. `scripts/prepare_declared_capacity.py` reads the
+twelve archives (`data/source/REA data`, not in Git) and writes the hourly
+means to `data/model_inputs/central_station_declared_capacity_FY2025_26.csv`
+and the station units to `central_station_units.csv`:
+
+| Station (REA code) | Units | Rating (MW) | Mean declared (MW) | Share |
+|---|---:|---:|---:|---:|
+| NTECL Vallur (`vallur`) | 3 × 500 | 1,500 | 1,250 | 0.83 |
+| NTPL Tuticorin (`ntpl`) | 2 × 500 | 1,000 | 851 | 0.85 |
+| NLC NNTPS (`nntpp`) | 2 × 500 | 1,000 | 625 | 0.63 |
+| NLC TPS-I Expansion (`nlcexp`) | 2 × 210 | 420 | 244 | 0.58 |
+| NLC TPS-II Stage I (`nlc21`) | 3 × 210 | 630 | 269 | 0.43 |
+| NLC TPS-II Stage II (`nlc22`) | 4 × 210 | 840 | 343 | 0.41 |
+| NLC TPS-II Expansion (`nlc2exp`) | 2 × 250 | 500 | 201 | 0.40 |
+
+The outage record follows declared capacity closely in time (hourly
+correlation 0.85–0.97), but the record alone overstates the NLC stations and
+NNTPS by 21–58%, while the capability cap understates Vallur and NTPL by
+9–14%.
+
+With `planned: actual` and `forced: actual` declared capacity replaces the
+record and the capability cap of these 18 units hour by hour. Each hour a
+station's capacity is spread evenly over the number of its identical units
+that gives the most usable capacity, each at or below its rating and at or
+above its minimum load, preferring fewer units (942 MW at Vallur is two units
+at 471 MW); units the record shows available are used first. This keeps 98.7%
+of the declared capacity; the rest is hours when a station declared less than
+one unit's minimum load. In the other modes each station gets one factor in
+place of the capability cap, its declared capacity over the capacity the
+record leaves available (Vallur 1.00, NTPL 1.03, NNTPS 0.83, NLC TPS-I
+Expansion 0.78, TPS-II Expansion 0.77, TPS-II Stage I 0.65, Stage II 0.63), and
+maintenance and forced outages come from those modes. `central_availability:
+record` treats the stations like the other units.
+
+**Resolution.** `resolution: hourly` (the default) keeps the hourly
+availability. `monthly` and `annual` replace each unit's availability by its
+mean over the month or the year, for a less restricted run without outage
+timing. A unit available on average a share of its best hour then acts as a
+smaller unit: its minimum load (`p_min_pu`) is scaled by the same share, so it
+can still run. Means are taken over the hours after commissioning, and the
+commissioning dates stay exact. Means are preserved, so the available energy
+is the same as hourly.
+
+Limitations:
+
+- Partial deratings are measured for the central stations (declared
+  capacity) and approximated for the other units by each unit's best day
+  without outage, constant over the year; the record itself has only
+  whole-unit outages.
+- Outages are known in advance within each solve (perfect foresight), as for
+  all other inputs.
+- Auxiliary consumption is normative or from 2017-18, and constant over the
+  year; part-load running raises it in reality.
+- Model coal dispatch is net, observed generation gross. With
+  `net_of_auxiliary`, every coal generator carries an `auxiliary_consumption`
+  share (the REA export reservations take their station's capacity-weighted
+  value, from `model/coal_operating_cost_audit.csv`), and the comparisons with
+  observed generation add the auxiliary consumption back: the runner's daily
+  table has a `coal_own_use` column (GWh) that the runner's and the report's
+  comparisons add to coal, and the report's generation tables show it as
+  `own_use_gwh`. All other results (dispatch, energy balance, costs) stay net.
+- The REA export reservation generators keep their observed hourly schedules.
+- Daily, monthly, peak and selected-week runs start each solve with the
+  units online, as without outages; a unit out in a solve's first hour is shut
+  down in it.
+
+Each run with outages writes `coal_unit_availability.csv` (per unit:
+availability source, auxiliary consumption, capability or station factor, base
+availability, hours out by kind, mean availability), and
+`forced_outage_parameters.csv` or `maintenance_schedule.csv` when used.
+
 ## Hydro: assets, water, and storage
 
 `data/model_inputs/hydro_asset_registry.csv` classifies inventory units by
@@ -716,3 +1032,214 @@ the FY2025-26 TNERC short-term transmission charge of Rs 241.81/MWh. Internal
 line flow has a separate Rs 1/MWh numerical routing tie-breaker; it is not a
 regulated tariff. Ratings and provenance are recorded in
 `model/transmission_capacity_metadata.csv`. Reactive power is not modeled.
+
+### Two voltage levels per balancing area (optional)
+
+With one bus per area, power arriving on a 400 kV line reaches the area's load
+without passing a transformer. Each corridor's rating is also the sum of all
+its circuits, as if flow split in proportion to rating. In reality the
+400/230 kV inter-connecting transformers (ICTs) limit Tamil Nadu's grid:
+Grid-India names N-1 of the ICTs at Salem, Kalivandapattu, NLC TS-II/NNTPS and
+Pugalur as the limit of Tamil Nadu's import capability
+(`data/source/grid_india_ttc_fy2025_26`).
+
+`grid.two_level: true` (`scripts/two_level_grid.py`) rebuilds the Tamil Nadu
+grid at run time; `model/` is unchanged.
+
+- **Buses:** each area keeps its bus for 230 kV and below, and gets a
+  `<area> 400kV` bus.
+- **Lines and ties:** corridors and interstate ties are split by circuit
+  voltage, using the circuits in the grid workbook. The ratings and the
+  parallel reactance are preserved.
+- **Transformers:** one branch per area joins the two buses. Its capacity is
+  the area's 400/230 and 400/110 kV ICTs on 31 March 2026
+  (`data/source/srldc_transmission_elements`). It is rated at power factor
+  0.95, with 12.5% reactance on the unit rating, and usable up to its N-1
+  secure part. `grid.transformer_n_minus_1: substation` (the default) drops
+  the largest unit of every substation, because each substation must survive
+  the loss of its own largest transformer. That gives 26.3 GVA for Tamil Nadu
+  instead of 35.7 GVA with `area` (only the area's largest unit dropped).
+  Every one of the 37 substations has at least two units.
+- **Plants:** units connected at 400/765 kV (12.8 GW,
+  `tn_plant_connection_levels.csv`) move to the upper bus.
+
+**Import capability** (`scripts/grid_import_capability.py`, at Tamil Nadu's
+demand peak; unlimited sources at the neighbours; Tamil Nadu plants
+expensive):
+
+| Import | Single level | Two levels, area N-1 | Two levels, substation N-1 | Grid-India FY2025-26 |
+|---|---|---|---|---|
+| Drawal, all neighbours | about 54 GW (tie ratings) | 21.6 GW | 20.7 GW | TTC 14.6 GW |
+| Border import from S1 (Andhra Pradesh, Karnataka) | at least 16 GW (up to 31 GW) | 13.6 GW | 11.3 GW | S1→(S2&S3) TTC 11.3 GW |
+
+Drawal is the border import plus Tamil Nadu's share of the interstate-grid
+stations inside the state, which is what Grid-India's TTC covers. The
+capability is read at the highest load scale with no unserved energy. Beyond
+it, the optimiser cuts imports to reduce unserved energy, so the test's import
+falls. The two-level grid binds first at area transformers, 230 kV corridors
+and 230 kV ties. With N-1 per substation, the S1 import matches Grid-India's
+corridor TTC. The total stays above the TTC because the ties to Kerala and the
+230 kV ties bind before the transformers, and because each area's 230 kV
+network is still one bus. For example, the load behind Kalivandapattu can use
+any of Chennai South's four substations. `interstate.drawal_limit` imposes the
+declared total.
+
+**Dispatch test (25 November 2026).** Four selected weeks, relaxed unit
+commitment, fixed interstate schedule (`grid_single_level_weeks` vs
+`grid_two_level_weeks`):
+- **Cost:** +1.1%.
+- **Coal:** +0.5%, moving from the Tuticorin plants (−127 GWh) to North
+  Chennai, ST-CMS, ITPCL, Vallur and Mettur.
+- **Curtailment:** 2.3 → 12.2 GWh, mostly in the July wind week.
+- **Price spreads:** hours with an area price spread above 500 INR/MWh went
+  from 75 to 266.
+- **Binding branches:** Madurai–Trichy 230 kV (236 h), the Villupuram
+  transformers (123 h) and Coimbatore–Erode 230 kV (27 h). In the single-level
+  grid no line reaches its limit.
+- **Drawal:** the peak is 6.3 GW against an ATC of 14.2 GW, so an import limit
+  at Grid-India's value cannot bind while the interstate schedule is fixed.
+
+**Test with the metered interchange (26 November 2026).** Five selected
+weeks, including the week of the 28 April drawal peak. Relaxed unit commitment,
+coal outages off, runs `metered_*` in `results/run_results/selected_weeks_relaxed/`.
+Costs include the warm-up and look-ahead days.
+
+| | Single level | Two levels, area N-1 | Two levels, substation N-1 |
+|---|---|---|---|
+| Cost (bn INR) | 34.79 | 35.12 (+0.9%) | 35.29 (+1.4%) |
+| Coal (GWh) | 5,021 | 5,050 | 5,056 |
+| Curtailment (GWh) | 0.6 | 2.7 | 2.8 |
+| Hours with an area price spread above 500 INR/MWh (of 840) | 54 | 240 | 706 |
+| Villupuram transformers at their limit (h) | – | 186 | 701 |
+| Madurai–Trichy 230 kV at its limit (h) | 0 | 166 | 162 |
+| Coimbatore–Erode 230 kV at its limit (h) | 0 | 9 | 7 |
+
+With N-1 per substation, coal moves from Tuticorin TPS (−119 GWh) and ITPCL
+(−51 GWh) to the NLC units on the 230 kV bus (+114 GWh) and North Chennai
+(+65 GWh). The Villupuram transformers are the NNTPS (2×500 MVA) and NLC TS-II
+(2×250 MVA) groups, which Grid-India lists among Tamil Nadu's import
+constraints. With N-1 per substation they carry 712 MW, about 0.7 GW short of
+the area's 230 kV load, the rest of which comes over 230 kV lines from Trichy
+and Chennai South. The Villupuram 230 kV price is then about 800 INR/MWh above
+its 400 kV bus in the July week. Binding in 83% of hours is more than the
+declarations suggest, so the area's 230 kV supply (demand share, plants at
+230 kV) should be checked before using Villupuram prices.
+
+SRLDC confirms the direction. In CTUIL's 41st Southern Region planning
+meeting (27 November 2025) it reported that the 400/230 kV transformers and
+the 230 kV network at the Neyveli complex are "heavily overloaded" with the
+existing system. NLC is adding a third 315 MVA transformer at TPS-II.
+Substation-wise demand, which would settle the area's share, is not published.
+
+**With coal maintenance and outages on** (`outages.enabled: true`, same five
+weeks, runs `metered_outages_*`). Shares of coal generation are compared
+with NITI monthly plant generation prorated to the weeks (gross):
+
+| Share of coal generation | Single level | Two levels, substation N-1 | Observed |
+|---|---|---|---|
+| North (North Chennai, Vallur, OPG) | 35.8% | 35.9% | 27.9% |
+| Neyveli and ITPCL | 38.6% | 36.5% | 35.6% |
+| South (Tuticorin plants) | 24.8% | 26.2% | 25.0% |
+| Mettur | 0.8% | 1.4% | 11.5% |
+
+- **Outages, not the grid, drive the regional pattern.** Without them, North
+  Chennai runs at about twice its observed output (1,387 against 770 GWh) and
+  the north takes 46% of coal generation.
+- **With outages on, the two-level grid moves coal south, not north:**
+  Coastal Energen +67 GWh and the NLC unit on the 230 kV bus +102 GWh, both
+  towards observed. ITPCL −196 GWh moves away from observed, because it sits
+  behind the Villupuram transformers.
+- **Cost:** +1.8%. Villupuram transformers at their limit 693 h,
+  Madurai–Trichy 230 kV 231 h, Coimbatore–Erode 230 kV 42 h (of 840 h).
+- **Drawal:** with a single level, the drawal reaches the April TTC of
+  14,050 MW in 2 hours of the 28 April week, so the limit binds.
+- **Mettur** stays far below observed (38–69 against 721 GWh), which is a
+  cost-order issue unrelated to the grid.
+
+**Line loadings against reported values.** Each model flow is the corridor's
+flow times the circuit's share of the corridor's parallel admittance, the
+maximum over the five weeks. Reported values come from CTUIL documents. The
+500–600 MW is read as the double-circuit total, since after the planned
+rearrangement the minutes give 250–300 and about 210 MW for the two circuits.
+
+| Circuit | Reported | Single level (outages off / on) | Two levels, substation N-1 (off / on) |
+|---|---|---|---|
+| Tirunelveli–Madurai 400 kV D/c | max 500–600 MW | 528 / 587 | 368 / 438 |
+| Udumalpet–Madurai 400 kV S/c | near SIL (about 515 MW) | 401 / 416 | 226 / 231 |
+| Udumalpet–Tirunelveli 400 kV D/c | heavy | 718 / 763 | 440 / 465 |
+| Pugalur–Madurai 400 kV D/c | heavy | 861 / 905 | 477 / 525 |
+| Karur PS–Pugalur 400 kV D/c (quad) | high under N-1 | 1,417 / 1,412 | 1,221 / 1,252 |
+
+The two-level grid carries 30–50% less south-to-north power on 400 kV than
+reported. This is consistent with the model generating less in the south:
+coal before outages are switched on, and wind throughout. The Tirunelveli
+wind profile is about a third below the Tuticorin plants' output in the
+monsoon (see "Validation against metered plant output").
+
+**Rating check** against the CEA Manual on Transmission Planning Criteria
+(2023; planning default 45 °C ambient, 75 °C conductor, 10% margin):
+- the workbook's circuit ratings correspond to 45 °C / 85 °C (twin Moose
+  1,068 MW against 808 MW at 45/75);
+- after `s_max_pu = 0.7` they are within ±3% of the CEA 45/75 rating less the
+  10% margin;
+- the 120 GW sum of corridor ratings is therefore consistent circuit by
+  circuit. No transfer capability between zones inside Tamil Nadu is
+  published.
+
+### Tamil Nadu import limit (Grid-India)
+
+Grid-India declares one simultaneous limit on Tamil Nadu's drawal from the
+interstate grid each month: the total transfer capability (TTC), and the TTC
+less a reliability margin as the available transfer capability (ATC) for
+schedules. The value is the same in all 96 blocks of a month: 14,050 MW (ATC
+13,700) in April–June, October and February, which are held as early
+revisions only, and 14,600 MW (ATC 14,180) in the other months. May, which was
+not downloaded, takes April's value
+(`data/source/grid_india_ttc_fy2025_26`).
+
+The interstate ties are rated per circuit and add up to about 51.5 GW into
+Tamil Nadu, so on their own they never limit the import.
+`interstate.drawal_limit` (`scripts/interstate_drawal_limit.py`) adds, in every
+solve and hour:
+
+```text
+net import delivered over the interstate ties
++ output of the interstate-connected stations inside Tamil Nadu
+<= declared limit - metered output of the interstate-connected wind and solar
+```
+
+The left side plus the wind and solar is Grid-India's drawal, the flow from
+the interstate grid into the state grid. It is the same decomposition that
+reproduces the metered drawal in "Metered interchange" above.
+- **Stations:** the central stations with the other states' export
+  reservations (Vallur, NTPL, NNTPS, NLC TS-II and the NLC expansions,
+  Kudankulam, MAPS) and the two IPPs on interstate pooling stations (Coastal
+  Energen, IL&FS).
+- **Wind and solar:** the interstate-connected wind and solar at Tuticorin,
+  Karur and Pugalur is not separate in the network, so its metered output
+  (`interstate_re_mw`) is taken as given.
+
+`ttc` (the default) limits the actual flow, which in real time may use the
+reliability margin: the metered drawal of FY2025-26 peaks at 14,240 MW (28
+April 2025, 18:00), above the ATC in 10 hours and above the TTC in 2. `atc`
+limits the flow to the schedulable value; `none` switches the limit off.
+
+The run writes `drawal_limit.csv`: the hourly limit, the interstate wind and
+solar, the drawal fixed by the inputs (the neighbours' fixed exchange and the
+pinned export reservations) and the headroom left for the stations. It stops
+if the fixed part alone exceeds the limit. With the metered interchange, at
+least 3.8 GW is always left. While the interstate schedule is fixed, the limit
+can only reduce the stations' output: with all of them at full output, the
+drawal would exceed the TTC in about 400 hours. Once imports are traded, the
+same constraint limits the trades.
+
+In the five-week test above, the limit never binds. The model's drawal peaks
+at 13.8 GW in the 28 April week, against 14.24 GW metered and a TTC of 14.05 GW.
+The weekly peaks are within 0.7 GW of the metered drawal (12.5 vs 12.5 GW,
+11.5 vs 11.4, 11.4 vs 12.0, 11.5 vs 12.2), which confirms that the
+constrained quantity is Grid-India's drawal.
+
+Grid-India's other corridor declarations are not imposed. S1→(S2&S3)
+(11,300 MW in December 2025) and Kerala's import (4,575 MW) would act on the
+model's per-neighbour exchange. That exchange is fixed by the REA routing, and
+its S1 share peaks at 3.1 GW.

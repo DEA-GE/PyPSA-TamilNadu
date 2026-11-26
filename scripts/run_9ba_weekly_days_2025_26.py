@@ -29,6 +29,7 @@ import pypsa
 import xarray as xr
 
 from linopy_compat import configure_for_pypsa_124
+from commitment_prices import price_fixed_commitment
 from highs_solver_options import highs_solver_options, reset_highs_global_scheduler
 from run_profiling import get_profiler, optimize_profiled
 from energy_target_policy import add_energy_caps, target_enabled
@@ -38,6 +39,7 @@ from period_energy_targets import (
     drop_native_energy_targets,
     period_target_deviation_mwh,
 )
+from interstate_drawal_limit import add_drawal_limit
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -455,6 +457,7 @@ def solve_day(
             add_prorated_monthly_targets(active_network, active_snapshots, f"{day:%Y%m%d}")
         )
         add_transmission_flow_cost(active_network, active_snapshots)
+        add_drawal_limit(active_network, active_snapshots)
 
     # A positive down_time_before already defines these units as initially off;
     # p_init is redundant in that case and PyPSA explicitly ignores it.
@@ -478,9 +481,12 @@ def solve_day(
         include_objective_constant=False,
         linearized_unit_commitment=linearized_unit_commitment,
     )
-    runtime_seconds = time.perf_counter() - started
     if condition != "optimal":
         raise RuntimeError(f"Optimization failed for {day.date()}: {status}, {condition}")
+    if unit_commitment == "full":
+        with profiler.phase("commitment_prices"):
+            price_fixed_commitment(network, solver_name=solver, threads=solver_threads)
+    runtime_seconds = time.perf_counter() - started
 
     energy = carrier_energy_mu(network)
     nuclear_target_deviation_mwh = validate_nuclear_targets(network)
