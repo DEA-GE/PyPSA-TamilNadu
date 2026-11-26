@@ -254,9 +254,14 @@ area profiles: 2,638 MW of wind and 398 MW of solar.
   - its part of a QCA account: the QCA's metered output less its members' own
     metered output, split by schedule. QCA membership comes from matching
     schedules, R² ≥ 0.975;
-  - the plant's REMC schedule.
+  - the plant's REMC schedule, corrected by the metered / scheduled ratio of
+    the same month. Schedules run too high in calm months: metered /
+    scheduled is about 1 from May to September but 0.35–0.8 from October to
+    April (Sprng 0.47 and Mytrah 0.55 in April). The ratio is the plant's own
+    where it has metered hours that month, otherwise that of the metered
+    plants of its group (same technology, Tuticorin or inland), otherwise 1.
 
-  73% of the 7.18 TWh is metered (the REMC schedules total 7.48 TWh).
+  75% of the 6.99 TWh is metered; the REMC schedules total 7.48 TWh.
 - **In the network:** each plant is a generator on its pooling station's area
   bus: Tuticorin → Tirunelveli, Pugalur → Trichy, and Karur → Coimbatore as in
   the transformer inventory. It has `p_max_pu` = output / capacity and can be
@@ -297,10 +302,13 @@ off by default; works with or without `enabled`).
   area takes the six Tuticorin wind plants (1.77 GW); every other area takes
   JSW Renew Karur 1 and 2 and Sprng Pugalur (586 MW), the only interstate
   plants inland.
-- **The factors themselves:** Tirunelveli's are mild (0.71 in February to
-  1.35 in October), because the two large JSW plants have a flatter year than
-  the four plants of the validation. The inland areas' are strong: Madurai and
-  Trichy 0.28–0.36 in November–January and 1.6–1.9 in August–October.
+- **The factors themselves** (after the schedule correction):
+  - Tirunelveli's are mild: 0.72 in February to 1.37 in October, 0.74 in
+    April. The two large JSW plants have a flatter year than the four plants
+    of the validation.
+  - The inland areas' are strong: Madurai and Trichy 0.16–0.32 in
+    November–January and 1.4–2.0 in August–October; Coimbatore 0.54–0.69 in
+    November–January.
 
 Against the NITI monthly wind (shape check only, not a target), model ÷
 observed moves from 0.77–0.93 to 0.93–1.07 in June–October and from
@@ -320,10 +328,10 @@ GWh per week:
 
 - **The weekly error** against observed falls from 81 to 69 GWh (root mean
   square), better in October and February and worse in the first April week.
-- **The April factor of Tirunelveli (1.25) rests on schedules.** The Tuticorin
-  plants' own accounts start in June and their QCA account in May. In April
-  their schedules give a capacity factor of 0.11–0.15, while Mytrah, the only
-  metered plant, gives 0.07.
+- **The test above used uncorrected schedules.** There the April factor of
+  Tirunelveli was 1.25, because five of the six Tuticorin plants are metered
+  only from May or June and their April schedules were about twice the
+  metered output. With the correction it is 0.74.
 - **Grid and coal barely change:** Tirunelveli–Madurai peaks at 429 against
   438 MW, and the south's coal share is 24.4% against 26.2% (observed 25.0%).
 
