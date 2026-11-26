@@ -283,6 +283,50 @@ TTC limit, outages on (`metered_outages_two_level_sub_plants` against
   the model is +56% and +29% in the April weeks and +66% in February, and
   −1% in July.
 
+**Seasonal wind shape from the plants** (`ists_re_plants.wind_seasonal: true`,
+off by default; works with or without `enabled`).
+
+- **The factors:** `scripts/prepare_wind_seasonal_factors.py` turns the plants'
+  output into one factor per area and month
+  (`data/model_inputs/wind_seasonal_factors_FY2025_26.csv`). Each factor is
+  the plants' monthly capacity factor relative to their annual mean, divided
+  by the same ratio of the area profile. Every wind generator except the
+  plants is multiplied by its area's factor and capped at 1, which keeps each
+  area's annual energy (0.3 GWh lost to the cap).
+- **Which plants:** only plants that run all year are used. The Tirunelveli
+  area takes the six Tuticorin wind plants (1.77 GW); every other area takes
+  JSW Renew Karur 1 and 2 and Sprng Pugalur (586 MW), the only interstate
+  plants inland.
+- **The factors themselves:** Tirunelveli's are mild (0.71 in February to
+  1.35 in October), because the two large JSW plants have a flatter year than
+  the four plants of the validation. The inland areas' are strong: Madurai and
+  Trichy 0.28–0.36 in November–January and 1.6–1.9 in August–October.
+
+Against the NITI monthly wind (shape check only, not a target), model ÷
+observed moves from 0.77–0.93 to 0.93–1.07 in June–October and from
+1.47–1.76 to 1.29–1.37 in November–February. It gets worse in March
+(1.47 → 1.64) and April (1.09 → 1.26).
+
+Five-week test (`metered_outages_two_level_sub_plants_seasonal`), wind in
+GWh per week:
+
+| Week | Observed (NITI daily) | Area profiles | Plants | Plants + seasonal |
+|---|---|---|---|---|
+| 7 April | 150 | 234 | 239 | 261 |
+| 28 April | 152 | 196 | 204 | 195 |
+| 7 July | 970 | 957 | 981 | 1,014 |
+| 13 October | 115 | 83 | 90 | 106 |
+| 16 February | 228 | 379 | 376 | 317 |
+
+- **The weekly error** against observed falls from 81 to 69 GWh (root mean
+  square), better in October and February and worse in the first April week.
+- **The April factor of Tirunelveli (1.25) rests on schedules.** The Tuticorin
+  plants' own accounts start in June and their QCA account in May. In April
+  their schedules give a capacity factor of 0.11–0.15, while Mytrah, the only
+  metered plant, gives 0.07.
+- **Grid and coal barely change:** Tirunelveli–Madurai peaks at 429 against
+  438 MW, and the south's coal share is 24.4% against 26.2% (observed 25.0%).
+
 ### Solar capacity through the year
 
 The [Solar availability methodology](solar-availability-methodology.md)
