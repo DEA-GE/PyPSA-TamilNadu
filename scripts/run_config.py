@@ -17,6 +17,7 @@ import yaml
 
 from energy_target_policy import normalise_cost_overrides, normalise_policy
 from two_level_grid import TwoLevelGridError, validate_section as validate_grid_section
+from interstate_drawal_limit import DrawalLimitError, validate_section as validate_interstate
 from generator_outages import OutageError, validate_section as validate_outages
 from scenario_technologies import (
     TechnologyError,
@@ -239,6 +240,10 @@ def _validate(config: dict[str, Any]) -> dict[str, Any]:
         validate_grid_section(config["grid"])
     except TwoLevelGridError as error:
         raise ConfigError(str(error)) from error
+    try:
+        config["interstate"] = validate_interstate(config["interstate"])
+    except DrawalLimitError as error:
+        raise ConfigError(str(error)) from error
 
     technologies = config["technologies"]
     try:
@@ -325,6 +330,7 @@ def run_selection_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
         "profile_sample_interval": config["logging"]["sample_interval"],
         "technologies": config["technologies"],
         "grid": dict(config["grid"]),
+        "interstate": dict(config["interstate"]),
         "lp_method": config["solver"]["lp_method"],
         "crossover": config["solver"]["crossover"],
         "energy_targets": dict(config["energy_targets"]),

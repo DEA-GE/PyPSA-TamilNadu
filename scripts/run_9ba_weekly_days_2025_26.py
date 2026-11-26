@@ -38,6 +38,7 @@ from period_energy_targets import (
     drop_native_energy_targets,
     period_target_deviation_mwh,
 )
+from interstate_drawal_limit import add_drawal_limit
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -455,6 +456,7 @@ def solve_day(
             add_prorated_monthly_targets(active_network, active_snapshots, f"{day:%Y%m%d}")
         )
         add_transmission_flow_cost(active_network, active_snapshots)
+        add_drawal_limit(active_network, active_snapshots)
 
     # A positive down_time_before already defines these units as initially off;
     # p_init is redundant in that case and PyPSA explicitly ignores it.

@@ -66,6 +66,7 @@ from generator_outages import (
 )
 from scenario_technologies import apply_technologies, network_fingerprint
 from two_level_grid import apply_two_level_grid
+from interstate_drawal_limit import add_drawal_limit, apply_drawal_limit, tag as drawal_limit_tag
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
 from run_profiling import (
@@ -663,6 +664,7 @@ def _solve_peak_week(
                 name=f"daily_oil_gas_energy_{date:%Y_%m_%d}",
             )
         add_transmission_flow_cost(active_network, active_snapshots)
+        add_drawal_limit(active_network, active_snapshots)
 
     report(f"Solving peak week {dates[0].date()} to {dates[-1].date()} ...")
     started = time.perf_counter()
@@ -1138,6 +1140,7 @@ def _solve_selected_weeks(
                         active_network.model.add_constraints(expression >= target - tolerance, name=f"MonthlyHydroStore{label}Lower-{retained_dates[0]:%Y%m%d}")
                         active_network.model.add_constraints(expression <= target + tolerance, name=f"MonthlyHydroStore{label}Upper-{retained_dates[0]:%Y%m%d}")
                 add_transmission_flow_cost(active_network, active_snapshots)
+                add_drawal_limit(active_network, active_snapshots)
 
             report(
                 f"Solving selected week {position}/{len(starts)}: {start.date()} to "
@@ -1501,6 +1504,7 @@ def run_selection(
     profile_sample_interval: float = 1.0,
     technologies: Mapping[str, Any] | None = None,
     grid: Mapping[str, Any] | None = None,
+    interstate: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1578,6 +1582,7 @@ def _run_selection(
     max_windows: int | None = None,
     technologies: Mapping[str, Any] | None = None,
     grid: Mapping[str, Any] | None = None,
+    interstate: Mapping[str, Any] | None = None,
     lp_method: str = "Default",
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
@@ -1733,12 +1738,23 @@ def _run_selection(
             f"{int((shortfall > 1.0).sum())} period(s); total shortfall "
             f"{float(shortfall.sum()) / 1_000.0:,.1f} GWh (see energy_target_availability.csv)."
         )
+    with profiler.phase("apply_drawal_limit"):
+        drawal_report = apply_drawal_limit(base_network, interstate)
+    if not drawal_report.empty:
+        report(
+            f"Tamil Nadu drawal limit ({drawal_limit_tag(base_network)}): "
+            f"{drawal_report.limit_mw.min():,.0f}-{drawal_report.limit_mw.max():,.0f} MW; "
+            f"fixed interstate schedule leaves at least {drawal_report.headroom_mw.min():,.0f} MW "
+            "for the interstate-connected stations"
+        )
     # Lets resumable modes reject checkpoints solved with a different network.
     # The energy-target policy is not visible in the network data when targets
     # are only released, so a non-default policy extends the fingerprint.
     fingerprint = network_fingerprint(base_network)
     if not is_default(energy_target_policy, cost_overrides):
         fingerprint += "+policy-" + policy_tag(energy_target_policy, cost_overrides)
+    if drawal_limit_tag(base_network):
+        fingerprint += "+" + drawal_limit_tag(base_network)
     base_network.meta = {
         **(base_network.meta or {}),
         "input_fingerprint": fingerprint,
@@ -1790,6 +1806,8 @@ def _run_selection(
         added_technologies.to_csv(output_dir / "scenario_technologies.csv", index=False)
     if not grid_report.empty:
         grid_report.to_csv(output_dir / "two_level_grid.csv", index=False)
+    if not drawal_report.empty:
+        drawal_report.to_csv(output_dir / "drawal_limit.csv", index_label="snapshot")
     if outage_result is not None:
         write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)

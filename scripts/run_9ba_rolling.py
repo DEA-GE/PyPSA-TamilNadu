@@ -46,6 +46,7 @@ from run_profiling import (
     report,
 )
 from run_9ba_weekly_days_2025_26 import MODEL_DIR
+from interstate_drawal_limit import add_drawal_limit
 from transmission_assumptions import (
     TRANSMISSION_LOSSES,
     add_transmission_flow_cost,
@@ -1190,6 +1191,7 @@ def run_annual_no_uc(
                     name_suffix=f"-{terminal:%Y%m%d}",
                 )
         _timed("transmission_flow_cost", add_transmission_flow_cost, active_network, active_snapshots)
+        _timed("drawal_limit", add_drawal_limit, active_network, active_snapshots)
 
     report(
         f"Solving annual no-UC LP: {snapshots[0].date()} to {snapshots[-1].date()} "
@@ -1560,6 +1562,7 @@ def run_rolling_year(
                 )
                 _timed("hydro_terminal_targets", _add_hydro_terminal_targets, n, committed, terminal_targets)
                 _timed("transmission_flow_cost", add_transmission_flow_cost, n, s)
+                _timed("drawal_limit", add_drawal_limit, n, s)
                 _timed("measured_storage", _add_exact_measured_storage, n, s, measured_store_targets)
                 if unit_commitment == "relaxed":
                     _timed("relaxed_boundary", _add_relaxed_boundary_constraints, n, previous)
