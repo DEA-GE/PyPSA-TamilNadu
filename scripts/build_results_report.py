@@ -45,33 +45,116 @@ if str(ROOT / "scripts") not in sys.path:
 
 REPORT_FILENAME = "results_report.html"
 
-# Detailed-analysis tables shown inline; every other table is linked as CSV.
-INLINE_TABLES = (
-    ("system_metrics", "System metrics"),
-    ("generation_by_carrier", "Generation by carrier"),
-    ("generation_comparison", "Generation versus observed (detailed)"),
-    ("monthly_generation", "Monthly generation"),
-    ("storage_metrics", "Storage units"),
-    ("balancing_area_metrics", "Balancing areas"),
-    ("operating_costs", "Operating costs"),
-    ("price_metrics", "Marginal prices"),
-    ("market_values", "Market values"),
-    ("commitment_by_carrier", "Unit commitment by carrier"),
-    ("chronology_validation", "Chronology checks"),
-    ("topology_validation", "Topology checks"),
+@dataclass(frozen=True)
+class ReportSection:
+    """A topic of the detailed analysis: its figures, then its inline tables.
+
+    ``figure_prefixes`` also takes figures whose name starts with one of
+    them, such as the numbered stress weeks. Every other table is linked as
+    CSV.
+    """
+
+    title: str
+    figures: tuple[tuple[str, str], ...] = ()
+    tables: tuple[tuple[str, str], ...] = ()
+    figure_prefixes: tuple[str, ...] = ()
+
+
+REPORT_SECTIONS = (
+    ReportSection(
+        "System",
+        figures=(
+            ("energy_balance", "System electricity supply and demand"),
+            ("daily_generation_share", "Daily supply mix (%)"),
+        ),
+        tables=(
+            ("system_metrics", "System metrics"),
+            ("generation_by_carrier", "Generation by carrier"),
+            ("balancing_area_metrics", "Balancing areas"),
+        ),
+    ),
+    # The period totals are the runner's table at the top of the report.
+    ReportSection(
+        "Generation versus observed by month",
+        figures=(("monthly_generation", "Monthly generation: model versus observed"),),
+        tables=(("monthly_generation", "Monthly generation"),),
+    ),
+    ReportSection(
+        "Coal fleet",
+        figures=(
+            ("coal_fleet", "Coal fleet: dispatch, commitment and availability"),
+            ("coal_dispatch_heatmap", "Coal fleet dispatch by hour of day"),
+            ("coal_plant_use", "Use of each station's capacity"),
+            ("coal_loading_and_ramps", "Unit loading and hourly ramps"),
+        ),
+        tables=(
+            ("coal_plant_operation", "Coal stations"),
+            ("coal_monthly", "Coal fleet by month"),
+            ("commitment_by_carrier", "Unit commitment by carrier"),
+        ),
+    ),
+    ReportSection(
+        "Wind and solar",
+        figures=(("vre_curtailment", "Wind and solar curtailment by month and hour of day"),),
+        tables=(("vre_curtailment", "Wind and solar curtailment by month"),),
+    ),
+    ReportSection(
+        "Grid",
+        figures=(
+            ("grid_map", "Corridor map: mean loading and limits"),
+            ("grid_utilisation_lines", "Loading of the AC lines between balancing areas"),
+            ("grid_utilisation_interconnectors", "Loading of the interconnectors"),
+        ),
+        tables=(("corridor_metrics", "Corridors"),),
+    ),
+    ReportSection(
+        "Peak, stress and adequacy",
+        figures=(("adequacy", "Net-load duration against firm available capacity"),),
+        tables=(
+            ("net_load_duration", "Net-load duration and margin, 1% groups of hours"),
+            ("stress_weeks", "Stress weeks"),
+            ("stress_events", "Stress criteria and the hour each picks"),
+            ("stress_hours", "Supply and system state in each stress hour (MW)"),
+            ("peak_hour_by_area", "Balancing areas at the peak-demand hour"),
+        ),
+        figure_prefixes=("stress_week_",),
+    ),
+    ReportSection(
+        "Storage",
+        tables=(
+            ("storage_annual", "Storage over the run"),
+            ("storage_monthly_by_class", "Storage by month and class"),
+            ("storage_monthly", "Storage by month and asset"),
+        ),
+    ),
+    ReportSection(
+        "Prices and costs",
+        figures=(
+            ("prices", "Marginal prices"),
+            ("price_setting", "Which technology sets the price"),
+            ("costs", "Operating costs and market values"),
+        ),
+        tables=(
+            ("operating_costs", "Operating costs"),
+            ("price_metrics", "Marginal prices"),
+            ("price_setting_overall", "Price setters over the run (% of Tamil Nadu demand-hours)"),
+            ("price_setting_monthly", "Price setters by month (%)"),
+            ("market_values", "Market values"),
+        ),
+    ),
+    ReportSection(
+        "Emissions",
+        figures=(("co2", "CO2 by month"),),
+        tables=(("co2_monthly", "CO2 by month and source (kt)"),),
+    ),
+    ReportSection(
+        "Checks",
+        tables=(
+            ("chronology_validation", "Chronology checks"),
+            ("topology_validation", "Topology checks"),
+        ),
+    ),
 )
-FIGURE_TITLES = {
-    "energy_balance": "System electricity supply and demand",
-    "daily_generation_share": "Daily supply mix (%)",
-    "generation_comparison": "Generation versus observed",
-    "monthly_generation": "Monthly generation",
-    "resource_seasonality": "Resource seasonality",
-    "storage": "Storage units and reservoirs",
-    "transmission": "Transmission flows",
-    "ramps": "Net-load ramps",
-    "prices": "Marginal prices",
-    "costs": "Operating costs and market values",
-}
 MAX_INLINE_ROWS = 200
 
 
@@ -405,6 +488,10 @@ def _capacity_summary(frame: pd.DataFrame | None) -> pd.DataFrame | None:
     )
 
 
+def _readable(name: str) -> str:
+    return name.replace("_", " ").capitalize()
+
+
 def _detail_section(detail: DetailedAnalysis, result_dir: Path, collapsed: bool) -> str:
     parts = [f"<h3>{_esc(detail.label)}</h3>"]
     if detail.error:
@@ -417,19 +504,38 @@ def _detail_section(detail: DetailedAnalysis, result_dir: Path, collapsed: bool)
     parts.append(
         f'<p class="muted">Run type <code>{_esc(detail.run_type)}</code> · {_esc(detail.period)}</p>'
     )
-    figures = "".join(
-        _figure_html(path, FIGURE_TITLES.get(name, name.replace("_", " ").capitalize()))
-        for name, path in detail.figure_files.items()
-    )
-    if figures:
-        parts.append(f'<div class="figures">{figures}</div>')
-    for name, title in INLINE_TABLES:
-        if name in detail.tables:
+    shown: set[str] = set()
+    for section in REPORT_SECTIONS:
+        titles = dict(section.figures)
+        names = [name for name, _ in section.figures if name in detail.figure_files]
+        names += [
+            name for name in detail.figure_files
+            if name.startswith(section.figure_prefixes or ("\0",)) and name not in names
+        ]
+        tables = [(name, title) for name, title in section.tables if name in detail.tables]
+        if not names and not tables:
+            continue
+        shown.update(names)
+        parts.append(f"<h4>{_esc(section.title)}</h4>")
+        figures = "".join(
+            _figure_html(detail.figure_files[name], titles.get(name, _readable(name)))
+            for name in names
+        )
+        if figures:
+            parts.append(f'<div class="figures">{figures}</div>')
+        for name, title in tables:
             open_attr = "" if collapsed or name != "system_metrics" else " open"
             parts.append(
                 f"<details{open_attr}><summary>{_esc(title)}</summary>"
                 f"{_table_html(detail.tables[name])}</details>"
             )
+    others = "".join(
+        _figure_html(path, _readable(name))
+        for name, path in detail.figure_files.items()
+        if name not in shown
+    )
+    if others:
+        parts.append(f'<h4>Other figures</h4><div class="figures">{others}</div>')
     if detail.export_dir is not None:
         table_dir = detail.export_dir / "tables"
         links = "".join(
@@ -504,6 +610,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 32px 16px 64px; }
 h1 { font-size: 1.7rem; margin: 0 0 4px; }
 h2 { font-size: 1.2rem; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+h4 { font-size: 0.98rem; margin: 28px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 a { color: var(--accent); }
 code, pre { background: var(--code-bg); border-radius: 4px; font-size: 0.85em; }
 code { padding: 1px 5px; }

@@ -44,17 +44,16 @@ CO2 uses the indicative factors in ``config/emission_factors.yaml``.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yaml
 
 from .config import CARRIER_COLORS, CARRIER_LABELS, CARRIER_ORDER, CURRENCY
+from .emissions import load_emission_factors, tn_net_imports
+from .grid import corridor_loading
 from .loaders import AnalysisRun
 from .metrics import (
-    _area_timeseries,
     corridor_metrics,
     generation_by_carrier_timeseries,
     market_values,
@@ -64,12 +63,9 @@ from .metrics import (
 )
 from .statistics import price_timeseries, statistic_timeseries
 
-ROOT = Path(__file__).resolve().parents[2]
-EMISSION_FACTORS_FILE = ROOT / "config" / "emission_factors.yaml"
 OFFSHORE = "offshore_wind"
 BATTERY = "battery"
 VRE = ("solar", "wind", OFFSHORE)
-TN_AREA_KIND = "TN balancing area"
 
 
 @dataclass
@@ -80,14 +76,6 @@ class EffectsBundle:
     notes: list[str] = field(default_factory=list)
 
 
-def load_emission_factors(path: Path = EMISSION_FACTORS_FILE) -> dict:
-    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
-    return {
-        "carriers": {str(key): float(value) for key, value in (data.get("carriers") or {}).items()},
-        "net_imports": float(data.get("net_imports") or 0.0),
-    }
-
-
 def _check_comparable(baseline: AnalysisRun, scenario: AnalysisRun) -> None:
     if not baseline.snapshots.equals(scenario.snapshots):
         raise ValueError("The baseline and scenario runs cover different hours")
@@ -96,12 +84,6 @@ def _check_comparable(baseline: AnalysisRun, scenario: AnalysisRun) -> None:
 def _energy(run: AnalysisRun, hourly: pd.DataFrame | pd.Series) -> pd.Series | float:
     """Weighted energy (MWh) of hourly MW values."""
     return hourly.mul(run.weights, axis=0).sum()
-
-
-def _tn_net_imports(run: AnalysisRun) -> pd.Series:
-    """Hourly net imports into the Tamil Nadu areas (MW), after internal losses."""
-    areas = run.network.buses.index[run.network.buses.get("kind", pd.Series(dtype=str)).eq(TN_AREA_KIND)]
-    return _area_timeseries(run)["net_import"].reindex(columns=areas, fill_value=0.0).sum(axis=1)
 
 
 def _curtailment(run: AnalysisRun) -> pd.DataFrame:
@@ -135,7 +117,7 @@ def _summarise(run: AnalysisRun) -> _RunSummary:
     return _RunSummary(
         hourly_generation=hourly,
         generation_mwh=_energy(run, hourly),
-        net_imports=_tn_net_imports(run),
+        net_imports=tn_net_imports(run),
         curtailment=_curtailment(run),
         metrics=system_metrics(run),
     )
@@ -638,15 +620,11 @@ def monthly_figure(
 
 def corridor_figure(baseline: AnalysisRun, scenario: AnalysisRun, corridors: pd.DataFrame):
     figure, axis = plt.subplots(figsize=(10, 5))
-    flows = {}
-    for label, run in (("baseline", baseline), ("scenario", scenario)):
-        frame = statistic_timeseries(run, "transmission", groupby="name")
-        frame.columns = frame.columns.get_level_values("name")
-        flows[label] = frame
-    for number, (name, row) in enumerate(corridors.iterrows()):
+    loadings = {"baseline": corridor_loading(baseline), "scenario": corridor_loading(scenario)}
+    for number, name in enumerate(corridors.index):
         color = plt.get_cmap("tab10")(number % 10)
         for label, style in (("baseline", "--"), ("scenario", "-")):
-            loading = (flows[label][name].abs() / row.limit_mw * 100.0).sort_values(ascending=False).to_numpy()
+            loading = loadings[label][name].sort_values(ascending=False).to_numpy()
             share = (np.arange(len(loading)) + 0.5) / len(loading) * 100.0
             axis.plot(share, loading, style, color=color, linewidth=1.1, label=f"{name} ({label})")
     axis.axhline(100.0, color="black", linewidth=0.8)

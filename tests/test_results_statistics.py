@@ -26,10 +26,10 @@ from results_analysis.metrics import (  # noqa: E402
     operating_costs,
     price_metrics,
     renewable_generation_by_area,
-    storage_metrics,
-    store_metrics,
     system_metrics,
 )
+from results_analysis.pipeline import analyze_run  # noqa: E402
+from results_analysis.storage import storage_annual, storage_monthly  # noqa: E402
 
 # Chennai load per hour over both windows, and the load-weighted price.
 CHENNAI_LOAD = [84.0, 64.0, 64.0, 44.0]
@@ -195,18 +195,44 @@ def test_capacity_comparison_total_and_shares_exclude_slack(rolling_run):
     assert result.at["hydro", "difference_mw"] == pytest.approx(-2.0)
 
 
-def test_storage_and_store_energy(rolling_run):
-    storage = storage_metrics(rolling_run).loc["psp"]
+def test_storage_annual_statistics(rolling_run):
+    annual = storage_annual(rolling_run)
+
+    storage = annual.loc["psp"]
+    assert storage.asset_class == "hydro storage unit"
     assert storage.power_capacity_mw == pytest.approx(10.0)
+    assert storage.energy_capacity_mwh == pytest.approx(40.0)
+    assert storage.duration_h == pytest.approx(4.0)
     assert storage.discharge_gwh == pytest.approx(0.010)
     assert storage.charge_gwh == pytest.approx(0.010)
     assert storage.equivalent_full_cycles == pytest.approx(0.25)
+    # 10 MWh over 4 hours of a 10 MW unit.
+    assert storage.discharge_capacity_factor_pct == pytest.approx(25.0)
+    # State of charge 20, 25, 20, 25 MWh of 40 MWh.
+    assert storage.level_start_pct == pytest.approx(50.0)
+    assert storage.level_end_pct == pytest.approx(62.5)
+    assert storage.level_mean_pct == pytest.approx(56.25)
 
-    store = store_metrics(rolling_run).loc["mettur"]
+    store = annual.loc["mettur"]
+    assert store.asset_class == "reservoir"
     assert store.energy_capacity_mwh == pytest.approx(500.0)
     assert store.charge_gwh == pytest.approx(0.080)
     assert store.discharge_gwh == pytest.approx(0.0)
-    assert store.maximum_stored_energy_mwh == pytest.approx(140.0)
+    assert store.level_maximum_pct == pytest.approx(28.0)
+    assert store.hours_full == 0
+
+    # Class rows sum their assets.
+    assert annual.at["All reservoirs", "energy_capacity_mwh"] == pytest.approx(500.0)
+    assert annual.at["All reservoirs", "level_minimum_pct"] == pytest.approx(24.0)
+
+
+def test_storage_monthly_statistics(rolling_run):
+    per_asset, per_class = storage_monthly(rolling_run)
+
+    assert per_asset.at[("2025-04", "psp"), "discharge_gwh"] == pytest.approx(0.010)
+    assert per_asset.at[("2025-04", "psp"), "asset_class"] == "hydro storage unit"
+    assert per_class.at[("2025-04", "reservoir"), "charge_gwh"] == pytest.approx(0.080)
+    assert per_class.at[("2025-04", "hydro storage unit"), "equivalent_full_cycles"] == pytest.approx(0.25)
 
 
 def test_corridors_cover_lines_and_links_against_operating_limit(rolling_run):
@@ -220,6 +246,26 @@ def test_corridors_cover_lines_and_links_against_operating_limit(rolling_run):
     assert line.maximum_loading_pct == pytest.approx(100.0 * 11.0 / 70.0)
     assert line.net_energy_bus0_to_bus1_gwh == pytest.approx(-0.004)
     assert corridors.at["tie", "maximum_loading_pct"] == pytest.approx(75.0)
+
+
+def test_analysis_bundle_has_every_section(rolling_run):
+    bundle = analyze_run(rolling_run)
+
+    for table in (
+        "storage_annual", "coal_plant_operation", "corridor_metrics",
+        "stress_events", "stress_hours", "peak_hour_by_area",
+        "vre_curtailment", "co2_monthly", "net_load_duration",
+    ):
+        assert table in bundle.tables, table
+    for figure in (
+        "energy_balance", "coal_fleet", "coal_plant_use", "coal_loading_and_ramps",
+        "grid_utilisation_lines", "grid_utilisation_interconnectors", "prices", "costs",
+        "vre_curtailment", "adequacy", "co2",
+    ):
+        assert figure in bundle.figures, figure
+    # Four hours are too short for stress weeks or monthly tables.
+    assert "stress_weeks" not in bundle.tables
+    assert "storage_monthly" not in bundle.tables
 
 
 def test_area_balance_closes_with_lines_and_ties(rolling_run):

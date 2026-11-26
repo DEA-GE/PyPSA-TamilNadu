@@ -13,11 +13,11 @@ from .config import (
     RENEWABLE_CARRIERS,
     canonical_carrier,
 )
+from .grid import corridor_flows, corridor_metrics
 from .loaders import AnalysisRun
 from .statistics import (
     ELECTRICITY_BUS_CARRIER,
     GENERATING_COMPONENTS,
-    TRANSMISSION_LINK_CARRIERS,
     is_transmission,
     network_statistic,
     order_carriers,
@@ -267,67 +267,6 @@ def renewable_generation_by_area(run: AnalysisRun) -> pd.DataFrame:
     )
 
 
-def _energy_by_name(
-    run: AnalysisRun, component: str, index: pd.Index, bus_carrier: str | None
-) -> tuple[pd.Series, pd.Series]:
-    """Return discharge and charge (GWh) per asset from ``supply``/``withdrawal``."""
-    options = {"components": component, "groupby": "name", "bus_carrier": bus_carrier}
-    discharge = statistic_total(run, "supply", **options)
-    charge = statistic_total(run, "withdrawal", **options)
-    return (
-        discharge.reindex(index, fill_value=0.0) / 1_000.0,
-        charge.reindex(index, fill_value=0.0) / 1_000.0,
-    )
-
-
-def storage_metrics(run: AnalysisRun) -> pd.DataFrame:
-    base = run.base
-    if base.storage_units.empty:
-        return pd.DataFrame()
-    units = base.storage_units.index
-    soc = run.frame("storage_units", "state_of_charge").reindex(columns=units)
-    result = pd.DataFrame(index=units)
-    result.index.name = "storage_unit"
-    result["carrier"] = base.storage_units.carrier.map(canonical_carrier)
-    result["power_capacity_mw"] = network_statistic(
-        base, "installed_capacity", components="StorageUnit", groupby="name",
-        bus_carrier=None,
-    ).reindex(units)
-    result["energy_capacity_mwh"] = base.storage_units.p_nom * base.storage_units.max_hours
-    result["discharge_gwh"], result["charge_gwh"] = _energy_by_name(
-        run, "StorageUnit", units, bus_carrier=None
-    )
-    result["minimum_soc_mwh"] = soc.min()
-    result["maximum_soc_mwh"] = soc.max()
-    result["equivalent_full_cycles"] = (
-        result.discharge_gwh * 1_000.0 / result.energy_capacity_mwh.replace(0.0, np.nan)
-    )
-    return result
-
-
-def store_metrics(run: AnalysisRun) -> pd.DataFrame:
-    """Summarize explicit PyPSA Stores used by cascade-reservoir systems."""
-    base = run.base
-    if base.stores.empty:
-        return pd.DataFrame()
-    stores = base.stores.index
-    energy = run.frame("stores", "e").reindex(columns=stores)
-    result = pd.DataFrame(index=stores)
-    result.index.name = "store"
-    result["carrier"] = base.stores.carrier.map(canonical_carrier)
-    result["bus"] = base.stores.bus
-    result["energy_capacity_mwh"] = network_statistic(
-        base, "installed_capacity", components="Store", groupby="name",
-        bus_carrier=None,
-    ).reindex(stores)
-    result["discharge_gwh"], result["charge_gwh"] = _energy_by_name(
-        run, "Store", stores, bus_carrier=None
-    )
-    result["minimum_stored_energy_mwh"] = energy.min()
-    result["maximum_stored_energy_mwh"] = energy.max()
-    return result
-
-
 def commitment_metrics(run: AnalysisRun, tolerance: float = 1e-6) -> pd.DataFrame:
     base = run.base
     units = base.generators.index[base.generators.committable.fillna(False)]
@@ -366,74 +305,6 @@ def commitment_by_carrier(unit_metrics: pd.DataFrame) -> pd.DataFrame:
     )
     result["start_up_equivalents_per_unit"] = result.start_up_equivalents / result.units
     return result
-
-
-def corridor_flows(run: AnalysisRun) -> pd.DataFrame:
-    """Return hourly flow (MW, bus0 to bus1) on every Line and AC/DC Link.
-
-    PyPSA's ``transmission`` statistic covers branches whose two ends are
-    electricity buses, so hydro turbines and pumps are excluded.
-    """
-    flows = statistic_timeseries(run, "transmission", groupby="name")
-    if flows.empty:
-        return flows
-    flows.columns = flows.columns.get_level_values("name")
-    return flows
-
-
-def _corridor_ratings(network: pypsa.Network) -> pd.DataFrame:
-    lines = network.lines
-    links = network.links
-    links = links.loc[links.carrier.astype(str).isin(TRANSMISSION_LINK_CARRIERS)]
-    return pd.concat(
-        [
-            pd.DataFrame(
-                {
-                    "component": "Line",
-                    "carrier": lines.carrier,
-                    "bus0": lines.bus0,
-                    "bus1": lines.bus1,
-                    "capacity_mw": lines.s_nom,
-                    "limit_mw": lines.s_nom * lines.s_max_pu,
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "component": "Link",
-                    "carrier": links.carrier,
-                    "bus0": links.bus0,
-                    "bus1": links.bus1,
-                    "capacity_mw": links.p_nom,
-                    "limit_mw": links.p_nom * links.p_max_pu,
-                }
-            ),
-        ]
-    )
-
-
-def corridor_metrics(
-    run: AnalysisRun, flows: pd.DataFrame | None = None
-) -> pd.DataFrame:
-    """Summarize flows and loading on every transmission Line and AC/DC Link.
-
-    Loading is the absolute flow relative to the corridor's operating limit
-    (``s_nom * s_max_pu`` for Lines, ``p_nom * p_max_pu`` for Links), so 100%
-    means the flow limit binds. ``capacity_mw`` is the nominal rating.
-    """
-    flows = corridor_flows(run) if flows is None else flows
-    if flows.empty:
-        return pd.DataFrame()
-    result = _corridor_ratings(run.base).reindex(flows.columns)
-    result.index.name = "corridor"
-    loading = flows.abs().div(result.limit_mw.replace(0.0, np.nan), axis=1) * 100.0
-    result["maximum_absolute_flow_mw"] = flows.abs().max()
-    result["maximum_loading_pct"] = loading.max()
-    result["p95_loading_pct"] = loading.quantile(0.95)
-    result["hours_at_or_above_99pct"] = loading.ge(99.0).sum()
-    result["net_energy_bus0_to_bus1_gwh"] = (
-        flows.mul(run.weights, axis=0).sum() / 1_000.0
-    )
-    return result.sort_values("maximum_loading_pct", ascending=False)
 
 
 def _area_timeseries(run: AnalysisRun) -> dict[str, pd.DataFrame]:
@@ -800,84 +671,3 @@ def monthly_generation_comparison(
     result["difference_gwh"] = result.modeled_gwh - result.observed_gwh
     result["difference_pct"] = 100.0 * result.difference_gwh / result.observed_gwh.replace(0.0, np.nan)
     return result
-
-
-def monthly_resource_seasonality(
-    run: AnalysisRun, observed_daily: pd.DataFrame | None
-) -> pd.DataFrame:
-    generation = generation_by_carrier_timeseries(run)
-    hours = pd.Series(1.0, index=run.snapshots).resample("MS").sum()
-    base = run.base
-    result = pd.DataFrame(index=hours.index)
-    result.index.name = "month"
-    for carrier in ("wind", "hydro"):
-        generator_capacity = base.generators.loc[
-            base.generators.carrier.map(canonical_carrier).eq(carrier), "p_nom"
-        ].sum()
-        storage_capacity = base.storage_units.loc[
-            base.storage_units.carrier.map(canonical_carrier).eq(carrier), "p_nom"
-        ].sum()
-        capacity = generator_capacity + storage_capacity
-        modeled_gwh = generation.get(carrier, pd.Series(0.0, index=run.snapshots)).resample("MS").sum() / 1_000.0
-        result[f"{carrier}_modeled_cf"] = modeled_gwh * 1_000.0 / (capacity * hours)
-        if observed_daily is not None and carrier in observed_daily:
-            observed_gwh = observed_daily[carrier].resample("MS").sum()
-            result[f"{carrier}_observed_cf"] = observed_gwh * 1_000.0 / (capacity * hours)
-
-    available = run.frame("generators", "p_max_pu")
-    wind_units = base.generators.index[
-        base.generators.carrier.map(canonical_carrier).eq("wind")
-    ].intersection(available.columns)
-    wind_capacity = base.generators.loc[wind_units, "p_nom"]
-    if len(wind_units) and wind_capacity.sum() > 0:
-        weighted_availability = available[wind_units].mul(wind_capacity, axis=1).sum(axis=1) / wind_capacity.sum()
-        result["wind_resource_cf"] = weighted_availability.resample("MS").mean()
-    return result
-
-
-def seasonality_summary(monthly: pd.DataFrame) -> pd.DataFrame:
-    """Summarize amplitude and timing for each monthly utilization series."""
-    rows = []
-    for name in monthly.columns:
-        series = monthly[name].dropna()
-        if series.empty:
-            continue
-        rows.append(
-            {
-                "series": name,
-                "mean_pct": 100.0 * series.mean(),
-                "minimum_pct": 100.0 * series.min(),
-                "maximum_pct": 100.0 * series.max(),
-                "amplitude_percentage_points": 100.0 * (series.max() - series.min()),
-                "peak_month": series.idxmax().strftime("%Y-%m"),
-                "minimum_month": series.idxmin().strftime("%Y-%m"),
-            }
-        )
-    return pd.DataFrame(rows).set_index("series") if rows else pd.DataFrame()
-
-
-def seasonality_fit(monthly: pd.DataFrame) -> pd.DataFrame:
-    """Compare modeled and observed monthly wind and hydro patterns."""
-    rows = []
-    for carrier in ("wind", "hydro"):
-        modeled_name = f"{carrier}_modeled_cf"
-        observed_name = f"{carrier}_observed_cf"
-        if modeled_name not in monthly or observed_name not in monthly:
-            continue
-        pair = monthly[[modeled_name, observed_name]].dropna()
-        if pair.empty:
-            continue
-        rows.append(
-            {
-                "carrier": carrier,
-                "monthly_correlation": pair[modeled_name].corr(pair[observed_name]),
-                "mean_absolute_cf_error_percentage_points": (
-                    100.0 * (pair[modeled_name] - pair[observed_name]).abs().mean()
-                ),
-                "peak_month_matches": pair[modeled_name].idxmax().month
-                == pair[observed_name].idxmax().month,
-                "minimum_month_matches": pair[modeled_name].idxmin().month
-                == pair[observed_name].idxmin().month,
-            }
-        )
-    return pd.DataFrame(rows).set_index("carrier") if rows else pd.DataFrame()

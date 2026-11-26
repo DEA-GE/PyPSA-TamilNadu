@@ -219,8 +219,10 @@ That script:
    tiles (solver status, rolling progress, unserved energy, demand, solver
    time), generation and installed capacity compared with observed values, the
    daily comparison plot, rolling solve performance from `window_log.csv`, the
-   detailed analysis figures and tables, the full `validation.json`, and the
-   resolved run configuration.
+   detailed analysis grouped by topic (system, monthly generation versus
+   observed, coal fleet, grid, peak and stress weeks, storage, prices and
+   costs, checks), the full `validation.json`, and the resolved run
+   configuration.
 
 The analysis is calculated with PyPSA's `n.statistics` at the electricity
 buses, so the water-energy layer (reservoir stores, natural inflows, spill)
@@ -256,8 +258,16 @@ only), which PyPSA's plots need.
 | Generation by carrier | `supply` from generators, storage discharge and the grid side of hydro turbines |
 | Installed capacity | `installed_capacity`; turbines at their grid-side rating. The comparison's `total` and model shares exclude the unserved-energy slack generators |
 | Balancing areas | Each bus's `energy_balance` split into generation, storage, net imports (Lines and AC/DC Links, with losses) and demand; the residual is zero |
-| Corridors | `transmission` on every Line and AC/DC Link; loading is relative to the operating limit (`s_nom * s_max_pu` or `p_nom * p_max_pu`), so 100% means the limit binds |
-| Storage units and stores | Discharge and charge from `supply` and `withdrawal` |
+| Corridors | `transmission` on every Line and AC/DC Link. An interconnector's two one-way links (`… →` and `… ←`) are one corridor; loading is the flow relative to the operating limit in the flow's direction (`s_nom * s_max_pu`, or that direction's `p_nom * p_max_pu`), so 100% means the limit binds |
+| Grid utilisation (figures) | A map of the corridors coloured by mean loading and sized by limit, drawn with PyPSA's `n.plot.map` (one connection per link pair, with hours at the limit); histograms of each corridor's hourly loading, split by flow direction, for the AC lines between balancing areas and for the interconnectors |
+| Wind and solar curtailment | `curtailment` and `supply` of the variable renewables: available, generated and curtailed energy and the curtailed share, by month and carrier and over the run; the figure adds the curtailed share by month and hour of day |
+| Net-load duration and adequacy | Hours sorted by net load (demand net of the scheduled imports, minus wind and solar), against firm available capacity: every other generator's dispatch plus its `curtailment` (so after outages), with hydro at its full grid-side rating. Tables in 1% groups of hours with the mean and smallest margin; the figure shows what covered net load, over all hours and the 200 highest one by one |
+| Price setters | In each hour and Tamil Nadu area, the flexible unit (part-loaded, or partly committed under relaxed commitment) whose marginal cost is nearest the price at its own bus, among buses within 3% of the area's price (losses, not congestion). Within 0.2% is an exact match, up to 10% the gap is start-up and commitment cost; hydro turbines and pumps count at their reservoir's water value. Other hours are scarcity (unserved-energy price), zero-price surplus, or set by an inter-temporal or energy constraint. Shares are weighted by demand, by month, hour of day and over the run; empty without prices |
+| CO2 | Generation by carrier times the indicative factors in `config/emission_factors.yaml` (coal gross of auxiliary consumption), plus net imports into the Tamil Nadu areas at the grid factor; by month, with the intensity of generation and of Tamil Nadu's demand |
+| Coal fleet | Per unit: dispatch from `supply`, available capacity as dispatch plus `curtailment` (so after outages and derating), online capacity as available capacity times `status`, minimum stable output as `status * p_min_pu * p_nom`. Per station: capacity factor, availability, online share, loading when online, share of online hours at minimum, start-ups, and with prices its market value and margin over marginal cost; also by month. The fixed `rea_export_reservation__*` generators (other states' shares of central stations) are reported apart from the units the model dispatches |
+| Coal fleet (figures) | Daily dispatch against minimum, online, available and installed capacity, with daily start-ups; dispatch by hour of day and day as a share of available capacity; each station's capacity-hours split into generated, online but unused, available but offline, and unavailable, in merit order; unit loading when online and hourly ramps of the coal fleet against net load |
+| Peak and stress weeks | Criteria pick one hour each: peak demand, peak and minimum net load (demand minus wind and solar), least spare thermal capacity (thermal `curtailment`: available but not dispatched), most unserved energy in a day, highest system price. The week from three days before each hour is analysed, and weeks that overlap by four days or more are merged. Tables give each week's system indicators and the supply in each criterion's hour; one figure per week shows hourly supply, the coal fleet, spare thermal capacity and price. Runs shorter than 14 days get the hours only |
+| Storage | Per StorageUnit and finite Store (reservoir), and per asset class: discharge and charge from `supply` and `withdrawal`, inflow and spill, equivalent full cycles, discharge capacity factor, levels (start, end, minimum, mean, maximum, as % of energy capacity) and hours full or empty; over the run and by month |
 | Operating costs | `opex` by carrier and cost type (marginal, start-up, shut-down, …) in million INR; `transmission` is the interstate-link charge. Model penalties are listed last and totalled separately from operating cost: unserved energy, `water_balance_adjustment` (the slack that makes reservoirs match measured storage) and the spill tie-break |
 | Marginal prices | `prices` per bus: time- and load-weighted means, percentiles, and hours at the unserved-energy price |
 | Market values | Revenue from supplied energy (`revenue`, output direction) divided by supplied energy, and its ratio to the load-weighted average price; slack generators are left out |
@@ -566,8 +576,8 @@ standard summary. For interactive exploration, open
 `notebooks/analyze_rolling_year.ipynb` and run all cells. It checks the
 8,760-hour retained chronology and state handoffs, compares monthly and annual
 modeled generation with the observed FY2025-26 workbook, reports full-load
-hours, and analyses resource seasonality, unit commitment, storage, ramps,
-imports, unserved energy, and corridor loading. The peak-week and rolling-year
+hours, and shows unit commitment, storage, corridor loading and the coal
+fleet's operation. The peak-week and rolling-year
 notebooks use the same calculations, carrier taxonomy, plot styling, and output
 schema from `scripts/results_analysis/`.
 

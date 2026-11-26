@@ -1,5 +1,6 @@
-# CO2 emission factors used by the scenario comparison
-# (scripts/results_analysis/scenario_effects.py), in tCO2 per MWh generated.
+# CO2 emission factors used by the results analysis
+# (scripts/results_analysis/emissions.py, also behind the scenario comparison),
+# in tCO2 per MWh generated.
 #
 # The model's carriers carry no emissions. These indicative factors are
 # derived from IPCC 2006 default fuel emission factors and typical Indian

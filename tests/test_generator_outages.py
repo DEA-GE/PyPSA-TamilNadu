@@ -374,7 +374,6 @@ def test_maintenance_is_optimised_into_low_demand_days(tmp_path):
 
 def test_coal_comparisons_add_back_auxiliary_consumption(tmp_path):
     from generator_outages import coal_auxiliary_by_generator, coal_own_use, gross_coal_for_comparison
-    from results_analysis.generation_comparison import _read_daily
 
     network = _network()
     network.add("Generator", "rea_export_st", bus="Erode", carrier="coal", p_nom=50.0)
@@ -392,11 +391,3 @@ def test_coal_comparisons_add_back_auxiliary_consumption(tmp_path):
                          index=pd.DatetimeIndex(["2025-04-01"], name="date"))
     gross = gross_coal_for_comparison(daily)
     assert gross.loc["2025-04-01", ["coal", "comparable_total"]].tolist() == [107.0, 157.0]
-    # The report's daily comparison reads the same column.
-    path = tmp_path / "modeled_daily_generation.csv"
-    full = pd.DataFrame({c: [1.0] for c in ["coal", "oil_gas", "nuclear", "hydro", "solar", "wind", "bio_power", "small_hydro"]},
-                        index=pd.DatetimeIndex(["2025-04-01"], name="date")).assign(coal_own_use=0.5)
-    full.to_csv(path)
-    read = _read_daily(path, modeled=True)
-    assert read.loc["2025-04-01", "coal"] == pytest.approx(1.5)
-    assert read.loc["2025-04-01", "comparable_total"] == pytest.approx(6.5)
