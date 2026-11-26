@@ -1,0 +1,14 @@
+seller,technology,pool,area,capacity_mw,output_gwh,scheduled_gwh,metered_share
+Tuticorin_BETAMWIND,wind,Tuticorin,Tirunelveli,223.2,641.0,681.4,0.942
+Tuticorin_GIREL,wind,Tuticorin,Tirunelveli,262.4,706.7,747.8,0.918
+Tuticorin_Orange,wind,Tuticorin,Tirunelveli,200.0,533.8,575.9,0.921
+Tuticorin_Mytrah,wind,Tuticorin,Tirunelveli,250.3,587.7,620.8,1.0
+Tuticorin_JSWRETwo,wind,Tuticorin,Tirunelveli,300.0,752.6,772.7,0.825
+Tuticorin_JSWRenew_W,wind,Tuticorin,Tirunelveli,531.3,1386.0,1393.0,0.684
+Tuticorin_NTPCETPRM,solar,Tuticorin,Tirunelveli,245.3,500.7,513.5,0.416
+Tuticorin_GRTJIPL,solar,Tuticorin,Tirunelveli,152.9,306.1,312.6,0.424
+KARUR_JSWRENEW_W,wind,Karur,Coimbatore,150.0,428.4,470.7,0.433
+KARUR_JSWRETwo_W,wind,Karur,Coimbatore,136.0,306.6,352.0,0.053
+KARUR_TPVARDHAMAN_W,wind,Karur,Coimbatore,198.0,53.6,111.2,0.449
+PGLR_SREPL,wind,Pugalur,Trichy,300.0,687.7,809.3,1.0
+PGLR_SAUPL_W,wind,Pugalur,Trichy,86.3,97.2,116.7,1.0

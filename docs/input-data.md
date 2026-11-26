@@ -241,6 +241,143 @@ available capacity.
 The declared availability of these plants is 0.9–1.0 in all months, so the
 low winter output is weather, not outages.
 
+### Interstate wind and solar plants on their real output (optional)
+
+`ists_re_plants.enabled: true` (`scripts/ists_re_plants.py`, off by default)
+runs 13 interstate-connected plants on their FY2025-26 output instead of the
+area profiles: 2,638 MW of wind and 398 MW of solar.
+
+- **The series** (`data/model_inputs/tn_ists_re_plant_series_FY2025_26.csv`,
+  from `scripts/prepare_ists_re_plant_output.py`) takes, per plant and hour,
+  the first available of:
+  - the metered output from the plant's own deviation account;
+  - its part of a QCA account: the QCA's metered output less its members' own
+    metered output, split by schedule. QCA membership comes from matching
+    schedules, R² ≥ 0.975;
+  - the plant's REMC schedule, corrected by the metered / scheduled ratio of
+    the same month. Schedules run too high in calm months: metered /
+    scheduled is about 1 from May to September but 0.35–0.8 from October to
+    April (Sprng 0.47 and Mytrah 0.55 in April). The ratio is the plant's own
+    where it has metered hours that month, otherwise that of the metered
+    plants of its group (same technology, Tuticorin or inland), otherwise 1.
+
+  75% of the 6.99 TWh is metered; the REMC schedules total 7.48 TWh.
+- **In the network:** each plant is a generator on its pooling station's area
+  bus: Tuticorin → Tirunelveli, Pugalur → Trichy, and Karur → Coimbatore as in
+  the transformer inventory. It has `p_max_pu` = output / capacity and can be
+  curtailed. The area's wind or solar fleet, rooftop excluded, shrinks by the
+  same capacity, pro rata. `basis: scheduled` uses the REMC schedules only.
+  The run writes `ists_re_plants.csv`.
+
+**Test (26 November 2026).** Same five weeks, two levels with substation N-1,
+TTC limit, outages on (`metered_outages_two_level_sub_plants` against
+`metered_outages_two_level_sub`):
+
+| GWh over five weeks | Observed (NITI daily) | Area profiles | Plants on their output |
+|---|---|---|---|
+| Wind | 1,616 | 1,849 | 1,889 |
+| Solar | 1,321 | 1,825 | 1,853 |
+| Coal | 6,398 | 5,060 | 4,988 |
+
+- **Effect:** Tirunelveli wind rises by 44 GWh (+4%), most of it in the July
+  week. Line flows and binding hours barely change: Tirunelveli–Madurai
+  400 kV peaks at 434 against 438 MW.
+- **The statewide seasonal error remains.** The plants are a fifth of the
+  wind fleet, and the other 9.7 GW keep the too-flat profiles. Against the
+  observed daily wind (which still includes out-of-state interstate wind),
+  the model is +56% and +29% in the April weeks and +66% in February, and
+  −1% in July.
+
+**Seasonal wind shape from the plants** (`ists_re_plants.wind_seasonal: true`,
+off by default; works with or without `enabled`).
+
+- **The factors:** `scripts/prepare_wind_seasonal_factors.py` turns the plants'
+  output into one factor per area and month
+  (`data/model_inputs/wind_seasonal_factors_FY2025_26.csv`). Each factor is
+  the plants' monthly capacity factor relative to their annual mean, divided
+  by the same ratio of the area profile. Every wind generator except the
+  plants is multiplied by its area's factor and capped at 1, which keeps each
+  area's annual energy (0.3 GWh lost to the cap).
+- **Which plants:** only plants that run all year are used. The Tirunelveli
+  area takes the six Tuticorin wind plants (1.77 GW); every other area takes
+  JSW Renew Karur 1 and 2 and Sprng Pugalur (586 MW), the only interstate
+  plants inland.
+- **The factors themselves** (after the schedule correction):
+  - Tirunelveli's are mild: 0.72 in February to 1.37 in October, 0.74 in
+    April. The two large JSW plants have a flatter year than the four plants
+    of the validation.
+  - The inland areas' are strong: Madurai and Trichy 0.16–0.32 in
+    November–January and 1.4–2.0 in August–October; Coimbatore 0.54–0.69 in
+    November–January.
+
+Five-week test (`metered_outages_two_level_sub_plants_seasonal`), wind in
+GWh per week:
+
+| Week | Observed (NITI daily) | Area profiles | Plants | Plants + seasonal |
+|---|---|---|---|---|
+| 7 April | 150 | 234 | 239 | 261 |
+| 28 April | 152 | 196 | 204 | 195 |
+| 7 July | 970 | 957 | 981 | 1,014 |
+| 13 October | 115 | 83 | 90 | 106 |
+| 16 February | 228 | 379 | 376 | 317 |
+
+- **The weekly error** against observed falls from 81 to 69 GWh (root mean
+  square), better in October and February and worse in the first April week.
+- **The test above used uncorrected schedules.** There the April factor of
+  Tirunelveli was 1.25, because five of the six Tuticorin plants are metered
+  only from May or June and their April schedules were about twice the
+  metered output. With the correction it is 0.74.
+- **Grid and coal barely change:** Tirunelveli–Madurai peaks at 429 against
+  438 MW, and the south's coal share is 24.4% against 26.2% (observed 25.0%).
+
+**Full-year test** with the corrected schedules: relaxed rolling runs with the
+two-level grid (N-1 per substation), the Grid-India import limit and coal
+maintenance on. The baseline (`year_two_level_sub_outages`) keeps the area
+profiles. The test run (`year_two_level_sub_outages_plants_seasonal`) adds the
+plants on their metered output and the seasonal factors. Wind in GWh per month,
+with the observed figures as the sum of the NITI daily totals:
+
+| Month | Observed | Area profiles | Plants + seasonal |
+|---|---|---|---|
+| Apr 2025 | 555 | 684 (1.23) | 497 (0.90) |
+| May | 2,170 | 2,696 (1.24) | 2,459 (1.13) |
+| Jun | 3,685 | 3,668 (1.00) | 4,219 (1.14) |
+| Jul | 4,323 | 4,244 (0.98) | 4,705 (1.09) |
+| Aug | 3,572 | 2,986 (0.84) | 3,438 (0.96) |
+| Sep | 3,359 | 2,648 (0.79) | 3,305 (0.98) |
+| Oct | 1,242 | 971 (0.78) | 1,216 (0.98) |
+| Nov | 781 | 1,074 (1.37) | 843 (1.08) |
+| Dec | 946 | 1,545 (1.63) | 1,230 (1.30) |
+| Jan 2026 | 1,070 | 1,972 (1.84) | 1,426 (1.33) |
+| Feb | 877 | 1,475 (1.68) | 1,239 (1.41) |
+| Mar | 506 | 734 (1.45) | 814 (1.61) |
+
+- **The wind error falls by 40%:** root mean square 128 → 76 GWh per week
+  and 491 → 285 GWh per month. August–November are now within 10%.
+- **What remains:** December–March is still 30–60% high, and June–July
+  9–14% high. March gets worse because the plants' March is windier than the
+  area profile's.
+- **Annual wind rises** from 24.7 to 25.4 TWh (NITI annual 24.2 TWh). The
+  plants' metered output is higher than the area profile gives for their
+  capacity. Solar rises by 0.25 TWh for the same reason; its monthly shape does
+  not change.
+- **Coal falls by about 1 TWh,** to 50.5 TWh (observed 65.3 TWh gross). The
+  south goes from 12.9 to 11.9 TWh and Mettur from 1.3 to 0.7 TWh; observed
+  figures are 17.0 and 7.6 TWh.
+- **Grid:** circuit flows change by less than 5%. Tirunelveli–Madurai peaks at
+  454 MW (reported 500–600). The Villupuram transformers are at their limit
+  6,132 hours a year instead of 5,976.
+- **Unserved energy:** 6 GWh at Villupuram, in 51 hours on 22–28 April and
+  13–16 May (baseline none). Lower April–May wind, coal maintenance and the
+  Villupuram transformer limit coincide.
+- **Prices against the IEX day-ahead price for Tamil Nadu** (load-weighted
+  model price, capped at 10,000 INR/MWh):
+  - The mean is 4,737 against 4,792 INR/MWh (IEX 3,848).
+  - The correlation of daily means rises from 0.27 to 0.40.
+  - The monthly shape moves towards IEX: higher in April–May and lower in
+    June–September.
+  - The average day still spans about 1,000 INR/MWh, against 5,600 at IEX.
+
 ### Solar capacity through the year
 
 The [Solar availability methodology](solar-availability-methodology.md)

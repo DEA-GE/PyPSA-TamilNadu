@@ -44,3 +44,18 @@ def test_observed_capacity_factor_uses_hours_when_all_reporting_accounts_report(
 
     assert cf.index.tolist() == list(hours[:2])  # the hour without b is dropped
     assert cf.tolist() == pytest.approx([150 / 400, 50 / 400])
+
+
+def test_schedule_only_hours_take_the_metered_to_scheduled_ratio(monkeypatch):
+    monkeypatch.setattr(plants, "SELLERS", {
+        "A": ("a", (), "wind", "Tuticorin"), "B": (None, (), "wind", "Tuticorin"), "C": (None, (), "wind", "Karur"),
+    })
+    hours = pd.date_range("2025-04-01", periods=3, freq="h")
+    schedules = pd.DataFrame({"A": 100.0, "B": 80.0, "C": 60.0}, index=hours)
+    output = pd.DataFrame({"A": 50.0, "B": float("nan"), "C": float("nan")}, index=hours)
+    source = pd.DataFrame({"A": "metered", "B": "schedule", "C": "schedule"}, index=hours)
+
+    ratio = plants.schedule_correction(output, schedules, source)
+
+    assert ratio["B"].tolist() == pytest.approx([0.5] * 3)  # A's metered / scheduled, same group and month
+    assert ratio["C"].tolist() == pytest.approx([1.0] * 3)  # no metered plant in its group
