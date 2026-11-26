@@ -26,8 +26,14 @@ Writes:
   plant (REMC seller) and hour of the year. ``output_mw`` is the metered
   output from the plant's own account; where that is missing, its part of a
   QCA account (the QCA's metered output less its members' own metered output,
-  split by schedule); otherwise its REMC schedule (``source`` says which).
-  ``scheduled_mw`` is the REMC schedule (``commercial_remc_schedule.csv``);
+  split by schedule); otherwise its REMC schedule times a correction
+  (``source`` says which). Schedules run too high in calm months (metered /
+  scheduled 0.35-0.8 from October to April, about 1 from May to September),
+  so a schedule-only hour is scaled by the metered / scheduled ratio of the
+  same month: the plant's own where it has metered hours that month,
+  otherwise that of the metered plants of its group (same technology,
+  Tuticorin or inland), otherwise 1. ``scheduled_mw`` is the REMC schedule
+  (``commercial_remc_schedule.csv``);
 - ``data/model_inputs/tn_ists_re_plants_FY2025_26.csv``: one row per plant
   with technology, pooling station, model area of the pooling station (as in
   the transformer inventory), capacity and energy.
@@ -100,6 +106,9 @@ SELLERS = {
 # Model area of each pooling station, as in the transformer inventory
 # (data/source/srldc_transmission_elements/tn_icts_2026-03.csv).
 POOL_AREAS = {"Tuticorin": "Tirunelveli", "Karur": "Coimbatore", "Pugalur": "Trichy"}
+# Plants whose metered / scheduled ratio corrects each other's schedule-only months.
+POOL_GROUPS = {"Tuticorin": "Tuticorin", "Karur": "inland", "Pugalur": "inland"}
+MIN_SCHEDULED_MWH = 100.0  # a ratio needs at least this much scheduled energy in the month
 
 
 def _stamps(frame: pd.DataFrame) -> pd.Series:
@@ -173,6 +182,23 @@ def read_remc_schedules(source_dir: Path = SOURCE_DIR, inventory: Path = INVENTO
     return hourly_mw.reindex(HOURS, fill_value=0.0)[list(SELLERS)]
 
 
+def schedule_correction(output: pd.DataFrame, schedules: pd.DataFrame, source: pd.DataFrame) -> pd.DataFrame:
+    """Hourly factor for schedule-only hours: metered / scheduled of the same month (own, else group, else 1)."""
+    metered = source.ne("schedule")
+    month = output.index.to_period("M")
+    actual = output.where(metered).groupby(month).sum()
+    scheduled = schedules.where(metered).groupby(month).sum()
+    own = (actual / scheduled).where(scheduled >= MIN_SCHEDULED_MWH)
+    groups = pd.Series({seller: (spec[2], POOL_GROUPS[spec[3]]) for seller, spec in SELLERS.items()})
+    ratio = own.copy()
+    for _, members in groups.groupby(groups).groups.items():
+        members = list(members)
+        group_actual, group_scheduled = actual[members].sum(axis=1), scheduled[members].sum(axis=1)
+        group = (group_actual / group_scheduled).where(group_scheduled >= MIN_SCHEDULED_MWH)
+        ratio[members] = ratio[members].apply(lambda column: column.fillna(group))
+    return ratio.fillna(1.0).reindex(month).set_axis(output.index)
+
+
 def seller_series(accounts: pd.DataFrame, schedules: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Hourly output of each seller (long table) and the seller table with capacity and energy."""
     actual = accounts.pivot_table(index="snapshot", columns="account", values="actual_mw").reindex(HOURS)
@@ -199,7 +225,10 @@ def seller_series(accounts: pd.DataFrame, schedules: pd.DataFrame) -> tuple[pd.D
         share = weights.div(weights.sum(axis=1).where(lambda s: s > 0), axis=0).fillna(0.0)
         output.loc[rows, members] = known.where(~unknown, share.mul(remainder, axis=0))
         source.loc[rows, members] = source.loc[rows, members].where(~unknown, "qca")
-    output = output.fillna(schedules)
+    ratio = schedule_correction(output, schedules, source)
+    corrected = schedules * ratio
+    output = output.fillna(corrected)
+    source = source.where(source.ne("schedule"), "schedule_corrected")
     capacity = {}
     for seller, (own, members, *_rest) in SELLERS.items():
         candidates = [output[seller].max(), schedules[seller].max()]
@@ -219,7 +248,7 @@ def seller_series(accounts: pd.DataFrame, schedules: pd.DataFrame) -> tuple[pd.D
         "technology": [SELLERS[s][2] for s in sellers], "pool": [SELLERS[s][3] for s in sellers],
         "area": [POOL_AREAS[SELLERS[s][3]] for s in sellers], "capacity_mw": pd.Series(capacity).round(1),
         "output_gwh": (output.sum() / 1e3).round(1), "scheduled_gwh": (schedules.sum() / 1e3).round(1),
-        "metered_share": (output.where(source.ne("schedule")).sum() / output.sum()).round(3),
+        "metered_share": (output.where(source.ne("schedule_corrected")).sum() / output.sum()).round(3),
     }, index=pd.Index(sellers, name="seller"))
     table.attrs["qca_mismatch"] = mismatch
     return series, table
