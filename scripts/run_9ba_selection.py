@@ -58,6 +58,7 @@ from energy_target_policy import (
     policy_tag,
     target_enabled,
 )
+from rooftop_solar import apply_rooftop_solar
 from scenario_technologies import apply_technologies, network_fingerprint
 from results_analysis.loaders import load_observed_capacity
 from results_analysis.metrics import capacity_comparison
@@ -1487,6 +1488,7 @@ def run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    rooftop_solar: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the 9-BA unit-commitment model for the selected horizon.
 
@@ -1562,6 +1564,7 @@ def _run_selection(
     crossover: bool = True,
     energy_targets: Mapping[str, Any] | None = None,
     marginal_costs: Mapping[str, Any] | None = None,
+    rooftop_solar: Mapping[str, Any] | None = None,
 ) -> dict:
     """Implementation of :func:`run_selection`; profiling is handled there.
 
@@ -1661,6 +1664,13 @@ def _run_selection(
                 f"Optimised capacities cannot be sized in mode '{mode}', which solves "
                 "periods separately; use mode 'annual' for the capacity expansion."
             )
+    with profiler.phase("apply_rooftop_solar"):
+        removed_rooftop = apply_rooftop_solar(base_network, rooftop_solar)
+    if not removed_rooftop.empty:
+        report(
+            f"Rooftop solar left out: removed {len(removed_rooftop)} generators "
+            f"({removed_rooftop.sum():,.1f} MW rated); the demand is net of rooftop output."
+        )
     with profiler.phase("apply_energy_target_policy"):
         (
             energy_target_policy, cost_overrides, availability_report, cost_report,
@@ -1767,6 +1777,7 @@ def _run_selection(
     validation["unit_commitment"] = unit_commitment
     validation["energy_targets"] = dict(energy_target_policy)
     validation["marginal_cost_overrides_inr_per_mwh"] = dict(cost_overrides)
+    validation["rooftop_solar_removed_mw"] = float(removed_rooftop.sum())
     validation["run_name"] = run_name
     validation["solver_threads"] = solver_threads
     validation["simplex_strategy"] = simplex_strategy

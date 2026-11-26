@@ -126,6 +126,16 @@ marginal_costs:
   nuclear: null
   small_hydro: null
 
+rooftop_solar:
+  # Grid-connected rooftop solar: one generator per area, 1,635.8 MW in the
+  # July 2026 fleet, scaled through FY2025-26 with the rest of the solar fleet
+  # (about 1,170-1,570 MW). true keeps it as supply, as built. false removes it
+  # before the solve: rooftop output is not seen by the state load despatch
+  # centre, so the demand series ("Demand Met") is already net of it and
+  # keeping it as supply counts it twice (scripts/rooftop_solar.py,
+  # docs/solar-availability-methodology.md section 6).
+  include: true
+
 analysis:
   # Run scripts/build_results_report.py on the finished run.
   enabled: true
