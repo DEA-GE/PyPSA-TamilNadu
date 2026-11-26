@@ -1700,6 +1700,13 @@ def _run_selection(
         )
     with profiler.phase("apply_ists_re_plants"):
         plant_report = apply_ists_re_plants(base_network, ists_re_plants)
+    seasonal_report = plant_report.attrs.get("wind_seasonal")
+    if seasonal_report is not None:
+        report(
+            "Wind reshaped to the interstate plants' monthly pattern: potential "
+            f"{seasonal_report.potential_before_gwh.sum():,.0f} -> {seasonal_report.potential_after_gwh.sum():,.0f} GWh "
+            f"({seasonal_report.capped_gwh.sum():,.1f} GWh capped at availability 1)"
+        )
     if not plant_report.empty:
         report(
             f"Interstate wind and solar plants on their real output: {len(plant_report)} plants, "
@@ -1822,6 +1829,8 @@ def _run_selection(
         drawal_report.to_csv(output_dir / "drawal_limit.csv", index_label="snapshot")
     if not plant_report.empty:
         plant_report.to_csv(output_dir / "ists_re_plants.csv", index=False)
+    if seasonal_report is not None:
+        seasonal_report.to_csv(output_dir / "wind_seasonal.csv", index=False)
     if outage_result is not None:
         write_outage_outputs(outage_result, output_dir)
     solve_phase = profiler.phase(f"run_{mode}", unit_commitment=unit_commitment)

@@ -62,3 +62,35 @@ def test_off_by_default_and_capacity_check(tmp_path):
         plants.apply_ists_re_plants(n, inputs(tmp_path, capacity=900.0))
     with pytest.raises(plants.IstsRePlantError, match="basis"):
         plants.validate_section({"basis": "forecast"})
+
+
+def test_wind_seasonal_reshapes_the_fleet_but_not_the_plants(tmp_path):
+    factors = tmp_path / "factors.csv"
+    pd.DataFrame({"area": ["A"], "month": ["2025-07"], "factor": [1.5]}).to_csv(factors, index=False)
+    n = network()
+
+    report = plants.apply_ists_re_plants(n, {**inputs(tmp_path), "wind_seasonal": True, "wind_factors": str(factors)})
+
+    p_max_pu = n.get_switchable_as_dense("Generator", "p_max_pu")
+    assert p_max_pu["district_1"].tolist() == pytest.approx([0.75, 0.75, 0.3])
+    assert p_max_pu["district_2"].tolist() == pytest.approx([0.15, 0.15, 0.9])
+    assert p_max_pu["ists_re_plant__tuticorin_x"].iloc[0] == pytest.approx(0.5)  # the plant keeps its output
+    seasonal = report.attrs["wind_seasonal"].set_index("area")
+    assert seasonal.loc["A", "capped_gwh"] == pytest.approx(0.0)
+
+
+def test_seasonal_factors_keep_the_annual_energy():
+    import prepare_wind_seasonal_factors as factors
+
+    hours = pd.date_range("2025-04-01", periods=24 * 61, freq="h")  # April and May
+    profiles = pd.DataFrame({"tirunelveli_wind": 0.2, "madurai_wind": 0.3}, index=hours)
+    output = pd.Series([10.0] * (24 * 30) + [30.0] * (24 * 31), index=hours)  # plants: May three times April
+    series = pd.concat([pd.DataFrame({"snapshot": hours, "seller": seller, "output_mw": output.to_numpy()})
+                        for group in factors.GROUPS.values() for seller in group])
+    capacity = pd.DataFrame({"capacity_mw": 100.0}, index=pd.Index(series.seller.unique(), name="seller"))
+
+    table = factors.seasonal_factors(series, capacity, profiles)
+
+    madurai = table[table.area.eq("Madurai")].set_index("month").factor
+    assert madurai["2025-05"] / madurai["2025-04"] == pytest.approx(3.0)
+    assert (madurai["2025-04"] * 30 + madurai["2025-05"] * 31) / 61 == pytest.approx(1.0)

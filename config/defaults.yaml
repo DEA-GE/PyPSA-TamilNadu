@@ -183,6 +183,12 @@ ists_re_plants:
   basis: metered
   series: data/model_inputs/tn_ists_re_plant_series_FY2025_26.csv
   plants: data/model_inputs/tn_ists_re_plants_FY2025_26.csv
+  # Reshape every other wind generator to the plants' monthly pattern: one
+  # factor per area and month (Tuticorin plants for Tirunelveli, Karur and
+  # Pugalur plants elsewhere) that keeps each area's annual energy
+  # (scripts/prepare_wind_seasonal_factors.py). Works with or without enabled.
+  wind_seasonal: false
+  wind_factors: data/model_inputs/wind_seasonal_factors_FY2025_26.csv
 
 technologies:
   # Technologies added to the base network for scenario studies; see
