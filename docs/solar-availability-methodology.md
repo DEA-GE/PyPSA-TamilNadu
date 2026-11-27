@@ -4,8 +4,10 @@ This note describes how hourly solar availability (`p_max_pu` of the solar
 generators in `model/generators-p_max_pu.csv`) is built for FY2025-26 and why.
 It covers the installed-capacity trajectory, the seasonal correction, the
 annual calibration, the validation against observed generation, and the known
-limitations. File-level details are in the
-[Input data guide](input-data.md#wind-and-solar-availability).
+limitations. The [model description](model-description.md#solar) summarises
+the method alongside the rest of the solar assumptions, and the
+[input data guide](input-data.md) gives the file formats and preparation
+scripts.
 
 ## 1. Overview
 
@@ -38,7 +40,8 @@ annual total with a constant 14,045.55 MW fleet. Monthly potential was then
 ## 2. Installed capacity through the year
 
 **Why.** Tamil Nadu solar grew from 10,154 MW on 31 March 2025 to 13,580 MW on
-31 March 2026. A constant July 2026 fleet overstates capacity by 38% in April
+31 March 2026, or from 10,083 to 13,505 MW without the off-grid systems the
+model excludes. A constant July 2026 fleet overstates capacity by 38% in April
 and 4% in March. The 0.9304 factor hid this by mixing a capacity error with a
 performance correction.
 

@@ -1,10 +1,10 @@
 # Tamil Nadu nine-balancing-area model
 
 This repository contains the hourly, nine-balancing-area PyPSA
-unit-commitment model for Tamil Nadu. It is the repository's only supported
-model. The ready-to-load PyPSA CSV folder is `model/`. See [How to run](#how-to-run)
-for environment setup, rebuilding, and run configuration. To load the network
-programmatically:
+unit-commitment model of Tamil Nadu's power system for FY2025-26. It is the
+repository's only supported model. The ready-to-load PyPSA CSV folder is
+`model/`. See [How to run](#how-to-run) for environment setup, rebuilding,
+and run configuration. To load the network programmatically:
 
 ```python
 import pypsa
@@ -12,25 +12,50 @@ import pypsa
 network = pypsa.Network("model")
 ```
 
-For the location, table structure, units, provenance, and limitations of each
-input, see [Input data guide](docs/input-data.md). How hourly solar
-availability is derived and validated is described in the
-[Solar availability methodology](docs/solar-availability-methodology.md).
+![Map of the nine balancing areas, the corridors between them and the interstate ties](docs/figures/network_map.png)
+
+## Model at a glance
+
+| | |
+| --- | --- |
+| Period | FY2025-26, 8,760 hours (1 April 2025 to 31 March 2026, IST) |
+| Areas | 9 Tamil Nadu balancing areas, one bus each; 5 neighbouring buses (Andhra Pradesh, Karnataka, Kerala, Puducherry, Western Region) |
+| Demand | 131.38 TWh; peak 19,987 MW on 11 July 2025 |
+| Installed capacity | 48,224 MW (July 2026 vintage): coal and lignite 15,033, solar 14,046, wind 12,299, nuclear 2,440, hydro 2,219, bio-power 1,028, oil and gas 845, diesel 212, small hydro 103 |
+| Unit commitment | The 49 coal and lignite units; all other plants are dispatched without commitment |
+| Grid | 18 corridors between areas (84 GW of operating limits); 12 interstate ties (51.5 GW into Tamil Nadu); optional second voltage level per area |
+| Imports and exports | Fixed hourly schedule from the SRPC accounts, matched to the metered net import (13.72 TWh); Grid-India's import limit; optional trading at IEX prices |
+| Calibration | Observed oil-and-gas, nuclear, bio-power and small-hydro energy by default; solar availability calibrated to observed annual generation |
+| Scenarios | Batteries and offshore wind, through a Snakemake workflow |
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [Model description](docs/model-description.md) | Scope and structure, demand, one section per technology (coal and lignite, nuclear, oil and gas, diesel, bio-power, hydro, small hydro, solar, onshore wind, offshore wind, batteries), the grid with imports and exports, and the calibration to observed generation: the assumptions, their sources, the options and the tests |
+| [Input data guide](docs/input-data.md) | Where each input is, its format and how it is prepared |
+| [Solar availability methodology](docs/solar-availability-methodology.md) | How hourly solar availability is derived and validated |
+| [`model/DATA_DOCUMENTATION.md`](model/DATA_DOCUMENTATION.md) | The files of the built network |
+| [`results/README.md`](results/README.md) | Where runs write their outputs |
+| `data/source/*/README.md` | Provenance and checks of each source dataset |
 
 ## Repository layout
 
 | Path | Purpose |
 |---|---|
 | `model/` | Ready-to-load 8,760-hour PyPSA CSV network |
-| `data/model_inputs/` | Spatial mappings, grid capacities, hydro registries, demand allocation, and renewable-profile inputs |
+| `data/model_inputs/` | Spatial mappings, grid capacities, hydro registries, demand allocation, renewable profiles, costs and other prepared inputs |
 | `data/build_template/` | Build-stage statewide time series and component tables; not a supported standalone model |
 | `data/source/` | Source workbooks and supporting datasets |
 | `data/reservoirs/` | Validated reservoir observations used by the hydro model |
 | `scripts/` | Build, run, validation, analysis, and data-collection utilities |
-| `config/` | YAML run configurations: `defaults.yaml`, one file per run in `runs/`, one file per scenario in `scenarios/`, technology parameters in `technologies.yaml`, and the Snakemake settings in `workflow.yaml` |
+| `config/` | YAML run configurations: `defaults.yaml`, one file per run in `runs/`, one file per scenario in `scenarios/`, technology parameters in `technologies.yaml`, CO2 factors in `emission_factors.yaml`, and the Snakemake settings in `workflow.yaml` |
 | `Snakefile` | Scenario workflow: capacity expansion, operational run and comparison for every scenario |
+| `docs/` | Model description, input data guide, solar methodology and figures |
 | `notebooks/` | Interactive analysis workflows |
+| `outputs/` | Reconstructed SRPC REA schedules and other prepared audit outputs |
 | `results/` | Local generated outputs; ignored by Git except for its README |
+| `tests/` | Automated tests (`python -m pytest`) |
 
 ## How to run
 
@@ -47,7 +72,8 @@ If `python` is not on your path, use the Python executable from your environment
    python -m pip install -r requirements.txt
    ```
 
-2. Use the checked-in `model/` network, or rebuild it after changing inputs:
+2. Use the checked-in `model/` network, or rebuild it after changing inputs
+   (about 10 seconds):
 
    ```powershell
    python scripts/build_9ba_model.py
@@ -55,10 +81,11 @@ If `python` is not on your path, use the Python executable from your environment
 
    The interstate exchange matches Tamil Nadu's metered net import by default
    (`--interchange transactions` uses the REA transactions only); see
-   "Metered interchange" in [docs/input-data.md](docs/input-data.md).
+   [Metered interchange](docs/model-description.md#metered-interchange-default).
 
-3. For a first solve, run the one-day example config. It solves 11 July 2025
-   with relaxed unit commitment on one thread and finishes in under a minute:
+3. For a first solve, run the one-day example config. It solves 11 July 2025,
+   the day of the annual demand peak, with relaxed unit commitment on one
+   thread and finishes in under a minute:
 
    ```powershell
    python scripts/run_model.py config/runs/daily_demo.yaml
@@ -70,15 +97,16 @@ If `python` is not on your path, use the Python executable from your environment
    `results_report.html` there. It is a single self-contained file, with
    figures embedded, that you can share. The folder also holds
    `validation.json`, the CSV comparisons, `solved_network.nc`, the
-   standardized `analysis/` tables and figures, and `run_config.yaml`, which
-   records the exact settings used.
+   standardized `analysis/` tables and figures, the `profile/` folder, and
+   `run_config.yaml`, which records the exact settings used.
 
 The loaded `model/` network carries no energy targets, so
 `network.optimize(snapshots=network.snapshots[:24])` is feasible but is not
 calibrated to observed generation. Use `scripts/run_model.py` for calibrated
-runs: every mode applies the observed oil-and-gas and nuclear targets for each
-solved day, and the bio-power and small-hydro targets over the solved period
-(`scripts/period_energy_targets.py`).
+runs: by default every mode applies the observed oil-and-gas and nuclear
+targets for each solved day, and the bio-power and small-hydro targets over
+the solved period (`scripts/period_energy_targets.py`; see
+[Calibration](docs/model-description.md#calibration-to-observed-generation)).
 
 ### Run configuration
 
@@ -94,6 +122,9 @@ are rejected before the network is loaded, so a typo fails immediately.
 | `config/runs/rolling_full_uc.yaml` | Full-year rolling run, binary unit commitment |
 | `config/runs/selected_weeks_relaxed.yaml` | Four independent seasonal test weeks |
 | `config/runs/annual_lp.yaml` | All 8,760 hours as one no-unit-commitment LP |
+| `config/runs/annual_released.yaml` | Annual LP with the four energy targets released (nuclear must-run) |
+| `config/runs/annual_capped_annual.yaml`, `annual_capped_monthly.yaml` | Annual LP with gas and bio-power as fuel-limited plants, annual or monthly energy caps |
+| `config/runs/rolling_relaxed_cap_allocation.yaml`, `rolling_relaxed_cap_shadow_price.yaml` | Rolling year with the monthly caps passed on from `annual_capped_monthly` (run that first) |
 
 For a new study, copy one of these files, give `run.name` a new value, and
 change the settings you need. A rolling relaxed run config looks like this:
@@ -145,34 +176,108 @@ the run's `profile/highs/` folder instead.
 
 | Setting | How to set it |
 | --- | --- |
-| `run.mode` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, `annual`, or `rolling`. The modes and their output behavior are described below. |
+| `run.mode` | Choose `daily`, `monthly`, `peak`, `selected_weeks`, `annual`, or `rolling`. The modes and their output behavior are described [below](#run-modes-and-results). |
 | `run.name` | Required. Give each study a distinct output folder name. It must start with a letter or number, have at most 80 characters, and contain only letters, numbers, `.`, `_`, or `-`. Reusing a name can reuse checkpoints or overwrite outputs in that folder. |
 | `run.reference_date` | Use a date in `YYYY-MM-DD` format within 1 April 2025–31 March 2026. `daily` runs that date; `monthly` runs every day in its month. It is ignored for the other modes. |
 | `run.resume` | `true` reuses compatible completed selected-week solves or rolling checkpoints; `false` solves them again. It has no effect on daily, monthly, peak, or annual runs. Use a new `run.name` when changing study assumptions. |
 | `selected_weeks.week_starts` | For `selected_weeks` only, list one or more first days of seven-day test periods as `YYYY-MM-DD` dates. Periods must not overlap; the seven days plus warm-up and look-ahead must fit inside the model year. The dates need not be Mondays. |
 | `selected_weeks.warmup_days`, `selected_weeks.lookahead_days` | For `selected_weeks` only, set non-negative whole numbers of extra days before and after each retained week. They affect the solve but are excluded from reported comparisons. The rolling mode always uses its own seven-day accepted window plus one look-ahead day. |
 | `selected_weeks.reservoir_initial_soc_fraction` | For `selected_weeks` only, choose a value from 0 to 1 for initial reservoir state of charge where no observed or documented proxy level is available. The default is `0.5`; test sensitivity when the fallback matters. |
+| `selected_weeks.soc_boundary_tolerance_pu` | For `selected_weeks` only, the band (share of energy capacity, default `0.05`) around monthly stored-energy targets at a week's boundaries, used when `model/hydro_monthly_stored_energy.csv` is present. |
 | `formulation.unit_commitment` | `full` uses binary on/off decisions; `relaxed` uses continuous on/off fractions and is faster but approximate; `none` removes commitment decisions and minimum stable output from formerly committable generators. `annual` requires `none`. Result folders are categorised by this setting: `_UC` (`full`), `_relaxed`, or `_LP` (`none`). |
 | `solver.name` | Use `highs`, the solver used by the repository's run workflows. The thread and MIP settings below configure HiGHS. |
 | `solver.threads` | Leave as `Default` to use the runner's defaults: 8 for `full`, `relaxed` and an `annual` LP solved with `lp_method: ipm`, 3 for other `none` (LP) runs. Set an integer from 1 to 8 to override the default. `full` uses HiGHS MIP parallelism; `none` uses the parallel dual simplex when more than one thread is selected. `relaxed` uses HiGHS' interior-point solver with crossover, which is single-threaded and was about 4× faster than the parallel dual simplex on a relaxed week with the same optimum; its threads are used by the dual-simplex retry. |
-| `solver.lp_method`, `solver.crossover` | For `annual` only. `lp_method: Default` solves the full-year LP (about 2 million rows after presolve) with the dual simplex; `ipm` selects HiGHS' interior-point method. On the battery capacity-expansion LP the interior point was far slower: about 28 minutes to build its starting basis and 21 minutes per iteration, more than 10 hours projected. `crossover: false` (with `ipm`) skips the final crossover to a basic solution: faster, with the same capacities and dispatch, and duals (prices) of interior-point accuracy. |
+| `solver.lp_method`, `solver.crossover` | For `annual` only. `lp_method: Default` solves the full-year LP (about 2 million rows after presolve) with the dual simplex; `ipm` selects HiGHS' interior-point method and `simplex` the simplex. On the battery capacity-expansion LP the interior point was far slower: about 28 minutes to build its starting basis and 21 minutes per iteration, more than 10 hours projected. `crossover: false` (with `ipm`) skips the final crossover to a basic solution: faster, with the same capacities and dispatch, and duals (prices) of interior-point accuracy. |
+| `solver.simplex_strategy` | For `annual` and `rolling` only: an integer overriding HiGHS' `simplex_strategy`; `null` (the default) keeps the runner's choice. |
 | `solver.parallel_workers` | Leave as `Default` to use 2 workers for independent daily, monthly, or selected-week solves. Set a positive integer to override it. Peak, annual, and rolling runs use one effective worker regardless of this setting. Active workers × effective solver threads cannot exceed the logical CPUs visible to Python. |
 | `solver.mip_rel_gap` | Target relative optimality gap for `full` mixed-integer solves; `0.01` means 1%. It is ignored by `relaxed` and `none`. |
 | `rolling.time_limit` | For `rolling` only. `Default` sets a per-attempt limit by unit commitment: 300 s for `none`, 700 s for `relaxed` (about 10× a normal coal-only relaxed week), 1,800 s for `full`. A positive number of seconds overrides it; `null` removes the limit. LP windows must still reach optimality. If a window fails, it is retried automatically: `relaxed` retries with the dual simplex; `none` and `full` retry with a different HiGHS random seed and then the serial solver. Each window's `solve_attempts` and `solve_attempt_log` record what happened. `null` disables retries, because a stalled solve never returns. It does not apply to `annual`. |
 | `rolling.max_time_limit_mip_gap` | For a time-limited `rolling` run with `full` unit commitment, set the largest acceptable reported MIP gap from 0 to 1. `0.10` allows a window stopped at its time limit to be accepted only if its gap is at most 10%. This is separate from `solver.mip_rel_gap`. |
 | `rolling.max_windows` | For testing only: stop a rolling run after this many windows. Leave as `null` for a full year. |
 | `paths.network`, `paths.results_root` | Input network and output root. Relative paths are resolved from the repository root. |
-| `analysis.enabled`, `analysis.compare_observed` | Build the results report after the run, and include comparisons with observed generation and capacity. Both default to `true`. |
 | `logging.profile` | `true` (the default) turns on detailed run logging and profiling: the run writes the `profile/` folder described in [Run logging and profiling](#run-logging-and-profiling), including the complete HiGHS log of every solve. `false` runs without it. `--profile` / `--no-profile` on the command line override it. |
 | `logging.level` | `INFO` (the default), `DEBUG`, `WARNING`, or `ERROR`. `DEBUG` adds the PyPSA and Linopy debug messages to `profile/run.log`. Used only when `logging.profile` is `true`. |
 | `logging.sample_interval` | Seconds between resource samples in `profile/resources.csv`; default `1.0`. |
 | `logging.console_log` | `true` (the default) copies Python console output to `results/run_results/console_logs/<run name>_<UTC time>.log`. |
+| `analysis.enabled`, `analysis.compare_observed` | Build the results report after the run, and include comparisons with observed generation and capacity. Both default to `true`. |
+| `energy_targets.*` | How the observed energy of oil and gas, nuclear, bio-power and small hydro is imposed: `target` (exact equalities, the default), `availability`, `must_run`, `energy_cap` or `free`, with the availability and cap settings. See [Releasing the energy targets](docs/model-description.md#releasing-the-energy-targets). |
+| `marginal_costs.*` | Marginal-cost overrides (INR/MWh) for every unit of `oil_gas`, `diesel`, `bio_power`, `nuclear` or `small_hydro`, for sensitivity runs; `null` keeps the official costs. |
+| `rooftop_solar.include` | `true` (the default) keeps grid-connected rooftop solar as supply, as built. `false` removes its nine area generators before the solve, because the demand series is already net of rooftop output. See [Rooftop solar](docs/model-description.md#rooftop-solar). |
+| `outages.*` | Coal unit availability; off by default (`outages.enabled: false`, static coal `p_max_pu` 0.85). When on, the hourly availability of the 49 committable coal units follows auxiliary consumption, demonstrated capability, the FY2025-26 maintenance and forced-outage record (or optimised maintenance and sampled outages) and, for the seven central stations, their declared capacity. See [Coal availability](docs/model-description.md#availability-maintenance-and-outages). |
+| `grid.*` | `grid.two_level: true` gives every Tamil Nadu area a 400 kV bus joined to its existing bus by the area's 400/230 and 400/110 kV transformers (N-1), splits corridors and ties by circuit voltage and moves 400/765 kV plants up; off by default. See [Two voltage levels](docs/model-description.md#two-voltage-levels-per-balancing-area-optional). |
+| `interstate.*` | `interstate.drawal_limit`: `ttc` (the default) limits Tamil Nadu's drawal from the interstate grid in every hour to Grid-India's declared total transfer capability of the month, `atc` to the available transfer capability, `none` leaves only the per-tie ratings. See [Tamil Nadu import limit](docs/model-description.md#tamil-nadu-import-limit-grid-india). |
+| `exchange_trading.*` | `exchange_trading.enabled: true` takes Tamil Nadu's observed power-exchange trades out of the fixed interstate schedule and lets the model buy and sell at the hourly IEX price of Tamil Nadu's bid area; off by default. See [Exchange trading](docs/model-description.md#exchange-trading-at-iex-prices-optional). |
+| `ists_re_plants.*` | `ists_re_plants.enabled: true` runs the 13 interstate-connected wind and solar plants at Tuticorin, Karur and Pugalur on their FY2025-26 output and shrinks the area fleets by their capacity; `ists_re_plants.wind_seasonal: true` reshapes every other wind generator to the plants' monthly pattern. Both off by default. See [Interstate wind and solar plants](docs/model-description.md#interstate-wind-and-solar-plants-on-their-real-output-optional). |
 | `technologies.*` | Batteries and offshore wind added for a scenario; empty by default, so runs use the model as it is. See [Scenarios](#scenarios-batteries-and-offshore-wind). |
-| `rooftop_solar.include` | `true` (the default) keeps grid-connected rooftop solar as supply, as built. `false` removes its nine area generators before the solve, because the demand series is already net of rooftop output. See [Renewable profiles](#renewable-profiles). |
-| `outages.*` | Coal unit availability; off by default (`outages.enabled: false`, static coal `p_max_pu` 0.85). When on, the hourly `p_max_pu` of the 49 committable coal units is base availability × capability × (1 − share of the hour out). `base_availability`: `net_of_auxiliary` (1 − auxiliary consumption, the default), `gross` (1.0) or `model` (0.85). `partial_derating`: `demonstrated` (each unit capped at its best FY2025-26 day without outage, the default) or `none`. `central_availability`: `declared` (the seven central stations use their SRPC declared capacity, hour by hour in the backcast, the default) or `record`. `resolution`: `hourly` (the default), `monthly` or `annual` (availability averaged per month or year, minimum load scaled likewise, for a less restricted run). `planned`: `actual` (FY2025-26 maintenance record), `optimise` (PyPSA's maintenance scheduling chooses the dates) or `none`. `forced`: `actual` (FY2025-26 record), `sampled` (random with `seed`, from the record's rates and durations) or `none`. Commissioning dates, commercial unavailability and units out all year always apply; reserve shutdowns never do. See [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages). |
-| `grid.*` | `grid.two_level: true` gives every Tamil Nadu area a 400 kV bus joined to its existing bus by the area's 400/230 and 400/110 kV transformers (N-1), splits corridors and ties by circuit voltage and moves 400/765 kV plants up; off by default. See [Two voltage levels](docs/input-data.md#two-voltage-levels-per-balancing-area-optional). |
-| `interstate.*` | `interstate.drawal_limit`: `ttc` (the default) limits Tamil Nadu's drawal from the interstate grid in every hour to Grid-India's declared total transfer capability of the month, `atc` to the available transfer capability, `none` leaves only the per-circuit tie ratings. See [Tamil Nadu import limit](docs/input-data.md#tamil-nadu-import-limit-grid-india). |
-| `ists_re_plants.*` | `ists_re_plants.enabled: true` runs the 13 interstate-connected wind and solar plants at Tuticorin, Karur and Pugalur on their FY2025-26 output from the Regional Energy Accounts (`basis: metered`, the default, or `scheduled`) and shrinks the area fleets by their capacity; off by default. `ists_re_plants.wind_seasonal: true` reshapes every other wind generator to the plants' monthly pattern (one factor per area and month, annual energy kept). See [Interstate wind and solar plants](docs/input-data.md#interstate-wind-and-solar-plants-on-their-real-output-optional). |
+
+### Run modes and results
+
+| Mode | Period solved | State between periods |
+| --- | --- | --- |
+| `daily` | The 24 hours of `run.reference_date` | One independent day. |
+| `monthly` | Each day in the month of `run.reference_date`, solved separately | Commitment and storage state do not carry between days. |
+| `peak` | The continuous Monday–Sunday week containing the annual maximum hourly demand | One 168-hour solve. |
+| `selected_weeks` | Each seven-day period in `selected_weeks.week_starts`, with configured warm-up and look-ahead | Each period is independent; observed reservoir levels constrain its boundaries. |
+| `annual` | All 8,760 hours in one continuous no-unit-commitment LP | No rolling boundaries or look-ahead. Daily and build-defined weekly operating targets remain constraints inside the one model. Requires `formulation.unit_commitment: none`. |
+| `rolling` | All 8,760 hours in consecutive windows; seven days accepted and one day used for look-ahead | Commitment, dispatch history, and storage state carry between windows. |
+
+Every mode applies the energy targets of the run config and writes
+comparison tables, validation, and a plot. Daily and peak runs also save a
+solved network in their run folder; selected weeks save one network per week,
+and rolling runs save retained checkpoints. Annual and short continuous runs
+save one solved network. Output goes under
+`results/run_results/<mode_label>/<run_name>/`. The mode label may include a
+date or period and ends with the unit-commitment category: `_UC` for `full`,
+`_relaxed` for `relaxed`, and `_LP` for `none`.
+`run_model.py` prints the exact path after each run. Coal unit outages
+(planned maintenance and forced outages) apply only with `outages.enabled:
+true`; no mode introduces other equipment faults.
+
+**Rolling runs.** Each optimization covers eight days: the first seven are
+accepted and exported, while the eighth supplies look-ahead and is
+re-optimized in the next window. Generator dispatch and consecutive on/off
+history, plus storage state of charge, are passed across weekly boundaries;
+the first window starts with the coal units online
+([Initial commitment state](docs/model-description.md#initial-commitment-state)).
+With `formulation.unit_commitment: relaxed`, the runner carries fractional
+status, dispatch, and recent fractional start/shut-down history across weekly
+boundaries. Completed windows are checkpointed under the run folder's
+`weekly_networks/` (for `config/runs/rolling_relaxed.yaml`,
+`results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed/weekly_networks/`);
+keep `run.resume: true` to continue an interrupted run. The final one-day
+window has no look-ahead because it reaches the end of the available input
+horizon. The full-year relaxed run takes about an hour.
+
+`window_log.partial.csv` is updated after each completed window and
+`window_log.csv` is written at the end. Each row includes wall time for model
+construction and solving, process CPU seconds, average CPU cores used (CPU
+seconds divided by wall seconds), and sampled peak process memory and thread
+count. Peak values are sampled every 0.5 seconds, so short spikes may be
+missed. The thread count covers the whole Python process and may include
+library threads in addition to HiGHS threads. The same metrics are stored in
+each window's checkpoint JSON. Resumed checkpoints created before these
+metrics were added will have empty values for the new columns.
+
+**Selected weeks.** Every date in `selected_weeks.week_starts` is the first
+day of an independent seven-day test period. Each optimization also includes
+`warmup_days` before the retained week and `lookahead_days` after it. Only the
+seven test days enter the reported comparison. The complete solved network,
+daily tables, validation, and plot for each week are written to
+`week_YYYY-MM-DD/` in the run folder, for example
+`results/run_results/selected_weeks_UC/<run_name>/week_2025-04-07/` for full
+unit commitment; combined outputs and `selected_week_log.csv` are in the
+`<run_name>/` folder. With `run.resume: true`, a completed week is reused when
+its model version, solver, MIP gap, warm-up, look-ahead, and reservoir
+initial-SOC settings match the current run. Reservoir state does not transfer
+across gaps between selected weeks; each solve uses observed storage at its
+boundaries ([Hydro](docs/model-description.md#storage-across-solves)). A full
+rolling run is still required when the study question needs endogenous
+chronological carry-over rather than observed boundary conditions.
+
+Resumed rolling windows and selected weeks are reused only if they were
+solved with the same input network, checked with a content fingerprint of the
+network including any scenario technologies. Checkpoints written before this
+check existed are solved again once.
 
 ### Run logging and profiling
 
@@ -309,45 +414,7 @@ python scripts/build_results_report.py results/run_results/rolling_2025-04-01_20
 Add `--runner-outputs-only` to skip loading the solved networks (fast), or
 `--no-observed` to leave out observed-data comparisons.
 
-### Run modes and results
-
-| Mode | Period solved | State between periods |
-| --- | --- | --- |
-| `daily` | The 24 hours in `REFERENCE_DATE` | One independent day. |
-| `monthly` | Each day in the month of `REFERENCE_DATE`, solved separately | Commitment and storage state do not carry between days. |
-| `peak` | The continuous Monday–Sunday week containing the annual maximum hourly demand | One 168-hour solve. |
-| `selected_weeks` | Each seven-day period in `WEEK_STARTS`, with configured warm-up and look-ahead | Each period is independent; observed reservoir levels constrain its boundaries. |
-| `annual` | All 8,760 hours in one continuous no-unit-commitment LP | No rolling boundaries or look-ahead. Daily and build-defined weekly operating targets remain constraints inside the one model. Requires `formulation.unit_commitment: none`. |
-| `rolling` | All 8,760 hours in consecutive windows; seven days accepted and one day used for look-ahead | Commitment, dispatch history, and storage state carry between windows. |
-
-Every mode enforces exact daily oil-and-gas and nuclear generation targets and
-writes comparison tables, validation, and a plot. Daily and peak runs also save
-a solved network in their run folder; selected weeks save one network per week,
-and rolling runs save retained checkpoints. Annual and short continuous runs save
-one solved network. Output goes under
-`results/run_results/<mode_label>/<run_name>/`. The mode label may include a
-date or period and ends with the unit-commitment category: `_UC` for `full`,
-`_relaxed` for `relaxed`, and `_LP` for `none`.
-`run_model.py` prints the exact path after each run. Coal unit outages
-(planned maintenance and forced outages) apply only with `outages.enabled:
-true`; no mode introduces other equipment faults.
-
-For rolling runs, `window_log.partial.csv` is updated after each completed
-window and `window_log.csv` is written at the end. Each row includes wall time
-for model construction and solving, process CPU seconds, average CPU cores used
-(CPU seconds divided by wall seconds), and sampled peak process memory and
-thread count. Peak values are sampled every 0.5 seconds, so short spikes may
-be missed. The thread count covers the whole Python process and may include
-library threads in addition to HiGHS threads. The same metrics are stored in
-each window's checkpoint JSON. Resumed checkpoints created before these
-metrics were added will have empty values for the new columns.
-
-Resumed rolling windows and selected weeks are reused only if they were
-solved with the same input network, checked with a content fingerprint of the
-network including any scenario technologies. Checkpoints written before this
-check existed are solved again once.
-
-### Scenarios: batteries and offshore wind
+## Scenarios: batteries and offshore wind
 
 Scenarios add technologies to the model and are run with
 [Snakemake](https://snakemake.readthedocs.io/). Each scenario is one config file
@@ -395,30 +462,13 @@ be provided are `null`; a run that adds a technology with a required value
 missing stops before solving and names the missing values. `capital_cost` is
 the annualised cost per MW per year in INR and is required only to optimise a
 capacity. Offshore wind capacity is an exogenous scenario choice
-(`optimisable: false` in `config/technologies.yaml`): each scenario sets it
-in whole 15 MW turbines, and `optimise` is rejected. Battery capacity is
-optimised by the model.
-
-Batteries are standalone 2-hour lithium-ion (LFP) systems, the technology of
-Tamil Nadu's battery tenders: 85 % round-trip efficiency and an annualised
-cost of INR 2.3 lakh per MW per month, the benchmark for 2-hour standalone
-battery tariffs in India; see
-[docs/input-data.md](docs/input-data.md#battery-storage). Offshore wind
-costs INR 41.8 million per MW per year including O&M and grid connection
-(9.0 INR/kWh), from the Danish Energy Agency's FIMOI cost study for Tamil
-Nadu; see [docs/input-data.md](docs/input-data.md#offshore-wind-cost).
-
-Offshore wind uses the IEA 15 MW reference turbine and can be installed only
-in Tirunelveli, the southernmost balancing area. Its capacity factors
-(`data/model_inputs/offshore_wind_profiles.csv`, column `block2`, mean 0.56)
-are built by `scripts/prepare_offshore_wind_profile.py` from the simulated
-68-turbine farm in `data/source/ts_power_150m_block2.xlsx`; see
-[docs/input-data.md](docs/input-data.md#offshore-wind-capacity-factors).
-
-Batteries are PyPSA storage units with a fixed energy-to-power ratio; offshore
-wind farms are generators with an hourly availability profile, connected
-directly to a balancing-area bus. Both appear in the results analysis as
-`battery` and `offshore_wind`.
+(`optimisable: false`): each scenario sets it in whole 15 MW turbines, and
+`optimise` is rejected. Battery capacity is optimised by the model. The
+assumptions behind the parameters (2-hour LFP batteries at INR 2.3 lakh per MW
+per month; offshore wind at INR 41.8 million per MW per year and its
+capacity factors) are in the model description:
+[Battery storage](docs/model-description.md#battery-storage-scenario) and
+[Offshore wind](docs/model-description.md#offshore-wind-scenario).
 
 Run the scenarios:
 
@@ -489,52 +539,51 @@ python scripts/workflow/extract_capacities.py capacity.yaml battery_capacities.c
 python scripts/run_model.py config/scenarios/battery.yaml --set technologies.fixed_capacities=battery_capacities.csv
 ```
 
-### Selected-week seasonal tests
+## Notebooks and other runners
 
-`run.mode: selected_weeks` solves every date in `selected_weeks.week_starts` as
-the first day of an independent seven-day test period. Each optimization also
-includes `warmup_days` before the retained week and `lookahead_days` after it. Only the
-seven test days enter the reported comparison. The complete solved network,
-daily tables, validation, and plot for each week are written under
-`results/run_results/selected_weeks_UC/<run_name>/week_YYYY-MM-DD/` for full
-unit commitment. Combined outputs and `selected_week_log.csv` are written in the
-`<run_name>/` folder. For relaxed or no-commitment runs, the mode folder ends in
-`_relaxed` or `_LP` instead.
-With `run.resume: true`, a completed week is reused when its model version,
-solver, MIP gap, warm-up, look-ahead, and reservoir initial-SOC settings match
-the current run.
+**Peak week.** The peak-week notebooks are kept in `notebooks/`:
 
-Reservoir state does not transfer across gaps between selected weeks. Each
-independent solve instead uses the nearest available observed daily reservoir
-storage at the retained period's start and constrains the nearest observed
-storage at its end. The configured `reservoir_initial_soc_fraction` is only a
-fallback for assets without an observed or explicitly documented proxy level.
-A full rolling run is still required when the study question needs endogenous
-chronological carry-over rather than observed boundary conditions.
-
-### Peak-week run and analysis
-
-The peak-week notebooks are kept in `notebooks/`:
-
-- `notebooks/9BA_run_peakday_2025_26.ipynb` selects the Monday-Sunday week containing the
-  annual statewide demand peak, runs HiGHS unit commitment, validates nodal
-  balances and corridor limits, and writes
-  `results/tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses a 1%
-  relative MIP-gap tolerance; this keeps runtime proportionate after adding
-  exact daily oil-and-gas energy targets, while remaining proportionate to the
-  input-data uncertainty and retaining a near-optimal commitment schedule.
+- `notebooks/9BA_run_peakday_2025_26.ipynb` selects the Monday–Sunday week
+  containing the annual statewide demand peak, runs HiGHS unit commitment,
+  validates nodal balances and corridor limits, and writes
+  `results/tamil_nadu_9ba_2025_26.nc`. The exploratory mixed-integer solve uses
+  a 1% relative MIP-gap tolerance; this keeps runtime proportionate after
+  adding exact daily oil-and-gas energy targets, while remaining proportionate
+  to the input-data uncertainty and retaining a near-optimal commitment
+  schedule.
 - `notebooks/analyze_peak_week.ipynb` reads that solved network through the
-  shared result-analysis package and analyzes
-  system dispatch, storage, commitment, balancing-area supply and demand,
-  net imports, corridor flow and congestion, installed district capacity in
-  absolute MW and as a statewide share, area renewable generation, and hourly
-  ramp adequacy.
+  shared result-analysis package and analyzes system dispatch, storage,
+  commitment, balancing-area supply and demand, net imports, corridor flow and
+  congestion, installed district capacity in absolute MW and as a statewide
+  share, area renewable generation, and hourly ramp adequacy.
 
 Run the peak-week notebook before the analysis notebook. Start Jupyter from
 the repository root so both notebooks resolve the same paths. Neither
 notebook creates equipment faults, forced outages, or contingency scenarios.
+If peak mode was run with `scripts/run_model.py` instead, its run folder, for
+example `results/run_results/peak_2025-07-07_UC/baseline/` when
+`formulation.unit_commitment: full` and `run.name: baseline`, already has a
+results report and can be passed to either analysis script.
 
-For a wider seasonal check, run:
+**Rolling year.** After a rolling run is complete, its `results_report.html`
+gives the standard summary. For interactive exploration, open
+`notebooks/analyze_rolling_year.ipynb` and run all cells. It checks the
+8,760-hour retained chronology and state handoffs, compares monthly and annual
+modeled generation with the observed FY2025-26 workbook, reports full-load
+hours, and shows unit commitment, storage, corridor loading and the coal
+fleet's operation. The peak-week and rolling-year notebooks use the same
+calculations, carrier taxonomy, plot styling, and output schema from
+`scripts/results_analysis/`. Tables and figures are saved under each run's
+`analysis/tables/` and `analysis/figures/` directories;
+`analysis_manifest.json` records the source networks, horizon,
+unit-commitment formulation, schema version, and Git commit. The same analysis
+can be run without Jupyter:
+
+```powershell
+python scripts/analyze_results.py results/tamil_nadu_9ba_2025_26.nc
+```
+
+**Weekly peak days.** For a wider seasonal check, run:
 
 ```powershell
 python scripts/run_9ba_weekly_days_2025_26.py
@@ -546,490 +595,30 @@ independent 24-hour unit-commitment problems. It compares modeled daily coal,
 oil and gas, nuclear, hydro, solar, wind, and like-for-like total generation
 with `data/source/TamilNadu_FY2025-2026_Electricity_Power_Generation_daily.xlsx`.
 Each independent solve replaces the full-year oil-and-gas target with that
-date's observed daily energy target.
-The workbook's Other RES series is blank, so modeled bio-power and small hydro
-are reported without an observed-error statistic. Tables and figures are
-written to `results/weekly_days/`. The runner does not introduce equipment
-faults or outages.
+date's observed daily energy target. The workbook's Other RES series is
+blank, so modeled bio-power and small hydro are reported without an
+observed-error statistic. Tables and figures are written to
+`results/weekly_days/`. The runner does not introduce equipment faults or
+outages.
 
-For a chronological full-year approximation, run
-`python scripts/run_model.py config/runs/rolling_relaxed.yaml` (or another
-config with `run.mode: rolling`). Each optimization covers eight days: the first
-seven are accepted and exported, while the eighth supplies look-ahead and is
-re-optimized in the next window. Generator dispatch and consecutive on/off
-history, plus storage state of charge, are passed across weekly boundaries.
-Before the first window, committable coal units are online (Tamil Nadu coal
-generation averaged about 8.2 GW on 1 April 2025).
-Set `formulation.unit_commitment: relaxed` for the continuous linearized formulation.
-The relaxed runner carries fractional status, dispatch, and recent fractional
-start/shut-down history across weekly boundaries. Equal start-up and shut-down
-costs activate PyPSA's additional tightening constraints. HiGHS uses explicit
-parallel solver settings appropriate to the selected LP or MIP formulation.
-Completed windows are checkpointed under
-`results/run_results/rolling_2025-04-01_2026-03-31_relaxed/rolling_relaxed/weekly_networks/`
-with `config/runs/rolling_relaxed.yaml`; keep
-`run.resume: true` to continue an interrupted run. The final one-day window has
-no look-ahead because it reaches the end of the available input horizon.
+**July month.** `python scripts/run_9ba_month.py` solves all 31 days of July
+2025 as independent 24-hour unit-commitment problems, covering all 744 July
+hours at a 1% MIP tolerance. It enforces each day's gas, nuclear, bio-power
+and small-hydro equality targets and writes validation results, daily and
+monthly comparison tables, and a comparison plot under
+`results/monthly/2025_07/`. A continuous 744-hour formulation was also
+attempted, but its approximately 370,000 binary variables produced no feasible
+integer schedule after about 112 minutes. The daily formulation does not carry
+commitment or storage state between dates; each storage unit is cyclic within
+its day. It is suitable for monthly generation and renewable-profile
+comparison, rather than month-long chronological commitment or storage
+analysis.
 
-After the rolling run is complete, its `results_report.html` gives the
-standard summary. For interactive exploration, open
-`notebooks/analyze_rolling_year.ipynb` and run all cells. It checks the
-8,760-hour retained chronology and state handoffs, compares monthly and annual
-modeled generation with the observed FY2025-26 workbook, reports full-load
-hours, and shows unit commitment, storage, corridor loading and the coal
-fleet's operation. The peak-week and rolling-year
-notebooks use the same calculations, carrier taxonomy, plot styling, and output
-schema from `scripts/results_analysis/`.
-
-Tables and figures are saved under each run's `analysis/tables/` and
-`analysis/figures/` directories. `analysis_manifest.json` records the source
-networks, horizon, unit-commitment formulation, schema version, and Git commit.
-The same analysis can be run without Jupyter:
-
-```powershell
-python scripts/analyze_results.py results/tamil_nadu_9ba_2025_26.nc
-```
-
-If peak mode was run with `scripts/run_model.py` instead, its run folder, for
-example `results/run_results/peak_2025-07-07_UC/baseline/` when
-`formulation.unit_commitment: full` and `run.name: baseline`, already has a
-results report and can be passed to either analysis script.
-
-## Model contents
-
-July 2025 can be evaluated with `python scripts/run_9ba_month.py`. The script
-solves all 31 complete days as independent 24-hour unit-commitment problems,
-covering all 744 July hours at a 1% MIP tolerance. It enforces each day's gas,
-nuclear, bio-power and small-hydro equality targets and writes validation results, daily and monthly
-comparison tables, and a comparison plot under `results/monthly/2025_07/`.
-
-A continuous 744-hour formulation was also attempted, but its approximately
-370,000 binary variables produced no feasible integer schedule after about
-112 minutes. Solver logs and all other run products are local generated
-artifacts and are not tracked. The daily
-formulation does not carry commitment or storage state between dates; each
-storage unit is cyclic within its day. It is suitable for monthly generation
-and renewable-profile comparison, rather than month-long chronological
-commitment or storage analysis.
-
-- Nine electrical buses use the balancing-area names in
-  `data/model_inputs/Balancing_areas.txt`; additional water-energy buses model
-  reservoir and cascade hydraulics.
-- The authoritative grid workbook supplies 18 internal AC `Line` corridors and
-  24 directional interstate `Link`s. Internal losses are approximated from line
-  resistance during optimization; interstate links deliver 97% of sending-end
-  power. Ratings and source metadata are retained in
-  `model/transmission_capacity_metadata.csv`.
-- The model retains all 8,760 hourly snapshots from 1 April 2025 through
-  31 March 2026.
-- Installed nameplate capacity is updated to the 31 July 2026 comparison
-  vintage through `data/model_inputs/additional_capacity_2026_07.csv`. Demand
-  and renewable profiles remain FY2025-26, so this is a capacity-vintage
-  overlay rather than a historical FY2025-26 fleet snapshot.
-- Only coal units are committable. Their flexibility follows CEA's Indian
-  Technology Catalogue (2022): 55% minimum stable output, 6 h minimum up and
-  4 h minimum down time, and ramps of 1% of rating per minute; the 4 h down
-  time allows the shorter midday stops CEA reports at Tuticorin and Mettur
-  (see "Flexibility" in `docs/input-data.md`). Coal marginal
-  costs are station energy charges from 2024+ regulatory orders (TNERC
-  FY2023-24 true-up and the JERC Puducherry FY2025-26 tariff order), set per
-  component from `data/model_inputs/coal_operating_costs.csv`; they range from
-  INR 2,720/MWh (NNTPS) to INR 6,190/MWh (Mettur TPS-II). Coal start-up and
-  shut-down costs come from CEA's August 2026 two-shift study of Tuticorin TPS
-  (INR 7,376 per MW per stop-start cycle for 210 MW units), scaled to larger
-  units with CEA's January 2025 start-up oil norms. See `docs/input-data.md`
-  for sources, proxies and limitations; `model/coal_operating_cost_audit.csv`
-  lists the applied values.
-- Oil and gas, diesel and bio-power units are dispatched without commitment
-  decisions (`restrict_unit_commitment` in `scripts/build_9ba_model.py`):
-  minimum stable output, start/shut-down costs and minimum up/down times are
-  removed, so each unit can dispatch anywhere between zero and its available
-  capacity. Their output is still bounded by the observed oil/gas and
-  bio-power energy targets, and their marginal costs remain placeholders.
-  This removes about two-thirds of the unit-commitment variables and
-  constraints.
-- Explicitly off-grid capacity is excluded from the modeled fleet. This removes
-  the 75.91 MW off-grid solar category and the 27.57 MW off-grid waste-to-energy
-  (bio-power) category; the remaining generators are grid-connected or treated
-  as part of the modeled grid fleet.
-- The 211.70 MW diesel overlay is represented as fourteen units: seven at
-  Samayanallur in the Madurai area and seven at Samalpatti in the Vellore
-  area. In the absence of plant-specific operating data, these units use the
-  model's oil-and-gas cost assumptions while retaining a separate `diesel`
-  carrier.
-- Conventional hydro is controlled through
-  `data/model_inputs/hydro_asset_registry.csv` and the explicit fleet
-  reconciliation in `data/model_inputs/hydro_fleet_reconciliation.csv`. Simple
-  reservoir plants use non-pumping `StorageUnit`s. PAP, Kodayar, Kundah,
-  Pykara/Moyar and Papanasam/Servalar use `Store` water balances and
-  turbine/transfer `Link`s so that upstream discharge is routed downstream;
-  Kadamparai uses separate pumping and generation Links. Lower Mettur and
-  Bhavani Kattalai receive availability from their upstream observed releases.
-  The rolling runner initializes observed and labelled proxy storage from the
-  first day's SOC, then transfers both `StorageUnit` and `Store` state between
-  consecutive chronological windows. The five directly measured water Stores
-  match their daily storage readings exactly; their reported inflow is also
-  admitted. Any incompatible water balance uses a costly, explicit balancing
-  inflow or outflow saved in `measured_water_balance.csv`. Proxy and monthly
-  storage targets remain soft, with quality-based bands and penalties. Optional
-  monthly stored-energy data are interpolated only at window boundaries; no
-  monthly target is imposed when that file is absent.
-- In the Papanasam--Servalar sub-cascade, the Agriculture SOC series applies
-  only to `Papanasam_reservoir`. A lossless configurable tunnel connects it to
-  the separate `Servalar_reservoir`; the official 20 MW Servalar turbine and a
-  direct Papanasam release both feed `Papanasam_lower_pondage`. The official
-  32 MW Papanasam powerhouse then discharges to the downstream-river sink, not
-  to Servalar. Lower pondage is weekly water-neutral and has no seasonal SOC
-  target.
-- Coal unit planned maintenance and forced outages are optional run settings
-  (`outages`, off by default); see
-  [Coal unit availability](docs/input-data.md#coal-unit-availability-auxiliary-consumption-maintenance-and-outages).
-  No fault, contingency, or short-circuit representation is included.
-
-## Capacity allocation
-
-Operational capacities originate in
-`data/source/TamilNadu_ICED_all_source_1782910007272_prayas_OSM_validated.xlsx`.
-`PlantInfo` supplies the record-level capacities and the workbook's `District
-Allocation` sheet supplies the complete district allocation, provenance,
-method, and confidence fields.
-
-Every operational `PlantInfo` row reconciles to one or more allocation rows
-before districts are mapped through `data/model_inputs/Balancing_areas.txt`. Spelling variants
-are normalized (for example, `Kanchipuram` to `Kancheepuram`, `Kanyakumari` to
-`Kanniyakumari`, and `Nilgiris` to `The Nilgiris`). District allocations that
-belong to the same balancing area are recombined before a PyPSA component is
-created.
-
-The workbook resolves every allocation to a district. Only 207.13 MW remains
-marked as low-confidence allocation; 11,841.51 MW is medium-confidence,
-primarily reflecting OSM-backed solar and wind allocation. Inspect
-`model/district_capacity_allocation.csv` for the full
-district-level source table and `model/component_metadata.csv` for each
-PyPSA component's assigned bus, method, confidence, and allocation share.
-`model/capacity_by_balancing_area.csv` provides the resulting capacity summary.
-Interstate exchange uses the audited FY2025-26 SRPC REA schedules. Hourly
-resolved flows retain their mapped external gateway. Only these confirmed
-imports are included in the model; unresolved imports remain in the audit with
-zero modeled flow. Hourly unresolved exports are distributed across Andhra
-Pradesh, Karnataka, Kerala, and Western Region in proportion to annual resolved
-export flow. If a provisional export allocation exceeds remaining gateway
-capacity, the excess is redistributed across the other positive-share gateways.
-The model keeps `resolved` and `unresolved_distributed` as separate audit
-measures. Imports are negative external demand and exports are positive external
-demand. These loads fix total exchange at each
-external bus, while the grid chooses the split among parallel links; individual
-interconnector links are not fixed. See `model/interstate_flow_audit.csv` for
-the hourly values, shares, capacity limits, and redistribution flags. The
-former dispatchable import-entitlement generators are not included, avoiding
-double counting. Unserved energy remains split using demand energy shares and
-is not reported as installed plant.
-
-The July-2026 overlay adds 563.9895 MW to the modeled fleet: 211.70 MW diesel,
-212.33 MW solar, and 139.9595 MW wind. Project evidence locates the diesel
-stations and 22.60 MW of solar; the remaining 189.73 MW solar and 139.9595 MW
-wind are explicitly marked as provisional, low-confidence district proxies.
-The source comparison contains a further 49.31 MW CEA-MNRE reporting-boundary
-difference. It is retained as `unassigned` in
-`model/additional_capacity_2026_07.csv` but is deliberately excluded from
-PyPSA because neither a Tamil Nadu district nor a technology is substantiated.
-Consequently, modeled installed plant totals 48,331.10 MW; adding the excluded
-49.31 MW reporting difference reconciles to the 48,380.41 MW comparison total.
-The arithmetic is exported to `model/capacity_reconciliation_2026_07.csv` on
-every rebuild.
-
-## Demand
-
-The balancing-area workbook provides annual-energy and peak shares, but not
-hourly area profiles. Each area therefore uses an affine transformation of the
-statewide hourly demand shape. This construction simultaneously:
-
-1. matches the workbook's relative annual-energy share;
-2. matches its relative peak share; and
-3. preserves total Tamil Nadu demand at every hour.
-
-The model consequently retains the original 131.3834 TWh realized demand and
-19,987.33 MW state peak rather than rescaling to the workbook's 149.063 TWh and
-21,481 MW official projection. The complete calculation and coefficients are
-in `model/demand_allocation.csv`. These are synthetic area series, not metered
-balancing-area load profiles.
-
-## Oil-and-gas energy budget
-
-The observed FY2025-26 daily generation workbook reports 1,241.45 MU
-(1,241,450 MWh) of Tamil Nadu oil-and-gas generation.
-
-`model/oil_gas_daily_energy_budget.csv` records all 365 observed daily values,
-each day's share of the annual total, and its exact MWh target. Every runner
-mode applies one equality per solved day across all `oil_gas` generators, so a
-full-year solve reproduces the annual total exactly. The targets are not stored
-as PyPSA `GlobalConstraint`s: a single fixed constant cannot follow the solved
-period. The source reconciliation is in
-`model/oil_gas_energy_budget_summary.csv`.
-
-## Nuclear energy targets
-
-Nuclear uses exact daily generation targets from the observed workbook,
-enforced for every solved day in all runner modes. Targets are exported in
-`model/nuclear_daily_energy_budget.csv`.
-The inherited constant 61.2% nuclear output is replaced with a 0–100%
-nameplate dispatch range to permit those targets. Hourly output and plant
-allocation remain optimized; daily energy matching does not validate their
-hourly schedules. Gas and nuclear comparison errors are calibrated by design.
-Custom solve workflows must use `scripts/nuclear_energy_targets.py` to apply
-the daily targets for their selected dates.
-
-## Bio-power energy targets
-
-The Tamil Nadu Outlook FY2025-26 monthly bio-power generation values are kept
-in `data/model_inputs/tamil_nadu_bio_power_monthly_generation_FY2025_26.csv`.
-They total 194.01 GWh. Each monthly total is spread uniformly over the hours
-of its month. Rolling and selected-week solves impose one exact energy
-equality on all `bio_power` generators for each accepted week; daily, monthly
-(independent-day) and peak-week solves impose one equality over the solved
-period. A week wholly inside one month receives seven days of that month's
-total; a week crossing a month boundary receives the corresponding daily share
-from both months. Hourly and daily dispatch within the period remain
-optimization decisions.
-
-Small hydro uses the same method. Its twelve Tamil Nadu Outlook values are in
-`data/model_inputs/tamil_nadu_small_hydro_monthly_generation_FY2025_26.csv`
-and total 307.56 GWh. Every runner mode imposes a month-prorated equality
-across all `small_hydro` generators over the same periods as bio-power. Because the inherited
-placeholder availability profile cannot supply the observed energy, these
-solves make small hydro dispatchable between zero and nameplate; the weekly
-energy is fixed while its hourly and daily timing remains optimized.
-
-## Releasing the energy targets
-
-The equalities above are the default. The `energy_targets` section of a run
-config replaces them per carrier (`oil_gas`, `nuclear`, `bio_power`,
-`small_hydro`):
-
-- `target`: the observed-energy equalities described above (default).
-- `availability`: no equality. Each dispatchable unit's `p_max_pu` is scaled,
-  per `availability_period` (`monthly` or `daily`), so that the carrier's
-  available energy equals the observed energy; existing outages and
-  commissioning dates (zero availability) are kept and no unit exceeds 1.0.
-  Cost optimisation then decides how much of that energy is used, so the
-  carrier follows the observed seasonal pattern only if its marginal cost
-  places it in the merit order.
-- `must_run`: as `availability`, with minimum output equal to the scaled
-  availability, so the carrier produces exactly its available energy whatever
-  its cost (nuclear is must-run under the grid code).
-- `energy_cap` (`oil_gas` and `bio_power` only): no equality. Units get a
-  flat availability (`oil_gas_cap_availability`, default 0.9;
-  `bio_power_cap_availability`, default 0.6) and their energy over each
-  `cap_period` (`annual` FY2025-26 or `monthly`) is capped at the observed
-  energy: per ICED plant for oil/gas (plants that did not generate get a zero
-  cap), for the whole carrier for bio-power. This is how CEA's planning
-  studies treat fuel-limited gas and biomass (NEP 2022-32 §5.6.11: gas fuel
-  "limited as per the actual gas based generation during 2021-22"; Optimal
-  Generation Mix 2029-30 §7.7: biomass annual PLF of 25–30%; availability 90%
-  and 60% in the NEP and the 2026 Tamil Nadu resource-adequacy report). Caps
-  are exact in the annual mode; shorter solves (days, weeks, rolling windows)
-  get the cap prorated to the share of the period's hours they cover.
-  `config/runs/annual_capped_annual.yaml` and `annual_capped_monthly.yaml`
-  compare annual and monthly caps. The monthly-cap annual LP solved in 169
-  minutes; the annual-cap one did not finish: after about 2.3 h HiGHS stopped
-  the presolved LP short of optimality and restarted a single-core dual
-  simplex on the full LP, which was stopped after 3.8 h. Each annual cap was one
-  very dense row (bio-power: about 80 units x 8,760 hours), the likely cause.
-  Caps whose solved hours span several months are now written sparsely: one
-  auxiliary energy variable per month, defined over that month's hours, and
-  one row capping their sum (the same constraint without a row that couples
-  the whole year). The annual-cap annual LP has not been rerun with it.
-
-  A rolling window cannot see the rest of the year, so `cap_transfer` sets how
-  a cap reaches solves shorter than its period (the annual mode solves whole
-  periods and always enforces caps exactly). The default, `allocation`, is
-  two-stage: an annual LP with the same caps (`cap_source`, by default the
-  results of `config/runs/annual_capped_monthly.yaml`, which must be run
-  first) allocates the fuel over the year, and each plant's daily dispatch in
-  it becomes its cap, summed over the days a window solves. `prorate` gives each
-  solve the cap times its share of the period's hours. `shadow_price` is
-  experimental: it recovers each cap's shadow price from the annual LP (price
-  minus marginal cost in hours the plant runs part-loaded, or the midpoint of
-  the bounds from hours it is off or at full output), adds it to the plant's
-  marginal cost and drops the cap (zero caps stay).
-
-  In the relaxed rolling year (`config/runs/rolling_relaxed_cap_allocation.yaml`
-  and `rolling_relaxed_cap_shadow_price.yaml`, 63–67 min each), allocation kept
-  bio-power at 190 GWh against its 189 GWh cap and gas at 180 GWh, matching the
-  annual LP. The shadow-price transfer produced 679 GWh of bio-power: its cost
-  plus a small scarcity adder sits close to typical prices, so the different
-  prices of rolling relaxed unit commitment swing it, and a month whose cap did
-  not bind in the annual LP (January) gets no adder at all. It needs further
-  development (for example keeping a prorated cap as a backstop) before use.
-- `free`: no equality and the network's own availability.
-
-With `availability_source: plant` (the default), oil/gas and nuclear are
-scaled plant by plant. Each plant receives the carrier's observed energy in the
-period (the daily budgets above) times its share of the carrier's monthly
-generation in the NITI Dashboard (ICED) plant data
-(`data/model_inputs/niti_iced_tamil_nadu_monthly_generation.csv`, built by
-`scripts/data_preparation/prepare_niti_iced_monthly_generation.py`; plants are
-matched to model units in `data/model_inputs/niti_iced_plant_mapping.csv`).
-Plants that did not generate get no availability. In FY2025-26 only Kuttalam
-(100 MW, 20–84% of capacity by month) and Valuthur (186 MW, 24–50%) ran; Basin
-Bridge, PPN and Thirumakottai (558 MW) are unavailable. Nuclear outages fall on
-the right plant (MAPS is unavailable in September and October 2025). In
-June, July, February and March ICED reports Kudankulam above its 2,000 MW
-nameplate (by 0.8–2.4%, likely gross generation), so 144.5 GWh (1% of nuclear)
-cannot be made available. Bio-power and small hydro are observed only as state
-totals and are always scaled per carrier; `availability_source: carrier`
-scales oil/gas and nuclear the same way.
-
-Units on a fixed schedule (`p_min_pu` equal to `p_max_pu`, the REA export
-reservations: 5,491 GWh of nuclear and 5 GWh of bio-power) are never rescaled;
-their energy is subtracted from the observed total (per plant) first. Minimum outputs above
-the new availability are lowered to it.
-
-Released runs use the official station costs in
-`data/model_inputs/plant_operating_costs.csv` (see
-[docs/input-data.md](docs/input-data.md#other-marginal-costs)); they are not
-fitted to observed generation. Where a released run departs from observations,
-that is evidence for a missing constraint, assessed separately.
-`config/runs/annual_released.yaml` releases all four carriers, with nuclear
-must-run:
-
-```yaml
-energy_targets: {oil_gas: availability, nuclear: must_run,
-                 bio_power: availability, small_hydro: availability}
-```
-
-The `marginal_costs` section overrides the marginal cost of every unit of
-`oil_gas`, `diesel`, `bio_power`, `nuclear` or `small_hydro` (INR/MWh) for
-sensitivity runs.
-
-`scripts/compare_energy_target_runs.py NAME=RUN_DIR ... --output DIR` compares
-solved runs by month: energy by carrier against observed generation, oil/gas
-and nuclear energy by plant against the ICED plant data, the load-weighted
-Tamil Nadu price, and operating cost by carrier.
-
-Each run writes `energy_target_availability.csv` (observed, scheduled and
-available energy per carrier and period, and any shortfall) and
-`marginal_cost_overrides.csv`; the resolved policy is in `validation.json`.
-A non-default policy changes the checkpoint fingerprint, so rolling runs do not
-resume from checkpoints solved with other targets. With carrier-level scaling
-the monthly availability reaches the observed energy in every month for all
-four carriers; with plant-level scaling only the Kudankulam months above fall
-short.
-
-## Reservoir hydro and seasonal inflow
-
-`data/model_inputs/hydro_asset_registry.csv` classifies capacity-workbook units while
-`data/model_inputs/hydro_fleet_reconciliation.csv` records capacity discrepancies and source-only
-assets that must not be silently added. `model/hydro_reservoir_parameters.csv`
-contains the modelled reservoir/component, MW and MWh basis, fixed head,
-efficiency, SOC source, data quality, and stated proxy/assumption for every
-hydraulic component. `model/hydro_assumptions_report.csv` isolates all entries
-that are not high-quality observations.
-
-Electrical capacity and hydraulic storage are intentionally separate. Every
-hydro turbine Link and run-of-river generator takes `p_nom` from the official
-Tamil Nadu generation inventory; reservoir volume, head, and efficiency never
-rescale that MW value. Where a Store represents a group reservoir, it affects
-only water/SOC. The machine-readable proof is
-`model/hydro_capacity_validation.csv`: it lists every official capacity record,
-its model component and connected Store, the storage aggregation treatment, and
-the capacity check. Sholayar's 109 MW, Kundah's 585 MW, Pykara's 61.2 MW, and
-Moyar's 38 MW source-table values are flagged there as reference/system totals
-only, not model capacities.
-
-Natural inflow and observed storage use the validated daily Tamil Nadu
-Agriculture reservoir data. Volumes use `1 cusec-day = 0.0864 M.cft` and are
-converted to electricity-equivalent energy by
-`0.0771634 × volume_M.cft × head_m × efficiency`, with a configurable first-pass
-efficiency of 0.90 and documented fixed heads. Where an agriculture series
-does not correspond directly to a plant, the model either uses a labelled
-connected-reservoir filling proxy or neutral endogenous pondage; it does not
-copy absolute volume between reservoirs.
-
-The six unobserved Kundah/Pykara/Suruliyar assets additionally have an
-explicit *calibration* mode. Their CEA FY2025-26 annual actual generation is
-in `data/model_inputs/hydro_cascade_annual_generation_FY2025_26.csv`; the
-build distributes those annual totals using the observed Tamil Nadu daily
-hydro profile and then aggregates them into the rolling model's seven-day
-blocks. The resulting weekly targets are written to
-`model/hydro_cascade_generation_targets.csv`. The rolling runner enforces one
-energy equality per plant and committed week, leaving hourly and daily
-dispatch within the week free. It introduces only the corresponding weekly
-inferred source-water allowance needed to serve those totals:
-Upper Bhavani for Kundah, Pykara reservoir for Pykara, Glenmorgan forebay for
-the Pykara-Ultimate residual, and Suruliyar's own reservoir inflow. These are
-calibration requirements, not measured catchment inflows or plant-level
-weekly observations.
-
-`model/storage_units-inflow.csv` contains simple-reservoir hourly inflow and
-`model/hydro_reservoir_inflow.csv` provides its daily source audit. Inflows to
-cascade water buses are represented as `water_inflow` generators. Observed
-daily SOC targets are in `model/hydro_observed_soc.csv`. The selected-week
-runner applies these as independent start/end boundary conditions. The rolling
-runner starts from observed or labelled proxy storage, guides each committed
-week's terminal storage toward quality-weighted seasonal targets, and carries
-the optimized state across contiguous windows. Its terminal-band violations
-are recorded in `window_log.csv`.
-
-Upper Kodayar uses an assumed half-full starting level and a daily water
-balance: Pechiparai daily inflow scaled by the published Upper Kodayar to
-Pechiparai capacity ratio (98.66/150.22 = 0.6568), less Kodayar-I turbine
-water use. Water use is converted with the plant-specific 16.5 cubic feet per
-kWh figure.
-Upper-reservoir spill is routed directly to the effectively unbounded Kodayar
-downstream sink when required to remain within the published FRL capacity. A
-small tie-breaker cost prevents gratuitous spill when retaining the water is
-feasible; no other upper-reservoir release is represented.
-The Pechiparai flow is a labelled estimate, not measured Kodayar inflow or
-storage; see `model/upper_kodayar_inflow_estimate.csv` and a rolling run's
-`upper_kodayar_balance.csv`.
-Kodayar-II discharges to an effectively unbounded terminal sink, so downstream
-storage capacity cannot restrict either turbine's generation.
-The Kundah/Parsons Valley and Pykara/Moyar cascades likewise discharge into
-effectively unbounded terminal river sinks. Their intermediate pondages have
-explicit non-generating bypass releases, so documented downstream generation
-below upstream generation does not fill an artificial bottleneck.
-
-## Renewable profiles
-
-`data/model_inputs/renewable_profiles.csv` contains 8,760 hourly rows and
-separate wind and solar capacity factors for each of the nine balancing areas.
-Both come from the LAVA/atlite area profiles (solar `9BA`, wind
-`AggrPCWiderCUF`), whose timestamps are UTC. `scripts/prepare_lava_profiles.py`
-converts them to the model's hour-beginning IST hours without wrapping the
-year. Solar averages the two overlapping hour-ending ERA5 hours; wind takes the
-instantaneous value at the middle of each IST hour, a 5-hour shift. The previous
-model profiles are archived in
-`data/model_inputs/renewable_profiles_before_external_FY2025_26.csv` for the
-[comparison notebook](notebooks/compare_external_re_profiles_FY2025_26.ipynb).
-See the [Input data guide](docs/input-data.md#wind-and-solar-availability)
-for the source and validation details. The builder uses statewide template
-shapes as a fallback only if the active CSV is absent.
-
-Solar availability also follows the capacity installed through the year.
-The NITI Dashboard's monthly installed capacity (MNRE's monthly series) puts
-Tamil Nadu's grid-connected solar at 10,083 MW on 31 March 2025 and 13,505 MW
-on 31 March 2026, against the 14,045.55 MW July 2026 fleet in
-`generators.csv`. Each hour's solar availability is scaled by the installed
-share of that fleet. A seasonal correction follows: soiling and wind cooling
-from literature parameters, plus monthly factors fitted on FY2020-21 to
-FY2024-25 observed generation. One multiplier (1.1863) then keeps annual solar
-potential equal to the observed 19,690.99 GWh. See the [Solar availability methodology](docs/solar-availability-methodology.md)
-for the method, validation and limitations, and the
-[Input data guide](docs/input-data.md#solar-capacity-through-the-year) for the
-files.
-
-Grid-connected rooftop solar is one generator per area, from the inventory
-record "Tamil Nadu N.A. Rooftop (Grid Connected) 1635.8". It follows the same
-profiles and scaling as the rest of the fleet, so it supplies 2,265 GWh of the
-19,691 GWh solar potential (11.5%). The demand series ("Demand Met") counts
-only generation the state load despatch centre sees, and rooftop systems
-report to no one in real time. Whether self-consumed or exported to the
-distribution network, rooftop output reaches the centre only as lower load, so
-the demand is already net of it. `rooftop_solar.include: false` removes the
-rooftop generators before the solve, so that energy is not counted twice. The
-default keeps them, as built. The evidence and what remains open are in the
-[Solar availability methodology](docs/solar-availability-methodology.md#6-limitations-and-open-questions).
+**Comparing runs.** `scripts/compare_energy_target_runs.py` compares solved
+runs by month against observed generation, and `scripts/plot_price_comparison.py`
+compares a run's Tamil Nadu price with the IEX day-ahead price.
+`python scripts/plot_network_map.py` redraws the map at the top of this file
+from `model/`.
 
 ## Generated files and Git
 
@@ -1039,39 +628,3 @@ JSON, plots, solver logs, and infeasibility files. Notebook cell outputs are
 also cleared before commit. Keep durable, shareable study outputs in a release
 or an external data archive rather than force-adding them to the repository.
 `results/README.md` is the tracked exception.
-
-Solar generators carry a small 1 currency-unit/MWh marginal-cost tie-breaker;
-wind remains at zero marginal cost. When otherwise equivalent renewable
-output must be curtailed, this makes the optimizer prefer curtailing solar.
-Other system constraints can still determine dispatch when the resources are
-not interchangeable.
-
-## Important limitations
-
-The grid uses a linearized AC formulation and does not calculate reactive
-power. Active-power losses on passive AC lines are approximated from imported
-resistance with two linear tangent segments and should be validated against
-TNERC's 3.81% TANTRANSCO energy-balance assumption. Directional interstate
-links use the CEA planning assumption of 3% losses and TNERC's FY2025-26
-short-term transmission charge of 241.81 currency units/MWh. Internal AC-line
-flows carry a 1 currency-unit/MWh numerical tie-breaker rather than repeating
-the system-level access charge on every line in a multi-line path. Capacity
-ranges remain approximate. Geographically
-unspecified plant allocation and synthetic area demand should be replaced
-when stronger spatial data are available.
-
-The transmission assumptions use the following Indian regulatory sources:
-
-- TNERC's FY2025-26 TANTRANSCO order sets short-term transmission charges at
-  Rs 241.81/MW/hour (numerically Rs 241.81/MWh):
-  <https://tnerc.tn.gov.in/Orders/files/TO-Intra-Stat010720251711.pdf>.
-- TNERC's 2022 TANGEDCO energy balance carries a 3.81% TANTRANSCO transmission
-  loss assumption through FY2025-26.
-- CEA's *20th Electric Power Survey*, Volume I, section 1.4.6 assumes 3% losses
-  on electricity imported through the interstate grid:
-  <https://cea.nic.in/wp-content/uploads/ps___lf/2023/02/Volume_I_Report_of_20th_Electric_Power_Survey.pdf>.
-
-The provisional July-2026 capacity overlay must likewise be replaced when a
-district-level commissioning register becomes available.
-The full-year mixed-integer problem is large; use a shorter-horizon runner for
-exploratory unit-commitment runs unless a full-year solve is intentional.

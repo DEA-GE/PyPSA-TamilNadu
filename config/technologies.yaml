@@ -16,7 +16,7 @@ battery:
   # Tamil Nadu's tenders: TNGECL's 500 MW / 1,000 MWh standalone BESS (2025,
   # awarded) and NLC India's 250 MW / 500 MWh project (LFP or NMC cells).
   # TNGECL's later 375 MW x 4 h tender (2025) is a 4-hour alternative; change
-  # max_hours and capital_cost together for it. Sources: docs/input-data.md.
+  # max_hours and capital_cost together for it. Sources: docs/model-description.md.
   technology: Lithium-ion (LFP), standalone, 2-hour
   max_hours: 2                 # energy-to-power ratio, h (energy capacity = MW x max_hours)
   # Indian standalone BESS tenders require 85 % AC-to-AC round-trip
@@ -56,6 +56,6 @@ offshore_wind:
   # (FIMOI's 5 %/yr inflation, to 2025 prices) x 4,643 MWh/MW/yr (FIMOI's
   # net capacity factor of 53 %) = 41.76 million INR/MW/yr, i.e. 9.0 INR/kWh.
   # Indian developers' 2025 estimate of 9.7-9.8 INR/kWh would give 45.0-45.5
-  # million. Sources and derivation: docs/input-data.md.
+  # million. Sources and derivation: docs/model-description.md.
   # Capacity is fixed per scenario, so this cost informs reporting only.
   capital_cost: 41760000       # INR per MW per year
